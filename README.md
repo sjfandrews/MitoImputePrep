@@ -54,8 +54,8 @@ To validate the MitoImpute pipeline, we evaluate the imputation perforamnce usin
 8. Runs the chromosome X IMPUTE2 imputation protocol.
 9. Fixes chromosome label on the IMPUTE2 output
 10. Converts the Imputed files to:
-   - Plink format
-   - vcf format
+    - Plink format
+    - vcf format
 11. Generates a html rmarkdown report
 
 
