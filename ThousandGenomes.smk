@@ -83,7 +83,7 @@ rule SampleNames1kg:
     shell:
         'bcftools query -l {input} > {output}'
 
-## 6b. Assign M sex label to reference Samples
+## 6b. Assign M sex label to  Samples
 rule SampleSex1kg:
     input:
         in_samples = "DerivedData/ThousandGenomes/SampleList1kg.txt",
@@ -135,6 +135,7 @@ rule Impute2:
         sample = "DerivedData/ThousandGenomes/{MtPlatforms}/chrMT_1kg_{MtPlatforms}.samples",
     output:
         'DerivedData/ThousandGenomes/{MtPlatforms}/chrMT_1kg_{MtPlatforms}_imputed',
+        'DerivedData/ThousandGenomes/{MtPlatforms}/chrMT_1kg_{MtPlatforms}_imputed_info',
         'DerivedData/ThousandGenomes/{MtPlatforms}/chrMT_1kg_{MtPlatforms}_imputed_samples'
     params:
         out = 'DerivedData/ThousandGenomes/{MtPlatforms}/chrMT_1kg_{MtPlatforms}_imputed'
