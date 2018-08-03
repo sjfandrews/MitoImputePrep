@@ -3,12 +3,11 @@
 # snakemake -s ReferencePanel.smk --dag | dot -Tsvg > dag_ReferencePanel.svg
 
 configfile: "ReferencePanel_config.yaml"
-BPLINK = ["bed", "bim", "fam"]
-SAMPLE = config['sample']
+DATAIN = config['DataIn']
+DATAOUT = config['DataOut']
+FILENAME = config['FileName']
 
-DATAIN = 'data/ReferencePanel'
-DATAOUT = 'DerivedData/test'
-FILENAME = 'McInerney_Master_Alignment_July18_2018'
+BPLINK = ["bed", "bim", "fam"]
 
 rule all:
     input:

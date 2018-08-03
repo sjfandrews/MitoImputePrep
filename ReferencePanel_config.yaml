@@ -1,1 +1,3 @@
-sample: 'ADNI_1_hg19'
+DataIn: 'data/ReferencePanel'
+DataOut: 'DerivedData/test'
+FileName: 'McInerney_Master_Alignment_July18_2018'
