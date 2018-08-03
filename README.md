@@ -98,6 +98,32 @@ git clone https://github.com/sjfandrews/MitoImputePrep
 ```
 
 ### Usage Overview
+#### Reference Panel
+To construct the reference panel run the following code:
+
+```bash
+snakemake -s ReferencePanel.smk
+```
+
+Options for the snakemake file are set in the corresponding config file ```ReferencePanel_config.yaml``` file. The avaliable options are:
+
+```bash
+FileName: 'name of fasta file'
+DataIn: 'path/to/input/directory'
+DataOut: 'path/to/output/directory'
+```
+
+#### Thousand Genomes Validation
+To run the Thousand Genomes validation pipeline, run the following code:
+
+```bash
+snakemake -s PlatformStrandFiles.smk
+snakemake -s ThousandGenomes.smk
+```
+
+By default, the reference panel is set to the example reference panel.
+
+#### MitoImpute
 To impute mitochondrial SNPs in a study dataset, run the following code:
 
 ```bash
