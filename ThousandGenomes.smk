@@ -8,8 +8,10 @@ from snakemake.remote.FTP import RemoteProvider as FTPRemoteProvider
 #    MtPlatforms = [x.rstrip() for x in f]
 MtPlatforms = ['GSA-24v1-0_A2-b37', 'Human610-Quadv1_B-b37', 'NeuroX_15036164_A-b37']
 
-FTP = FTPRemoteProvider()
 REFDATA = "example/ReferencePanel"
+# REFDATA = "DerivedData/ReferencePanel"
+
+FTP = FTPRemoteProvider()
 RWD = os.getcwd()
 
 rule all:
