@@ -31,6 +31,7 @@ echo
 echo "REFERENCE PANEL: ${REFpanel}"
 
 # CHECK FOR OR CREATE THE DECOMPOSED 1,000 GENOMES VCF FILE
+git_vcf=~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/chrMT_1kg_norm_decomposed_firstAlt.vcf.gz
 norm_vcf=/g/data1a/te53/MitoImpute/data/VCF/chrMT_1kg_norm.vcf.gz
 decom_vcf=/g/data1a/te53/MitoImpute/data/VCF/chrMT_1kg_norm_decomposed.vcf.gz
 vcf_1kg=/g/data1a/te53/MitoImpute/data/VCF/chrMT_1kg_norm_decomposed_firstAlt.vcf.gz
@@ -39,17 +40,13 @@ orig_vcf=/g/data1a/te53/haploco/data/originals/ALL.chrMT.phase3_callmom-v0_4.201
 samps_1kg=/g/data1a/te53/MitoImpute/metadata/SampleList1kg.txt
 sex_1kg=/g/data1a/te53/MitoImpute/metadata/SampleList1kg_sex.txt
 ref_fasta=/g/data1a/te53/MitoImpute/data/FASTA/rCRS.fasta
-if [ -f ${vcf_1kg} ]
+if [ -f ${git_vcf} ]
 then
 	echo
-	echo "${vcf_1kg} EXISTS ... PASSING"
-	bcftools query -l ${vcf_1kg} > ${samps_1kg}
-	Rscript ~/GitCode/MitoImputePrep/scripts/R/assign_sex_label.R ${samps_1kg} ${sex_1kg}
-	cp ${vcf_1kg} ~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/
-	cp ${sex_1kg} ~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/
+	echo "${git_vcf} EXISTS ... PASSING"
 else
 	echo
-	echo "${vcf_1kg} NOT FOUND ... CREATE THE DECOMPOSED 1,000 GENOMES VCF FILE"
+	echo "${git_vcf} NOT FOUND ... CREATE THE DECOMPOSED 1,000 GENOMES VCF FILE"
 	bcftools norm -f ${ref_fasta} | -m - ${orig_vcf} | bcftools view -V indels,mnps | bcftools norm -m + | bcftools +fill-tags -Oz -o ${norm_vcf}
 	vt decompose ${norm_vcf} | bcftools +fill-tags -Oz -o ${decom_vcf}
 	python ~/GitCode/MitoImputePrep/scripts/PYTHON/pickFirstAlt ${decom_vcf} | bcftools view -Oz -o ${vcf_1kg}
