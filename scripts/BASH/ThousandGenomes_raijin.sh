@@ -46,13 +46,15 @@ then
 else
 	echo
 	echo "${vcf_1kg} NOT FOUND ... CREATE THE DECOMPOSED 1,000 GENOMES VCF FILE"
-	echo bcftools norm -f ${ref_fasta} | -m - ${orig_vcf} | bcftools view -V indels,mnps | bcftools norm -m + | bcftools +fill-tags -Oz -o ${norm_vcf}
-	echo vt decompose ${norm_vcf} | bcftools +fill-tags -Oz -o ${decom_vcf}
-	echo python ~/GitCode/MitoImputePrep/scripts/PYTHON/pickFirstAlt ${decom_vcf} | bcftools view -Oz -o ${vcf_1kg}
-	echo bcftools index ${vcf_1kg}
-	echo plink --vcf ${vcf_1kg} --recode --double-id --keep-allele-order --out ${plink_1kg}
-	echo bcftools query -l ${vcf_1kg} > ${samps_1kg}
-	echo Rscript ~/GitCode/MitoImputePrep/scripts/R/assign_sex_label.R ${samps_1kg} ${sex_1kg}
+	bcftools norm -f ${ref_fasta} | -m - ${orig_vcf} | bcftools view -V indels,mnps | bcftools norm -m + | bcftools +fill-tags -Oz -o ${norm_vcf}
+	vt decompose ${norm_vcf} | bcftools +fill-tags -Oz -o ${decom_vcf}
+	python ~/GitCode/MitoImputePrep/scripts/PYTHON/pickFirstAlt ${decom_vcf} | bcftools view -Oz -o ${vcf_1kg}
+	bcftools index ${vcf_1kg}
+	plink --vcf ${vcf_1kg} --recode --double-id --keep-allele-order --out ${plink_1kg}
+	bcftools query -l ${vcf_1kg} > ${samps_1kg}
+	Rscript ~/GitCode/MitoImputePrep/scripts/R/assign_sex_label.R ${samps_1kg} ${sex_1kg}
+	cp ${vcf_1kg} ~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/
+	cp ${sex_1kg} ~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/
 fi
 
 # CREATE DIRECTORY
