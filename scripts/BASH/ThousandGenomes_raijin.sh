@@ -25,7 +25,7 @@ echo "LOADED plink v1.9"
 echo "LOADED IMPUTE2 v2.3.2"
 
 # SPECIFY REFERENCE PANEL
-REFpanel="ReferencePanel_v3"
+REFpanel="ReferencePanel_v4"
 echo
 echo "REFERENCE PANEL: ${REFpanel}"
 
@@ -45,7 +45,7 @@ echo
 echo "EXTRACTING PLATFORM SNPs"
 #MtPlatforms=BDCHP-1X10-HUMANHAP240S_11216501_A-b37
 MTSnps=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${MtPlatforms}_MT_snps.txt
-vcf_1kg=~/GitCode/MitoImpute/DerivedData/ThousandGenomes/chrMT_1kg_norm_decomposed_firstAlt.vcf.gz
+vcf_1kg=~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/chrMT_1kg_norm_decomposed_firstAlt.vcf.gz
 vcf=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}.vcf.gz
 
 bcftools view -R ${MTSnps} ${vcf_1kg} -Oz -o ${vcf}
@@ -54,12 +54,12 @@ bcftools index ${vcf}
 # GENERATE GEN SAMPLE
 echo
 echo "GENERATING GEN SAMPLE"
-#vcf=~/GitCode/MitoImpute/DerivedData/ThousandGenomes/${MtPlatforms}/chrMT_1kg_${MtPlatforms}.vcf.gz
-sex=~/GitCode/MitoImpute/DerivedData/ThousandGenomes/SampleList1kg_sex.txt 
+#vcf=~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/${MtPlatforms}/chrMT_1kg_${MtPlatforms}.vcf.gz
+sex=~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/SampleList1kg_sex.txt 
 out=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}
 
 bcftools convert --gensample ${out} ${vcf} --sex ${sex}
-Rscript ~/GitCode/MitoImpute/scripts/R/FixSamplesFile_raijin.R ${out}.samples
+Rscript ~/GitCode/MitoImputePrep/scripts/R/FixSamplesFile_raijin.R ${out}.samples
 
 # GENERATE PLINK FILES
 echo
@@ -71,9 +71,9 @@ plink1.9 --vcf ${vcf} --recode --double-id --keep-allele-order --out ${out}
 # RUN IMPUTE2
 echo
 echo "RUNNING IMPUTE2 ON ${MtPlatforms}"
-m=~/GitCode/MitoImpute/DerivedData/${REFpanel}/${REFpanel}_MtMap.txt 
-h=~/GitCode/MitoImpute/DerivedData/${REFpanel}/${REFpanel}.hap.gz
-l=~/GitCode/MitoImpute/DerivedData/${REFpanel}/${REFpanel}.legend.gz
+m=~/GitCode/MitoImputePrep/DerivedData/${REFpanel}/${REFpanel}_MtMap.txt 
+h=~/GitCode/MitoImputePrep/DerivedData/${REFpanel}/${REFpanel}.hap.gz
+l=~/GitCode/MitoImputePrep/DerivedData/${REFpanel}/${REFpanel}.legend.gz
 g=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}.gen.gz
 s=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}.samples
 out=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}_imputed
@@ -115,10 +115,10 @@ plink1.9 --gen ${gen} --sample ${sam} --hard-call-threshold 0.49 --keep-allele-o
 # GENERATE QC REPORT
 echo
 echo "GENERATING QC REPORT"
-s=~/GitCode/MitoImpute/scripts/R/MT_imputation_QC.Rmd
-wgs_map=~/GitCode/MitoImpute/DerivedData/ThousandGenomes/chrMT_1kg_norm_decomposed_firstAlt.map
-wgs_ped=~/GitCode/MitoImpute/DerivedData/ThousandGenomes/chrMT_1kg_norm_decomposed_firstAlt.ped
-wgs_vcf=~/GitCode/MitoImpute/DerivedData/ThousandGenomes/chrMT_1kg_norm_decomposed_firstAlt.vcf.gz
+s=~/GitCode/MitoImputePrep/scripts/R/MT_imputation_QC.Rmd
+wgs_map=~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/chrMT_1kg_norm_decomposed_firstAlt.map
+wgs_ped=~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/chrMT_1kg_norm_decomposed_firstAlt.ped
+wgs_vcf=~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/chrMT_1kg_norm_decomposed_firstAlt.vcf.gz
 typ_map=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}.map
 typ_ped=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}.ped
 typ_vcf=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}.vcf.gz
@@ -130,5 +130,5 @@ imp_info=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT
 output=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}_mtImputed_QC.html
 
 rwd = `pwd`/
-output_dir=~/GitCode/MitoImpute/DerivedData/ThousandGenomes/${MtPlatforms}/
+output_dir=~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/${MtPlatforms}/
 info_cut='0'

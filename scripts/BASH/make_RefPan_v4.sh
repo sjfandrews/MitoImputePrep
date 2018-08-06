@@ -4,6 +4,10 @@
 #THIS SCRIPT CREATES THE VERSION 3 OF THE CURRENT REFERENCE PANEL
 REFpanel=ReferencePanel_v4
 maf=0.005
+echo
+echo "CREATING REFERENCE PANEL VERSION:		${REFpanel}"
+echo "MINOR ALLELE FREQUENCY:				${maf}"
+echo
 
 # RUN COMMANDS
 
@@ -22,7 +26,7 @@ then
 	echo "${ALN_AMB} FOUND ... PASSING STEP"
 else
 	echo echo "${ALN_AMB} NOT FOUND ... CONVERTING MISSING OR NON-N AMBIGUOUS CHARACTER STATES TO N AMBIGUOUS CHARACTER STATE"
-	python ~/GitCode/MitoImpute/scripts/PYTHON/ambiguous2missing.py -i ${ALN} -o ${ALN_AMB} -v
+	python ~/GitCode/MitoImputePrep/scripts/PYTHON/ambiguous2missing.py -i ${ALN} -o ${ALN_AMB} -v
 fi
 
 # CONVERT THE CURRENT MASTER ALIGNMENT FASTA TO VCF FORMAT
@@ -34,7 +38,7 @@ then
 else
 	echo 
 	echo "${VCF_AMB} NOT FOUND ... CONVERTING THE CURRENT MASTER ALIGNMENT FASTA TO VCF FORMAT"
-	python ~/GitCode/MitoImpute/scripts/PYTHON/fasta2vcf_mtDNA.py -i ${ALN_AMB} -o ${VCF_AMB} -v
+	python ~/GitCode/MitoImputePrep/scripts/PYTHON/fasta2vcf_mtDNA.py -i ${ALN_AMB} -o ${VCF_AMB} -v
 fi
 
 # RUN THE CURRENT MASTER ALIGNMENT VCF THROUGH BCFTOOLS TO MAKE SURE IT CONFORMS TO STANDARDS
@@ -59,7 +63,7 @@ then
 	echo "${VCF_HQ} FOUND ... PASSING STEP"
 else
 	echo "${REF_VCF} NOT FOUND ... REMOVING LOW QUALITY SEQUENCES"
-	Rscript ~/GitCode/MitoImpute/scripts/R/removeLowQuality_cmdline.R ${ALN_AMB} ${HQ_FILE}
+	Rscript ~/GitCode/MitoImputePrep/scripts/R/removeLowQuality_cmdline.R ${ALN_AMB} ${HQ_FILE}
 	bcftools view -S ${HQ_FILE} -Oz -o ${VCF_HQ} ${REF_VCF}
 	bcftools index ${VCF_HQ}
 fi
@@ -77,6 +81,7 @@ else
 	echo "${VCF_FILT} NOT FOUND ... APPLYING SITE FILTRATION CRITERIA"
 	vt decompose ${VCF_HQ} | bcftools +fill-tags | bcftools view -i 'ALT!="-"' | bcftools view -q ${MAF_L} -Q ${MAF_U} | bcftools view -Oz -o ${VCF_FILT}
 	bcftools index ${VCF_FILT}
+	bcftools stats ${VCF_FILT} | head -n 30
 fi
 
 # EXTRACT SAMPLE LIST
@@ -100,7 +105,7 @@ then
 else
 	echo
 	echo "${SEX} NOT FOUND ... ADDING SEX LABEL"
-	Rscript ~/GitCode/MitoImpute/scripts/R/assign_sex_label.R ${SAMPS} ${SEX}
+	Rscript ~/GitCode/MitoImputePrep/scripts/R/assign_sex_label.R ${SAMPS} ${SEX}
 fi
 
 # CONVERT TO OXFORD FORMAT
@@ -149,11 +154,11 @@ then
 else
 	echo
 	echo "${MAP} AND ${STRAND} NOT FOUND ... MAKING RECOMBINATION MAP AND STRAND FILES"
-	Rscript ~/GitCode/MitoImpute/scripts/R/mt_recombination_map.R ${VCF_FILT} ${MAP} ${STRAND}
+	Rscript ~/GitCode/MitoImputePrep/scripts/R/mt_recombination_map.R ${VCF_FILT} ${MAP} ${STRAND}
 fi
 
 # COPY RELEVANT FILES TO GitHub DIRECTORY
-GIT_DIR=~/GitCode/MitoImpute/DerivedData/${REFpanel}/
+GIT_DIR=~/GitCode/MitoImputePrep/DerivedData/${REFpanel}/
 if [ -d ${GIT_DIR} ]
 then
 	echo
