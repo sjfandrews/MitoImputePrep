@@ -1,7 +1,7 @@
 #!/bin/bash
 #PBS -P te53
-#PBS -q normalbw
-#PBS -l walltime=48:00:00
+#PBS -q express
+#PBS -l walltime=00:10:00
 #PBS -l mem=32GB
 #PBS -l ncpus=1
 #PBS -N impute_SNPchip_1kGP
@@ -18,6 +18,7 @@ module load Rpackages/3.4.3
 module load bcftools/1.8
 module load plink/1.9
 module load impute2/2.3.2
+module load vt
 echo
 echo "LOADED R v3.4.3"
 echo "LOADED bcftools v1.8"
@@ -28,6 +29,29 @@ echo "LOADED IMPUTE2 v2.3.2"
 REFpanel="ReferencePanel_v4"
 echo
 echo "REFERENCE PANEL: ${REFpanel}"
+
+# CHECK FOR OR CREATE THE DECOMPOSED 1,000 GENOMES VCF FILE
+norm_vcf=/g/data1a/te53/MitoImpute/data/VCF/chrMT_1kg_norm.vcf.gz
+decom_vcf=/g/data1a/te53/MitoImpute/data/VCF/chrMT_1kg_norm_decomposed.vcf.gz
+vcf_1kg=/g/data1a/te53/MitoImpute/data/VCF/chrMT_1kg_norm_decomposed_firstAlt.vcf.gz
+plink_1kg=/g/data1a/te53/MitoImpute/data/PLINK/chrMT_1kg_norm_decomposed_firstAlt
+orig_vcf=/g/data1a/te53/haploco/data/originals/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz
+samps_1kg=/g/data1a/te53/MitoImpute/metadata/SampleList1kg.txt
+ref_fasta=/g/data1a/te53/MitoImpute/data/FASTA/rCRS.fasta
+if [ -f ${vcf_1kg} ]
+then
+	echo
+	echo "${vcf_1kg} EXISTS ... PASSING"
+else
+	echo
+	echo "${vcf_1kg} NOT FOUND ... CREATE THE DECOMPOSED 1,000 GENOMES VCF FILE"
+	echo bcftools norm -f ${ref_fasta} | -m - ${orig_vcf} | bcftools view -V indels,mnps | bcftools norm -m + | bcftools +fill-tags -Oz -o ${norm_vcf}
+	echo vt decompose ${norm_vcf} | bcftools +fill-tags -Oz -o ${decom_vcf}
+	echo python ~/GitCode/MitoImputePrep/scripts/PYTHON/pickFirstAlt ${decom_vcf} | bcftools view -Oz -o ${vcf_1kg}
+	echo bcftools index ${vcf_1kg}
+	echo plink --vcf ${vcf_1kg} --recode --double-id --keep-allele-order --out ${plink_1kg}
+	echo bcftools query -l ${vcf_1kg} > ${samps_1kg}
+fi
 
 # CREATE DIRECTORY
 if [ -d  /g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/ ]
