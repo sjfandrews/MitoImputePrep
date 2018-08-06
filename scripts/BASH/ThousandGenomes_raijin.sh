@@ -37,6 +37,7 @@ vcf_1kg=/g/data1a/te53/MitoImpute/data/VCF/chrMT_1kg_norm_decomposed_firstAlt.vc
 plink_1kg=/g/data1a/te53/MitoImpute/data/PLINK/chrMT_1kg_norm_decomposed_firstAlt
 orig_vcf=/g/data1a/te53/haploco/data/originals/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz
 samps_1kg=/g/data1a/te53/MitoImpute/metadata/SampleList1kg.txt
+sex_1kg=/g/data1a/te53/MitoImpute/metadata/SampleList1kg_sex.txt
 ref_fasta=/g/data1a/te53/MitoImpute/data/FASTA/rCRS.fasta
 if [ -f ${vcf_1kg} ]
 then
@@ -51,6 +52,7 @@ else
 	echo bcftools index ${vcf_1kg}
 	echo plink --vcf ${vcf_1kg} --recode --double-id --keep-allele-order --out ${plink_1kg}
 	echo bcftools query -l ${vcf_1kg} > ${samps_1kg}
+	echo Rscript ~/GitCode/MitoImputePrep/scripts/R/assign_sex_label.R ${samps_1kg} ${sex_1kg}
 fi
 
 # CREATE DIRECTORY
