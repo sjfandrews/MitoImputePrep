@@ -43,6 +43,10 @@ if [ -f ${vcf_1kg} ]
 then
 	echo
 	echo "${vcf_1kg} EXISTS ... PASSING"
+	bcftools query -l ${vcf_1kg} > ${samps_1kg}
+	Rscript ~/GitCode/MitoImputePrep/scripts/R/assign_sex_label.R ${samps_1kg} ${sex_1kg}
+	cp ${vcf_1kg} ~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/
+	cp ${sex_1kg} ~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/
 else
 	echo
 	echo "${vcf_1kg} NOT FOUND ... CREATE THE DECOMPOSED 1,000 GENOMES VCF FILE"
