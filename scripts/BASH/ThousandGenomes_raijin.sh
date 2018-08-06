@@ -1,6 +1,6 @@
 #!/bin/bash
 #PBS -P te53
-#PBS -q normal
+#PBS -q normalbw
 #PBS -l walltime=48:00:00
 #PBS -l mem=32GB
 #PBS -l ncpus=1
