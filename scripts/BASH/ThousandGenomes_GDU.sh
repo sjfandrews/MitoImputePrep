@@ -1,10 +1,10 @@
 #!/bin/bash
-#$ -m e
+#$ -m be
 #$ -M u5015730@anu.edu.au
 #$ -l mem=16gb
 #$ -b y
 #$ -N impute_SNPchip_1kGP
-#$ -o /home/easteallab/tim/logs/
+#$ -o /home/easteallab/tim/MitoImpute/logs/
 #$ -j y
 
 # SPECIFY REFERENCE PANEL
