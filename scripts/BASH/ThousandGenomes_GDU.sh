@@ -8,7 +8,7 @@
 #$ -j y
 
 # SPECIFY REFERENCE PANEL
-REFpanel="ReferencePanel_v4"
+REFpanel="ReferencePanel_v3"
 echo
 echo "REFERENCE PANEL: ${REFpanel}"
 
