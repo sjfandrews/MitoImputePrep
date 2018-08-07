@@ -1,7 +1,7 @@
 #!/bin/bash
 #PBS -P te53
-#PBS -q express
-#PBS -l walltime=00:10:00
+#PBS -q normal
+#PBS -l walltime=48:00:00
 #PBS -l mem=32GB
 #PBS -l ncpus=1
 #PBS -N impute_SNPchip_1kGP
@@ -55,6 +55,7 @@ else
 	bcftools query -l ${vcf_1kg} > ${samps_1kg}
 	Rscript ~/GitCode/MitoImputePrep/scripts/R/assign_sex_label.R ${samps_1kg} ${sex_1kg}
 	cp ${vcf_1kg} ~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/
+	cp ${vcf_1kg}.csi ~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/
 	cp ${sex_1kg} ~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/
 fi
 
