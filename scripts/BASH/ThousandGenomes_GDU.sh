@@ -2,6 +2,7 @@
 #$ -m be
 #$ -M u5015730@anu.edu.au
 #$ -b y
+#$ -l h_vmem=5g,virtual_free=4.9g
 #$ -N impute_SNPchip_1kGP
 #$ -o /home/easteallab/tim/MitoImpute/logs/
 #$ -j y
