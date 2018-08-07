@@ -33,3 +33,6 @@ InfiniumImmunoArray-24v2-0_A-b3
 
 NOT IN REF PANEL 3 ONLY
 HumanOmniExpress-12v1_J-b37
+
+NOT IN RED PANEL 4 ONLY
+HumanOmniExpress-12v1_J-b37
