@@ -28,7 +28,8 @@ echo "LOADED IMPUTE2 v2.3.2"
 # SPECIFY REFERENCE PANEL
 REFpanel="ReferencePanel_v4"
 echo
-echo "REFERENCE PANEL: ${REFpanel}"
+echo "REFERENCE PANEL:	${REFpanel}"
+echo "SNP CHIP:			${MtPlatforms}"
 
 # CHECK FOR OR CREATE THE DECOMPOSED 1,000 GENOMES VCF FILE
 git_vcf=~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/chrMT_1kg_norm_decomposed_firstAlt.vcf.gz
