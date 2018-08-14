@@ -6,7 +6,7 @@
 #$ -N impute_SNPchip_1kGP
 #$ -o /home/easteallab/tim/MitoImpute/logs/
 #$ -j y
-set -ex
+#set -ex
 
 # SPECIFY REFERENCE PANEL
 REFpanel="ReferencePanel_v3"
