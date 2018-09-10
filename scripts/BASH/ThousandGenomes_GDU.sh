@@ -1,5 +1,5 @@
 #!/bin/bash
-#$ -m be
+#$ -m e
 #$ -M u5015730@anu.edu.au
 #$ -b y
 #$ -l h_vmem=5g,virtual_free=4.9g
