@@ -206,7 +206,7 @@ for (i in 1:length(chips$array)) {
   DIR = "/Volumes/TimMcInerney/MitoImpute/data/STRANDS/"
   
   MAF0.5pc$array[i] = as.character(chips$array[i])
-  MAF0.5pc$MAF[i] = "0.01"
+  MAF0.5pc$MAF[i] = "0.05"
   if (file.exists(paste0(DIR, chips$array[i], "/", refPanel, "/chrMT_1kg_", chips$array[i], "_imputed_info"))) {
     ## IF AN ARRAY HAD IMPUTATION PERFORMED ON IT, ASSIGN VALUE TRUE TO imputed COLUMN
     MAF0.5pc$imputed[i] = T
@@ -277,3 +277,6 @@ for (i in 1:length(chips$array)) {
   }
 }
 write.csv(MAF0.5pc, "/Users/u5015730/GitCode/MitoImputePrep/metadata/ConcordanceTables_MAF0-5pc.csv", quote = F, row.names = F)
+
+COMB = rbind(MAF1pc, MAF0.5pc, MAF0.1pc)
+write.csv(COMB, "/Users/u5015730/GitCode/MitoImputePrep/metadata/ConcordanceTables_Combined.csv", quote = F, row.names = F)
