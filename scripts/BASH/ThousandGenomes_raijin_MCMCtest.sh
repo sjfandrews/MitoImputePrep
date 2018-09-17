@@ -1,8 +1,8 @@
 #!/bin/bash
 #PBS -P te53
-#PBS -q express
-#PBS -l walltime=01:00:00
-#PBS -l mem=32GB
+#PBS -q normalbw
+#PBS -l walltime=48:00:00
+#PBS -l mem=64GB
 #PBS -l ncpus=1
 #PBS -N impute_SNPchip_1kGP
 #PBS -m e
