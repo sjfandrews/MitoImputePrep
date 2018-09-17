@@ -121,7 +121,7 @@ then
 	echo "${out} FOUND! ... PASSING"
 else
 	echo "${out} NOT FOUND! ... RUNNING IMPUTE2"
-	echo impute2 -chrX -m ${m} -h ${h} -l ${l} -g ${g} -sample_g ${s} -int 1 16569 -Ne 20000 -o ${out} -iter ${mcmc}
+	impute2 -chrX -m ${m} -h ${h} -l ${l} -g ${g} -sample_g ${s} -int 1 16569 -Ne 20000 -o ${out} -iter ${mcmc}
 fi
 
 # FIX CHROMOSOME NAMES
