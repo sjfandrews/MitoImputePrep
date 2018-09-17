@@ -7,5 +7,5 @@ BURN="5"
 
 for i in `cat ${STRAND_LIST}`; do
 	qsub -v MtPlatforms=${i},mcmc=${MCMC},burn=${BURN} ~/GitCode/MitoImputePrep/scripts/BASH/ThousandGenomes_raijin_MCMCtest.sh
-	echo "JOB FOR ${i} SUBMITTED"
+	echo "JOB FOR ${i} SUBMITTED WITH MCMC LENGTH = ${MCMC} AND ${BURN} BURN-INS"
 done
