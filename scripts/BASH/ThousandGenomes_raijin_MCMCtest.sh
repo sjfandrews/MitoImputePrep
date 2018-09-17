@@ -107,38 +107,45 @@ h=~/GitCode/MitoImputePrep/DerivedData/${REFpanel}/${REFpanel}.hap.gz
 l=~/GitCode/MitoImputePrep/DerivedData/${REFpanel}/${REFpanel}.legend.gz
 g=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}.gen.gz
 s=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}.samples
-out=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}_imputed
+out=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/MCMC_Experiments/MCMC${mcmc}/chrMT_1kg_${MtPlatforms}_imputed_MCMC${mcmc}
+
+if [ -d /g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/MCMC_Experiments/MCMC${mcmc}/ ]
+then
+	echo "DIRECTORY FOUND"
+else
+	mkdir -p /g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/MCMC_Experiments/MCMC${mcmc}/
+fi
 
 if [ -f ${out} ]
 then
 	echo "${out} FOUND! ... PASSING"
 else
 	echo "${out} NOT FOUND! ... RUNNING IMPUTE2"
-	impute2 -chrX -m ${m} -h ${h} -l ${l} -g ${g} -sample_g ${s} -int 1 16569 -Ne 20000 -o ${out}
+	echo impute2 -chrX -m ${m} -h ${h} -l ${l} -g ${g} -sample_g ${s} -int 1 16569 -Ne 20000 -o ${out} -iter ${mcmc}
 fi
 
 # FIX CHROMOSOME NAMES
 echo
 echo "FIXING CHROMOSOME NAMES"
-InFile=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}_imputed
-OutFile=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}_imputed_ChromFixed
+InFile=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/MCMC_Experiments/MCMC${mcmc}/chrMT_1kg_${MtPlatforms}_imputed_MCMC${mcmc}
+OutFile=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/MCMC_Experiments/MCMC${mcmc}/chrMT_1kg_${MtPlatforms}_imputed_MCMC${mcmc}_ChromFixed
 awk '{{$1 = "26"; print}}' ${InFile} > ${OutFile}
 
 # CONVERT OXFORD TO PEDIGREE
 echo
 echo "CONVERTING OXFORD TO PEDIGREE"
-gen=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}_imputed_ChromFixed
-sam=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}_imputed_samples
-out=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}_imputed
+gen=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/MCMC_Experiments/MCMC${mcmc}/chrMT_1kg_${MtPlatforms}_imputed_MCMC${mcmc}_ChromFixed
+sam=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/MCMC_Experiments/MCMC${mcmc}/chrMT_1kg_${MtPlatforms}_imputed_MCMC${mcmc}_samples
+out=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/MCMC_Experiments/MCMC${mcmc}/chrMT_1kg_${MtPlatforms}_imputed_MCMC${mcmc}
 
 plink1.9 --gen ${gen} --sample ${sam} --hard-call-threshold 0.49 --keep-allele-order --output-chr 26 --recode --out ${out}
 
 # CONVERT OXFORD TO VCF
 echo
 echo "CONVERTING OXFORD TO VCF"
-gen=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}_imputed_ChromFixed
-sam=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}_imputed_samples
-out=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}_imputed
+gen=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/MCMC_Experiments/MCMC${mcmc}/chrMT_1kg_${MtPlatforms}_imputed_MCMC${mcmc}_ChromFixed
+sam=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/MCMC_Experiments/MCMC${mcmc}/chrMT_1kg_${MtPlatforms}_imputed_MCMC${mcmc}_samples
+out=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/MCMC_Experiments/MCMC${mcmc}/chrMT_1kg_${MtPlatforms}_imputed_MCMC${mcmc}
 
 plink1.9 --gen ${gen} --sample ${sam} --hard-call-threshold 0.49 --keep-allele-order --output-chr 26 --recode vcf --out ${out}
 
