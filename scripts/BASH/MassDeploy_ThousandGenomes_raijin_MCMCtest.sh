@@ -2,8 +2,8 @@
 
 STRAND_LIST=~/GitCode/MitoImputePrep/scripts/INFORMATION_LISTS/b37_platforms.txt
 MCMC_list=~/GitCode/MitoImputePrep/scripts/INFORMATION_LISTS/MCMC_list.txt
-MCMC="10"
-BURN="3"
+MCMC="20"
+BURN="6"
 
 for i in `cat ${STRAND_LIST}`; do
 	qsub -v MtPlatforms=${i},mcmc=${MCMC},burn=${BURN} ~/GitCode/MitoImputePrep/scripts/BASH/ThousandGenomes_raijin_MCMCtest.sh
