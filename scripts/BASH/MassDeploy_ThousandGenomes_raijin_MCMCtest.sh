@@ -5,6 +5,6 @@ MCMC_list=~/GitCode/MitoImputePrep/scripts/INFORMATION_LISTS/MCMC_list.txt
 MCMC="1"
 
 for i in `cat ${STRAND_LIST}`; do
-	qsub -v MtPlatforms=${i},mcmc=${MCMC} ~/GitCode/MitoImputePrep/scripts/BASH/ThousandGenomes_raijin.sh
+	qsub -v MtPlatforms=${i},mcmc=${MCMC} ~/GitCode/MitoImputePrep/scripts/BASH/ThousandGenomes_raijin_MCMCtest.sh
 	echo "JOB FOR ${i} SUBMITTED"
 done
