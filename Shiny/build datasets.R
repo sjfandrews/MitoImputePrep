@@ -4,16 +4,38 @@ library(HiMC); data(nodes)
 library(taRifx)
 
 ##  Function
-source('~/Dropbox/Research/PostDoc/MitoWax/3_Scripts/import_snps.R', chdir = TRUE)
+generate_snp_data_fixed <- function (map_file, ped_file) 
+{
+  map <- read.csv(map_file, sep = "\t", header = FALSE, stringsAsFactors = FALSE)
+  header_row <- c("Family", "Individual", "Father", "Mother", 
+                  "Sex", "Phenotype")
+  snps = map[, 4]
+  new_header = c(header_row, snps)
+  ped <- read.csv(ped_file, sep = " ", header = FALSE, stringsAsFactors = FALSE, colClasses = 'character')
+  range1 = seq(1, 6, by = 1)
+  snp_data = data.frame(seq(1, nrow(ped), by = 1))
+  for (i in range1) {
+    snp_data[, i] = ped[, i]
+  }
+  range2 = seq(7, ncol(ped), by = 2)
+  for (i in range2) {
+    index = ((i - 7)/2) + 1
+    snp_data[, index + 6] = paste(ped[, i], ped[, i + 1])
+  }
+  names(snp_data) <- new_header
+  return(snp_data)
+}
+
 
 setwd("~/Dropbox/STRANDS")
-
+setwd("~/Desktop/STRANDS")
+setwd("~/Desktop/STRANDS_ref3")
 ##===============================##
 ##  WGS plink Files 
 ##===============================##
-wgs.map <- '~/Dropbox/src/MitoImpute/DerivedData/ThousandGenomes/chrMT_1kg_norm_decomposed_firstAlt.map'
-wgs.ped <- '~/Dropbox/src/MitoImpute/DerivedData/ThousandGenomes/chrMT_1kg_norm_decomposed_firstAlt.ped'
-wgs.dat <- generate_snp_data(wgs.map, wgs.ped)  
+wgs.map <- '~/Dropbox/src/MitoImputePrep/DerivedData/ThousandGenomes/chrMT_1kg_norm_decomposed_firstAlt.map'
+wgs.ped <- '~/Dropbox/src/MitoImputePrep/DerivedData/ThousandGenomes/chrMT_1kg_norm_decomposed_firstAlt.ped'
+wgs.dat <- generate_snp_data_fixed(wgs.map, wgs.ped)  
 
 # Assign haplogorups
 MTwgs.classifications <- HiMC::getClassifications(wgs.dat) 
@@ -28,8 +50,12 @@ typ.map <- list.files(path = "~/Dropbox/STRANDS", recursive = TRUE, pattern = "*
 typ.ped <- list.files(path = "~/Dropbox/STRANDS", recursive = TRUE, pattern = "*b37.ped")
 typ.names <- typ.map %>% as.tibble() %>% separate(value, c('platform', 'file'), sep = '/')
 
+typ.map <- list.files(path = "~/Desktop/STRANDS", recursive = TRUE, pattern = "*b37.map")
+typ.ped <- list.files(path = "~/Desktop/STRANDS", recursive = TRUE, pattern = "*b37.ped")
+typ.names <- typ.map %>% as.tibble() %>% separate(value, c('platform', 'reference', 'file'), sep = '/')
+
 # read in files
-typ.dat <- mapply(generate_snp_data, typ.map, typ.ped, SIMPLIFY = F)
+typ.dat <- mapply(generate_snp_data_fixed, typ.map, typ.ped, SIMPLIFY = F)
 
 # assign haplogroups
 MTtyp.classifications <- pblapply(typ.dat, HiMC::getClassifications)
@@ -52,130 +78,151 @@ saveRDS(MT_haps, "~/Dropbox/Research/PostDoc-MSSM/3_mitoWAX/3_Scripts/ShinnyApp/
 ##  Imputed plink files 
 ##===============================##
 
-# file names
+## file names
+# 0.01 MAF Reference 
 imp.map <- list.files(path = "~/Dropbox/STRANDS", recursive = TRUE, pattern = "*imputed.map")
 imp.ped <- list.files(path = "~/Dropbox/STRANDS", recursive = TRUE, pattern = "*imputed.ped")
 imp.names <- imp.map %>% as.tibble() %>% separate(value, c('platform', 'file'), sep = '/')
 
-# read in files
-imp.dat <- mapply(generate_snp_data, imp.map, imp.ped, SIMPLIFY = F)
+# 0.005 MAF Reference 
+imp.map <- list.files(path = "~/Desktop/STRANDS", recursive = TRUE, pattern = "*imputed.map")
+imp.ped <- list.files(path = "~/Desktop/STRANDS", recursive = TRUE, pattern = "*imputed.ped")
+imp.names <- imp.map %>% as.tibble() %>% separate(value, c('platform', 'reference', 'file'), sep = '/')
 
+# 0.001 MAF Reference 
+imp.map <- list.files(path = "~/Desktop/STRANDS_ref3", recursive = TRUE, pattern = "*.map")
+imp.map <- grep('Imputed_', imp.map, value = T)
+imp.ped <- list.files(path = "~/Desktop/STRANDS_ref3", recursive = TRUE, pattern = "*.ped")
+imp.ped <- grep('Imputed_', imp.ped, value = T)
+imp.names <- imp.map %>% as.tibble() %>% separate(value, c('platform', 'reference', 'file'), sep = '/')
+
+# read in files
+imp.dat <- mapply(generate_snp_data_fixed, imp.map, imp.ped, SIMPLIFY = F)
 imp.dat <- lapply(imp.dat, function(x){
-  out <- x[,-c(grep("\\<189\\>", colnames(x)), grep("\\<16183\\>", colnames(x)))]
+  out <- x[,-c(grep("\\<57\\>", colnames(x)),
+               grep("\\<62\\>", colnames(x)),
+               grep("\\<63\\>", colnames(x)),
+               grep("\\<72\\>", colnames(x)),
+               grep("\\<185\\>", colnames(x)),
+               grep("\\<186\\>", colnames(x)),
+               grep("\\<189\\>", colnames(x)),
+               grep("\\<195\\>", colnames(x)),
+               grep("\\<228\\>", colnames(x)),
+               grep("\\<295\\>", colnames(x)),
+               grep("\\<723\\>", colnames(x)),
+               grep("\\<750\\>", colnames(x)),
+               grep("\\<930\\>", colnames(x)),
+               grep("\\<961\\>", colnames(x)),
+               grep("\\<1692\\>", colnames(x)),
+               grep("\\<2831\\>", colnames(x)),
+               grep("\\<3200\\>", colnames(x)),
+               grep("\\<3552\\>", colnames(x)),
+               grep("\\<3796\\>", colnames(x)),
+               grep("\\<3921\\>", colnames(x)),
+               grep("\\<4454\\>", colnames(x)),
+               grep("\\<4562\\>", colnames(x)),
+               grep("\\<4769\\>", colnames(x)),
+               grep("\\<5774\\>", colnames(x)),
+               grep("\\<5894\\>", colnames(x)),
+               grep("\\<6221\\>", colnames(x)),
+               grep("\\<7196\\>", colnames(x)),
+               grep("\\<7624\\>", colnames(x)),
+               grep("\\<8014\\>", colnames(x)),
+               grep("\\<8080\\>", colnames(x)),
+               grep("\\<8860\\>", colnames(x)),
+               grep("\\<9824\\>", colnames(x)),
+               grep("\\<10097\\>", colnames(x)),
+               grep("\\<10410\\>", colnames(x)),
+               grep("\\<10754\\>", colnames(x)),
+               grep("\\<12633\\>", colnames(x)),
+               grep("\\<12738\\>", colnames(x)),
+               grep("\\<12930\\>", colnames(x)),
+               grep("\\<12950\\>", colnames(x)),
+               grep("\\<14470\\>", colnames(x)),
+               grep("\\<15884\\>", colnames(x)),
+               grep("\\<15954\\>", colnames(x)),
+               grep("\\<16111\\>", colnames(x)),
+               grep("\\<16114\\>", colnames(x)),
+               grep("\\<16129\\>", colnames(x)),
+               grep("\\<16147\\>", colnames(x)),
+               grep("\\<16166\\>", colnames(x)),
+               grep("\\<16176\\>", colnames(x)),
+               grep("\\<16182\\>", colnames(x)),
+               grep("\\<16183\\>", colnames(x)),
+               grep("\\<16188\\>", colnames(x)),
+               grep("\\<16232\\>", colnames(x)),
+               grep("\\<16240\\>", colnames(x)),
+               grep("\\<16257\\>", colnames(x)),
+               grep("\\<16258\\>", colnames(x)),
+               grep("\\<16265\\>", colnames(x)),
+               grep("\\<16266\\>", colnames(x)),
+               grep("\\<16286\\>", colnames(x)),
+               grep("\\<16291\\>", colnames(x)),
+               grep("\\<16293\\>", colnames(x)),
+               grep("\\<16318\\>", colnames(x)),
+               grep("\\<16327\\>", colnames(x)))]
   out
 })
-imp.dat <- lapply(imp.dat, as.tibble)
-
+imp.dat <- lapply(test, as.tibble)
 names(imp.dat) <- imp.names$platform
 
+imp.dat01 <- imp.dat
 saveRDS(imp.dat, "~/Dropbox/Research/PostDoc-MSSM/3_mitoWAX/3_Scripts/ShinnyApp/imp.dat.rds")
+
+imp.dat005 <- imp.dat
+saveRDS(imp.dat005, "~/Dropbox/Research/PostDoc-MSSM/3_mitoWAX/3_Scripts/ShinnyApp/imp.dat005.rds")
+
+imp.dat001 <- imp.dat
+saveRDS(imp.dat001, "~/Dropbox/Research/PostDoc-MSSM/3_mitoWAX/3_Scripts/ShinnyApp/imp.dat001.rds")
 
 ##===============================##
 ##  Info Score Files 
 ##===============================##
+HiMC <- tibble(
+  himc = 'yes',
+  pos = as.numeric(c('10115', '1018', '10398', '10400', '10550', '11177', '11251', '11719', '11947', '12007', '12308', '12414', '12705', '13263', '13368', '13506', '13708', '13789', '14178', '14318', '1438', '14470', '14560', '14668', '14766', '14905', '15043', '15326', '15452', '15535', '16111', '16189', '16271', '16362', '16390', '16391', '16391', '1719', '1736', '2092', '3505', '3552', '3594', '4580', '4769', '4883', '4917', '4977', '5178', '5442', '6371', '7028', '825', '8251', '8414', '8468', '8703', '9042', '9055', '9347', '9950')),
+  Haplogroup = c("L2", "L3", "K1", "M", "K", "B2", "JT", "R0", "W", "A2", "U", "N2", "R", "C", "T", "L2'3'4'6", "J", "L1", "L1", "C", "H2", "K", ".", "D4", "HV", "T", "N1a1b", "H2a2a", "JT", "B4b'd'e", "A2", "T1", "JT", "L4", "L2", "I", "I", "X2", "A", "D1", "W", "C", "L3'4", "V", "H2a", "M80'D", "T", "B2", "D ", "L0", "X ", "H", "L2'3'4'6", "N1a1b", "D4", "L2'3'4'6", "D2", "L0", "U8b", "L0", "B2"))
+
+# 0.01 MAF Reference 
 info <- list.files(path = "~/Dropbox/STRANDS", recursive = TRUE, pattern = "*_info")
 info.names <- info %>% as.tibble() %>% separate(value, c('platform', 'file'), sep = '/')
+
+# 0.005 MAF Reference 
+info <- list.files(path = "~/Desktop/STRANDS", recursive = TRUE, pattern = "*_imputed_info")
+info <- info[!grepl('by_sample', info)]
+
+# 0.001 MAF Reference 
+info <- list.files(path = "~/Desktop/STRANDS_ref3", recursive = TRUE, pattern = "*_imputed_info")
+info <- info[!grepl('by_sample', info)]
+
+info.names <- info %>% as.tibble() %>% 
+  filter(!grepl('by_sample', value)) %>% 
+  separate(value, c('platform', 'reference', 'file'), sep = '/')
+
 info.dat <- lapply(info, read_delim, delim = " ")
 names(info.dat) <- info.names$platform
 
 imp.info <- lapply(info.dat, function(x){
-  out <- mutate(x, info_comb = ifelse(info_type0 == -1, info,info_type0 ))
-  out <- mutate(out, himc = ifelse(position %in% c(825, 1018, 1438, 1719, 1736, 2092, 3505, 3552, 3594, 4580, 4769, 4917, 4977, 5178, 5442, 6371, 7028, 8251, 8414, 8468, 8703, 9042, 9055, 9347, 9950, 10115, 10398, 10398, 10400, 10550, 11177, 11251, 11947, 12007, 12308, 12705, 13263, 13368, 13506, 13708, 13789, 14178, 14318, 14470, 14560, 14668, 14766, 15043, 15326, 15452, 15535, 16111, 16189, 16391), 'yes', 'no'))
+  out <- x %>% mutate(info_comb = ifelse(info_type0 == -1, info,info_type0 )) %>% 
+    left_join(HiMC, by = c('position' = 'pos')) %>%
+    mutate(himc = ifelse(is.na(himc), 'no', himc))
   out
 })
 
-saveRDS(imp.info, "~/Dropbox/Research/PostDoc-MSSM/3_mitoWAX/3_Scripts/ShinnyApp/imp.info.rds")
+imp.info01 <- imp.info
+saveRDS(imp.info01, "~/Dropbox/Research/PostDoc-MSSM/3_mitoWAX/3_Scripts/ShinnyApp/imp.info01.rds")
+
+imp.info005 <- imp.info 
+saveRDS(imp.info005, "~/Dropbox/Research/PostDoc-MSSM/3_mitoWAX/3_Scripts/ShinnyApp/imp.info005.rds")
+
+imp.info001 <- imp.info 
+saveRDS(imp.info001, "~/Dropbox/Research/PostDoc-MSSM/3_mitoWAX/3_Scripts/ShinnyApp/imp.info001.rds")
 
 
 ##===============================##
 ##   
 ##===============================##
 
-
-x <- list( A=list(p=runif(5)), B=list(q=runif(5)) )
-y <- list( A=list(r=runif(5)), C=list(s=runif(5)) )
-merge.list(x,y)
-
-
-MT_haps <- MT_haps.out[imp.names$platform] 
-
-
-test <- merge.list(MT_haps[c(1,2)], imp.dat[c(1,2)])
-
-anti_join(typ, imp, by = 'platform')
-
-
-# GSA-24v1-0_A2-b37
-imp.info <- read_delim('~/Dropbox/src/MitoImpute/DerivedData/ThousandGenomes/GSA-24v1-0_A2-b37/chrMT_1kg_GSA-24v1-0_A2-b37_imputed_info', delim = " ")
-imp.map <- '~/Dropbox/src/MitoImpute/DerivedData/ThousandGenomes/GSA-24v1-0_A2-b37/chrMT_1kg_GSA-24v1-0_A2-b37_imputed.map'
-imp.ped <- "~/Dropbox/src/MitoImpute/DerivedData/ThousandGenomes/GSA-24v1-0_A2-b37/chrMT_1kg_GSA-24v1-0_A2-b37_imputed.ped"
-typ.map <- "~/Dropbox/src/MitoImpute/DerivedData/ThousandGenomes/GSA-24v1-0_A2-b37/chrMT_1kg_GSA-24v1-0_A2-b37.map"
-typ.ped <- "~/Dropbox/src/MitoImpute/DerivedData/ThousandGenomes/GSA-24v1-0_A2-b37/chrMT_1kg_GSA-24v1-0_A2-b37.ped"
-
-# Human610-Quadv1_B-b37
-imp.info <- read_delim('~/Dropbox/src/MitoImpute/DerivedData/ThousandGenomes/Human610-Quadv1_B-b37/chrMT_1kg_Human610-Quadv1_B-b37_imputed_info', delim = " ")
-imp.map <- '~/Dropbox/src/MitoImpute/DerivedData/ThousandGenomes/Human610-Quadv1_B-b37/chrMT_1kg_Human610-Quadv1_B-b37_imputed.map'
-imp.ped <- "~/Dropbox/src/MitoImpute/DerivedData/ThousandGenomes/Human610-Quadv1_B-b37/chrMT_1kg_Human610-Quadv1_B-b37_imputed.ped"
-typ.map <- "~/Dropbox/src/MitoImpute/DerivedData/ThousandGenomes/Human610-Quadv1_B-b37/chrMT_1kg_Human610-Quadv1_B-b37.map"
-typ.ped <- "~/Dropbox/src/MitoImpute/DerivedData/ThousandGenomes/Human610-Quadv1_B-b37/chrMT_1kg_Human610-Quadv1_B-b37.ped"
-
-# NeuroX_15036164_A-b37
-imp.info <- read_delim('~/Dropbox/src/MitoImpute/DerivedData/ThousandGenomes/NeuroX_15036164_A-b37/chrMT_1kg_NeuroX_15036164_A-b37_imputed_info', delim = " ")
-imp.map <- '~/Dropbox/src/MitoImpute/DerivedData/ThousandGenomes/NeuroX_15036164_A-b37/chrMT_1kg_NeuroX_15036164_A-b37_imputed.map'
-imp.ped <- "~/Dropbox/src/MitoImpute/DerivedData/ThousandGenomes/NeuroX_15036164_A-b37/chrMT_1kg_NeuroX_15036164_A-b37_imputed.ped"
-typ.map <- "~/Dropbox/src/MitoImpute/DerivedData/ThousandGenomes/NeuroX_15036164_A-b37/chrMT_1kg_NeuroX_15036164_A-b37.map"
-typ.ped <- "~/Dropbox/src/MitoImpute/DerivedData/ThousandGenomes/NeuroX_15036164_A-b37/chrMT_1kg_NeuroX_15036164_A-b37.ped"
-
-
-##=========================##
-##  Readin in plink files 
-##=========================##
-imp.dat <- generate_snp_data(imp.map, imp.ped)
-
-typ.dat <- generate_snp_data(typ.map, typ.ped) 
-
-
-##========================##
-##  Haplogroup assignment
-##    typ and wgs only
-##========================##
-
-MTtyp.classifications <- HiMC::getClassifications(typ.dat)
-MTwgs.classifications <- HiMC::getClassifications(wgs.dat)
-
-MT_haps <- MTtyp.classifications %>% 
-  left_join(MTwgs.classifications, by = 'Individual', suffix = c("_typ", "_wgs")) %>% 
-  as.tibble()
-
-##========================##
-##  Info Scores
-##========================##
-imp.info <- mutate(imp.info, info_comb = ifelse(info_type0 == -1, info,info_type0 ))
-imp.info <- mutate(imp.info, himc = ifelse(position %in% c(825, 1018, 1438, 1719, 1736, 2092, 3505, 3552, 3594, 4580, 4769, 4917, 4977, 5178, 5442, 6371, 7028, 8251, 8414, 8468, 8703, 9042, 9055, 9347, 9950, 10115, 10398, 10398, 10400, 10550, 11177, 11251, 11947, 12007, 12308, 12705, 13263, 13368, 13506, 13708, 13789, 14178, 14318, 14470, 14560, 14668, 14766, 15043, 15326, 15452, 15535, 16111, 16189, 16391), 'yes', 'no'))
-
-dat.ls <- list(MT_haps, imp.dat, imp.info)
-names(dat.ls) <- c('MT_haps', 'imp.dat', 'imp.info')
-
-#ls.out <- list()
-ls.out[[3]] <- dat.ls
-
-names(ls.out) <- c('GSA-24v1-0_A2-b37', 'Human610-Quadv1_B-b37', 'NeuroX_15036164_A-b37')
-
-saveRDS(ls.out, "~/Dropbox/Research/PostDoc-MSSM/3_mitoWAX/3_Scripts/ShinnyApp/mttest.rds")
-
-
-ls.out[[input$select]]$imp.info
-rm.info <- filter(ls.out[[input$select]]$imp.info, info > info.cut)
-ls.out[[input$select]]$imp.dat <- 
-  ls.out[[input$select]]$imp.dat[ ,colnames(ls.out[[input$select]]$imp.dat) %in% 
-                                    c('Individual', rm.info$position)]
-
-MTimp.classifications <- HiMC::getClassifications(ls.out[[input$select]]$imp.dat)
-
-mt.haps <- ls.out[[input$select]]$MT_haps %>% 
-  left_join(MTimp.classifications, by = 'Individual') %>% 
-  rename(haplogroup_wgs = haplogroup, full_path_wgs = full_path)
-  
 
 
 

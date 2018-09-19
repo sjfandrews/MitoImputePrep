@@ -15,7 +15,8 @@ rule all:
         expand(DATAOUT + "/ReferencePanel.{ext}", ext = ['ped', 'map']),
         expand(DATAOUT + "/ReferencePanel.{ext}", ext = ['gen.gz', 'samples']),
         expand(DATAOUT + "/MtMap.txt"),
-        expand(DATAOUT + "/MtStrand.txt")
+        expand(DATAOUT + "/MtStrand.txt"),
+        expand(DATAOUT + "/ReferenceSNPs.txt")
 
 ## 1. Run the ambiguous2missing.py script to change ambiguous character states to missing data:
 rule ambiguous2missing:
@@ -142,3 +143,12 @@ rule MakeMapFile:
         out_strand = DATAOUT + "/MtStrand.txt"
     shell:
         'Rscript {input.in_script} {input.in_vcf} {output.out_map} {output.out_strand}'
+
+## 11. Output list of ReferenceSNPs
+rule RefSNPs:
+    input:
+        in_vcf = DATAOUT + "/ReferencePanel.vcf.gz",
+    output:
+        out =  DATAOUT + "/ReferenceSNPs.txt"
+    shell:
+        'bcftools query -f "%CHROM\t%POS\t%REF\t%ALT\t%INFO/AC\t%INFO/AN\t%INFO/AF\n" {input.in_vcf} -o {output.out}'
