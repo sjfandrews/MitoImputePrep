@@ -9,6 +9,10 @@ SAMPLE = config['SAMPLE']
 DATAIN = config['DATAIN']
 DATAOUT = config['DATAOUT']
 REFDATA = config['REFDATA']
+config['MCMC'] = [str(x) for x in config['MCMC']]
+MCMC = [x.split(".") for x in config['MCMC']]
+MCMC = {k: {'iter': v[0], 'burnin': v[1]} for k,v in zip(config['MCMC'], MCMC)}
+KHAP = config['KHAP']
 
 BPLINK = ["bed", "bim", "fam"]
 PLINK = ["map", "ped"]
@@ -20,10 +24,14 @@ shell.prefix('module load plink/1.90 impute2 R/3.4.3; ')
 
 rule all:
     input:
-        expand("{DataOut}/Imputed_{sample}.{ext}", ext=BPLINK, sample=SAMPLE, DataOut=DATAOUT),
-        expand("{DataOut}/Imputed_{sample}.{ext}", ext=PLINK, sample=SAMPLE, DataOut=DATAOUT),
-        expand("{DataOut}/Imputed_{sample}.vcf", sample=SAMPLE, DataOut=DATAOUT),
-        expand("{DataOut}/stats/{sample}_mtImputed_QC.html", sample=SAMPLE, DataOut=DATAOUT),
+        expand("{DataOut}/KHAP_{KHAP}/MCMC_{MCMC}/Imputed_{sample}.{ext}",
+        ext=BPLINK, sample=SAMPLE, DataOut=DATAOUT, KHAP=KHAP, MCMC=MCMC),
+        expand("{DataOut}/KHAP_{KHAP}/MCMC_{MCMC}/Imputed_{sample}.{ext}",
+        ext=PLINK, sample=SAMPLE, DataOut=DATAOUT, KHAP=KHAP, MCMC=MCMC),
+        expand("{DataOut}/KHAP_{KHAP}/MCMC_{MCMC}/Imputed_{sample}.vcf",
+        sample=SAMPLE, DataOut=DATAOUT, KHAP=KHAP, MCMC=MCMC),
+        expand("{DataOut}/KHAP_{KHAP}/MCMC_{MCMC}/stats/{sample}_mtImputed_QC.html",
+        sample=SAMPLE, DataOut=DATAOUT, KHAP=KHAP, MCMC=MCMC),
 
 rule SexFam:
     input: expand("{DataIn}/{{sample}}.fam", DataIn=DATAIN)
@@ -66,55 +74,60 @@ rule Impute2:
         g = '{DataOut}/{sample}.gen',
         sample = '{DataOut}/{sample}.sample',
     output:
-        '{DataOut}/{sample}_imputed',
-        '{DataOut}/{sample}_imputed_samples'
+        '{DataOut}/KHAP_{KHAP}/MCMC_{MCMC}/{sample}_imputed',
+        '{DataOut}/KHAP_{KHAP}/MCMC_{MCMC}/{sample}_imputed_samples',
+        '{DataOut}/KHAP_{KHAP}/MCMC_{MCMC}/{sample}_imputed_info'
     params:
-        out = '{DataOut}/{sample}_imputed'
+        out = '{DataOut}/KHAP_{KHAP}/MCMC_{MCMC}/{sample}_imputed',
+        iter = lambda wildcards: MCMC[wildcards['MCMC']]['iter'],
+        burnin = lambda wildcards: MCMC[wildcards['MCMC']]['burnin'],
+        khap = KHAP
     shell:
         'impute2 -chrX -m {input.m} -h {input.h} -l {input.l} -g {input.g} \
-        -sample_g {input.sample} -int 1 16569 -Ne 20000 -o {params.out}'
+        -sample_g {input.sample} -int 1 16569 -Ne 20000 -o {params.out} \
+        -iter {params.iter} -burnin {params.burnin} -k_hap {params.khap}'
 
 rule FixChromName:
     input:
-        InFile = '{DataOut}/{sample}_imputed'
+        InFile = '{DataOut}/KHAP_{KHAP}/MCMC_{MCMC}/{sample}_imputed'
     output:
-        OutFile = '{DataOut}/{sample}_imputed_ChromFixed'
+        OutFile = '{DataOut}/KHAP_{KHAP}/MCMC_{MCMC}/{sample}_imputed_ChromFixed'
     shell:"""
         awk '{{$1 = "26"; print}}' {input.InFile} > {output.OutFile}
     """
 
 rule oxford2bed:
     input:
-        gen = '{DataOut}/{sample}_imputed_ChromFixed',
-        sample = '{DataOut}/{sample}_imputed_samples'
+        gen = '{DataOut}/KHAP_{KHAP}/MCMC_{MCMC}/{sample}_imputed_ChromFixed',
+        sample = '{DataOut}/KHAP_{KHAP}/MCMC_{MCMC}/{sample}_imputed_samples'
     output:
-        expand("{{DataOut}}/Imputed_{{sample}}.{ext}", ext=BPLINK)
+        expand("{{DataOut}}/KHAP_{{KHAP}}/MCMC_{{MCMC}}/Imputed_{{sample}}.{ext}", ext=BPLINK)
     params:
-        out = '{DataOut}/Imputed_{sample}'
+        out = '{DataOut}/KHAP_{KHAP}/MCMC_{MCMC}/Imputed_{sample}'
     shell:
         'plink --gen {input.gen} --sample {input.sample} --hard-call-threshold 0.49 \
         --keep-allele-order --make-bed --output-chr 26 --out {params.out}'
 
 rule oxford2ped:
     input:
-        gen = '{DataOut}/{sample}_imputed_ChromFixed',
-        sample = '{DataOut}/{sample}_imputed_samples'
+        gen = '{DataOut}/KHAP_{KHAP}/MCMC_{MCMC}/{sample}_imputed_ChromFixed',
+        sample = '{DataOut}/KHAP_{KHAP}/MCMC_{MCMC}/{sample}_imputed_samples'
     output:
-        expand("{{DataOut}}/Imputed_{{sample}}.{ext}", ext=PLINK)
+        expand("{{DataOut}}/KHAP_{{KHAP}}/MCMC_{{MCMC}}/Imputed_{{sample}}.{ext}", ext=PLINK)
     params:
-        out = '{DataOut}/Imputed_{sample}'
+        out = '{DataOut}/KHAP_{KHAP}/MCMC_{MCMC}/Imputed_{sample}'
     shell:
         'plink --gen {input.gen} --sample {input.sample} --hard-call-threshold 0.49 \
         --keep-allele-order --output-chr 26 --recode --out {params.out}'
 
 rule oxford2vcf:
     input:
-        gen = '{DataOut}/{sample}_imputed_ChromFixed',
-        sample = '{DataOut}/{sample}_imputed_samples'
+        gen = '{DataOut}/KHAP_{KHAP}/MCMC_{MCMC}/{sample}_imputed_ChromFixed',
+        sample = '{DataOut}/KHAP_{KHAP}/MCMC_{MCMC}/{sample}_imputed_samples'
     output:
-        "{DataOut}/Imputed_{sample}.vcf"
+        "{DataOut}/KHAP_{KHAP}/MCMC_{MCMC}/Imputed_{sample}.vcf"
     params:
-        out = '{DataOut}/Imputed_{sample}'
+        out = '{DataOut}/KHAP_{KHAP}/MCMC_{MCMC}/Imputed_{sample}'
     shell:
         'plink --gen {input.gen} --sample {input.sample} --hard-call-threshold 0.49 \
         --keep-allele-order --output-chr 26 --recode vcf --out {params.out}'
@@ -124,14 +137,14 @@ rule Imputation_QC_Report:
         script = 'scripts/R/MT_imputation_QC_examples.Rmd',
         typ_map = "{DataOut}/{sample}_typedOnly.map",
         typ_ped = "{DataOut}/{sample}_typedOnly.ped",
-        imp_map = '{DataOut}/Imputed_{sample}.map',
-        imp_ped = '{DataOut}/Imputed_{sample}.ped',
-        imp_info = '{DataOut}/{sample}_imputed_info',
+        imp_map = '{DataOut}/KHAP_{KHAP}/MCMC_{MCMC}/Imputed_{sample}.map',
+        imp_ped = '{DataOut}/KHAP_{KHAP}/MCMC_{MCMC}/Imputed_{sample}.ped',
+        imp_info = '{DataOut}/KHAP_{KHAP}/MCMC_{MCMC}/{sample}_imputed_info',
     output:
-        "{DataOut}/stats/{sample}_mtImputed_QC.html"
+        "{DataOut}/KHAP_{KHAP}/MCMC_{MCMC}/stats/{sample}_mtImputed_QC.html"
     params:
         rwd = RWD,
-        output_dir = "{DataOut}/stats",
+        output_dir = "{DataOut}/KHAP_{KHAP}/MCMC_{MCMC}/stats",
         info_cut = '0'
 
     shell:

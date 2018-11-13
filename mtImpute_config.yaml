@@ -9,3 +9,5 @@ SAMPLE: 'ExampleSamplePanel'
 DATAIN: 'example/SamplePanel'
 DATAOUT: "example/imputed"
 REFDATA: "example/ReferencePanel"
+MCMC: [2.1, 5.1] #[iteration_n1.burnin_n1, iteration_n2.burnin_n2, ...]
+KHAP: [100, 500]
