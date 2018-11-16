@@ -9,7 +9,14 @@ from snakemake.remote.FTP import RemoteProvider as FTPRemoteProvider
 MtPlatforms = ['GSA-24v1-0_A2-b37', 'Human610-Quadv1_B-b37', 'NeuroX_15036164_A-b37']
 
 REFDATA = "example/ReferencePanel"
-# REFDATA = "DerivedData/ReferencePanel"
+#REFDATA = "DerivedData/ReferencePanel"
+
+## Parameters for IMPUTE2
+configfile: 'mtImpute_config.yaml'
+config['MCMC'] = [str(x) for x in config['MCMC']]
+MCMC = [x.split(".") for x in config['MCMC']]
+MCMC = {k: {'iter': v[0], 'burnin': v[1]} for k,v in zip(config['MCMC'], MCMC)}
+KHAP = config['KHAP']
 
 FTP = FTPRemoteProvider()
 RWD = os.getcwd()
@@ -20,11 +27,16 @@ rule all:
         expand("DerivedData/ThousandGenomes/{MtPlatforms}/chrMT_1kg_{MtPlatforms}.{ext}", ext = ['ped', 'map'], MtPlatforms=MtPlatforms),
         expand("DerivedData/ThousandGenomes/chrMT_1kg_norm_decomposed_firstAlt.{ext}", ext = ['ped', 'map']),
         "DerivedData/ThousandGenomes/chrMT_1kg_norm_decomposed_firstAlt.vcf.gz",
-        expand('DerivedData/ThousandGenomes/{MtPlatforms}/chrMT_1kg_{MtPlatforms}_imputed', MtPlatforms=MtPlatforms),
-        expand('DerivedData/ThousandGenomes/{MtPlatforms}/chrMT_1kg_{MtPlatforms}_imputed_samples', MtPlatforms=MtPlatforms),
-        expand("DerivedData/ThousandGenomes/{MtPlatforms}/chrMT_1kg_{MtPlatforms}_imputed.{ext}", MtPlatforms=MtPlatforms, ext = ['ped', 'map']),
-        expand("DerivedData/ThousandGenomes/{MtPlatforms}/chrMT_1kg_{MtPlatforms}_imputed.vcf", MtPlatforms=MtPlatforms),
-        expand("DerivedData/ThousandGenomes/{MtPlatforms}/chrMT_1kg_{MtPlatforms}_mtImputed_QC.html", MtPlatforms=MtPlatforms)
+        expand('DerivedData/ThousandGenomes/{MtPlatforms}/KHAP_{KHAP}/MCMC_{MCMC}/chrMT_1kg_{MtPlatforms}_imputed',
+        MtPlatforms=MtPlatforms, KHAP=KHAP, MCMC=MCMC),
+        expand('DerivedData/ThousandGenomes/{MtPlatforms}/KHAP_{KHAP}/MCMC_{MCMC}/chrMT_1kg_{MtPlatforms}_imputed_samples',
+        MtPlatforms=MtPlatforms, KHAP=KHAP, MCMC=MCMC),
+        expand("DerivedData/ThousandGenomes/{MtPlatforms}/KHAP_{KHAP}/MCMC_{MCMC}/chrMT_1kg_{MtPlatforms}_imputed.{ext}",
+        MtPlatforms=MtPlatforms, KHAP=KHAP, MCMC=MCMC, ext = ['ped', 'map']),
+        expand("DerivedData/ThousandGenomes/{MtPlatforms}/KHAP_{KHAP}/MCMC_{MCMC}/chrMT_1kg_{MtPlatforms}_imputed.vcf",
+        MtPlatforms=MtPlatforms, KHAP=KHAP, MCMC=MCMC),
+        expand("DerivedData/ThousandGenomes/{MtPlatforms}/KHAP_{KHAP}/MCMC_{MCMC}/chrMT_1kg_{MtPlatforms}_mtImputed_QC.html",
+        MtPlatforms=MtPlatforms, KHAP=KHAP, MCMC=MCMC)
 
 
 
@@ -136,45 +148,49 @@ rule Impute2:
         g = "DerivedData/ThousandGenomes/{MtPlatforms}/chrMT_1kg_{MtPlatforms}.gen.gz",
         sample = "DerivedData/ThousandGenomes/{MtPlatforms}/chrMT_1kg_{MtPlatforms}.samples",
     output:
-        'DerivedData/ThousandGenomes/{MtPlatforms}/chrMT_1kg_{MtPlatforms}_imputed',
-        'DerivedData/ThousandGenomes/{MtPlatforms}/chrMT_1kg_{MtPlatforms}_imputed_info',
-        'DerivedData/ThousandGenomes/{MtPlatforms}/chrMT_1kg_{MtPlatforms}_imputed_samples'
+        'DerivedData/ThousandGenomes/{MtPlatforms}/KHAP_{KHAP}/MCMC_{MCMC}/chrMT_1kg_{MtPlatforms}_imputed',
+        'DerivedData/ThousandGenomes/{MtPlatforms}/KHAP_{KHAP}/MCMC_{MCMC}/chrMT_1kg_{MtPlatforms}_imputed_info',
+        'DerivedData/ThousandGenomes/{MtPlatforms}/KHAP_{KHAP}/MCMC_{MCMC}/chrMT_1kg_{MtPlatforms}_imputed_samples'
     params:
-        out = 'DerivedData/ThousandGenomes/{MtPlatforms}/chrMT_1kg_{MtPlatforms}_imputed'
+        out = 'DerivedData/ThousandGenomes/{MtPlatforms}/KHAP_{KHAP}/MCMC_{MCMC}/chrMT_1kg_{MtPlatforms}_imputed',
+        iter = lambda wildcards: MCMC[wildcards['MCMC']]['iter'],
+        burnin = lambda wildcards: MCMC[wildcards['MCMC']]['burnin'],
+        khap = '{KHAP}'
     shell:
         'impute2 -chrX -m {input.m} -h {input.h} -l {input.l} -g {input.g} \
-        -sample_g {input.sample} -int 1 16569 -Ne 20000 -o {params.out}'
+        -sample_g {input.sample} -int 1 16569 -Ne 20000 -o {params.out} \
+        -iter {params.iter} -burnin {params.burnin} -k_hap {params.khap}'
 
 
 rule FixChromName:
     input:
-        InFile = 'DerivedData/ThousandGenomes/{MtPlatforms}/chrMT_1kg_{MtPlatforms}_imputed'
+        InFile = 'DerivedData/ThousandGenomes/{MtPlatforms}/KHAP_{KHAP}/MCMC_{MCMC}/chrMT_1kg_{MtPlatforms}_imputed'
     output:
-        OutFile = 'DerivedData/ThousandGenomes/{MtPlatforms}/chrMT_1kg_{MtPlatforms}_imputed_ChromFixed'
+        OutFile = 'DerivedData/ThousandGenomes/{MtPlatforms}/KHAP_{KHAP}/MCMC_{MCMC}/chrMT_1kg_{MtPlatforms}_imputed_ChromFixed'
     shell:"""
         awk '{{$1 = "26"; print}}' {input.InFile} > {output.OutFile}
     """
 
 rule oxford2ped:
     input:
-        gen = 'DerivedData/ThousandGenomes/{MtPlatforms}/chrMT_1kg_{MtPlatforms}_imputed_ChromFixed',
-        sample = 'DerivedData/ThousandGenomes/{MtPlatforms}/chrMT_1kg_{MtPlatforms}_imputed_samples'
+        gen = 'DerivedData/ThousandGenomes/{MtPlatforms}/KHAP_{KHAP}/MCMC_{MCMC}/chrMT_1kg_{MtPlatforms}_imputed_ChromFixed',
+        sample = 'DerivedData/ThousandGenomes/{MtPlatforms}/KHAP_{KHAP}/MCMC_{MCMC}/chrMT_1kg_{MtPlatforms}_imputed_samples'
     output:
-        expand("DerivedData/ThousandGenomes/{{MtPlatforms}}/chrMT_1kg_{{MtPlatforms}}_imputed.{ext}", ext = ['ped', 'map'])
+        expand("DerivedData/ThousandGenomes/{{MtPlatforms}}/KHAP_{{KHAP}}/MCMC_{{MCMC}}/chrMT_1kg_{{MtPlatforms}}_imputed.{ext}", ext = ['ped', 'map'])
     params:
-        out = 'DerivedData/ThousandGenomes/{MtPlatforms}/chrMT_1kg_{MtPlatforms}_imputed'
+        out = 'DerivedData/ThousandGenomes/{MtPlatforms}/KHAP_{KHAP}/MCMC_{MCMC}/chrMT_1kg_{MtPlatforms}_imputed'
     shell:
         'plink --gen {input.gen} --sample {input.sample} --hard-call-threshold 0.49 \
         --keep-allele-order --output-chr 26 --recode --out {params.out}'
 
 rule oxford2vcf:
     input:
-        gen = 'DerivedData/ThousandGenomes/{MtPlatforms}/chrMT_1kg_{MtPlatforms}_imputed_ChromFixed',
-        sample = 'DerivedData/ThousandGenomes/{MtPlatforms}/chrMT_1kg_{MtPlatforms}_imputed_samples'
+        gen = 'DerivedData/ThousandGenomes/{MtPlatforms}/KHAP_{KHAP}/MCMC_{MCMC}/chrMT_1kg_{MtPlatforms}_imputed_ChromFixed',
+        sample = 'DerivedData/ThousandGenomes/{MtPlatforms}/KHAP_{KHAP}/MCMC_{MCMC}/chrMT_1kg_{MtPlatforms}_imputed_samples'
     output:
-        "DerivedData/ThousandGenomes/{MtPlatforms}/chrMT_1kg_{MtPlatforms}_imputed.vcf"
+        "DerivedData/ThousandGenomes/{MtPlatforms}/KHAP_{KHAP}/MCMC_{MCMC}/chrMT_1kg_{MtPlatforms}_imputed.vcf"
     params:
-        out = 'DerivedData/ThousandGenomes/{MtPlatforms}/chrMT_1kg_{MtPlatforms}_imputed'
+        out = 'DerivedData/ThousandGenomes/{MtPlatforms}/KHAP_{KHAP}/MCMC_{MCMC}/chrMT_1kg_{MtPlatforms}_imputed'
     shell:
         'plink --gen {input.gen} --sample {input.sample} --hard-call-threshold 0.49 \
         --keep-allele-order --output-chr 26 --recode vcf --out {params.out}'
@@ -188,15 +204,15 @@ rule Imputation_QC_Report:
         typ_map = "DerivedData/ThousandGenomes/{MtPlatforms}/chrMT_1kg_{MtPlatforms}.map",
         typ_ped = "DerivedData/ThousandGenomes/{MtPlatforms}/chrMT_1kg_{MtPlatforms}.ped",
         typ_vcf = 'DerivedData/ThousandGenomes/{MtPlatforms}/chrMT_1kg_{MtPlatforms}.vcf.gz',
-        imp_map = 'DerivedData/ThousandGenomes/{MtPlatforms}/chrMT_1kg_{MtPlatforms}_imputed.map',
-        imp_ped = 'DerivedData/ThousandGenomes/{MtPlatforms}/chrMT_1kg_{MtPlatforms}_imputed.ped',
-        imp_vcf = 'DerivedData/ThousandGenomes/{MtPlatforms}/chrMT_1kg_{MtPlatforms}_imputed.vcf',
-        imp_info = 'DerivedData/ThousandGenomes/{MtPlatforms}/chrMT_1kg_{MtPlatforms}_imputed_info',
+        imp_map = 'DerivedData/ThousandGenomes/{MtPlatforms}/KHAP_{KHAP}/MCMC_{MCMC}/chrMT_1kg_{MtPlatforms}_imputed.map',
+        imp_ped = 'DerivedData/ThousandGenomes/{MtPlatforms}/KHAP_{KHAP}/MCMC_{MCMC}/chrMT_1kg_{MtPlatforms}_imputed.ped',
+        imp_vcf = 'DerivedData/ThousandGenomes/{MtPlatforms}/KHAP_{KHAP}/MCMC_{MCMC}/chrMT_1kg_{MtPlatforms}_imputed.vcf',
+        imp_info = 'DerivedData/ThousandGenomes/{MtPlatforms}/KHAP_{KHAP}/MCMC_{MCMC}/chrMT_1kg_{MtPlatforms}_imputed_info',
     output:
-        "DerivedData/ThousandGenomes/{MtPlatforms}/chrMT_1kg_{MtPlatforms}_mtImputed_QC.html"
+        "DerivedData/ThousandGenomes/{MtPlatforms}/KHAP_{KHAP}/MCMC_{MCMC}/chrMT_1kg_{MtPlatforms}_mtImputed_QC.html"
     params:
         rwd = RWD,
-        output_dir = "DerivedData/ThousandGenomes/{MtPlatforms}/",
+        output_dir = "DerivedData/ThousandGenomes/{MtPlatforms}/KHAP_{KHAP}/MCMC_{MCMC}/",
         info_cut = '0'
 
     shell:

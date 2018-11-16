@@ -1,6 +1,7 @@
 '''Snakefile for MitoImpute Version 0.1'''
 # snakemake -s mtImpute.smk
 # snakemake -s mtImpute.smk --dag | dot -Tsvg > dag_mtImpute.svg
+# snakejob -s mtImpute.smk 
 
 import os
 
