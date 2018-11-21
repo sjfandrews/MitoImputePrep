@@ -18,6 +18,7 @@ def main():
 
     parser.add_argument('-i', '--infile', dest='infile', type=str, required=True, help='input fasta file (.fasta)')
     parser.add_argument('-o', '--outfile', dest='outfile', type=str, required=False, help='output VCF file (.vcf or .vcf.gz)')
+    parser.add_argument('-g', '--gap2missing', dest='gap2missing', action="store_true", required=False, help='turn gaps to missing (N)')
     #parser.add_argument('-c', '--chromosome', dest='chromosome', type=str, default='MT', required=False, help='specify the chromosome')
     parser.add_argument('-v', '--verbose', dest='verbose', action="store_true", required=False, help='turn on verbose mode')
 
@@ -25,6 +26,7 @@ def main():
 
     infile = args.infile
     outfile = args.outfile
+    gap2missing = args.gap2missing
     verbose = args.verbose
 
     # The revised Cambridge Reference Sequence:
