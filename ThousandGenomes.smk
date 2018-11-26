@@ -1,8 +1,12 @@
 '''Snakefile for Cleaning Thousand Genomes'''
 # snakemake -s ThousandGenomes.smk
 # snakemake -s ThousandGenomes.smk --dag | dot -Tsvg > dag_ThousandGenomes.svg
+# snakejob -s ThousandGenomes.smk -j 8000 --max-jobs-per-second 1 --keep-going
+
 import os
 from snakemake.remote.FTP import RemoteProvider as FTPRemoteProvider
+
+shell.prefix('module load plink/1.90 R/3.4.3 curl/7.61.0 vt bcftools impute2; ')
 
 with open('data/platforms/Mt_platforms.txt', "r") as f:
     MtPlatforms = [x.rstrip() for x in f]
