@@ -1,5 +1,5 @@
-wgs = read.csv("/Users/u5015730/GitCode/MitoImputePrep/metadata/ADNI_wgs_Mitochondrial_Haplotypes.csv", header = T)
-typ = read.table("/Users/u5015730/GitCode/MitoImputePrep/metadata/mito_snps_rcrs_Samples.txt", header = F)
+wgs = read.csv("~/GitCode/MitoImputePrep/metadata/ADNI_wgs_Mitochondrial_Haplotypes.csv", header = T)
+typ = read.table("~/GitCode/MitoImputePrep/metadata/mito_snps_rcrs_Samples.txt", header = F)
 names(typ) = "SAMPLE"
 
 wgs$ID = NA
@@ -14,3 +14,7 @@ for (i in 1:nrow(wgs)) {
     wgs$in.ADNI[i] = F
   }
 }
+
+inBoth = subset(wgs, wgs$in.ADNI == T)
+write.csv(inBoth, "~/GitCode/MitoImputePrep/metadata/ADNI_samples_BOTH.csv", row.names = F)
+write.csv(wgs, "~/GitCode/MitoImputePrep/metadata/ADNI_samples.csv", row.names = F)
