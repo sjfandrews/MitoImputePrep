@@ -17,16 +17,18 @@ full_1kGP_hg_FULL = HiMC::getClassifications(full_1kGP)
 ### WORK ON THE THE ith IMPUTED SET
 ## MAKE DATA FRAMES FOR EACH MINOR ALLELE FREQ
 
-COLS = c("array", "MAF", "imputed", "SNP.Ref.Only", "SNP.Ref.Samp", "SNP.Samp.Only", "TOTAL", "Retained.After.Filt", "Typed.hg.Conc", "Imputed.hg.Conc")
+COLS = c("array", "MCMC", "imputed", "SNP.Ref.Only", "SNP.Ref.Samp", "SNP.Samp.Only", "TOTAL", "Retained.After.Filt", "Typed.hg.Conc", "Imputed.hg.Conc")
 
 #CONC_TABLE = data.frame(matrix(ncol = 6, nrow = ))
-MAF1pc = data.frame(matrix(ncol = length(COLS), nrow = nrow(chips)))
-MAF0.5pc = data.frame(matrix(ncol = length(COLS), nrow = nrow(chips)))
-MAF0.1pc = data.frame(matrix(ncol = length(COLS), nrow = nrow(chips)))
+MCMC1 = data.frame(matrix(ncol = length(COLS), nrow = nrow(chips)))
+MCMC5 = data.frame(matrix(ncol = length(COLS), nrow = nrow(chips)))
+MCMC10 = data.frame(matrix(ncol = length(COLS), nrow = nrow(chips)))
+MCMC20 = data.frame(matrix(ncol = length(COLS), nrow = nrow(chips)))
 
-names(MAF1pc) = COLS
-names(MAF0.5pc) = COLS
-names(MAF0.1pc) = COLS
+names(MCMC1) = COLS
+names(MCMC5) = COLS
+names(MCMC10) = COLS
+names(MCMC20) = COLS
 
 
 #MAF1pc = chips
@@ -34,35 +36,38 @@ names(MAF0.1pc) = COLS
 #MAF0.1pc = chips
 
 # SET A NEW COLUMN DESIGNATING THE MAF AND ONE WHETHER THEY HAVE BEEN IMPUTED
-MAF1pc$MAF = "0.1"
-MAF1pc$imputed = FALSE
-MAF0.5pc$MAF = "0.05"
-MAF0.5pc$imputed = FALSE
-MAF0.1pc$MAF = "0.01"
-MAF0.1pc$imputed = FALSE
+MCMC1$MCMC = "1"
+MCMC1$imputed = FALSE
+MCMC5$MCMC = "5"
+MCMC5$imputed = FALSE
+MCMC10$MCMC = "10"
+MCMC10$imputed = FALSE
+MCMC20$MCMC = "20"
+MCMC20$imputed = FALSE
 
-# REF PANEL v2 (MAF >= 1%)
-for (i in 1:length(chips$array)) {
+# MCMC = 1
+for (i in 1:length(chips$array)) { 
   print(paste0(i, " / ", length(chips$array)))
   DIR = "/Volumes/TimMcInerney/MitoImpute/data/STRANDS/"
+  mcmc = "1"
   
   # REF PANEL v2 (MAF >= 1%)
-  MAF1pc$array[i] = as.character(chips$array[i])
-  MAF1pc$MAF[i] = "0.1"
-  if (file.exists(paste0(DIR, chips$array[i], "/ReferencePanel_v2/chrMT_1kg_", chips$array[i], "_imputed_info"))) {
+  MCMC1$array[i] = as.character(chips$array[i])
+  MCMC1$MCMC[i] = "1"
+  if (file.exists(paste0(DIR, chips$array[i], "/MCMC_Experiments/MCMC1/chrMT_1kg_", chips$array[i], "_imputed_MCMC", mcmc,"_info"))) {
     ## IF AN ARRAY HAD IMPUTATION PERFORMED ON IT, ASSIGN VALUE TRUE TO imputed COLUMN
-    MAF1pc$imputed[i] = T
+    MCMC1$imputed[i] = T
     
     ## READ IN THE INFO SCORE
-    info.score <- read_delim(paste0(DIR, chips$array[i], "/ReferencePanel_v2/chrMT_1kg_", chips$array[i], "_imputed_info"), delim = " ")
+    info.score <- read_delim(paste0(DIR, chips$array[i], "/MCMC_Experiments/MCMC1/chrMT_1kg_", chips$array[i], "_imputed_MCMC", mcmc,"_info"), delim = " ")
     exclude.info.score  = subset(info.score, !(info.score$info >= info.cutoff))
     exclude.pos = as.character(exclude.info.score$position)
   
-    MAF1pc$SNP.Ref.Only[i] = nrow(subset(info.score, info.score$type == 0))
-    MAF1pc$SNP.Ref.Samp[i] = nrow(subset(info.score, info.score$type == 2))
-    MAF1pc$SNP.Samp.Only[i] = nrow(subset(info.score, info.score$type == 3))
-    MAF1pc$TOTAL[i] = sum(MAF1pc$SNP.Ref.Only[i], MAF1pc$SNP.Ref.Samp[i], MAF1pc$SNP.Samp.Only[i])
-    MAF1pc$Retained.After.Filt[i] = nrow(subset(info.score, info.score$info >= info.cutoff))
+    MCMC1$SNP.Ref.Only[i] = nrow(subset(info.score, info.score$type == 0))
+    MCMC1$SNP.Ref.Samp[i] = nrow(subset(info.score, info.score$type == 2))
+    MCMC1$SNP.Samp.Only[i] = nrow(subset(info.score, info.score$type == 3))
+    MCMC1$TOTAL[i] = sum(MCMC1$SNP.Ref.Only[i], MCMC1$SNP.Ref.Samp[i], MCMC1$SNP.Samp.Only[i])
+    MCMC1$Retained.After.Filt[i] = nrow(subset(info.score, info.score$info >= info.cutoff))
     
     ## FILTER VARIANTS IN TRUTH SET
     full_1kGP_cut = full_1kGP[, -(which(names(full_1kGP) %in% exclude.pos))]
@@ -79,8 +84,9 @@ for (i in 1:length(chips$array)) {
     }
     
     ## READ IN .ped AND .map FILES FOR IMPUTED SET 
-    imputed_1kGP <- generate_snp_data(paste0(DIR, chips$array[i], "/ReferencePanel_v2/chrMT_1kg_", chips$array[i], "_imputed.map"),
-                                      paste0(DIR, chips$array[i], "/ReferencePanel_v2/chrMT_1kg_", chips$array[i], "_imputed.ped"))
+    message(paste("READING IN .ped AND .map FILES FOR ", chips$array[i], " MCMC = ", mcmc))
+    imputed_1kGP <- generate_snp_data(paste0(DIR, chips$array[i], "/MCMC_Experiments/MCMC1/chrMT_1kg_", chips$array[i], "_imputed_MCMC", mcmc, ".map"),
+                                      paste0(DIR, chips$array[i], "/MCMC_Experiments/MCMC1/chrMT_1kg_", chips$array[i], "_imputed_MCMC", mcmc, ".ped"))
     imputed_index_exclude = which(names(imputed_1kGP) %in% exclude.pos)
     if (length(imputed_index_exclude) > 0) {
       imputed_1kGP_cut = imputed_1kGP[, -imputed_index_exclude]
@@ -106,42 +112,43 @@ for (i in 1:length(chips$array)) {
     conc_imputed = full_1kGP_hg$haplogroup == imputed_1kGP_hg$haplogroup
     conc_typed_pc = length(conc_typed[conc_typed == T]) / length(conc_typed)
     conc_imputed_pc = length(conc_imputed[conc_imputed == T]) / length(conc_imputed)
-    MAF1pc$Typed.hg.Conc[i] = conc_typed_pc
-    MAF1pc$Imputed.hg.Conc[i] = conc_imputed_pc
+    MCMC1$Typed.hg.Conc[i] = conc_typed_pc
+    MCMC1$Imputed.hg.Conc[i] = conc_imputed_pc
   } else {
-    MAF1pc$imputed[i] = F
-    MAF1pc$SNP.Ref.Only[i] = NA
-    MAF1pc$SNP.Ref.Samp[i] = NA
-    MAF1pc$SNP.Samp.Only[i] = NA
-    MAF1pc$Retained.After.Filt[i] = NA
-    MAF1pc$Typed.hg.Conc[i] = NA
-    MAF1pc$Imputed.hg.Conc[i] = NA
+    MCMC1$imputed[i] = F
+    MCMC1$SNP.Ref.Only[i] = NA
+    MCMC1$SNP.Ref.Samp[i] = NA
+    MCMC1$SNP.Samp.Only[i] = NA
+    MCMC1$Retained.After.Filt[i] = NA
+    MCMC1$Typed.hg.Conc[i] = NA
+    MCMC1$Imputed.hg.Conc[i] = NA
   }
 }
-write.csv(MAF1pc, "/Users/u5015730/GitCode/MitoImputePrep/metadata/ConcordanceTables_MAF1pc.csv", quote = F, row.names = F)
+write.csv(MCMC1, "~/GitCode/MitoImputePrep/metadata/ConcordanceTables_MCMC1.csv", quote = F, row.names = F)
 
-# REF PANEL v3 (MAF >= 0.1%)
-refPanel = "ReferencePanel_v3"
-for (i in 1:length(chips$array)) {
+# MCMC = 5
+for (i in 1:length(chips$array)) { 
   print(paste0(i, " / ", length(chips$array)))
   DIR = "/Volumes/TimMcInerney/MitoImpute/data/STRANDS/"
+  mcmc = "5"
   
-  MAF0.1pc$array[i] = as.character(chips$array[i])
-  MAF0.1pc$MAF[i] = "0.01"
-  if (file.exists(paste0(DIR, chips$array[i], "/ReferencePanel_v3/chrMT_1kg_", chips$array[i], "_imputed_info"))) {
+  # REF PANEL v2 (MAF >= 1%)
+  MCMC5$array[i] = as.character(chips$array[i])
+  MCMC5$MCMC[i] = "1"
+  if (file.exists(paste0(DIR, chips$array[i], "/MCMC_Experiments/MCMC5/chrMT_1kg_", chips$array[i], "_imputed_MCMC", mcmc,"_info"))) {
     ## IF AN ARRAY HAD IMPUTATION PERFORMED ON IT, ASSIGN VALUE TRUE TO imputed COLUMN
-    MAF0.1pc$imputed[i] = T
+    MCMC5$imputed[i] = T
     
     ## READ IN THE INFO SCORE
-    info.score <- read_delim(paste0(DIR, chips$array[i], "/", refPanel, "/chrMT_1kg_", chips$array[i], "_imputed_info"), delim = " ")
+    info.score <- read_delim(paste0(DIR, chips$array[i], "/MCMC_Experiments/MCMC5/chrMT_1kg_", chips$array[i], "_imputed_MCMC", mcmc,"_info"), delim = " ")
     exclude.info.score  = subset(info.score, !(info.score$info >= info.cutoff))
     exclude.pos = as.character(exclude.info.score$position)
     
-    MAF0.1pc$SNP.Ref.Only[i] = nrow(subset(info.score, info.score$type == 0))
-    MAF0.1pc$SNP.Ref.Samp[i] = nrow(subset(info.score, info.score$type == 2))
-    MAF0.1pc$SNP.Samp.Only[i] = nrow(subset(info.score, info.score$type == 3))
-    MAF0.1pc$TOTAL[i] = sum(MAF0.1pc$SNP.Ref.Only[i], MAF0.1pc$SNP.Ref.Samp[i], MAF0.1pc$SNP.Samp.Only[i])
-    MAF0.1pc$Retained.After.Filt[i] = nrow(subset(info.score, info.score$info >= info.cutoff))
+    MCMC5$SNP.Ref.Only[i] = nrow(subset(info.score, info.score$type == 0))
+    MCMC5$SNP.Ref.Samp[i] = nrow(subset(info.score, info.score$type == 2))
+    MCMC5$SNP.Samp.Only[i] = nrow(subset(info.score, info.score$type == 3))
+    MCMC5$TOTAL[i] = sum(MCMC5$SNP.Ref.Only[i], MCMC5$SNP.Ref.Samp[i], MCMC5$SNP.Samp.Only[i])
+    MCMC5$Retained.After.Filt[i] = nrow(subset(info.score, info.score$info >= info.cutoff))
     
     ## FILTER VARIANTS IN TRUTH SET
     full_1kGP_cut = full_1kGP[, -(which(names(full_1kGP) %in% exclude.pos))]
@@ -158,8 +165,9 @@ for (i in 1:length(chips$array)) {
     }
     
     ## READ IN .ped AND .map FILES FOR IMPUTED SET 
-    imputed_1kGP <- generate_snp_data(paste0(DIR, chips$array[i], "/", refPanel, "/chrMT_1kg_", chips$array[i], "_imputed.map"),
-                                      paste0(DIR, chips$array[i], "/", refPanel, "/chrMT_1kg_", chips$array[i], "_imputed.ped"))
+    message(paste("READING IN .ped AND .map FILES FOR ", chips$array[i], " MCMC = ", mcmc))
+    imputed_1kGP <- generate_snp_data(paste0(DIR, chips$array[i], "/MCMC_Experiments/MCMC5/chrMT_1kg_", chips$array[i], "_imputed_MCMC", mcmc, ".map"),
+                                      paste0(DIR, chips$array[i], "/MCMC_Experiments/MCMC5/chrMT_1kg_", chips$array[i], "_imputed_MCMC", mcmc, ".ped"))
     imputed_index_exclude = which(names(imputed_1kGP) %in% exclude.pos)
     if (length(imputed_index_exclude) > 0) {
       imputed_1kGP_cut = imputed_1kGP[, -imputed_index_exclude]
@@ -169,8 +177,8 @@ for (i in 1:length(chips$array)) {
     }
     message("IMPUTED HAPLOTYPES CLASSIFIED")
     
-    typed_1kGP <- generate_snp_data(paste0(DIR, chips$array[i], "/", refPanel, "/chrMT_1kg_", chips$array[i], ".map"),
-                                    paste0(DIR, chips$array[i], "/", refPanel, "/chrMT_1kg_", chips$array[i], ".ped"))
+    typed_1kGP <- generate_snp_data(paste0(DIR, chips$array[i], "/ReferencePanel_v2/chrMT_1kg_", chips$array[i], ".map"),
+                                    paste0(DIR, chips$array[i], "/ReferencePanel_v2/chrMT_1kg_", chips$array[i], ".ped"))
     typed_index_exclude = which(names(typed_1kGP) %in% exclude.pos)
     if (length(typed_index_exclude) > 0) {
       typed_1kGP_cut = typed_1kGP[, -typed_index_exclude]
@@ -185,42 +193,43 @@ for (i in 1:length(chips$array)) {
     conc_imputed = full_1kGP_hg$haplogroup == imputed_1kGP_hg$haplogroup
     conc_typed_pc = length(conc_typed[conc_typed == T]) / length(conc_typed)
     conc_imputed_pc = length(conc_imputed[conc_imputed == T]) / length(conc_imputed)
-    MAF0.1pc$Typed.hg.Conc[i] = conc_typed_pc
-    MAF0.1pc$Imputed.hg.Conc[i] = conc_imputed_pc
+    MCMC5$Typed.hg.Conc[i] = conc_typed_pc
+    MCMC5$Imputed.hg.Conc[i] = conc_imputed_pc
   } else {
-    MAF0.1pc$imputed[i] = F
-    MAF0.1pc$SNP.Ref.Only[i] = NA
-    MAF0.1pc$SNP.Ref.Samp[i] = NA
-    MAF0.1pc$SNP.Samp.Only[i] = NA
-    MAF0.1pc$Retained.After.Filt[i] = NA
-    MAF0.1pc$Typed.hg.Conc[i] = NA
-    MAF0.1pc$Imputed.hg.Conc[i] = NA
+    MCMC5$imputed[i] = F
+    MCMC5$SNP.Ref.Only[i] = NA
+    MCMC5$SNP.Ref.Samp[i] = NA
+    MCMC5$SNP.Samp.Only[i] = NA
+    MCMC5$Retained.After.Filt[i] = NA
+    MCMC5$Typed.hg.Conc[i] = NA
+    MCMC5$Imputed.hg.Conc[i] = NA
   }
 }
-write.csv(MAF0.1pc, "/Users/u5015730/GitCode/MitoImputePrep/metadata/ConcordanceTables_MAF0-1pc.csv", quote = F, row.names = F)
+write.csv(MCMC5, "~/GitCode/MitoImputePrep/metadata/ConcordanceTables_MCMC5.csv", quote = F, row.names = F)
 
-# REF PANEL v4 (MAF >= 0.5%)
-refPanel = "ReferencePanel_v4"
-for (i in 1:length(chips$array)) {
+# MCMC = 10
+for (i in 1:length(chips$array)) { 
   print(paste0(i, " / ", length(chips$array)))
   DIR = "/Volumes/TimMcInerney/MitoImpute/data/STRANDS/"
+  mcmc = "10"
   
-  MAF0.5pc$array[i] = as.character(chips$array[i])
-  MAF0.5pc$MAF[i] = "0.05"
-  if (file.exists(paste0(DIR, chips$array[i], "/", refPanel, "/chrMT_1kg_", chips$array[i], "_imputed_info"))) {
+  # REF PANEL v2 (MAF >= 1%)
+  MCMC10$array[i] = as.character(chips$array[i])
+  MCMC10$MCMC[i] = "1"
+  if (file.exists(paste0(DIR, chips$array[i], "/MCMC_Experiments/MCMC10/chrMT_1kg_", chips$array[i], "_imputed_MCMC", mcmc,"_info"))) {
     ## IF AN ARRAY HAD IMPUTATION PERFORMED ON IT, ASSIGN VALUE TRUE TO imputed COLUMN
-    MAF0.5pc$imputed[i] = T
+    MCMC10$imputed[i] = T
     
     ## READ IN THE INFO SCORE
-    info.score <- read_delim(paste0(DIR, chips$array[i], "/", refPanel, "/chrMT_1kg_", chips$array[i], "_imputed_info"), delim = " ")
+    info.score <- read_delim(paste0(DIR, chips$array[i], "/MCMC_Experiments/MCMC10/chrMT_1kg_", chips$array[i], "_imputed_MCMC", mcmc,"_info"), delim = " ")
     exclude.info.score  = subset(info.score, !(info.score$info >= info.cutoff))
     exclude.pos = as.character(exclude.info.score$position)
     
-    MAF0.5pc$SNP.Ref.Only[i] = nrow(subset(info.score, info.score$type == 0))
-    MAF0.5pc$SNP.Ref.Samp[i] = nrow(subset(info.score, info.score$type == 2))
-    MAF0.5pc$SNP.Samp.Only[i] = nrow(subset(info.score, info.score$type == 3))
-    MAF0.5pc$TOTAL[i] = sum(MAF0.5pc$SNP.Ref.Only[i], MAF0.5pc$SNP.Ref.Samp[i], MAF0.5pc$SNP.Samp.Only[i])
-    MAF0.5pc$Retained.After.Filt[i] = nrow(subset(info.score, info.score$info >= info.cutoff))
+    MCMC10$SNP.Ref.Only[i] = nrow(subset(info.score, info.score$type == 0))
+    MCMC10$SNP.Ref.Samp[i] = nrow(subset(info.score, info.score$type == 2))
+    MCMC10$SNP.Samp.Only[i] = nrow(subset(info.score, info.score$type == 3))
+    MCMC10$TOTAL[i] = sum(MCMC10$SNP.Ref.Only[i], MCMC10$SNP.Ref.Samp[i], MCMC10$SNP.Samp.Only[i])
+    MCMC10$Retained.After.Filt[i] = nrow(subset(info.score, info.score$info >= info.cutoff))
     
     ## FILTER VARIANTS IN TRUTH SET
     full_1kGP_cut = full_1kGP[, -(which(names(full_1kGP) %in% exclude.pos))]
@@ -237,8 +246,9 @@ for (i in 1:length(chips$array)) {
     }
     
     ## READ IN .ped AND .map FILES FOR IMPUTED SET 
-    imputed_1kGP <- generate_snp_data(paste0(DIR, chips$array[i], "/", refPanel, "/chrMT_1kg_", chips$array[i], "_imputed.map"),
-                                      paste0(DIR, chips$array[i], "/", refPanel, "/chrMT_1kg_", chips$array[i], "_imputed.ped"))
+    message(paste("READING IN .ped AND .map FILES FOR ", chips$array[i], " MCMC = ", mcmc))
+    imputed_1kGP <- generate_snp_data(paste0(DIR, chips$array[i], "/MCMC_Experiments/MCMC10/chrMT_1kg_", chips$array[i], "_imputed_MCMC", mcmc, ".map"),
+                                      paste0(DIR, chips$array[i], "/MCMC_Experiments/MCMC10/chrMT_1kg_", chips$array[i], "_imputed_MCMC", mcmc, ".ped"))
     imputed_index_exclude = which(names(imputed_1kGP) %in% exclude.pos)
     if (length(imputed_index_exclude) > 0) {
       imputed_1kGP_cut = imputed_1kGP[, -imputed_index_exclude]
@@ -248,8 +258,8 @@ for (i in 1:length(chips$array)) {
     }
     message("IMPUTED HAPLOTYPES CLASSIFIED")
     
-    typed_1kGP <- generate_snp_data(paste0(DIR, chips$array[i], "/", refPanel, "/chrMT_1kg_", chips$array[i], ".map"),
-                                    paste0(DIR, chips$array[i], "/", refPanel, "/chrMT_1kg_", chips$array[i], ".ped"))
+    typed_1kGP <- generate_snp_data(paste0(DIR, chips$array[i], "/ReferencePanel_v2/chrMT_1kg_", chips$array[i], ".map"),
+                                    paste0(DIR, chips$array[i], "/ReferencePanel_v2/chrMT_1kg_", chips$array[i], ".ped"))
     typed_index_exclude = which(names(typed_1kGP) %in% exclude.pos)
     if (length(typed_index_exclude) > 0) {
       typed_1kGP_cut = typed_1kGP[, -typed_index_exclude]
@@ -264,19 +274,100 @@ for (i in 1:length(chips$array)) {
     conc_imputed = full_1kGP_hg$haplogroup == imputed_1kGP_hg$haplogroup
     conc_typed_pc = length(conc_typed[conc_typed == T]) / length(conc_typed)
     conc_imputed_pc = length(conc_imputed[conc_imputed == T]) / length(conc_imputed)
-    MAF0.5pc$Typed.hg.Conc[i] = conc_typed_pc
-    MAF0.5pc$Imputed.hg.Conc[i] = conc_imputed_pc
+    MCMC10$Typed.hg.Conc[i] = conc_typed_pc
+    MCMC10$Imputed.hg.Conc[i] = conc_imputed_pc
   } else {
-    MAF0.5pc$imputed[i] = F
-    MAF0.5pc$SNP.Ref.Only[i] = NA
-    MAF0.5pc$SNP.Ref.Samp[i] = NA
-    MAF0.5pc$SNP.Samp.Only[i] = NA
-    MAF0.5pc$Retained.After.Filt[i] = NA
-    MAF0.5pc$Typed.hg.Conc[i] = NA
-    MAF0.5pc$Imputed.hg.Conc[i] = NA
+    MCMC10$imputed[i] = F
+    MCMC10$SNP.Ref.Only[i] = NA
+    MCMC10$SNP.Ref.Samp[i] = NA
+    MCMC10$SNP.Samp.Only[i] = NA
+    MCMC10$Retained.After.Filt[i] = NA
+    MCMC10$Typed.hg.Conc[i] = NA
+    MCMC10$Imputed.hg.Conc[i] = NA
   }
 }
-write.csv(MAF0.5pc, "/Users/u5015730/GitCode/MitoImputePrep/metadata/ConcordanceTables_MAF0-5pc.csv", quote = F, row.names = F)
+write.csv(MCMC10, "~/GitCode/MitoImputePrep/metadata/ConcordanceTables_MCMC10.csv", quote = F, row.names = F)
 
-COMB = rbind(MAF1pc, MAF0.5pc, MAF0.1pc)
-write.csv(COMB, "/Users/u5015730/GitCode/MitoImputePrep/metadata/ConcordanceTables_Combined.csv", quote = F, row.names = F)
+# MCMC = 20
+for (i in 1:length(chips$array)) { 
+  print(paste0(i, " / ", length(chips$array)))
+  DIR = "/Volumes/TimMcInerney/MitoImpute/data/STRANDS/"
+  mcmc = "20"
+  
+  # REF PANEL v2 (MAF >= 1%)
+  MCMC20$array[i] = as.character(chips$array[i])
+  MCMC20$MCMC[i] = "1"
+  if (file.exists(paste0(DIR, chips$array[i], "/MCMC_Experiments/MCMC20/chrMT_1kg_", chips$array[i], "_imputed_MCMC", mcmc,"_info"))) {
+    ## IF AN ARRAY HAD IMPUTATION PERFORMED ON IT, ASSIGN VALUE TRUE TO imputed COLUMN
+    MCMC20$imputed[i] = T
+    
+    ## READ IN THE INFO SCORE
+    info.score <- read_delim(paste0(DIR, chips$array[i], "/MCMC_Experiments/MCMC20/chrMT_1kg_", chips$array[i], "_imputed_MCMC", mcmc,"_info"), delim = " ")
+    exclude.info.score  = subset(info.score, !(info.score$info >= info.cutoff))
+    exclude.pos = as.character(exclude.info.score$position)
+    
+    MCMC20$SNP.Ref.Only[i] = nrow(subset(info.score, info.score$type == 0))
+    MCMC20$SNP.Ref.Samp[i] = nrow(subset(info.score, info.score$type == 2))
+    MCMC20$SNP.Samp.Only[i] = nrow(subset(info.score, info.score$type == 3))
+    MCMC20$TOTAL[i] = sum(MCMC20$SNP.Ref.Only[i], MCMC20$SNP.Ref.Samp[i], MCMC20$SNP.Samp.Only[i])
+    MCMC20$Retained.After.Filt[i] = nrow(subset(info.score, info.score$info >= info.cutoff))
+    
+    ## FILTER VARIANTS IN TRUTH SET
+    full_1kGP_cut = full_1kGP[, -(which(names(full_1kGP) %in% exclude.pos))]
+    full_1kGP_hg = HiMC::getClassifications(full_1kGP_cut)
+    full_index_exclude = which(names(full_1kGP) %in% exclude.pos)
+    if (length(full_index_exclude) > 0) {
+      full_1kGP_cut = full_1kGP[, -full_index_exclude]
+      full_1kGP_hg = HiMC::getClassifications(full_1kGP_cut)
+      message("TRUTH HAPLOTYPES CLASSIFIED")
+    } else {
+      message("CAUTION! NOT FILTERING")
+      message("PULLING FROM FULL LIST")
+      full_1kGP_hg = full_1kGP_hg_FULL
+    }
+    
+    ## READ IN .ped AND .map FILES FOR IMPUTED SET 
+    message(paste("READING IN .ped AND .map FILES FOR ", chips$array[i], " MCMC = ", mcmc))
+    imputed_1kGP <- generate_snp_data(paste0(DIR, chips$array[i], "/MCMC_Experiments/MCMC20/chrMT_1kg_", chips$array[i], "_imputed_MCMC", mcmc, ".map"),
+                                      paste0(DIR, chips$array[i], "/MCMC_Experiments/MCMC20/chrMT_1kg_", chips$array[i], "_imputed_MCMC", mcmc, ".ped"))
+    imputed_index_exclude = which(names(imputed_1kGP) %in% exclude.pos)
+    if (length(imputed_index_exclude) > 0) {
+      imputed_1kGP_cut = imputed_1kGP[, -imputed_index_exclude]
+      imputed_1kGP_hg = HiMC::getClassifications(imputed_1kGP_cut)
+    } else {
+      imputed_1kGP_hg = HiMC::getClassifications(imputed_1kGP)
+    }
+    message("IMPUTED HAPLOTYPES CLASSIFIED")
+    
+    typed_1kGP <- generate_snp_data(paste0(DIR, chips$array[i], "/ReferencePanel_v2/chrMT_1kg_", chips$array[i], ".map"),
+                                    paste0(DIR, chips$array[i], "/ReferencePanel_v2/chrMT_1kg_", chips$array[i], ".ped"))
+    typed_index_exclude = which(names(typed_1kGP) %in% exclude.pos)
+    if (length(typed_index_exclude) > 0) {
+      typed_1kGP_cut = typed_1kGP[, -typed_index_exclude]
+      typed_1kGP_hg = HiMC::getClassifications(typed_1kGP_cut)
+    } else {
+      typed_1kGP_hg = HiMC::getClassifications(typed_1kGP)
+    }
+    message("TYPED HAPLOTYPES CLASSIFIED")
+    
+    ## CALCULATE HAPLOGROUP CONCORDANCE
+    conc_typed = full_1kGP_hg$haplogroup == typed_1kGP_hg$haplogroup
+    conc_imputed = full_1kGP_hg$haplogroup == imputed_1kGP_hg$haplogroup
+    conc_typed_pc = length(conc_typed[conc_typed == T]) / length(conc_typed)
+    conc_imputed_pc = length(conc_imputed[conc_imputed == T]) / length(conc_imputed)
+    MCMC20$Typed.hg.Conc[i] = conc_typed_pc
+    MCMC20$Imputed.hg.Conc[i] = conc_imputed_pc
+  } else {
+    MCMC20$imputed[i] = F
+    MCMC20$SNP.Ref.Only[i] = NA
+    MCMC20$SNP.Ref.Samp[i] = NA
+    MCMC20$SNP.Samp.Only[i] = NA
+    MCMC20$Retained.After.Filt[i] = NA
+    MCMC20$Typed.hg.Conc[i] = NA
+    MCMC20$Imputed.hg.Conc[i] = NA
+  }
+}
+write.csv(MCMC20, "~/GitCode/MitoImputePrep/metadata/ConcordanceTables_MCMC20.csv", quote = F, row.names = F)
+
+COMB = rbind(MCMC1, MCMC5, MCMC10, MCMC20)
+write.csv(COMB, "/Users/u5015730/GitCode/MitoImputePrep/metadata/ConcordanceTables_MCMC_Combined.csv", quote = F, row.names = F)
