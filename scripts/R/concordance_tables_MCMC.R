@@ -53,7 +53,7 @@ for (i in 1:length(chips$array)) {
   
   # REF PANEL v2 (MAF >= 1%)
   MCMC1$array[i] = as.character(chips$array[i])
-  MCMC1$MCMC[i] = "1"
+  MCMC1$MCMC[i] = mcmc
   if (file.exists(paste0(DIR, chips$array[i], "/MCMC_Experiments/MCMC1/chrMT_1kg_", chips$array[i], "_imputed_MCMC", mcmc,"_info"))) {
     ## IF AN ARRAY HAD IMPUTATION PERFORMED ON IT, ASSIGN VALUE TRUE TO imputed COLUMN
     MCMC1$imputed[i] = T
@@ -134,7 +134,7 @@ for (i in 1:length(chips$array)) {
   
   # REF PANEL v2 (MAF >= 1%)
   MCMC5$array[i] = as.character(chips$array[i])
-  MCMC5$MCMC[i] = "1"
+  MCMC5$MCMC[i] = mcmc
   if (file.exists(paste0(DIR, chips$array[i], "/MCMC_Experiments/MCMC5/chrMT_1kg_", chips$array[i], "_imputed_MCMC", mcmc,"_info"))) {
     ## IF AN ARRAY HAD IMPUTATION PERFORMED ON IT, ASSIGN VALUE TRUE TO imputed COLUMN
     MCMC5$imputed[i] = T
@@ -211,7 +211,7 @@ write.csv(MCMC5, "~/GitCode/MitoImputePrep/metadata/ConcordanceTables_MCMC5.csv"
 for (i in 1:length(chips$array)) { 
   print(paste0(i, " / ", length(chips$array)))
   DIR = "/Volumes/TimMcInerney/MitoImpute/data/STRANDS/"
-  mcmc = "10"
+  mcmc = mcmc
   
   # REF PANEL v2 (MAF >= 1%)
   MCMC10$array[i] = as.character(chips$array[i])
@@ -292,7 +292,7 @@ write.csv(MCMC10, "~/GitCode/MitoImputePrep/metadata/ConcordanceTables_MCMC10.cs
 for (i in 1:length(chips$array)) { 
   print(paste0(i, " / ", length(chips$array)))
   DIR = "/Volumes/TimMcInerney/MitoImpute/data/STRANDS/"
-  mcmc = "20"
+  mcmc = mcmc
   
   # REF PANEL v2 (MAF >= 1%)
   MCMC20$array[i] = as.character(chips$array[i])
