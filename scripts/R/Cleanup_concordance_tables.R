@@ -2,6 +2,7 @@ require(ggplot2)
 require(tidyr)
 require(emmeans)
 
+###############################################################################
 ## MAF 
 f = "~/GitCode/MitoImputePrep/metadata/ConcordanceTables_MAF_Combined.csv"
 x = read.csv(f, header = T)
@@ -52,6 +53,15 @@ summary(emmeans(l, pairwise ~ MAF))
 
 boxplot(diff ~ MAF, data = x3)
 
+l2 = lm(log(Imputed.hg.Conc) ~ MAF, data = x3)
+anova(l2)
+summary(l2)
+emmeans(l2, pairwise ~ MAF, type="response")
+summary(emmeans(l2, pairwise ~ MAF))
+
+boxplot(Imputed.hg.Conc ~ MAF, data = x3)
+
+###############################################################################
 ## kHAP 
 f = "~/GitCode/MitoImputePrep/metadata/ConcordanceTables_kHAP_Combined.csv"
 x = read.csv(f, header = T)
@@ -102,6 +112,15 @@ summary(emmeans(l, pairwise ~ kHAP))
 
 boxplot(diff ~ kHAP, data = x3)
 
+l2 = lm(log(Imputed.hg.Conc) ~ kHAP, data = x3)
+anova(l2)
+summary(l2)
+emmeans(l2, pairwise ~ kHAP, type="response")
+summary(emmeans(l2, pairwise ~ kHAP))
+
+boxplot(Imputed.hg.Conc ~ kHAP, data = x3)
+
+###############################################################################
 ## MCMC 
 f = "~/GitCode/MitoImputePrep/metadata/ConcordanceTables_MCMC_Combined_2.csv"
 x = read.csv(f, header = T)
@@ -151,3 +170,12 @@ emmeans(l, pairwise ~ MCMC)
 summary(emmeans(l, pairwise ~ MCMC))
 
 boxplot(diff ~ MCMC, data = x3)
+
+l2 = lm(Imputed.hg.Conc ~ MCMC, data = x3)
+anova(l2)
+summary(l2)
+emmeans(l2, pairwise ~ MCMC)
+#emmeans(l2, pairwise ~ MCMC, type="response") # USE IF LOG SCALE IN lm FUNCTION
+summary(emmeans(l2, pairwise ~ MCMC))
+
+boxplot(Imputed.hg.Conc ~ MCMC, data = x3)
