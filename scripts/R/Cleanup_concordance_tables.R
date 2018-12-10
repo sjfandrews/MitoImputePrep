@@ -50,6 +50,8 @@ summary(l)
 emmeans(l, pairwise ~ MAF)
 summary(emmeans(l, pairwise ~ MAF))
 
+boxplot(diff ~ MAF, data = x3)
+
 ## kHAP 
 f = "~/GitCode/MitoImputePrep/metadata/ConcordanceTables_kHAP_Combined.csv"
 x = read.csv(f, header = T)
@@ -98,6 +100,8 @@ summary(l)
 emmeans(l, pairwise ~ kHAP)
 summary(emmeans(l, pairwise ~ kHAP))
 
+boxplot(diff ~ kHAP, data = x3)
+
 ## MCMC 
 f = "~/GitCode/MitoImputePrep/metadata/ConcordanceTables_MCMC_Combined_2.csv"
 x = read.csv(f, header = T)
@@ -145,3 +149,5 @@ anova(l)
 summary(l)
 emmeans(l, pairwise ~ MCMC)
 summary(emmeans(l, pairwise ~ MCMC))
+
+boxplot(diff ~ MCMC, data = x3)
