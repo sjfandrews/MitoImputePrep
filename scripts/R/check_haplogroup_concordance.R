@@ -6,6 +6,8 @@ library(HiMC); data(nodes)
 chips = read.table("~/GitCode/MitoImputePrep/scripts/INFORMATION_LISTS/b37_platforms.txt")
 names(chips) = c("array")
 
+info.cutoff = 0.3
+
 ## READ IN .ped AND .map FILES FOR TRUTH SET 
 full_1kGP = generate_snp_data("/Volumes/TimMcInerney/MitoImpute/data/PLINK/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.map",
                               "/Volumes/TimMcInerney/MitoImpute/data/PLINK/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.ped")
