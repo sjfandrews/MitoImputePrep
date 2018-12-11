@@ -17,7 +17,7 @@ full_1kGP_hg_FULL = HiMC::getClassifications(full_1kGP)
 ### WORK ON THE THE ith IMPUTED SET
 ## MAKE DATA FRAMES FOR EACH MINOR ALLELE FREQ
 
-COLS = c("array", "MAF", "imputed", "SNP.Ref.Only", "SNP.Ref.Samp", "SNP.Samp.Only", "TOTAL", "Retained.After.Filt", "Typed.hg.Conc", "Imputed.hg.Conc")
+COLS = c("array", "MAF", "imputed", "mean.info", "SNP.Ref.Only", "SNP.Ref.Samp", "SNP.Samp.Only", "TOTAL", "Retained.After.Filt", "Typed.hg.Conc", "Imputed.hg.Conc")
 
 #CONC_TABLE = data.frame(matrix(ncol = 6, nrow = ))
 MAF1pc = data.frame(matrix(ncol = length(COLS), nrow = nrow(chips)))
@@ -45,10 +45,11 @@ MAF0.1pc$imputed = FALSE
 for (i in 1:length(chips$array)) {
   print(paste0(i, " / ", length(chips$array)))
   DIR = "/Volumes/TimMcInerney/MitoImpute/data/STRANDS/"
+  maf = "0.1"
   
   # REF PANEL v2 (MAF >= 1%)
   MAF1pc$array[i] = as.character(chips$array[i])
-  MAF1pc$MAF[i] = "0.1"
+  MAF1pc$MAF[i] = maf
   if (file.exists(paste0(DIR, chips$array[i], "/ReferencePanel_v2/chrMT_1kg_", chips$array[i], "_imputed_info"))) {
     ## IF AN ARRAY HAD IMPUTATION PERFORMED ON IT, ASSIGN VALUE TRUE TO imputed COLUMN
     MAF1pc$imputed[i] = T
@@ -127,9 +128,11 @@ refPanel = "ReferencePanel_v3"
 for (i in 1:length(chips$array)) {
   print(paste0(i, " / ", length(chips$array)))
   DIR = "/Volumes/TimMcInerney/MitoImpute/data/STRANDS/"
+  maf = "0.01"
   
-  MAF0.1pc$array[i] = as.character(chips$array[i])
-  MAF0.1pc$MAF[i] = "0.01"
+  # REF PANEL v3 (MAF >= 0.1%)
+  MAF1pc$array[i] = as.character(chips$array[i])
+  MAF1pc$MAF[i] = maf
   if (file.exists(paste0(DIR, chips$array[i], "/ReferencePanel_v3/chrMT_1kg_", chips$array[i], "_imputed_info"))) {
     ## IF AN ARRAY HAD IMPUTATION PERFORMED ON IT, ASSIGN VALUE TRUE TO imputed COLUMN
     MAF0.1pc$imputed[i] = T
@@ -208,9 +211,11 @@ refPanel = "ReferencePanel_v4"
 for (i in 1:length(chips$array)) {
   print(paste0(i, " / ", length(chips$array)))
   DIR = "/Volumes/TimMcInerney/MitoImpute/data/STRANDS/"
+  maf = "0.05"
   
-  MAF0.5pc$array[i] = as.character(chips$array[i])
-  MAF0.5pc$MAF[i] = "0.05"
+  # REF PANEL v4 (MAF >= 0.5%)
+  MAF1pc$array[i] = as.character(chips$array[i])
+  MAF1pc$MAF[i] = maf
   if (file.exists(paste0(DIR, chips$array[i], "/", refPanel, "/chrMT_1kg_", chips$array[i], "_imputed_info"))) {
     ## IF AN ARRAY HAD IMPUTATION PERFORMED ON IT, ASSIGN VALUE TRUE TO imputed COLUMN
     MAF0.5pc$imputed[i] = T
