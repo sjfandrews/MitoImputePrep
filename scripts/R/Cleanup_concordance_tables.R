@@ -53,7 +53,7 @@ summary(emmeans(l, pairwise ~ MAF))
 
 boxplot(diff ~ MAF, data = x3)
 
-l2 = lm(log(Imputed.hg.Conc) ~ MAF, data = x3)
+l2 = lm(Imputed.hg.Conc ~ MAF, data = x3)
 anova(l2)
 summary(l2)
 emmeans(l2, pairwise ~ MAF, type="response")
@@ -112,7 +112,7 @@ summary(emmeans(l, pairwise ~ kHAP))
 
 boxplot(diff ~ kHAP, data = x3)
 
-l2 = lm(log(Imputed.hg.Conc) ~ kHAP, data = x3)
+l2 = lm(Imputed.hg.Conc ~ kHAP, data = x3)
 anova(l2)
 summary(l2)
 emmeans(l2, pairwise ~ kHAP, type="response")
