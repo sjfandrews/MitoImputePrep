@@ -60,9 +60,11 @@ for (i in 1:length(chips$array)) {
     
     ## READ IN THE INFO SCORE
     info.score <- read_delim(paste0(DIR, chips$array[i], "/MCMC_Experiments/MCMC1/chrMT_1kg_", chips$array[i], "_imputed_MCMC", mcmc,"_info"), delim = " ")
-    exclude.info.score  = subset(info.score, !(info.score$info >= info.cutoff))
+    mean.info = mean(info.score$info)
+    exclude.info.score = subset(info.score, !(info.score$info >= info.cutoff))
     exclude.pos = as.character(exclude.info.score$position)
   
+    MCMC1$mean.info[i] = mean.info
     MCMC1$SNP.Ref.Only[i] = nrow(subset(info.score, info.score$type == 0))
     MCMC1$SNP.Ref.Samp[i] = nrow(subset(info.score, info.score$type == 2))
     MCMC1$SNP.Samp.Only[i] = nrow(subset(info.score, info.score$type == 3))
@@ -141,9 +143,11 @@ for (i in 1:length(chips$array)) {
     
     ## READ IN THE INFO SCORE
     info.score <- read_delim(paste0(DIR, chips$array[i], "/MCMC_Experiments/MCMC5/chrMT_1kg_", chips$array[i], "_imputed_MCMC", mcmc,"_info"), delim = " ")
-    exclude.info.score  = subset(info.score, !(info.score$info >= info.cutoff))
+    mean.info = mean(info.score$info)
+    exclude.info.score = subset(info.score, !(info.score$info >= info.cutoff))
     exclude.pos = as.character(exclude.info.score$position)
     
+    MCMC5$mean.info[i] = mean.info
     MCMC5$SNP.Ref.Only[i] = nrow(subset(info.score, info.score$type == 0))
     MCMC5$SNP.Ref.Samp[i] = nrow(subset(info.score, info.score$type == 2))
     MCMC5$SNP.Samp.Only[i] = nrow(subset(info.score, info.score$type == 3))
@@ -222,9 +226,11 @@ for (i in 1:length(chips$array)) {
     
     ## READ IN THE INFO SCORE
     info.score <- read_delim(paste0(DIR, chips$array[i], "/MCMC_Experiments/MCMC10/chrMT_1kg_", chips$array[i], "_imputed_MCMC", mcmc,"_info"), delim = " ")
-    exclude.info.score  = subset(info.score, !(info.score$info >= info.cutoff))
+    mean.info = mean(info.score$info)
+    exclude.info.score = subset(info.score, !(info.score$info >= info.cutoff))
     exclude.pos = as.character(exclude.info.score$position)
     
+    MCMC10$mean.info[i] = mean.info
     MCMC10$SNP.Ref.Only[i] = nrow(subset(info.score, info.score$type == 0))
     MCMC10$SNP.Ref.Samp[i] = nrow(subset(info.score, info.score$type == 2))
     MCMC10$SNP.Samp.Only[i] = nrow(subset(info.score, info.score$type == 3))
@@ -303,9 +309,11 @@ for (i in 1:length(chips$array)) {
     
     ## READ IN THE INFO SCORE
     info.score <- read_delim(paste0(DIR, chips$array[i], "/MCMC_Experiments/MCMC20/chrMT_1kg_", chips$array[i], "_imputed_MCMC", mcmc,"_info"), delim = " ")
-    exclude.info.score  = subset(info.score, !(info.score$info >= info.cutoff))
+    mean.info = mean(info.score$info)
+    exclude.info.score = subset(info.score, !(info.score$info >= info.cutoff))
     exclude.pos = as.character(exclude.info.score$position)
     
+    MCMC20$mean.info[i] = mean.info
     MCMC20$SNP.Ref.Only[i] = nrow(subset(info.score, info.score$type == 0))
     MCMC20$SNP.Ref.Samp[i] = nrow(subset(info.score, info.score$type == 2))
     MCMC20$SNP.Samp.Only[i] = nrow(subset(info.score, info.score$type == 3))

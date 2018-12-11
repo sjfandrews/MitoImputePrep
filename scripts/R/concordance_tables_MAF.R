@@ -55,9 +55,11 @@ for (i in 1:length(chips$array)) {
     
     ## READ IN THE INFO SCORE
     info.score <- read_delim(paste0(DIR, chips$array[i], "/ReferencePanel_v2/chrMT_1kg_", chips$array[i], "_imputed_info"), delim = " ")
-    exclude.info.score  = subset(info.score, !(info.score$info >= info.cutoff))
+    mean.info = mean(info.score$info)
+    exclude.info.score = subset(info.score, !(info.score$info >= info.cutoff))
     exclude.pos = as.character(exclude.info.score$position)
   
+  	MAF1pc$mean.info[i] = mean.info
     MAF1pc$SNP.Ref.Only[i] = nrow(subset(info.score, info.score$type == 0))
     MAF1pc$SNP.Ref.Samp[i] = nrow(subset(info.score, info.score$type == 2))
     MAF1pc$SNP.Samp.Only[i] = nrow(subset(info.score, info.score$type == 3))
@@ -134,9 +136,11 @@ for (i in 1:length(chips$array)) {
     
     ## READ IN THE INFO SCORE
     info.score <- read_delim(paste0(DIR, chips$array[i], "/", refPanel, "/chrMT_1kg_", chips$array[i], "_imputed_info"), delim = " ")
-    exclude.info.score  = subset(info.score, !(info.score$info >= info.cutoff))
+    mean.info = mean(info.score$info)
+    exclude.info.score = subset(info.score, !(info.score$info >= info.cutoff))
     exclude.pos = as.character(exclude.info.score$position)
     
+    MAF0.1pc$mean.info[i] = mean.info
     MAF0.1pc$SNP.Ref.Only[i] = nrow(subset(info.score, info.score$type == 0))
     MAF0.1pc$SNP.Ref.Samp[i] = nrow(subset(info.score, info.score$type == 2))
     MAF0.1pc$SNP.Samp.Only[i] = nrow(subset(info.score, info.score$type == 3))
@@ -213,9 +217,11 @@ for (i in 1:length(chips$array)) {
     
     ## READ IN THE INFO SCORE
     info.score <- read_delim(paste0(DIR, chips$array[i], "/", refPanel, "/chrMT_1kg_", chips$array[i], "_imputed_info"), delim = " ")
-    exclude.info.score  = subset(info.score, !(info.score$info >= info.cutoff))
+    mean.info = mean(info.score$info)
+    exclude.info.score = subset(info.score, !(info.score$info >= info.cutoff))
     exclude.pos = as.character(exclude.info.score$position)
     
+    MAF0.5pc$mean.info[i] = mean.info
     MAF0.5pc$SNP.Ref.Only[i] = nrow(subset(info.score, info.score$type == 0))
     MAF0.5pc$SNP.Ref.Samp[i] = nrow(subset(info.score, info.score$type == 2))
     MAF0.5pc$SNP.Samp.Only[i] = nrow(subset(info.score, info.score$type == 3))

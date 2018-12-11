@@ -83,9 +83,11 @@ for (i in 1:length(chips$array)) {
     
     ## READ IN THE INFO SCORE
     info.score <- read_delim(paste0(DIR, chips$array[i], "/kHAP_Experiments/kHAP100/chrMT_1kg_", chips$array[i], "_imputed_kHAP", k.hap,"_info"), delim = " ")
-    exclude.info.score  = subset(info.score, !(info.score$info >= info.cutoff))
+    mean.info = mean(info.score$info)
+    exclude.info.score = subset(info.score, !(info.score$info >= info.cutoff))
     exclude.pos = as.character(exclude.info.score$position)
     
+    kHAP100$mean.info[i] = mean.info
     kHAP100$SNP.Ref.Only[i] = nrow(subset(info.score, info.score$type == 0))
     kHAP100$SNP.Ref.Samp[i] = nrow(subset(info.score, info.score$type == 2))
     kHAP100$SNP.Samp.Only[i] = nrow(subset(info.score, info.score$type == 3))
@@ -166,9 +168,11 @@ for (i in 1:length(chips$array)) {
     
     ## READ IN THE INFO SCORE
     info.score <- read_delim(paste0(DIR, chips$array[i], "/kHAP_Experiments/kHAP250/chrMT_1kg_", chips$array[i], "_imputed_kHAP", k.hap,"_info"), delim = " ")
-    exclude.info.score  = subset(info.score, !(info.score$info >= info.cutoff))
+    mean.info = mean(info.score$info)
+    exclude.info.score = subset(info.score, !(info.score$info >= info.cutoff))
     exclude.pos = as.character(exclude.info.score$position)
     
+    kHAP250$mean.info[i] = mean.info
     kHAP250$SNP.Ref.Only[i] = nrow(subset(info.score, info.score$type == 0))
     kHAP250$SNP.Ref.Samp[i] = nrow(subset(info.score, info.score$type == 2))
     kHAP250$SNP.Samp.Only[i] = nrow(subset(info.score, info.score$type == 3))
@@ -249,9 +253,11 @@ for (i in 1:length(chips$array)) {
     
     ## READ IN THE INFO SCORE
     info.score <- read_delim(paste0(DIR, chips$array[i], "/kHAP_Experiments/kHAP500/chrMT_1kg_", chips$array[i], "_imputed_kHAP", k.hap,"_info"), delim = " ")
-    exclude.info.score  = subset(info.score, !(info.score$info >= info.cutoff))
+    mean.info = mean(info.score$info)
+    exclude.info.score = subset(info.score, !(info.score$info >= info.cutoff))
     exclude.pos = as.character(exclude.info.score$position)
     
+    kHAP500$mean.info[i] = mean.info
     kHAP500$SNP.Ref.Only[i] = nrow(subset(info.score, info.score$type == 0))
     kHAP500$SNP.Ref.Samp[i] = nrow(subset(info.score, info.score$type == 2))
     kHAP500$SNP.Samp.Only[i] = nrow(subset(info.score, info.score$type == 3))
@@ -332,9 +338,11 @@ for (i in 1:length(chips$array)) {
     
     ## READ IN THE INFO SCORE
     info.score <- read_delim(paste0(DIR, chips$array[i], "/kHAP_Experiments/kHAP1000/chrMT_1kg_", chips$array[i], "_imputed_kHAP", k.hap,"_info"), delim = " ")
-    exclude.info.score  = subset(info.score, !(info.score$info >= info.cutoff))
+    mean.info = mean(info.score$info)
+    exclude.info.score = subset(info.score, !(info.score$info >= info.cutoff))
     exclude.pos = as.character(exclude.info.score$position)
     
+    kHAP1000$mean.info[i] = mean.info
     kHAP1000$SNP.Ref.Only[i] = nrow(subset(info.score, info.score$type == 0))
     kHAP1000$SNP.Ref.Samp[i] = nrow(subset(info.score, info.score$type == 2))
     kHAP1000$SNP.Samp.Only[i] = nrow(subset(info.score, info.score$type == 3))
@@ -415,9 +423,11 @@ for (i in 1:length(chips$array)) {
     
     ## READ IN THE INFO SCORE
     info.score <- read_delim(paste0(DIR, chips$array[i], "/kHAP_Experiments/kHAP2500/chrMT_1kg_", chips$array[i], "_imputed_kHAP", k.hap,"_info"), delim = " ")
-    exclude.info.score  = subset(info.score, !(info.score$info >= info.cutoff))
+    mean.info = mean(info.score$info)
+    exclude.info.score = subset(info.score, !(info.score$info >= info.cutoff))
     exclude.pos = as.character(exclude.info.score$position)
     
+    kHAP2500$mean.info[i] = mean.info
     kHAP2500$SNP.Ref.Only[i] = nrow(subset(info.score, info.score$type == 0))
     kHAP2500$SNP.Ref.Samp[i] = nrow(subset(info.score, info.score$type == 2))
     kHAP2500$SNP.Samp.Only[i] = nrow(subset(info.score, info.score$type == 3))
@@ -498,9 +508,11 @@ for (i in 1:length(chips$array)) {
     
     ## READ IN THE INFO SCORE
     info.score <- read_delim(paste0(DIR, chips$array[i], "/kHAP_Experiments/kHAP5000/chrMT_1kg_", chips$array[i], "_imputed_kHAP", k.hap,"_info"), delim = " ")
-    exclude.info.score  = subset(info.score, !(info.score$info >= info.cutoff))
+    mean.info = mean(info.score$info)
+    exclude.info.score = subset(info.score, !(info.score$info >= info.cutoff))
     exclude.pos = as.character(exclude.info.score$position)
     
+    kHAP5000$mean.info[i] = mean.info
     kHAP5000$SNP.Ref.Only[i] = nrow(subset(info.score, info.score$type == 0))
     kHAP5000$SNP.Ref.Samp[i] = nrow(subset(info.score, info.score$type == 2))
     kHAP5000$SNP.Samp.Only[i] = nrow(subset(info.score, info.score$type == 3))
@@ -581,9 +593,11 @@ for (i in 1:length(chips$array)) {
     
     ## READ IN THE INFO SCORE
     info.score <- read_delim(paste0(DIR, chips$array[i], "/kHAP_Experiments/kHAP10000/chrMT_1kg_", chips$array[i], "_imputed_kHAP", k.hap,"_info"), delim = " ")
-    exclude.info.score  = subset(info.score, !(info.score$info >= info.cutoff))
+    mean.info = mean(info.score$info)
+    exclude.info.score = subset(info.score, !(info.score$info >= info.cutoff))
     exclude.pos = as.character(exclude.info.score$position)
     
+    kHAP10000$mean.info[i] = mean.info
     kHAP10000$SNP.Ref.Only[i] = nrow(subset(info.score, info.score$type == 0))
     kHAP10000$SNP.Ref.Samp[i] = nrow(subset(info.score, info.score$type == 2))
     kHAP10000$SNP.Samp.Only[i] = nrow(subset(info.score, info.score$type == 3))
@@ -664,9 +678,11 @@ for (i in 1:length(chips$array)) {
     
     ## READ IN THE INFO SCORE
     info.score <- read_delim(paste0(DIR, chips$array[i], "/kHAP_Experiments/kHAP20000/chrMT_1kg_", chips$array[i], "_imputed_kHAP", k.hap,"_info"), delim = " ")
-    exclude.info.score  = subset(info.score, !(info.score$info >= info.cutoff))
+    mean.info = mean(info.score$info)
+    exclude.info.score = subset(info.score, !(info.score$info >= info.cutoff))
     exclude.pos = as.character(exclude.info.score$position)
     
+    kHAP20000$mean.info[i] = mean.info
     kHAP20000$SNP.Ref.Only[i] = nrow(subset(info.score, info.score$type == 0))
     kHAP20000$SNP.Ref.Samp[i] = nrow(subset(info.score, info.score$type == 2))
     kHAP20000$SNP.Samp.Only[i] = nrow(subset(info.score, info.score$type == 3))
@@ -747,9 +763,11 @@ for (i in 1:length(chips$array)) {
     
     ## READ IN THE INFO SCORE
     info.score <- read_delim(paste0(DIR, chips$array[i], "/kHAP_Experiments/kHAP30000/chrMT_1kg_", chips$array[i], "_imputed_kHAP", k.hap,"_info"), delim = " ")
-    exclude.info.score  = subset(info.score, !(info.score$info >= info.cutoff))
+    mean.info = mean(info.score$info)
+    exclude.info.score = subset(info.score, !(info.score$info >= info.cutoff))
     exclude.pos = as.character(exclude.info.score$position)
     
+    kHAP30000$mean.info[i] = mean.info
     kHAP30000$SNP.Ref.Only[i] = nrow(subset(info.score, info.score$type == 0))
     kHAP30000$SNP.Ref.Samp[i] = nrow(subset(info.score, info.score$type == 2))
     kHAP30000$SNP.Samp.Only[i] = nrow(subset(info.score, info.score$type == 3))
