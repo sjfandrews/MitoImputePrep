@@ -2,8 +2,8 @@
 
 STRAND_LIST=~/GitCode/MitoImputePrep/scripts/INFORMATION_LISTS/b37_platforms.txt
 MCMC_list=~/GitCode/MitoImputePrep/scripts/INFORMATION_LISTS/MCMC_list.txt
-MCMC="20"
-BURN="6"
+MCMC="1"
+BURN="0"
 
 #MCMC 1,0	5,1	10,3	20,6	30,10
 
