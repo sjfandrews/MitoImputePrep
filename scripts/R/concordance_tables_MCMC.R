@@ -17,7 +17,7 @@ full_1kGP_hg_FULL = HiMC::getClassifications(full_1kGP)
 ### WORK ON THE THE ith IMPUTED SET
 ## MAKE DATA FRAMES FOR EACH MINOR ALLELE FREQ
 
-COLS = c("array", "MAF", "imputed", "mean.info", "SNP.Ref.Only", "SNP.Ref.Samp", "SNP.Samp.Only", "TOTAL", "Retained.After.Filt", "Typed.hg.Conc", "Imputed.hg.Conc")
+COLS = c("array", "MCMC", "imputed", "mean.info", "SNP.Ref.Only", "SNP.Ref.Samp", "SNP.Samp.Only", "TOTAL", "Retained.After.Filt", "Typed.hg.Conc", "Imputed.hg.Conc")
 
 #CONC_TABLE = data.frame(matrix(ncol = 6, nrow = ))
 MCMC1 = data.frame(matrix(ncol = length(COLS), nrow = nrow(chips)))
