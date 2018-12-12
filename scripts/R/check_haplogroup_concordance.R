@@ -82,7 +82,7 @@ for (i in 1:length(chips$array)) { # length(chips$array)
     ## MERGE TABLES
     for (j in 1:nrow(hg.df)) {
       hg.df$typed[j] = typed_1kGP_hg$haplogroup[match(hg.df$Individual[j], typed_1kGP_hg$Individual)]
-      hg.df$imputed[j] = typed_1kGP_hg$haplogroup[match(hg.df$Individual[j], imputed_1kGP_hg$Individual)]
+      hg.df$imputed[j] = imputed_1kGP_hg$haplogroup[match(hg.df$Individual[j], imputed_1kGP_hg$Individual)]
       hg.df$match.t[j] = hg.df$WGS[j] == hg.df$typed[j]
       hg.df$match.i[j] = hg.df$WGS[j] == hg.df$imputed[j]
     }
