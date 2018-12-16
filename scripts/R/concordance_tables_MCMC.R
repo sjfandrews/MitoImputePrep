@@ -460,5 +460,5 @@ for (i in 1:length(chips$array)) {
 }
 write.csv(MCMC30, "~/GitCode/MitoImputePrep/metadata/ConcordanceTables_MCMC30.csv", quote = F, row.names = F)
 
-COMB = rbind(MCMC1, MCMC5, MCMC10, MCMC20)
+COMB = rbind(MCMC1, MCMC5, MCMC10, MCMC20, MCMC30)
 write.csv(COMB, "/Users/u5015730/GitCode/MitoImputePrep/metadata/ConcordanceTables_MCMC_Combined.csv", quote = F, row.names = F)

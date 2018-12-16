@@ -8,7 +8,7 @@ REFpanel=ReferencePanel_v2
 
 # SPECIFY CURRENT MASTER ALIGNMENT
 CURRENT=McInerney_Master_Alignment_July18_2018.fasta
-MT_DIR=/Volumes/MHS/MitoImpute/data/
+MT_DIR=/Volumes/TimMcInerney/MitoImpute/data/
 ALN=${MT_DIR}FASTA/masters/${CURRENT}
 ALN_DIR=`dirname $ALN`/
 ALN_BASE=`basename $ALN .fasta`
@@ -50,7 +50,7 @@ else
 fi
 
 # REMOVE LOW QUALITY SEQUENCES
-HQ_FILE=/Volumes/MHS/MitoImpute/metadata/`basename ${ALN_AMB} .fasta`"_highQual.txt"
+HQ_FILE=/Volumes/TimMcInerney/MitoImpute/metadata/`basename ${ALN_AMB} .fasta`"_highQual.txt"
 VCF_HQ=${MT_DIR}VCF/`basename ${REF_VCF} .vcf.gz`"_highQual.vcf.gz"
 if [ -f ${VCF_HQ} ]
 then
@@ -79,7 +79,7 @@ else
 fi
 
 # EXTRACT SAMPLE LIST
-SAMPS=/Volumes/MHS/MitoImpute/metadata/`basename ${VCF_FILT} .vcf.gz`"_sampleList.txt"
+SAMPS=/Volumes/TimMcInerney/MitoImpute/metadata/`basename ${VCF_FILT} .vcf.gz`"_sampleList.txt"
 if [ -f ${SAMPS} ]
 then
 	echo
@@ -91,7 +91,7 @@ else
 fi
 
 # ADD SEX LABEL
-SEX=/Volumes/MHS/MitoImpute/metadata/`basename ${SAMPS} .txt`"_sex.txt"
+SEX=/Volumes/TimMcInerney/MitoImpute/metadata/`basename ${SAMPS} .txt`"_sex.txt"
 if [ -f ${SEX} ]
 then
 	echo
@@ -103,7 +103,7 @@ else
 fi
 
 # CONVERT TO OXFORD FORMAT
-OXF=/Volumes/MHS/MitoImpute/data/OXFORD/${REFpanel}
+OXF=/Volumes/TimMcInerney/MitoImpute/data/OXFORD/${REFpanel}
 if [ -f ${OXF}.hap.gz ] && [ -f ${OXF}.legend.gz ] && [ -f ${OXF}.samples ]
 then
 	echo
@@ -115,7 +115,7 @@ else
 fi
 
 # CONVERT TO PLINK FORMAT
-PLK=/Volumes/MHS/MitoImpute/data/PLINK/${REFpanel}
+PLK=/Volumes/TimMcInerney/MitoImpute/data/PLINK/${REFpanel}
 if [ -f ${PLK}.map ] && [ -f ${PLK}.ped ]
 then
 	echo
@@ -127,7 +127,7 @@ else
 fi
 
 # CONVERT TO GEN and SAMPLE FORMAT
-GEN=/Volumes/MHS/MitoImpute/data/OXFORD/${REFpanel}
+GEN=/Volumes/TimMcInerney/MitoImpute/data/OXFORD/${REFpanel}
 if [ -f ${GEN}.gen.gz ]
 then
 	echo
@@ -139,8 +139,8 @@ else
 fi
 
 # MAKE RECOMBINATION MAP AND STRAND FILES
-MAP=/Volumes/MHS/MitoImpute/data/REF_PANEL/${REFpanel}_MtMap.txt
-STRAND=/Volumes/MHS/MitoImpute/data/REF_PANEL/${REFpanel}_MtStrand.txt
+MAP=/Volumes/TimMcInerney/MitoImpute/data/REF_PANEL/${REFpanel}_MtMap.txt
+STRAND=/Volumes/TimMcInerney/MitoImpute/data/REF_PANEL/${REFpanel}_MtStrand.txt
 if [ -f ${MAP} ] && [ -f ${STRAND} ]
 then
 	echo
@@ -174,9 +174,9 @@ cp ${VCF_FILT}.csi ${GIT_DIR}
 cp ${SEX} ${GIT_DIR}
 
 # RUN IMPUTE2 ON ADNI
-ADNI_GEN=/Volumes/MHS/MitoImpute/data/OXFORD/ADNI_samples.gen.gz
-ADNI_SAMPLES=/Volumes/MHS/MitoImpute/data/OXFORD/ADNI_samples.samples
-IMPUTE_OUT=/Volumes/MHS/MitoImpute/data/IMPUTE2/ADNI_impute_${REFpanel}
+ADNI_GEN=/Volumes/TimMcInerney/MitoImpute/data/OXFORD/ADNI_samples.gen.gz
+ADNI_SAMPLES=/Volumes/TimMcInerney/MitoImpute/data/OXFORD/ADNI_samples.samples
+IMPUTE_OUT=/Volumes/TimMcInerney/MitoImpute/data/IMPUTE2/ADNI_impute_${REFpanel}
 #impute2 -chrX -m ${MAP} -h ${OXF}.hap.gz -l ${OXF}.legend.gz -g ${ADNI_GEN} -sample_g ${ADNI_SAMPLES} -int 1 16569 -Ne 20000 -o ${IMPUTE_OUT}
 
 
