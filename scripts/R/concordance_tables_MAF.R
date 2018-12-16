@@ -290,4 +290,4 @@ for (i in 1:length(chips$array)) {
 write.csv(MAF0.5pc, "/Users/u5015730/GitCode/MitoImputePrep/metadata/ConcordanceTables_MAF0-5pc.csv", quote = F, row.names = F)
 
 COMB = rbind(MAF1pc, MAF0.5pc, MAF0.1pc)
-write.csv(COMB, "/Users/u5015730/GitCode/MitoImputePrep/metadata/ConcordanceTables_Combined.csv", quote = F, row.names = F)
+write.csv(COMB, "/Users/u5015730/GitCode/MitoImputePrep/metadata/ConcordanceTables_MAF_Combined.csv", quote = F, row.names = F)

@@ -54,12 +54,12 @@ for (i in 1:length(chips$array)) {
   # REF PANEL v2 (MAF >= 1%)
   MCMC1$array[i] = as.character(chips$array[i])
   MCMC1$MCMC[i] = mcmc
-  if (file.exists(paste0(DIR, chips$array[i], "/MCMC_Experiments/MCMC1/chrMT_1kg_", chips$array[i], "_imputed_MCMC", mcmc,"_info"))) {
+  if (file.exists(paste0(DIR, chips$array[i], "/MCMC_Experiments/MCMC", mcmc, "/chrMT_1kg_", chips$array[i], "_imputed_MCMC", mcmc,"_info"))) {
     ## IF AN ARRAY HAD IMPUTATION PERFORMED ON IT, ASSIGN VALUE TRUE TO imputed COLUMN
     MCMC1$imputed[i] = T
     
     ## READ IN THE INFO SCORE
-    info.score <- read_delim(paste0(DIR, chips$array[i], "/MCMC_Experiments/MCMC1/chrMT_1kg_", chips$array[i], "_imputed_MCMC", mcmc,"_info"), delim = " ")
+    info.score <- read_delim(paste0(DIR, chips$array[i], "/MCMC_Experiments/MCMC", mcmc, "/chrMT_1kg_", chips$array[i], "_imputed_MCMC", mcmc,"_info"), delim = " ")
     mean.info = mean(info.score$info)
     exclude.info.score = subset(info.score, !(info.score$info >= info.cutoff))
     exclude.pos = as.character(exclude.info.score$position)
@@ -87,8 +87,8 @@ for (i in 1:length(chips$array)) {
     
     ## READ IN .ped AND .map FILES FOR IMPUTED SET 
     message(paste("READING IN .ped AND .map FILES FOR ", chips$array[i], " MCMC = ", mcmc))
-    imputed_1kGP <- generate_snp_data(paste0(DIR, chips$array[i], "/MCMC_Experiments/MCMC1/chrMT_1kg_", chips$array[i], "_imputed_MCMC", mcmc, ".map"),
-                                      paste0(DIR, chips$array[i], "/MCMC_Experiments/MCMC1/chrMT_1kg_", chips$array[i], "_imputed_MCMC", mcmc, ".ped"))
+    imputed_1kGP <- generate_snp_data(paste0(DIR, chips$array[i], "/MCMC_Experiments/MCMC", mcmc, "/chrMT_1kg_", chips$array[i], "_imputed_MCMC", mcmc, ".map"),
+                                      paste0(DIR, chips$array[i], "/MCMC_Experiments/MCMC", mcmc, "/chrMT_1kg_", chips$array[i], "_imputed_MCMC", mcmc, ".ped"))
     imputed_index_exclude = which(names(imputed_1kGP) %in% exclude.pos)
     if (length(imputed_index_exclude) > 0) {
       imputed_1kGP_cut = imputed_1kGP[, -imputed_index_exclude]
@@ -137,12 +137,12 @@ for (i in 1:length(chips$array)) {
   # REF PANEL v2 (MAF >= 1%)
   MCMC5$array[i] = as.character(chips$array[i])
   MCMC5$MCMC[i] = mcmc
-  if (file.exists(paste0(DIR, chips$array[i], "/MCMC_Experiments/MCMC5/chrMT_1kg_", chips$array[i], "_imputed_MCMC", mcmc,"_info"))) {
+  if (file.exists(paste0(DIR, chips$array[i], "/MCMC_Experiments/MCMC", mcmc, "/chrMT_1kg_", chips$array[i], "_imputed_MCMC", mcmc,"_info"))) {
     ## IF AN ARRAY HAD IMPUTATION PERFORMED ON IT, ASSIGN VALUE TRUE TO imputed COLUMN
     MCMC5$imputed[i] = T
     
     ## READ IN THE INFO SCORE
-    info.score <- read_delim(paste0(DIR, chips$array[i], "/MCMC_Experiments/MCMC5/chrMT_1kg_", chips$array[i], "_imputed_MCMC", mcmc,"_info"), delim = " ")
+    info.score <- read_delim(paste0(DIR, chips$array[i], "/MCMC_Experiments/MCMC", mcmc, "/chrMT_1kg_", chips$array[i], "_imputed_MCMC", mcmc,"_info"), delim = " ")
     mean.info = mean(info.score$info)
     exclude.info.score = subset(info.score, !(info.score$info >= info.cutoff))
     exclude.pos = as.character(exclude.info.score$position)
@@ -170,8 +170,8 @@ for (i in 1:length(chips$array)) {
     
     ## READ IN .ped AND .map FILES FOR IMPUTED SET 
     message(paste("READING IN .ped AND .map FILES FOR ", chips$array[i], " MCMC = ", mcmc))
-    imputed_1kGP <- generate_snp_data(paste0(DIR, chips$array[i], "/MCMC_Experiments/MCMC5/chrMT_1kg_", chips$array[i], "_imputed_MCMC", mcmc, ".map"),
-                                      paste0(DIR, chips$array[i], "/MCMC_Experiments/MCMC5/chrMT_1kg_", chips$array[i], "_imputed_MCMC", mcmc, ".ped"))
+    imputed_1kGP <- generate_snp_data(paste0(DIR, chips$array[i], "/MCMC_Experiments/MCMC", mcmc, "/chrMT_1kg_", chips$array[i], "_imputed_MCMC", mcmc, ".map"),
+                                      paste0(DIR, chips$array[i], "/MCMC_Experiments/MCMC", mcmc, "/chrMT_1kg_", chips$array[i], "_imputed_MCMC", mcmc, ".ped"))
     imputed_index_exclude = which(names(imputed_1kGP) %in% exclude.pos)
     if (length(imputed_index_exclude) > 0) {
       imputed_1kGP_cut = imputed_1kGP[, -imputed_index_exclude]
@@ -215,17 +215,17 @@ write.csv(MCMC5, "~/GitCode/MitoImputePrep/metadata/ConcordanceTables_MCMC5.csv"
 for (i in 1:length(chips$array)) { 
   print(paste0(i, " / ", length(chips$array)))
   DIR = "/Volumes/TimMcInerney/MitoImpute/data/STRANDS/"
-  mcmc = mcmc
+  mcmc = "10"
   
   # REF PANEL v2 (MAF >= 1%)
   MCMC10$array[i] = as.character(chips$array[i])
-  MCMC10$MCMC[i] = "1"
-  if (file.exists(paste0(DIR, chips$array[i], "/MCMC_Experiments/MCMC10/chrMT_1kg_", chips$array[i], "_imputed_MCMC", mcmc,"_info"))) {
+  MCMC10$MCMC[i] = mcmc
+  if (file.exists(paste0(DIR, chips$array[i], "/MCMC_Experiments/MCMC", mcmc, "/chrMT_1kg_", chips$array[i], "_imputed_MCMC", mcmc,"_info"))) {
     ## IF AN ARRAY HAD IMPUTATION PERFORMED ON IT, ASSIGN VALUE TRUE TO imputed COLUMN
     MCMC10$imputed[i] = T
     
     ## READ IN THE INFO SCORE
-    info.score <- read_delim(paste0(DIR, chips$array[i], "/MCMC_Experiments/MCMC10/chrMT_1kg_", chips$array[i], "_imputed_MCMC", mcmc,"_info"), delim = " ")
+    info.score <- read_delim(paste0(DIR, chips$array[i], "/MCMC_Experiments/MCMC", mcmc, "/chrMT_1kg_", chips$array[i], "_imputed_MCMC", mcmc,"_info"), delim = " ")
     mean.info = mean(info.score$info)
     exclude.info.score = subset(info.score, !(info.score$info >= info.cutoff))
     exclude.pos = as.character(exclude.info.score$position)
@@ -253,8 +253,8 @@ for (i in 1:length(chips$array)) {
     
     ## READ IN .ped AND .map FILES FOR IMPUTED SET 
     message(paste("READING IN .ped AND .map FILES FOR ", chips$array[i], " MCMC = ", mcmc))
-    imputed_1kGP <- generate_snp_data(paste0(DIR, chips$array[i], "/MCMC_Experiments/MCMC10/chrMT_1kg_", chips$array[i], "_imputed_MCMC", mcmc, ".map"),
-                                      paste0(DIR, chips$array[i], "/MCMC_Experiments/MCMC10/chrMT_1kg_", chips$array[i], "_imputed_MCMC", mcmc, ".ped"))
+    imputed_1kGP <- generate_snp_data(paste0(DIR, chips$array[i], "/MCMC_Experiments/MCMC", mcmc, "/chrMT_1kg_", chips$array[i], "_imputed_MCMC", mcmc, ".map"),
+                                      paste0(DIR, chips$array[i], "/MCMC_Experiments/MCMC", mcmc, "/chrMT_1kg_", chips$array[i], "_imputed_MCMC", mcmc, ".ped"))
     imputed_index_exclude = which(names(imputed_1kGP) %in% exclude.pos)
     if (length(imputed_index_exclude) > 0) {
       imputed_1kGP_cut = imputed_1kGP[, -imputed_index_exclude]
@@ -298,17 +298,17 @@ write.csv(MCMC10, "~/GitCode/MitoImputePrep/metadata/ConcordanceTables_MCMC10.cs
 for (i in 1:length(chips$array)) { 
   print(paste0(i, " / ", length(chips$array)))
   DIR = "/Volumes/TimMcInerney/MitoImpute/data/STRANDS/"
-  mcmc = mcmc
+  mcmc = "20"
   
   # REF PANEL v2 (MAF >= 1%)
   MCMC20$array[i] = as.character(chips$array[i])
-  MCMC20$MCMC[i] = "1"
-  if (file.exists(paste0(DIR, chips$array[i], "/MCMC_Experiments/MCMC20/chrMT_1kg_", chips$array[i], "_imputed_MCMC", mcmc,"_info"))) {
+  MCMC20$MCMC[i] = mcmc
+  if (file.exists(paste0(DIR, chips$array[i], "/MCMC_Experiments/MCMC", mcmc, "/chrMT_1kg_", chips$array[i], "_imputed_MCMC", mcmc,"_info"))) {
     ## IF AN ARRAY HAD IMPUTATION PERFORMED ON IT, ASSIGN VALUE TRUE TO imputed COLUMN
     MCMC20$imputed[i] = T
     
     ## READ IN THE INFO SCORE
-    info.score <- read_delim(paste0(DIR, chips$array[i], "/MCMC_Experiments/MCMC20/chrMT_1kg_", chips$array[i], "_imputed_MCMC", mcmc,"_info"), delim = " ")
+    info.score <- read_delim(paste0(DIR, chips$array[i], "/MCMC_Experiments/MCMC", mcmc, "/chrMT_1kg_", chips$array[i], "_imputed_MCMC", mcmc,"_info"), delim = " ")
     mean.info = mean(info.score$info)
     exclude.info.score = subset(info.score, !(info.score$info >= info.cutoff))
     exclude.pos = as.character(exclude.info.score$position)
@@ -336,8 +336,8 @@ for (i in 1:length(chips$array)) {
     
     ## READ IN .ped AND .map FILES FOR IMPUTED SET 
     message(paste("READING IN .ped AND .map FILES FOR ", chips$array[i], " MCMC = ", mcmc))
-    imputed_1kGP <- generate_snp_data(paste0(DIR, chips$array[i], "/MCMC_Experiments/MCMC20/chrMT_1kg_", chips$array[i], "_imputed_MCMC", mcmc, ".map"),
-                                      paste0(DIR, chips$array[i], "/MCMC_Experiments/MCMC20/chrMT_1kg_", chips$array[i], "_imputed_MCMC", mcmc, ".ped"))
+    imputed_1kGP <- generate_snp_data(paste0(DIR, chips$array[i], "/MCMC_Experiments/MCMC", mcmc, "/chrMT_1kg_", chips$array[i], "_imputed_MCMC", mcmc, ".map"),
+                                      paste0(DIR, chips$array[i], "/MCMC_Experiments/MCMC", mcmc, "/chrMT_1kg_", chips$array[i], "_imputed_MCMC", mcmc, ".ped"))
     imputed_index_exclude = which(names(imputed_1kGP) %in% exclude.pos)
     if (length(imputed_index_exclude) > 0) {
       imputed_1kGP_cut = imputed_1kGP[, -imputed_index_exclude]
@@ -376,6 +376,89 @@ for (i in 1:length(chips$array)) {
   }
 }
 write.csv(MCMC20, "~/GitCode/MitoImputePrep/metadata/ConcordanceTables_MCMC20.csv", quote = F, row.names = F)
+
+# MCMC = 30
+for (i in 1:length(chips$array)) { 
+  print(paste0(i, " / ", length(chips$array)))
+  DIR = "/Volumes/TimMcInerney/MitoImpute/data/STRANDS/"
+  mcmc = "30"
+  
+  # REF PANEL v2 (MAF >= 1%)
+  MCMC30$array[i] = as.character(chips$array[i])
+  MCMC30$MCMC[i] = mcmc
+  if (file.exists(paste0(DIR, chips$array[i], "/MCMC_Experiments/MCMC", mcmc, "/chrMT_1kg_", chips$array[i], "_imputed_MCMC", mcmc,"_info"))) {
+    ## IF AN ARRAY HAD IMPUTATION PERFORMED ON IT, ASSIGN VALUE TRUE TO imputed COLUMN
+    MCMC30$imputed[i] = T
+    
+    ## READ IN THE INFO SCORE
+    info.score <- read_delim(paste0(DIR, chips$array[i], "/MCMC_Experiments/MCMC", mcmc, "/chrMT_1kg_", chips$array[i], "_imputed_MCMC", mcmc,"_info"), delim = " ")
+    mean.info = mean(info.score$info)
+    exclude.info.score = subset(info.score, !(info.score$info >= info.cutoff))
+    exclude.pos = as.character(exclude.info.score$position)
+    
+    MCMC30$mean.info[i] = mean.info
+    MCMC30$SNP.Ref.Only[i] = nrow(subset(info.score, info.score$type == 0))
+    MCMC30$SNP.Ref.Samp[i] = nrow(subset(info.score, info.score$type == 2))
+    MCMC30$SNP.Samp.Only[i] = nrow(subset(info.score, info.score$type == 3))
+    MCMC30$TOTAL[i] = sum(MCMC30$SNP.Ref.Only[i], MCMC30$SNP.Ref.Samp[i], MCMC30$SNP.Samp.Only[i])
+    MCMC30$Retained.After.Filt[i] = nrow(subset(info.score, info.score$info >= info.cutoff))
+    
+    ## FILTER VARIANTS IN TRUTH SET
+    full_1kGP_cut = full_1kGP[, -(which(names(full_1kGP) %in% exclude.pos))]
+    full_1kGP_hg = HiMC::getClassifications(full_1kGP_cut)
+    full_index_exclude = which(names(full_1kGP) %in% exclude.pos)
+    if (length(full_index_exclude) > 0) {
+      full_1kGP_cut = full_1kGP[, -full_index_exclude]
+      full_1kGP_hg = HiMC::getClassifications(full_1kGP_cut)
+      message("TRUTH HAPLOTYPES CLASSIFIED")
+    } else {
+      message("CAUTION! NOT FILTERING")
+      message("PULLING FROM FULL LIST")
+      full_1kGP_hg = full_1kGP_hg_FULL
+    }
+    
+    ## READ IN .ped AND .map FILES FOR IMPUTED SET 
+    message(paste("READING IN .ped AND .map FILES FOR ", chips$array[i], " MCMC = ", mcmc))
+    imputed_1kGP <- generate_snp_data(paste0(DIR, chips$array[i], "/MCMC_Experiments/MCMC", mcmc, "/chrMT_1kg_", chips$array[i], "_imputed_MCMC", mcmc, ".map"),
+                                      paste0(DIR, chips$array[i], "/MCMC_Experiments/MCMC", mcmc, "/chrMT_1kg_", chips$array[i], "_imputed_MCMC", mcmc, ".ped"))
+    imputed_index_exclude = which(names(imputed_1kGP) %in% exclude.pos)
+    if (length(imputed_index_exclude) > 0) {
+      imputed_1kGP_cut = imputed_1kGP[, -imputed_index_exclude]
+      imputed_1kGP_hg = HiMC::getClassifications(imputed_1kGP_cut)
+    } else {
+      imputed_1kGP_hg = HiMC::getClassifications(imputed_1kGP)
+    }
+    message("IMPUTED HAPLOTYPES CLASSIFIED")
+    
+    typed_1kGP <- generate_snp_data(paste0(DIR, chips$array[i], "/ReferencePanel_v2/chrMT_1kg_", chips$array[i], ".map"),
+                                    paste0(DIR, chips$array[i], "/ReferencePanel_v2/chrMT_1kg_", chips$array[i], ".ped"))
+    typed_index_exclude = which(names(typed_1kGP) %in% exclude.pos)
+    if (length(typed_index_exclude) > 0) {
+      typed_1kGP_cut = typed_1kGP[, -typed_index_exclude]
+      typed_1kGP_hg = HiMC::getClassifications(typed_1kGP_cut)
+    } else {
+      typed_1kGP_hg = HiMC::getClassifications(typed_1kGP)
+    }
+    message("TYPED HAPLOTYPES CLASSIFIED")
+    
+    ## CALCULATE HAPLOGROUP CONCORDANCE
+    conc_typed = full_1kGP_hg$haplogroup == typed_1kGP_hg$haplogroup
+    conc_imputed = full_1kGP_hg$haplogroup == imputed_1kGP_hg$haplogroup
+    conc_typed_pc = length(conc_typed[conc_typed == T]) / length(conc_typed)
+    conc_imputed_pc = length(conc_imputed[conc_imputed == T]) / length(conc_imputed)
+    MCMC30$Typed.hg.Conc[i] = conc_typed_pc
+    MCMC30$Imputed.hg.Conc[i] = conc_imputed_pc
+  } else {
+    MCMC30$imputed[i] = F
+    MCMC30$SNP.Ref.Only[i] = NA
+    MCMC30$SNP.Ref.Samp[i] = NA
+    MCMC30$SNP.Samp.Only[i] = NA
+    MCMC30$Retained.After.Filt[i] = NA
+    MCMC30$Typed.hg.Conc[i] = NA
+    MCMC30$Imputed.hg.Conc[i] = NA
+  }
+}
+write.csv(MCMC30, "~/GitCode/MitoImputePrep/metadata/ConcordanceTables_MCMC30.csv", quote = F, row.names = F)
 
 COMB = rbind(MCMC1, MCMC5, MCMC10, MCMC20)
 write.csv(COMB, "/Users/u5015730/GitCode/MitoImputePrep/metadata/ConcordanceTables_MCMC_Combined.csv", quote = F, row.names = F)
