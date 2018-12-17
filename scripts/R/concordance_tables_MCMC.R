@@ -24,16 +24,14 @@ MCMC1 = data.frame(matrix(ncol = length(COLS), nrow = nrow(chips)))
 MCMC5 = data.frame(matrix(ncol = length(COLS), nrow = nrow(chips)))
 MCMC10 = data.frame(matrix(ncol = length(COLS), nrow = nrow(chips)))
 MCMC20 = data.frame(matrix(ncol = length(COLS), nrow = nrow(chips)))
+MCMC30 = data.frame(matrix(ncol = length(COLS), nrow = nrow(chips)))
 
 names(MCMC1) = COLS
 names(MCMC5) = COLS
 names(MCMC10) = COLS
 names(MCMC20) = COLS
+names(MCMC30) = COLS
 
-
-#MAF1pc = chips
-#MAF0.5pc = chips
-#MAF0.1pc = chips
 
 # SET A NEW COLUMN DESIGNATING THE MAF AND ONE WHETHER THEY HAVE BEEN IMPUTED
 MCMC1$MCMC = "1"
@@ -44,6 +42,8 @@ MCMC10$MCMC = "10"
 MCMC10$imputed = FALSE
 MCMC20$MCMC = "20"
 MCMC20$imputed = FALSE
+MCMC30$MCMC = "30"
+MCMC30$imputed = FALSE
 
 # MCMC = 1
 for (i in 1:length(chips$array)) { 

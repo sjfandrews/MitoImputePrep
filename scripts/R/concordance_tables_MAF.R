@@ -34,18 +34,18 @@ names(MAF0.1pc) = COLS
 #MAF0.1pc = chips
 
 # SET A NEW COLUMN DESIGNATING THE MAF AND ONE WHETHER THEY HAVE BEEN IMPUTED
-MAF1pc$MAF = "0.1"
+MAF1pc$MAF = "0.01"
 MAF1pc$imputed = FALSE
-MAF0.5pc$MAF = "0.05"
+MAF0.5pc$MAF = "0.005"
 MAF0.5pc$imputed = FALSE
-MAF0.1pc$MAF = "0.01"
+MAF0.1pc$MAF = "0.001"
 MAF0.1pc$imputed = FALSE
 
 # REF PANEL v2 (MAF >= 1%)
 for (i in 1:length(chips$array)) {
   print(paste0(i, " / ", length(chips$array)))
   DIR = "/Volumes/TimMcInerney/MitoImpute/data/STRANDS/"
-  maf = "0.1"
+  maf = "0.01"
   
   # REF PANEL v2 (MAF >= 1%)
   MAF1pc$array[i] = as.character(chips$array[i])
@@ -128,11 +128,11 @@ refPanel = "ReferencePanel_v3"
 for (i in 1:length(chips$array)) {
   print(paste0(i, " / ", length(chips$array)))
   DIR = "/Volumes/TimMcInerney/MitoImpute/data/STRANDS/"
-  maf = "0.01"
+  maf = "0.001"
   
   # REF PANEL v3 (MAF >= 0.1%)
-  MAF1pc$array[i] = as.character(chips$array[i])
-  MAF1pc$MAF[i] = maf
+  MAF0.1pc$array[i] = as.character(chips$array[i])
+  MAF0.1pc$MAF[i] = maf
   if (file.exists(paste0(DIR, chips$array[i], "/ReferencePanel_v3/chrMT_1kg_", chips$array[i], "_imputed_info"))) {
     ## IF AN ARRAY HAD IMPUTATION PERFORMED ON IT, ASSIGN VALUE TRUE TO imputed COLUMN
     MAF0.1pc$imputed[i] = T
@@ -211,11 +211,11 @@ refPanel = "ReferencePanel_v4"
 for (i in 1:length(chips$array)) {
   print(paste0(i, " / ", length(chips$array)))
   DIR = "/Volumes/TimMcInerney/MitoImpute/data/STRANDS/"
-  maf = "0.05"
+  maf = "0.005"
   
   # REF PANEL v4 (MAF >= 0.5%)
-  MAF1pc$array[i] = as.character(chips$array[i])
-  MAF1pc$MAF[i] = maf
+  MAF0.5pc$array[i] = as.character(chips$array[i])
+  MAF0.5pc$MAF[i] = maf
   if (file.exists(paste0(DIR, chips$array[i], "/", refPanel, "/chrMT_1kg_", chips$array[i], "_imputed_info"))) {
     ## IF AN ARRAY HAD IMPUTATION PERFORMED ON IT, ASSIGN VALUE TRUE TO imputed COLUMN
     MAF0.5pc$imputed[i] = T
