@@ -4,7 +4,7 @@ require(emmeans)
 
 ###############################################################################
 ## MAF 
-f = "~/GitCode/MitoImputePrep/metadata/ConcordanceTables_MAF_Combined.csv"
+f = "~/GitCode/MitoImputePrep/metadata/Concordance_tables/ConcordanceTables_MAF_Combined.csv"
 x = read.csv(f, header = T)
 x[,2] = factor(x[,2])
 x2 = x
@@ -63,7 +63,7 @@ boxplot(Imputed.hg.Conc ~ MAF, data = x3)
 
 ###############################################################################
 ## kHAP 
-f = "~/GitCode/MitoImputePrep/metadata/ConcordanceTables_kHAP_Combined.csv"
+f = "~/GitCode/MitoImputePrep/metadata/Concordance_tables/ConcordanceTables_kHAP_Combined.csv"
 x = read.csv(f, header = T)
 x[,2] = factor(x[,2])
 x2 = x
@@ -122,7 +122,7 @@ boxplot(Imputed.hg.Conc ~ kHAP, data = x3)
 
 ###############################################################################
 ## MCMC 
-f = "~/GitCode/MitoImputePrep/metadata/ConcordanceTables_MCMC_Combined_2.csv"
+f = "~/GitCode/MitoImputePrep/metadata/Concordance_tables/ConcordanceTables_MCMC_Combined.csv"
 x = read.csv(f, header = T)
 x[,2] = factor(x[,2])
 x2 = x
