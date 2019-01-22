@@ -48,6 +48,14 @@ then
 else
 	echo
 	echo "${git_vcf} NOT FOUND ... CREATE THE DECOMPOSED 1,000 GENOMES VCF FILE"
+	
+	if [ ! -d ~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/ ]
+	then
+		echo
+		echo "~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/ NOT FOUND ... CREATING DIRECTORY"
+		mkdir -p ~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/
+	fi
+	
 	bcftools norm -f ${ref_fasta} -m - ${orig_vcf} | bcftools view -V indels,mnps | bcftools norm -m + | bcftools +fill-tags -Oz -o ${norm_vcf}
 	vt decompose ${norm_vcf} | bcftools +fill-tags -Oz -o ${decom_vcf}
 	python ~/GitCode/MitoImputePrep/scripts/PYTHON/pickFirstAlt ${decom_vcf} | bcftools view -Oz -o ${vcf_1kg}
