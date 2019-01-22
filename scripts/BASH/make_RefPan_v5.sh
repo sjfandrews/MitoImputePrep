@@ -18,7 +18,8 @@ ALN_DIR=`dirname $ALN`/
 ALN_BASE=`basename $ALN .fasta`
 
 # CONVERT MISSING OR NON-N AMBIGUOUS CHARACTER STATES TO N AMBIGUOUS CHARACTER STATE
-ALN_AMB=${MT_DIR}FASTA/ambiguous2missing/${ALN_BASE}"_ambig2missing.fasta"
+#ALN_AMB=${MT_DIR}FASTA/ambiguous2missing/${ALN_BASE}"_ambig2missing.fasta"
+ALN_AMB=${MT_DIR}FASTA/ambiguous2missing/${ALN_BASE}"_ambigANDgap2missing.fasta"
 if [ -f ${ALN_AMB} ]
 then
 	echo
