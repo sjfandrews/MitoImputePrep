@@ -177,6 +177,13 @@ out=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/MCMC${mcmc
 
 plink1.9 --gen ${gen} --sample ${sam} --hard-call-threshold 0.49 --keep-allele-order --output-chr 26 --recode vcf --out ${out}
 
+# CONVERT VCF TO FORMAT FOR HAPLOGREP2
+imp_ext=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/MCMC${mcmc}/chrMT_1kg_${MtPlatforms}_imputed_MCMC${mcmc}
+imp_vcf=${imp_ext}.vcf
+vcf_pos=${imp_ext}_SNPpositions.txt
+
+#bcftools query -f '%POS\n' ${imp_ext} > ${vcf_pos}
+
 
 # GENERATE QC REPORT
 #echo
