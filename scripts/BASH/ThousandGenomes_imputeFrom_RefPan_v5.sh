@@ -19,6 +19,7 @@ module load bcftools/1.8
 module load plink/1.9
 module load impute2/2.3.2
 module load vt
+module load java/jdk1.8.0_60
 echo
 echo "LOADED R v3.4.3"
 echo "LOADED bcftools v1.8"
@@ -38,6 +39,8 @@ decom_vcf=/g/data1a/te53/MitoImpute/data/VCF/chrMT_1kg_norm_decomposed.vcf.gz
 vcf_1kg=/g/data1a/te53/MitoImpute/data/VCF/chrMT_1kg_norm_decomposed_firstAlt.vcf.gz
 plink_1kg=/g/data1a/te53/MitoImpute/data/PLINK/chrMT_1kg_norm_decomposed_firstAlt
 orig_vcf=/g/data1a/te53/haploco/data/originals/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz
+snpOnly_vcf=/g/data1a/te53/MitoImpute/data/VCF/chrMT_1kg_SNPonly
+diploid_vcf=/g/data1a/te53/MitoImpute/data/VCF/chrMT_1kg_diploid
 samps_1kg=/g/data1a/te53/MitoImpute/metadata/SampleList1kg.txt
 sex_1kg=/g/data1a/te53/MitoImpute/metadata/SampleList1kg_sex.txt
 ref_fasta=/g/data1a/te53/MitoImpute/data/FASTA/rCRS.fasta
@@ -63,9 +66,18 @@ else
 	plink --vcf ${vcf_1kg} --recode --double-id --keep-allele-order --out ${plink_1kg}
 	bcftools query -l ${vcf_1kg} > ${samps_1kg}
 	Rscript ~/GitCode/MitoImputePrep/scripts/R/assign_sex_label.R ${samps_1kg} ${sex_1kg}
+	
+	bcftools view -V indels,mnps -Oz -o ${snpOnly_vcf}.vcf.gz ${orig_vcf}
+	bcftools index ${snpOnly_vcf}.vcf.gz
+	plink --vcf ${snpOnly_vcf}.vcf.gz --recode vcf --out ${diploid_vcf}
+	bcftools +fill-tags ${diploid_vcf}.vcf -Oz -o ${diploid_vcf}.vcf.gz
+	bcftools index ${diploid_vcf}.vcf.gz
+	#java -jar ~/GitCode/MitoImputePrep/haplogrep/2.1.18/haplogrep-2.1.18.jar --in ${diploid_vcf}.vcf.gz --format vcf --out ${diploid_vcf}.haplogrep.txt
+	
 	cp ${vcf_1kg} ~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/
 	cp ${vcf_1kg}.csi ~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/
 	cp ${sex_1kg} ~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/
+	cp ${diploid_vcf}.vcf.gz* ~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/
 fi
 
 # CREATE DIRECTORY
@@ -97,6 +109,7 @@ echo "GENERATING GEN SAMPLE"
 sex=~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/SampleList1kg_sex.txt 
 out=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}
 
+#bcftools convert --haplegendsample ${out} --haploid2diploid ${vcf} --sex ${sex}
 bcftools convert --gensample ${out} ${vcf} --sex ${sex}
 Rscript ~/GitCode/MitoImputePrep/scripts/R/FixSamplesFile_raijin.R ${out}.samples
 
@@ -106,6 +119,13 @@ echo "GENERATING PLINK FILES"
 out=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}
 
 plink1.9 --vcf ${vcf} --recode --double-id --keep-allele-order --out ${out}
+
+# CREATE DIPLOID VCF
+echo
+echo
+out="/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}_diploid"
+plink1.9 --vcf ${vcf} --recode vcf --out ${out}
+bcftools +fill-tags ${out} -Oz -o ${out}.vcf.gz
 
 # RUN IMPUTE2
 echo
