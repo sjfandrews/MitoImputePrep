@@ -1,9 +1,20 @@
 require(phangorn)
 
+message("")
+message("ARGUMENT HINTS!")
+message("ARGUMENT 1:    .fasta FILE")
+message("ARGUMENT 2:    OUTPUT HIGH QUALITY SEQUENCES FILE")
+message("ARGUMENT 3:    MAXIMUM NUMBER OF MISSING ALLOWED")
+message("ARGUMENT 4:    MAXIMUM NUMBER OF GAPS ALLOWED")
+message("")
+
 args = commandArgs(trailingOnly = TRUE) # Set arguments from the command line
 
 fasta.file = args[1] # SPECIFY IN THE FASTA FILE
 out.file = args[2] # SPECIFY THE OUTPUT FILE
+missing.allowed = args[3]
+gaps.allowed = args[4]
+
 message("")
 if (is.na(out.file) == TRUE | is.null(out.file) == TRUE) {
   message('OUTPUT FILE NOT SPECIFIED')
@@ -11,6 +22,22 @@ if (is.na(out.file) == TRUE | is.null(out.file) == TRUE) {
   message(paste('OUTPUT FILE ASSIGNED TO ', out.file))
 } else {
   message(paste('OUTPUT FILE ASSIGNED TO ', out.file))
+}
+
+if (is.na(missing.allowed) == TRUE | is.null(missing.allowed) == TRUE) {
+  message("NUMBER OF MISSING SITES ALLOWED NOT SPECIFIED")
+  message("DEFAULTING TO 5")
+  missing.allowed = 5
+} else {
+  missing.allowed = as.numeric(missing.allowed)
+}
+
+if (is.na(gaps.allowed) == TRUE | is.null(gaps.allowed) == TRUE) {
+  message("NUMBER OF GAPS ALLOWED NOT SPECIFIED")
+  message("DEFAULTING TO 7")
+  gaps.allowed = 7
+} else {
+  gaps.allowed = as.numeric(gaps.allowed)
 }
 
 aln = read.dna(fasta.file, format = 'fasta') # READ THE FASTA FILE
@@ -48,8 +75,8 @@ for (i in 1:nrow(aln)) {
 #df.missing = subset(df, df$n > 5)
 #df.gap = subset(df, df$gap > 7)
 
-df.highQual = subset(df, df$n <= 5)
-df.highQual = subset(df.highQual, df.highQual$gap <= 7)
+df.highQual = subset(df, df$n <= missing.allowed)
+df.highQual = subset(df.highQual, df.highQual$gap <= gaps.allowed)
 #df.lowQual = subset(df, df$n > 5)
 #df.lowQual = subset(df.lowQual, df$gap > 7)
 
