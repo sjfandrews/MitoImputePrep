@@ -12,6 +12,7 @@
 
 # LOAD THE MODULE
 module unload intel-fc intel-cc
+module load python/2.7.11
 module load intel-fc/16.0.3.210
 module load intel-cc/16.0.3.210
 module load Rpackages/3.4.3
@@ -122,10 +123,10 @@ plink1.9 --vcf ${vcf} --recode --double-id --keep-allele-order --out ${out}
 
 # CREATE DIPLOID VCF
 echo
-echo
+echo "GENERATING PLINK FILES (DIPLOID)"
 out="/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}_diploid"
 plink1.9 --vcf ${vcf} --recode vcf --out ${out}
-bcftools +fill-tags ${out} -Oz -o ${out}.vcf.gz
+bcftools +fill-tags ${out}.vcf -Oz -o ${out}.vcf.gz
 
 # RUN IMPUTE2
 echo
