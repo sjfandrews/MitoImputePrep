@@ -178,11 +178,28 @@ out=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/MCMC${mcmc
 plink1.9 --gen ${gen} --sample ${sam} --hard-call-threshold 0.49 --keep-allele-order --output-chr 26 --recode vcf --out ${out}
 
 # CONVERT VCF TO FORMAT FOR HAPLOGREP2
+ref_fasta_plink=~/GitCode/MitoImputePrep/scripts/REFERENCE_ALNS/26/rCRS.fasta
 imp_ext=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/MCMC${mcmc}/chrMT_1kg_${MtPlatforms}_imputed_MCMC${mcmc}
 imp_vcf=${imp_ext}.vcf
-vcf_pos=${imp_ext}_SNPpositions.txt
+norm_imp_vcf=${imp_ext}_norm.vcf.gz
+imp_fasta=${imp_ext}.fasta
+vcf_pos=${imp_ext}_norm_SNPpositions.txt
+fixed_vcf=${imp_ext}_fixed.vcf
+final_vcf=${imp_ext}_haplogrep
 
-#bcftools query -f '%POS\n' ${imp_ext} > ${vcf_pos}
+bcftools annotate --set-id '.' ${imp_vcf} | bcftools norm --check-ref s -f ${ref_fasta_plink} -m +any | bcftools view -Oz -o ${norm_imp_vcf}
+bcftools index ${norm_imp_vcf}
+bcftools query -f '%POS\n' ${norm_imp_vcf} > ${vcf_pos}
+Rscript ~/GitCode/MitoImputePrep/scripts/R/plink_sites_map.R ${vcf_pos}
+perl -pi -e 'chomp if eof' ${vcf_pos}
+python ~/GitCode/MitoImputePrep/scripts/PYTHON/vcf2fasta_rCRS.py -i ${norm_imp_vcf} -o ${imp_fasta}
+python ~/GitCode/MitoImputePrep/scripts/PYTHON/fasta2vcf_mtDNA.py -i ${imp_fasta} -o ${fixed_vcf} -g -d
+bcftools view ${fixed_vcf} -Oz -o ${fixed_vcf}.gz
+bcftools index ${fixed_vcf}.gz
+bcftools view -R ${vcf_pos} ${fixed_vcf}.gz | bcftools norm -m -any -Oz -o ${final_vcf}.vcf.gz
+bcftools index ${final_vcf}.vcf.gz
+plink1.9 --vcf ${final_vcf}.vcf.gz --recode vcf --out ${final_vcf}
+java -jar ~/GitCode/MitoImputePrep/haplogrep/2.1.18/haplogrep-2.1.18.jar --in ${final_vcf}.vcf --format vcf --chip --out ${final_vcf}.txt
 
 
 # GENERATE QC REPORT
