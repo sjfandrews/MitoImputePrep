@@ -209,6 +209,16 @@ fi
 
 cp ${final_vcf}.txt ~/GitCode/MitoImputePrep/metadata/HaploGrep_concordance/${REFpanel}/MCMC${mcmc}/ # copy haplogroup outputs to Git
 
+if [ -f ${final_vcf}.txt ]
+then
+	echo
+	echo "${final_vcf}.txt FOUND ... PIPELINE COMPLETED"
+else
+	echo
+	echo "${final_vcf}.txt NOT FOUND ... SOMETHING HAS GONE WRONG"
+fi
+
+echo
 
 # GENERATE QC REPORT
 #echo
