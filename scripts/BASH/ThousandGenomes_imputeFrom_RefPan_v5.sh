@@ -75,7 +75,7 @@ else
 		plink --vcf ${snpOnly_vcf}.vcf.gz --recode vcf --out ${diploid_vcf}
 		bcftools +fill-tags ${diploid_vcf}.vcf -Oz -o ${diploid_vcf}.vcf.gz
 		bcftools index ${diploid_vcf}.vcf.gz
-		#java -jar ~/GitCode/MitoImputePrep/haplogrep/2.1.18/haplogrep-2.1.18.jar --in ${diploid_vcf}.vcf --format vcf --chip --out ${diploid_vcf}.haplogrep.txt
+		#java -jar ~/GitCode/MitoImputePrep/haplogrep/2.1.18/haplogrep-2.1.18.jar --in ${diploid_vcf}.vcf --format vcf --out ${diploid_vcf}.haplogrep.txt
 		
 		cp ${vcf_1kg} ~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/
 		cp ${vcf_1kg}.csi ~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/
@@ -138,6 +138,27 @@ echo "GENERATING PLINK FILES (DIPLOID)"
 out="/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}_diploid"
 plink1.9 --vcf ${vcf} --recode vcf --out ${out}
 bcftools +fill-tags ${out}.vcf -Oz -o ${out}.vcf.gz
+
+# ASSIGN HAPLOGROUPS FOR THE PRE-IMPUTED IN SILICO SNP CHIP
+echo
+echo "ASSIGNING HAPLOGROUPS FOR THE PRE-IMPUTED IN SILICO SNP CHIP"
+out="/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}_haplogrep"
+java -jar ~/GitCode/MitoImputePrep/haplogrep/2.1.18/haplogrep-2.1.18.jar --in ${out}.vcf --format vcf --chip --out ${out}.txt # assign haplogreps
+
+if [ ! -d ~/GitCode/MitoImputePrep/metadata/HaploGrep_concordance/${REFpanel}/ ]
+then
+	mkdir -p ~/GitCode/MitoImputePrep/metadata/HaploGrep_concordance/${REFpanel}/
+fi
+
+cp ${out}.txt ~/GitCode/MitoImputePrep/metadata/HaploGrep_concordance/${REFpanel}/ # copy haplogroup outputs to Git
+
+if [ -f ~/GitCode/MitoImputePrep/metadata/HaploGrep_concordance/${REFpanel}/chrMT_1kg_${MtPlatforms}_haplogrep.txt ]
+then
+	echo "~/GitCode/MitoImputePrep/metadata/HaploGrep_concordance/${REFpanel}/chrMT_1kg_${MtPlatforms}_haplogrep.txt SUCCESSFULLY COPIED"
+else
+	echo "HAPLOGREP FILE DID NOT COPY ... SOMETHING WENT WRONG"
+fi
+
 
 # RUN IMPUTE2
 echo
