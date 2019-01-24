@@ -68,17 +68,28 @@ else
 	bcftools query -l ${vcf_1kg} > ${samps_1kg}
 	Rscript ~/GitCode/MitoImputePrep/scripts/R/assign_sex_label.R ${samps_1kg} ${sex_1kg}
 	
-	bcftools view -V indels,mnps -Oz -o ${snpOnly_vcf}.vcf.gz ${orig_vcf}
-	bcftools index ${snpOnly_vcf}.vcf.gz
-	plink --vcf ${snpOnly_vcf}.vcf.gz --recode vcf --out ${diploid_vcf}
-	bcftools +fill-tags ${diploid_vcf}.vcf -Oz -o ${diploid_vcf}.vcf.gz
-	bcftools index ${diploid_vcf}.vcf.gz
-	#java -jar ~/GitCode/MitoImputePrep/haplogrep/2.1.18/haplogrep-2.1.18.jar --in ${diploid_vcf}.vcf.gz --format vcf --out ${diploid_vcf}.haplogrep.txt
+	if [ ! -f ${diploid_vcf}.vcf.gz ]
+	then
+		bcftools view -V indels,mnps -Oz -o ${snpOnly_vcf}.vcf.gz ${orig_vcf}
+		bcftools index ${snpOnly_vcf}.vcf.gz
+		plink --vcf ${snpOnly_vcf}.vcf.gz --recode vcf --out ${diploid_vcf}
+		bcftools +fill-tags ${diploid_vcf}.vcf -Oz -o ${diploid_vcf}.vcf.gz
+		bcftools index ${diploid_vcf}.vcf.gz
+		#java -jar ~/GitCode/MitoImputePrep/haplogrep/2.1.18/haplogrep-2.1.18.jar --in ${diploid_vcf}.vcf --format vcf --chip --out ${diploid_vcf}.haplogrep.txt
+		
+		cp ${vcf_1kg} ~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/
+		cp ${vcf_1kg}.csi ~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/
+		cp ${sex_1kg} ~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/
+		cp ${diploid_vcf}.vcf.gz* ~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/
+		
+		echo
+		echo "${diploid_vcf}.vcf.gz COPIED TO ~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/"
+	else
+		echo
+		echo "${diploid_vcf}.vcf.gz FOUND ... PASSING"
+	fi
 	
-	cp ${vcf_1kg} ~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/
-	cp ${vcf_1kg}.csi ~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/
-	cp ${sex_1kg} ~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/
-	cp ${diploid_vcf}.vcf.gz* ~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/
+	
 fi
 
 # CREATE DIRECTORY
