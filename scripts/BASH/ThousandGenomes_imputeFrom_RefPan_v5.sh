@@ -188,19 +188,26 @@ vcf_pos=${imp_ext}_norm_SNPpositions.txt
 fixed_vcf=${imp_ext}_fixed.vcf
 final_vcf=${imp_ext}_haplogrep
 
-bcftools annotate --set-id '.' ${imp_vcf} | bcftools norm --check-ref s -f ${ref_fasta_plink} -m +any | bcftools view -Oz -o ${norm_imp_vcf}
-bcftools index ${norm_imp_vcf}
-bcftools query -f '%POS\n' ${norm_imp_vcf} > ${vcf_pos}
-Rscript ~/GitCode/MitoImputePrep/scripts/R/plink_sites_map.R ${vcf_pos}
-perl -pi -e 'chomp if eof' ${vcf_pos}
-python ~/GitCode/MitoImputePrep/scripts/PYTHON/vcf2fasta_rCRS.py -i ${norm_imp_vcf} -o ${imp_fasta}
-python ~/GitCode/MitoImputePrep/scripts/PYTHON/fasta2vcf_mtDNA.py -i ${imp_fasta} -o ${fixed_vcf} -g -d
-bcftools view ${fixed_vcf} -Oz -o ${fixed_vcf}.gz
-bcftools index ${fixed_vcf}.gz
-bcftools view -R ${vcf_pos} ${fixed_vcf}.gz | bcftools norm -m -any -Oz -o ${final_vcf}.vcf.gz
-bcftools index ${final_vcf}.vcf.gz
-plink1.9 --vcf ${final_vcf}.vcf.gz --recode vcf --out ${final_vcf}
-java -jar ~/GitCode/MitoImputePrep/haplogrep/2.1.18/haplogrep-2.1.18.jar --in ${final_vcf}.vcf --format vcf --chip --out ${final_vcf}.txt
+bcftools annotate --set-id '.' ${imp_vcf} | bcftools norm --check-ref s -f ${ref_fasta_plink} -m +any | bcftools view -Oz -o ${norm_imp_vcf} # Normalise: remove SNP IDs, reformat to rCRS, join biallelic repeated sites into multiallelic sites, then output to gzip
+bcftools index ${norm_imp_vcf} # index normalised vcf
+bcftools query -f '%POS\n' ${norm_imp_vcf} > ${vcf_pos} # extract genomic positions
+Rscript ~/GitCode/MitoImputePrep/scripts/R/plink_sites_map.R ${vcf_pos} # add a column with the MT label
+perl -pi -e 'chomp if eof' ${vcf_pos} # remove the last leading line
+python ~/GitCode/MitoImputePrep/scripts/PYTHON/vcf2fasta_rCRS.py -i ${norm_imp_vcf} -o ${imp_fasta} # convert to a fasta file
+python ~/GitCode/MitoImputePrep/scripts/PYTHON/fasta2vcf_mtDNA.py -i ${imp_fasta} -o ${fixed_vcf} -g -d # convert back to a vcf
+bcftools view ${fixed_vcf} -Oz -o ${fixed_vcf}.gz # gzip it so the -R flag in bcftools view will work
+bcftools index ${fixed_vcf}.gz # index it it so the -R flag in bcftools view will work
+bcftools view -R ${vcf_pos} ${fixed_vcf}.gz | bcftools norm -m -any -Oz -o ${final_vcf}.vcf.gz # include only positions found in the imputed vcf and split multiallelic into biallelic
+bcftools index ${final_vcf}.vcf.gz # index it
+plink1.9 --vcf ${final_vcf}.vcf.gz --recode vcf --out ${final_vcf} # recode vcf to vcf via plink (haplogrep seems to love plink vcf files, but not bcftools ... dont know why this needs to be done, but it does, so ???)
+java -jar ~/GitCode/MitoImputePrep/haplogrep/2.1.18/haplogrep-2.1.18.jar --in ${final_vcf}.vcf --format vcf --chip --out ${final_vcf}.txt # assign haplogreps
+
+if [ ! -d ~/GitCode/MitoImputePrep/metadata/HaploGrep_concordance/${REFpanel}/MCMC${mcmc}/ ]
+then
+	mkdir -p ~/GitCode/MitoImputePrep/metadata/HaploGrep_concordance/${REFpanel}/MCMC${mcmc}/
+fi
+
+cp ${final_vcf}.txt ~/GitCode/MitoImputePrep/metadata/HaploGrep_concordance/${REFpanel}/MCMC${mcmc}/ # copy haplogroup outputs to Git
 
 
 # GENERATE QC REPORT
