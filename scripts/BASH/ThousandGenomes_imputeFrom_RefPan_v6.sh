@@ -28,7 +28,7 @@ echo "LOADED plink v1.9"
 echo "LOADED IMPUTE2 v2.3.2"
 
 # SPECIFY REFERENCE PANEL
-REFpanel="ReferencePanel_v5"
+REFpanel="ReferencePanel_v6"
 echo
 echo "REFERENCE PANEL:	${REFpanel}"
 echo "SNP CHIP:			${MtPlatforms}"
