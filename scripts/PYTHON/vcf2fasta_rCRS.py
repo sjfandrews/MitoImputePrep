@@ -204,8 +204,8 @@ def main():
         if mem_used >= 1024:
             print '*\tProcess used %s GB of memory' % ('%.2f' % (mem_used / 1024))
         print
-        print(' FINISH VCF 2 FASTA FOR mtDNA (rCRS) CONVERSION '.center(int(terminal_size()[0]), '='))
-        print        
+        #print(' FINISH VCF 2 FASTA FOR mtDNA (rCRS) CONVERSION '.center(int(terminal_size()[0]), '='))
+        #print        
 
 if __name__=="__main__":
     main()   
