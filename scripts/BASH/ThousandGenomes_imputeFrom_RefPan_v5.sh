@@ -68,9 +68,10 @@ else
 	bcftools query -l ${vcf_1kg} > ${samps_1kg}
 	Rscript ~/GitCode/MitoImputePrep/scripts/R/assign_sex_label.R ${samps_1kg} ${sex_1kg}
 	
-	if [ ! -f ${diploid_vcf}.vcf.gz ]
+	#if [ ! -f ${diploid_vcf}.vcf.gz ]
+	if [ ! -f ~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/chrMT_1kg_diploid.vcf.gz ]
 	then
-		bcftools view -V indels,mnps -Oz -o ${snpOnly_vcf}.vcf.gz ${orig_vcf}
+		bcftools view -V indels,mnps ${orig_vcf} | bcftools norm -m -any -Oz -o ${snpOnly_vcf}.vcf.gz
 		bcftools index ${snpOnly_vcf}.vcf.gz
 		plink --vcf ${snpOnly_vcf}.vcf.gz --recode vcf --out ${diploid_vcf}
 		bcftools +fill-tags ${diploid_vcf}.vcf -Oz -o ${diploid_vcf}.vcf.gz
@@ -80,7 +81,8 @@ else
 		cp ${vcf_1kg} ~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/
 		cp ${vcf_1kg}.csi ~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/
 		cp ${sex_1kg} ~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/
-		#cp ${diploid_vcf}.vcf.gz* ~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/
+		cp ${diploid_vcf}.vcf.gz* ~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/
+		cp ${diploid_vcf}.haplogrep.txt ~/GitCode/MitoImputePrep/metadata/HaploGrep_concordance/
 		
 		echo
 		echo "${diploid_vcf}.vcf.gz COPIED TO ~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/"
