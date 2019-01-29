@@ -1,36 +1,62 @@
+require(dplyr)
 '%!in%' = function(x,y)!('%in%'(x,y))
 
 strands_file = "~/GitCode/MitoImputePrep/scripts/INFORMATION_LISTS/b37_platforms.txt"
-pre_dir = "~/GitCode/MitoImputePrep/metadata/HaploGrep_concordance/ReferencePanel_v5/"
-imp_dir = "~/GitCode/MitoImputePrep/metadata/HaploGrep_concordance/ReferencePanel_v5/MCMC1/"
-conc_dir = "~/GitCode/MitoImputePrep/metadata/HaploGrep_concordance/ReferencePanel_v5/mismatch/"
-out_dir = "~/GitCode/MitoImputePrep/metadata/HaploGrep_concordance/concordance_tables/micro_haplogroups/"
-out_dir2 = "~/GitCode/MitoImputePrep/metadata/HaploGrep_concordance/concordance_tables/mmeta_haplogroups/"
+WGS_file = "~/GitCode/MitoImputePrep/metadata/HaploGrep_concordance/chrMT_1kg_diploid.haplogrep.txt"
+geno_dir = "/Volumes/TimMcInerney/MitoImpute/analyses/Haplogroups/HaploGrep/ReferencePanel_v5/genotyped/"
+imp_dir = "/Volumes/TimMcInerney/MitoImpute/analyses/Haplogroups/HaploGrep/ReferencePanel_v5/imputed/"
+comp_dir = "/Volumes/TimMcInerney/MitoImpute/analyses/Haplogroups/HaploGrep/ReferencePanel_v5/comparison/"
 
-if (!endsWith(conc_dir, "/")) {
-  conc_dir = paste0(conc_dir, "/")
+if (!endsWith(geno_dir, "/")) {
+  geno_dir = paste0(geno_dir, "/")
 }
-if (!endsWith(out_dir, "/")) {
-  out_dir = paste0(out_dir, "/")
+if (!endsWith(imp_dir, "/")) {
+  imp_dir = paste0(imp_dir, "/")
 }
-if (!endsWith(out_dir2, "/")) {
-  out_dir2 = paste0(out_dir2, "/")
+if (!endsWith(comp_dir, "/")) {
+  comp_dir = paste0(comp_dir, "/")
 }
 
-analysed_chips = sub(x = dir(imp_dir), pattern = "_haplogrep.txt", replacement = "")
+analysed_chips = sub(x = dir(imp_dir), pattern = "_imputed_MCMC1_haplogrep.txt", replacement = "")
+analysed_chips = sub(x = analysed_chips, pattern = "chrMT_1kg_", replacement = "")
 
 strands = read.table(strands_file, header = F)
 names(strands) = c("chip")
+strands = subset(strands, strands$chip %in% analysed_chips)
 
 # GATHER WGS HAPLOGROUPING
-Primary_table = read.csv(paste0(conc_dir, as.character(strands$chip[1]), "_haplogroupings.csv"), header = T)
-hgs = names(table(Primary_table$WGS))
+wgs_table = read.table(WGS_file, header = T)
+afr_hgs = subset(wgs_table, substr(wgs_table$Haplogroup, 1, 1) == "L")
+afr_hgs$MetaHaplogroup = substr(afr_hgs$Haplogroup, 1, 2)
+eua_hgs = subset(wgs_table, substr(wgs_table$Haplogroup, 1, 1) != "L")
+eua_hgs$MetaHaplogroup = substr(eua_hgs$Haplogroup, 1, 1)
+wgs_table = rbind(afr_hgs, eua_hgs)
+
+hgs = names(table(wgs_table$Haplogroup))
+mhgs = names(table(wgs_table$MetaHaplogroup))
+
+
+### META HAPLOGROUPS
+# CREATE A DATA FRAME WITH THE NUMBER OF ROWS = #CHIPS and NUMBER OF COLUMNS #HAPLOGROUPS+1
+imputed_df = data.frame(matrix(nrow = length(dir(analysed_chips)), ncol = length(mhgs) + 1))
+names(imputed_df) = c("chip", mhgs)
+
+typed_df = data.frame(matrix(nrow = length(dir(analysed_chips)), ncol = length(mhgs) + 1))
+names(typed_df) = c("chip", mhgs)
+
+# CALCULATE CONCORDANCE FOR EACH CHIP
+for (chip in 1:length(analysed_chips)) {
+  if (file.exists(paste0(geno_dir, "chrMT_1kg_", analysed_chips[chip], "_diploid.txt")))
+}
+
+
+
 
 # CREATE A DATA FRAME WITH THE NUMBER OF ROWS = #CHIPS and NUMBER OF COLUMNS #HAPLOGROUPS+1
-imputed_df = data.frame(matrix(nrow = length(dir(conc_dir)), ncol = length(hgs) + 1))
+imputed_df = data.frame(matrix(nrow = length(dir(analysed_chips)), ncol = length(hgs) + 1))
 names(imputed_df) = c("chip", hgs)
 
-typed_df = data.frame(matrix(nrow = length(dir(conc_dir)), ncol = length(hgs) + 1))
+typed_df = data.frame(matrix(nrow = length(dir(analysed_chips)), ncol = length(hgs) + 1))
 names(typed_df) = c("chip", hgs)
 
 # RUN THE CALCULATIONS
