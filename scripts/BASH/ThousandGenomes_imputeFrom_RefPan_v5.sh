@@ -29,9 +29,11 @@ echo "LOADED IMPUTE2 v2.3.2"
 
 # SPECIFY REFERENCE PANEL
 REFpanel="ReferencePanel_v5"
+HAPLOGREP=~/GitCode/MitoImputePrep/haplogrep/2.1.19/haplogrep-2.1.19.jar
 echo
 echo "REFERENCE PANEL:	${REFpanel}"
 echo "SNP CHIP:			${MtPlatforms}"
+echo "HAPLOGREP:		${HAPLOGREP}"
 
 # CHECK FOR OR CREATE THE DECOMPOSED 1,000 GENOMES VCF FILE
 git_vcf=~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/chrMT_1kg_norm_decomposed_firstAlt.vcf.gz
@@ -76,7 +78,7 @@ else
 		plink --vcf ${snpOnly_vcf}.vcf.gz --recode vcf --out ${diploid_vcf}
 		bcftools +fill-tags ${diploid_vcf}.vcf -Oz -o ${diploid_vcf}.vcf.gz
 		bcftools index ${diploid_vcf}.vcf.gz
-		java -jar ~/GitCode/MitoImputePrep/haplogrep/2.1.18/haplogrep-2.1.18.jar --in ${diploid_vcf}.vcf --format vcf --out ${diploid_vcf}.haplogrep.txt
+		java -jar ${HAPLOGREP} --in ${diploid_vcf}.vcf --format vcf --out ${diploid_vcf}.haplogrep.txt
 		
 		cp ${vcf_1kg} ~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/
 		cp ${vcf_1kg}.csi ~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/
@@ -159,7 +161,7 @@ bcftools index ${fixed_vcf}.gz # index it it so the -R flag in bcftools view wil
 bcftools view -R ${vcf_pos} ${fixed_vcf}.gz | bcftools norm -m -any | bcftools +fill-tags -Oz -o ${diploid_vcf}.vcf.gz # include only positions found in the imputed vcf and split multiallelic into biallelic
 bcftools index ${diploid_vcf}.vcf.gz # index it
 
-java -jar ~/GitCode/MitoImputePrep/haplogrep/2.1.18/haplogrep-2.1.18.jar --in ${diploid_vcf}.vcf.gz --format vcf --chip --out ${diploid_vcf}.txt # assign haplogreps
+java -jar ${HAPLOGREP} --in ${diploid_vcf}.vcf.gz --format vcf --chip --out ${diploid_vcf}.txt # assign haplogreps
 
 if [ -f ${diploid_vcf}.txt ]
 then
@@ -169,7 +171,7 @@ else
 	echo
 	echo "${diploid_vcf}.txt NOT FOUND ... RECODING TO plink VCF FILE"
 	plink1.9 --vcf ${diploid_vcf}.vcf.gz --recode vcf --out ${diploid_vcf} # recode vcf to vcf via plink (haplogrep seems to love plink vcf files, but not bcftools ... dont know why this needs to be done, but it does, so ???)
-	java -jar ~/GitCode/MitoImputePrep/haplogrep/2.1.18/haplogrep-2.1.18.jar --in ${diploid_vcf}.vcf --format vcf --chip --out ${diploid_vcf}.txt # assign haplogreps
+	java -jar ${HAPLOGREP} --in ${diploid_vcf}.vcf --format vcf --chip --out ${diploid_vcf}.txt # assign haplogreps
 fi
 
 #plink1.9 --vcf ${vcf} --recode vcf --out ${out}
@@ -180,7 +182,7 @@ echo
 echo "ASSIGNING HAPLOGROUPS FOR THE PRE-IMPUTED IN SILICO SNP CHIP"
 vcf="/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}_diploid.vcf"
 out="/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}_haplogrep"
-java -jar ~/GitCode/MitoImputePrep/haplogrep/2.1.18/haplogrep-2.1.18.jar --in ${vcf} --format vcf --chip --out ${out}.txt # assign haplogreps
+java -jar ${HAPLOGREP} --in ${vcf} --format vcf --chip --out ${out}.txt # assign haplogreps
 
 if [ ! -d ~/GitCode/MitoImputePrep/metadata/HaploGrep_concordance/${REFpanel}/ ]
 then
@@ -270,7 +272,7 @@ bcftools index ${fixed_vcf}.gz # index it it so the -R flag in bcftools view wil
 #bcftools view -R ${vcf_pos} ${fixed_vcf}.gz | bcftools norm -m -any -Oz -o ${final_vcf}.vcf.gz # include only positions found in the imputed vcf and split multiallelic into biallelic
 bcftools view -R ${vcf_pos} ${fixed_vcf}.gz | bcftools norm -m -any | bcftools +fill-tags -Oz -o ${final_vcf}.vcf.gz # include only positions found in the imputed vcf and split multiallelic into biallelic
 bcftools index ${final_vcf}.vcf.gz # index it
-java -jar ~/GitCode/MitoImputePrep/haplogrep/2.1.18/haplogrep-2.1.18.jar --in ${final_vcf}.vcf.gz --format vcf --chip --out ${final_vcf}.txt # assign haplogreps
+java -jar ${HAPLOGREP} --in ${final_vcf}.vcf.gz --format vcf --chip --out ${final_vcf}.txt # assign haplogreps
 
 if [ -f ${final_vcf}.txt ]
 then
@@ -280,7 +282,7 @@ else
 	echo
 	echo "${final_vcf}.txt NOT FOUND ... RECODING TO plink VCF FILE"
 	plink1.9 --vcf ${final_vcf}.vcf.gz --recode vcf --out ${final_vcf} # recode vcf to vcf via plink (haplogrep seems to love plink vcf files, but not bcftools ... dont know why this needs to be done, but it does, so ???)
-	java -jar ~/GitCode/MitoImputePrep/haplogrep/2.1.18/haplogrep-2.1.18.jar --in ${final_vcf}.vcf --format vcf --chip --out ${final_vcf}.txt # assign haplogreps
+	java -jar ${HAPLOGREP} --in ${final_vcf}.vcf --format vcf --chip --out ${final_vcf}.txt # assign haplogreps
 fi
 
 #if [ ! -d ~/GitCode/MitoImputePrep/metadata/HaploGrep_concordance/${REFpanel}/MCMC${mcmc}/ ]

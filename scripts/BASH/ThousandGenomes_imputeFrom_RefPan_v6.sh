@@ -29,9 +29,11 @@ echo "LOADED IMPUTE2 v2.3.2"
 
 # SPECIFY REFERENCE PANEL
 REFpanel="ReferencePanel_v6"
+HAPLOGREP=~/GitCode/MitoImputePrep/haplogrep/2.1.19/haplogrep-2.1.19.jar
 echo
 echo "REFERENCE PANEL:	${REFpanel}"
 echo "SNP CHIP:			${MtPlatforms}"
+echo "HAPLOGREP:		${HAPLOGREP}"
 
 # CHECK FOR OR CREATE THE DECOMPOSED 1,000 GENOMES VCF FILE
 git_vcf=~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/chrMT_1kg_norm_decomposed_firstAlt.vcf.gz
@@ -137,9 +139,43 @@ plink1.9 --vcf ${vcf} --recode --double-id --keep-allele-order --out ${out}
 # CREATE DIPLOID VCF
 echo
 echo "GENERATING PLINK FILES (DIPLOID)"
-out="/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}_diploid"
-plink1.9 --vcf ${vcf} --recode vcf --out ${out}
-bcftools +fill-tags ${out}.vcf -Oz -o ${out}.vcf.gz
+geno_ext="/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}"
+ref_fasta_plink=~/GitCode/MitoImputePrep/scripts/REFERENCE_ALNS/MT/rCRS.fasta
+norm_vcf=${geno_ext}_norm.vcf.gz
+vcf_pos=${geno_ext}_norm_SNPpositions.txt
+geno_fasta=${geno_ext}.fasta
+fixed_vcf=${geno_ext}_fixed.vcf
+diploid_vcf=${geno_ext}_diploid
+
+bcftools annotate --set-id '.' ${vcf} | bcftools norm --check-ref s -f ${ref_fasta_plink} -m +any | bcftools view -Oz -o ${norm_vcf} # Normalise: remove SNP IDs, reformat to rCRS, join biallelic repeated sites into multiallelic sites, then output to gzip
+bcftools index ${norm_vcf} # index normalised vcf
+bcftools query -f '%POS\n' ${norm_vcf} > ${vcf_pos} # extract genomic positions
+Rscript ~/GitCode/MitoImputePrep/scripts/R/plink_sites_map.R ${vcf_pos} # add a column with the MT label
+perl -pi -e 'chomp if eof' ${vcf_pos} # remove the last leading line
+python ~/GitCode/MitoImputePrep/scripts/PYTHON/vcf2fasta_rCRS.py -i ${norm_vcf} -o ${geno_fasta} # convert to a fasta file
+#python ~/GitCode/MitoImputePrep/scripts/PYTHON/fasta2vcf_mtDNA.py -i ${imp_fasta} -o ${fixed_vcf} -g -d # convert back to a vcf
+python ~/GitCode/MitoImputePrep/scripts/PYTHON/fasta2vcf_mtDNA.py -i ${geno_fasta} -o ${fixed_vcf} -g -d -id -a # convert back to a vcf
+bcftools view ${fixed_vcf} -Oz -o ${fixed_vcf}.gz # gzip it so the -R flag in bcftools view will work
+bcftools index ${fixed_vcf}.gz # index it it so the -R flag in bcftools view will work
+#bcftools view -R ${vcf_pos} ${fixed_vcf}.gz | bcftools norm -m -any -Oz -o ${final_vcf}.vcf.gz # include only positions found in the imputed vcf and split multiallelic into biallelic
+bcftools view -R ${vcf_pos} ${fixed_vcf}.gz | bcftools norm -m -any | bcftools +fill-tags -Oz -o ${diploid_vcf}.vcf.gz # include only positions found in the imputed vcf and split multiallelic into biallelic
+bcftools index ${diploid_vcf}.vcf.gz # index it
+
+java -jar ${HAPLOGREP} --in ${diploid_vcf}.vcf.gz --format vcf --chip --out ${diploid_vcf}.txt # assign haplogreps
+
+if [ -f ${diploid_vcf}.txt ]
+then
+	echo
+	echo "${diploid_vcf}.txt FOUND ... bcftools VCF FILE WORKED"
+else
+	echo
+	echo "${diploid_vcf}.txt NOT FOUND ... RECODING TO plink VCF FILE"
+	plink1.9 --vcf ${diploid_vcf}.vcf.gz --recode vcf --out ${diploid_vcf} # recode vcf to vcf via plink (haplogrep seems to love plink vcf files, but not bcftools ... dont know why this needs to be done, but it does, so ???)
+	java -jar ${HAPLOGREP} --in ${diploid_vcf}.vcf --format vcf --chip --out ${diploid_vcf}.txt # assign haplogreps
+fi
+
+#plink1.9 --vcf ${vcf} --recode vcf --out ${out}
+#bcftools +fill-tags ${out}.vcf -Oz -o ${out}.vcf.gz
 
 # ASSIGN HAPLOGROUPS FOR THE PRE-IMPUTED IN SILICO SNP CHIP
 echo
