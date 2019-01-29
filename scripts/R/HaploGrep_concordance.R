@@ -32,6 +32,8 @@ eua_hgs = subset(wgs_table, substr(wgs_table$Haplogroup, 1, 1) != "L")
 eua_hgs$MetaHaplogroup = substr(eua_hgs$Haplogroup, 1, 1)
 wgs_table = rbind(afr_hgs, eua_hgs)
 
+wgs_table = arrange(wgs_table, wgs_table$SampleID)
+
 hgs = names(table(wgs_table$Haplogroup))
 mhgs = names(table(wgs_table$MetaHaplogroup))
 
@@ -46,7 +48,38 @@ names(typed_df) = c("chip", mhgs)
 
 # CALCULATE CONCORDANCE FOR EACH CHIP
 for (chip in 1:length(analysed_chips)) {
-  if (file.exists(paste0(geno_dir, "chrMT_1kg_", analysed_chips[chip], "_diploid.txt")))
+  message(paste0(chip, " / ", length(analysed_chips)))
+  if (file.exists(paste0(geno_dir, "chrMT_1kg_", analysed_chips[chip], "chrMT_1kg_", analysed_chips[chip], "_diploid.txt")) && file.exists(paste0(imp_dir, "chrMT_1kg_", analysed_chips[chip], "_imputed_MCMC1_haplogrep.txt"))) {
+    tmp_table = data.frame(cbind(as.character(wgs_table$SampleID), wgs_table$MetaHaplogroup))
+    names(tmp_table) = c("sample", "wgs")
+    temp_gen = read.table(paste0(geno_dir, "chrMT_1kg_", analysed_chips[chip], "chrMT_1kg_", analysed_chips[chip], "_diploid.txt"), header = T)
+    temp_imp = read.table(paste0(imp_dir, "chrMT_1kg_", analysed_chips[chip], "_imputed_MCMC1_haplogrep.txt"), header = T)
+    
+    # GENOTYPED
+    tmp_gen_afr = subset(temp_gen, substr(temp_gen$Haplogroup, 1, 1) == "L")
+    tmp_gen_afr$MetaHaplogroup = substr(tmp_gen_afr$Haplogroup, 1, 2)
+    tmp_gen_eua = subset(temp_gen, substr(temp_gen$Haplogroup, 1, 1) != "L")
+    tmp_gen_eua$MetaHaplogroup = substr(tmp_gen_eua$Haplogroup, 1, 1)
+    temp_gen = rbind(tmp_gen_afr, tmp_gen_eua)
+    temp_gen = arrange(temp_gen, temp_gen$SampleID)
+    
+    tmp_table$genotyped = temp_gen$MetaHaplogroup
+    tmp_table$geno_match = tmp_table$wgs == tmp_table$genotyped
+    
+    # IMPUTED
+    tmp_imp_afr = subset(temp_imp, substr(temp_imp$Haplogroup, 1, 1) == "L")
+    tmp_imp_afr$MetaHaplogroup = substr(tmp_imp_afr$Haplogroup, 1, 2)
+    tmp_imp_eua = subset(temp_imp, substr(temp_imp$Haplogroup, 1, 1) != "L")
+    tmp_imp_eua$MetaHaplogroup = substr(tmp_imp_eua$Haplogroup, 1, 1)
+    temp_imp = rbind(tmp_imp_afr, tmp_imp_eua)
+    temp_imp = arrange(temp_imp, temp_imp$SampleID)
+    
+    tmp_table$imputed = temp_imp$MetaHaplogroup
+    tmp_table$imp_match = tmp_table$wgs == tmp_table$imputed
+    
+    # SAVE THE FILE
+    write.csv(tmp_table, paste0(comp_dir, "meta_haplogroup/", analysed_chips[chip], "_HaploGrep_concordance.csv"), row.names = F, quote = F)
+  }
 }
 
 
