@@ -17,7 +17,7 @@ if (!endsWith(out_dir2, "/")) {
   out_dir2 = paste0(out_dir2, "/")
 }
 
-analysed_chips = sub(x = dir(conc_dir), pattern = "_haplogroupings.csv", replacement = "")
+analysed_chips = sub(x = dir(imp_dir), pattern = "_haplogrep.txt", replacement = "")
 
 strands = read.table(strands_file, header = F)
 names(strands) = c("chip")
