@@ -143,7 +143,7 @@ norm_vcf=${geno_ext}_norm.vcf.gz
 vcf_pos=${geno_ext}_norm_SNPpositions.txt
 geno_fasta=${geno_ext}.fasta
 fixed_vcf=${geno_ext}_fixed.vcf
-diploid_vcf=${geno_ext}chrMT_1kg_${MtPlatforms}_diploid
+diploid_vcf=${geno_ext}_diploid
 
 bcftools annotate --set-id '.' ${vcf} | bcftools norm --check-ref s -f ${ref_fasta_plink} -m +any | bcftools view -Oz -o ${norm_vcf} # Normalise: remove SNP IDs, reformat to rCRS, join biallelic repeated sites into multiallelic sites, then output to gzip
 bcftools index ${norm_vcf} # index normalised vcf
