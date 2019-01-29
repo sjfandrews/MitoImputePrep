@@ -49,11 +49,13 @@ names(typed_df) = c("chip", mhgs)
 # CALCULATE CONCORDANCE FOR EACH CHIP
 for (chip in 1:length(analysed_chips)) {
   message(paste0(chip, " / ", length(analysed_chips)))
-  if (file.exists(paste0(geno_dir, "chrMT_1kg_", analysed_chips[chip], "chrMT_1kg_", analysed_chips[chip], "_diploid.txt")) && file.exists(paste0(imp_dir, "chrMT_1kg_", analysed_chips[chip], "_imputed_MCMC1_haplogrep.txt"))) {
+  gen_file = paste0(geno_dir, "chrMT_1kg_", analysed_chips[chip], "_diploid.txt")
+  imp_file = paste0(imp_dir, "chrMT_1kg_", analysed_chips[chip], "_imputed_MCMC1_haplogrep.txt")
+  if (file.exists(gen_file) && file.exists(imp_file)) {
     tmp_table = data.frame(cbind(as.character(wgs_table$SampleID), wgs_table$MetaHaplogroup))
     names(tmp_table) = c("sample", "wgs")
-    temp_gen = read.table(paste0(geno_dir, "chrMT_1kg_", analysed_chips[chip], "chrMT_1kg_", analysed_chips[chip], "_diploid.txt"), header = T)
-    temp_imp = read.table(paste0(imp_dir, "chrMT_1kg_", analysed_chips[chip], "_imputed_MCMC1_haplogrep.txt"), header = T)
+    temp_gen = read.table(gen_file, header = T)
+    temp_imp = read.table(imp_file, header = T)
     
     # GENOTYPED
     tmp_gen_afr = subset(temp_gen, substr(temp_gen$Haplogroup, 1, 1) == "L")
