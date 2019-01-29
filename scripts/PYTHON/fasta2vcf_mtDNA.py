@@ -21,6 +21,9 @@ def main():
     parser.add_argument('-g', '--gap2missing', dest='gap2missing', action="store_true", required=False, help='turn gaps to missing (N)')
     parser.add_argument('-d', '--diploid', dest='diploid', action="store_true", required=False, help='create diploid VCF file')
     
+    parser.add_argument('-id', '--ID', dest='ID', action="store_true", required=False, help='tag the ID column as MT<POS>')
+    parser.add_argument('-q', '--quality', dest='quality', type=str, required=False, default="999", help='tag for QUAL column')
+    parser.add_argument('-f', '--filt', dest='filt', type=str, required=False, default="PASS", help='tag for FILTER column')
     #parser.add_argument('-c', '--chromosome', dest='chromosome', type=str, default='MT', required=False, help='specify the chromosome')
     parser.add_argument('-v', '--verbose', dest='verbose', action="store_true", required=False, help='turn on verbose mode')
 
@@ -29,6 +32,9 @@ def main():
     infile = args.infile
     outfile = args.outfile
     gap2missing = args.gap2missing
+    ID = args.ID
+    quality = args.quality
+    filt = args.filt
     diploid = args.diploid
     verbose = args.verbose
     
@@ -181,12 +187,17 @@ def main():
             # SITE INFORMATION COLUMNS FIRST
             tmp_list = ['MT'] # CHROM column
             tmp_list.append(str(site + 1)) # POS column
-            tmp_list.append('.') # ID column
+            if ID:
+                tmp_list.append("MT_" + str(site + 1))
+            else:
+                tmp_list.append('.') # ID column
             tmp_list.append(ref_sites[str(site + 1)]) # REF column
             #tmp_list.append(','.join(alt_sites[str(site + 1)])) # ALT column
             tmp_list.append(alt_order[str(site + 1)]) # ALT column
-            tmp_list.append('.') # QUAL column
-            tmp_list.append('.') # FILTER column
+            tmp_list.append(quality) # QUAL column
+            #tmp_list.append('.') # QUAL column
+            tmp_list.append(filt) # FILTER column
+            #tmp_list.append('.') # FILTER column
             tmp_list.append('.') # INFO column
             tmp_list.append('GT') # FORMAT column
 
