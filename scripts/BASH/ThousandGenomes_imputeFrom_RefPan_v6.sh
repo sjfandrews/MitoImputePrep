@@ -153,7 +153,7 @@ then
 	mkdir -p ~/GitCode/MitoImputePrep/metadata/HaploGrep_concordance/${REFpanel}/
 fi
 
-cp ${out}.txt ~/GitCode/MitoImputePrep/metadata/HaploGrep_concordance/${REFpanel}/ # copy haplogroup outputs to Git
+#cp ${out}.txt ~/GitCode/MitoImputePrep/metadata/HaploGrep_concordance/${REFpanel}/ # copy haplogroup outputs to Git
 
 if [ -f ~/GitCode/MitoImputePrep/metadata/HaploGrep_concordance/${REFpanel}/chrMT_1kg_${MtPlatforms}_haplogrep.txt ]
 then
