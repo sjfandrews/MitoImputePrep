@@ -26,6 +26,8 @@ def main():
     parser.add_argument('-f', '--filt', dest='filt', type=str, required=False, default="PASS", help='tag for FILTER column')
     #parser.add_argument('-c', '--chromosome', dest='chromosome', type=str, default='MT', required=False, help='specify the chromosome')
     parser.add_argument('-v', '--verbose', dest='verbose', action="store_true", required=False, help='turn on verbose mode')
+    
+    parser.add_argument('-a', '--add_alt', dest='add_alt', action="store_true", required=False, help='always have an alternative allele')
 
     args = parser.parse_args()
 
@@ -37,6 +39,7 @@ def main():
     filt = args.filt
     diploid = args.diploid
     verbose = args.verbose
+    add_alt = args.add_alt
     
     dip_symbol = "/"
 
@@ -117,9 +120,17 @@ def main():
             else:
                 pass
             if len(tmp_set) == 0:
-                # If no alternative alleles found, set alternative allele to missing
-                alt_sites[str(site + 1)] = '.'
-                alt_order[str(site + 1)] = '.'
+                if add_alt:
+                    if ref_sites[str(site + 1)] == "A":
+                        alt_sites[str(site + 1)] = "C"
+                        alt_order[str(site + 1)] = "C"
+                    else:
+                        alt_sites[str(site + 1)] = "A"
+                        alt_order[str(site + 1)] = "A"                        
+                else:
+                    # If no alternative alleles found, set alternative allele to missing
+                    alt_sites[str(site + 1)] = '.'
+                    alt_order[str(site + 1)] = '.'
             else:
                 # Otherwise
                 alt_sites[str(site + 1)] = tmp_set # ADD SET OF ALLELES TO DICTIONARY
@@ -157,9 +168,17 @@ def main():
             else:
                 pass
             if len(tmp_set) == 0:
-                # If no alternative alleles found, set alternative allele to missing
-                alt_sites[str(site + 1)] = '.'
-                alt_order[str(site + 1)] = '.'
+                if add_alt:
+                    if ref_sites[str(site + 1)] == "A":
+                        alt_sites[str(site + 1)] = "C"
+                        alt_order[str(site + 1)] = "C"
+                    else:
+                        alt_sites[str(site + 1)] = "A"
+                        alt_order[str(site + 1)] = "A" 
+                else:
+                    # If no alternative alleles found, set alternative allele to missing
+                    alt_sites[str(site + 1)] = '.'
+                    alt_order[str(site + 1)] = '.'
             else:
                 # Otherwise
                 alt_sites[str(site + 1)] = tmp_set # ADD SET OF ALLELES TO DICTIONARY
