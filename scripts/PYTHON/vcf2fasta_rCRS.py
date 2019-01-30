@@ -77,7 +77,11 @@ def main():
                     line = line.strip("\n")
                     line = line.split("\t")[9:]
                     for seq in line:
-                        seq_names.append(seq.split("_")[0])
+                        tmp_seq = seq.split("_")
+                        if tmp_seq[0] == tmp_seq[1]:
+                            seq_names.append(seq.split("_")[0])
+                        else:
+                            seq_names.append(seq)
                 else:
                     line = line.strip("\n")
                     line = line.split("\t")
