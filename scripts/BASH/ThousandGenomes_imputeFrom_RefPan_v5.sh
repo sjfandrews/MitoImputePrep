@@ -182,12 +182,12 @@ echo
 echo "ASSIGNING HAPLOGROUPS FOR THE PRE-IMPUTED IN SILICO SNP CHIP"
 vcf="/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}_diploid.vcf"
 out="/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}_haplogrep"
-java -jar ${HAPLOGREP} --in ${vcf} --format vcf --chip --out ${out}.txt # assign haplogreps
-
-if [ ! -d ~/GitCode/MitoImputePrep/metadata/HaploGrep_concordance/${REFpanel}/ ]
-then
-	mkdir -p ~/GitCode/MitoImputePrep/metadata/HaploGrep_concordance/${REFpanel}/
-fi
+#java -jar ${HAPLOGREP} --in ${vcf} --format vcf --chip --out ${out}.txt # assign haplogreps
+#
+#if [ ! -d ~/GitCode/MitoImputePrep/metadata/HaploGrep_concordance/${REFpanel}/ ]
+#then
+#	mkdir -p ~/GitCode/MitoImputePrep/metadata/HaploGrep_concordance/${REFpanel}/
+#fi
 
 #cp ${out}.txt ~/GitCode/MitoImputePrep/metadata/HaploGrep_concordance/${REFpanel}/ # copy haplogroup outputs to Git
 

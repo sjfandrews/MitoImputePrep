@@ -10,9 +10,13 @@
 # SPECIFY REFERENCE PANEL
 REFpanel="ReferencePanel_v5"
 HAPLOGREP=~/GitCode/MitoImputePrep/haplogrep/2.1.19/haplogrep-2.1.19.jar
+mcmc=1
+burn=0
 echo
 echo "REFERENCE PANEL:	${REFpanel}"
 echo "HAPLOGREP:		${HAPLOGREP}"
+echo "MCMC LENGTH:		${mcmc}"
+echo "MCMC BURN-IN:		${burn}"
 
 # STRIP AWAY PROBLEMATIC COLUMNS
 echo
@@ -32,22 +36,6 @@ vcf=/Volumes/TimMcInerney/MitoImpute/data/ADNI/Timpute/VCF/mitoimpute_adni/mitoi
 
 bcftools view -S ${samp_file} ${orig_adni}.gz | bcftools +fill-tags -Oz -o ${vcf}
 bcftools index ${vcf}
-
-# GENERATE GEN SAMPLE
-echo
-echo "GENERATING GEN SAMPLE"
-sex=~/GitCode/MitoImputePrep/metadata/ADNI_samples_BOTH_SEX.txt 
-out=/Volumes/TimMcInerney/MitoImpute/data/ADNI/Timpute/OXFORD/mitoimpute_adni
-
-bcftools convert --gensample ${out} ${vcf} --sex ${sex}
-Rscript ~/GitCode/MitoImputePrep/scripts/R/FixSamplesFile_raijin.R ${out}.samples
-
-# GENERATE PLINK FILES
-echo
-echo "GENERATING PLINK FILES"
-out=/Volumes/TimMcInerney/MitoImpute/data/ADNI/Timpute/PLINK/mitoimpute_adni
-
-plink1.9 --vcf ${vcf} --recode --double-id --keep-allele-order --out ${out}
 
 # CREATE DIPLOID VCF
 echo
@@ -84,3 +72,72 @@ else
 	plink1.9 --vcf ${diploid_vcf}.vcf.gz --recode vcf --out ${diploid_vcf} # recode vcf to vcf via plink (haplogrep seems to love plink vcf files, but not bcftools ... dont know why this needs to be done, but it does, so ???)
 	java -jar ${HAPLOGREP} --in ${diploid_vcf}.vcf --format vcf --chip --out ${diploid_vcf}.txt # assign haplogreps
 fi
+
+# GENERATE GEN SAMPLE
+echo
+echo "GENERATING GEN SAMPLE"
+sex=~/GitCode/MitoImputePrep/metadata/ADNI_samples_BOTH_SEX.txt 
+out=/Volumes/TimMcInerney/MitoImpute/data/ADNI/Timpute/OXFORD/mitoimpute_adni
+
+bcftools convert --gensample ${out} ${vcf} --sex ${sex}
+Rscript ~/GitCode/MitoImputePrep/scripts/R/FixSamplesFile_raijin.R ${out}.samples
+
+# GENERATE PLINK FILES
+echo
+echo "GENERATING PLINK FILES"
+out=/Volumes/TimMcInerney/MitoImpute/data/ADNI/Timpute/PLINK/mitoimpute_adni
+
+plink1.9 --vcf ${vcf} --recode --double-id --keep-allele-order --out ${out}
+
+# RUN IMPUTE2
+echo
+echo "RUNNING IMPUTE2 ON ${MtPlatforms}"
+m=~/GitCode/MitoImputePrep/DerivedData/${REFpanel}/${REFpanel}_MtMap.txt 
+h=~/GitCode/MitoImputePrep/DerivedData/${REFpanel}/${REFpanel}.hap.gz
+l=~/GitCode/MitoImputePrep/DerivedData/${REFpanel}/${REFpanel}.legend.gz
+g=/Volumes/TimMcInerney/MitoImpute/data/ADNI/Timpute/OXFORD/mitoimpute_adni.gen.gz
+s=/Volumes/TimMcInerney/MitoImpute/data/ADNI/Timpute/OXFORD/mitoimpute_adni.samples
+out=/Volumes/TimMcInerney/MitoImpute/data/ADNI/Timpute/IMPUTE2/MCMC${mcmc}/mitoimpute_adni_imputed_MCMC${mcmc}
+#g=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}.gen.gz
+#s=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}.samples
+#out=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/MCMC${mcmc}/chrMT_1kg_${MtPlatforms}_imputed_MCMC${mcmc}
+
+if [ -d /Volumes/TimMcInerney/MitoImpute/data/ADNI/Timpute/IMPUTE2/MCMC${mcmc}/ ]
+then
+	echo "DIRECTORY FOUND"
+else
+	mkdir -p /Volumes/TimMcInerney/MitoImpute/data/ADNI/Timpute/IMPUTE2/MCMC${mcmc}/
+fi
+
+if [ -f ${out} ]
+then
+	echo "${out} FOUND! ... PASSING"
+else
+	echo "${out} NOT FOUND! ... RUNNING IMPUTE2"
+	impute2 -chrX -m ${m} -h ${h} -l ${l} -g ${g} -sample_g ${s} -int 1 16569 -Ne 20000 -o ${out} -iter ${mcmc} -burnin ${burn}
+fi
+
+# FIX CHROMOSOME NAMES
+echo
+echo "FIXING CHROMOSOME NAMES"
+InFile=/Volumes/TimMcInerney/MitoImpute/data/ADNI/Timpute/IMPUTE2/MCMC${mcmc}/mitoimpute_adni_imputed_MCMC${mcmc}
+OutFile=${InFile}_ChromFixed
+awk '{{$1 = "26"; print}}' ${InFile} > ${OutFile}
+
+# CONVERT OXFORD TO PEDIGREE
+echo
+echo "CONVERTING OXFORD TO PEDIGREE"
+gen=${InFile}_ChromFixed
+sam=${InFile}_samples
+out=${InFile}
+
+plink1.9 --gen ${gen} --sample ${sam} --hard-call-threshold 0.49 --keep-allele-order --output-chr 26 --recode --out ${out}
+
+# CONVERT OXFORD TO VCF
+echo
+echo "CONVERTING OXFORD TO VCF"
+gen=${InFile}_ChromFixed
+sam=${InFile}_samples
+out=${InFile}
+
+plink1.9 --gen ${gen} --sample ${sam} --hard-call-threshold 0.49 --keep-allele-order --output-chr 26 --recode vcf --out ${out}
