@@ -84,6 +84,8 @@ for (chip in 1:length(analysed_chips)) {
   }
 }
 
+hgs_freq = data.frame(table(tmp_table$wgs))
+write.csv(hgs_freq, paste0(hg_dir, "haplogroup_Haplogrep_frequencies.csv"), row.names = F, quote = F)
 
 ### META HAPLOGROUPS
 # CREATE A DATA FRAME WITH THE NUMBER OF ROWS = #CHIPS and NUMBER OF COLUMNS #HAPLOGROUPS+1
@@ -131,7 +133,8 @@ for (chip in 1:length(analysed_chips)) {
   }
 }
 
-
+mhgs_freq = data.frame(table(tmp_table$wgs))
+write.csv(mhgs_freq, paste0(hg_dir, "metahaplogroup_Haplogrep_frequencies.csv"), row.names = F, quote = F)
 
 
 # CREATE A DATA FRAME WITH THE NUMBER OF ROWS = #CHIPS and NUMBER OF COLUMNS #HAPLOGROUPS+1
