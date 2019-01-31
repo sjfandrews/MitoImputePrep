@@ -3,6 +3,11 @@ library(readxl)
 library(HiMC); data(nodes)
 library(dplyr)
 
+'%!in%' = function(x,y)!('%in%'(x,y))
+
+## READ IN FILE TO RECONCILE SAMPLE IDs
+rect_csv = read.csv("/Users/u5015730/GitCode/MitoImputePrep/metadata/ADNI_samples_BOTH.csv", header = T) 
+
 ## READ IN THE LIST OF CHIPS
 chips = read.table("~/GitCode/MitoImputePrep/scripts/INFORMATION_LISTS/b37_platforms.txt")
 names(chips) = c("array")
@@ -18,7 +23,7 @@ full_1kGP_hg_FULL = HiMC::getClassifications(full_1kGP)
 ### WORK ON THE THE ith IMPUTED SET
 ## MAKE DATA FRAMES FOR EACH MINOR ALLELE FREQ
 
-COLS = c("array", "MCMC", "imputed", "mean.info", "SNP.Ref.Only", "SNP.Ref.Samp", "SNP.Samp.Only", "TOTAL", "Retained.After.Filt", "Typed.hg.Conc", "Imputed.hg.Conc")
+COLS = c("array", "MCMC", "imputed", "mean.info", "SNP.Ref.Only", "SNP.Ref.Samp", "SNP.Samp.Only", "TOTAL", "Retained.After.Filt", "Typed.hg.Conc", "Imputed.hg.Conc", "Typed.Mhg.Conc", "Imputed.Mhg.Conc")
 
 #CONC_TABLE = data.frame(matrix(ncol = 6, nrow = ))
 MCMC1 = data.frame(matrix(ncol = length(COLS), nrow = 1))
@@ -93,17 +98,68 @@ if (length(typed_index_exclude) > 0) {
 }
 message("TYPED HAPLOTYPES CLASSIFIED")
 
+## RECONCILE SAMPLE IDs
+full_1kGP_hg$Individual = as.character(full_1kGP_hg$Individual)
+
+for (i in 1:nrow(full_1kGP_hg)) {
+  full_1kGP_hg$Individual[i] = as.character(rect_csv$TYPED_LABEL[match(full_1kGP_hg$Individual[i], rect_csv$SAMPLE_NUMBER)])
+}
+
+full_1kGP_hg = arrange(full_1kGP_hg, full_1kGP_hg$Individual)
+
+## DEFINE META HAPLOGROUPS
+difficult_mhgs = c("HV", "JT", "unclassified")
+
+full_1kGP_hg_D = subset(full_1kGP_hg, full_1kGP_hg$haplogroup %in% difficult_mhgs)
+full_1kGP_hg_D$metahaplogroup = full_1kGP_hg_D$haplogroup
+full_1kGP_hg = subset(full_1kGP_hg, full_1kGP_hg$haplogroup %!in% difficult_mhgs)
+full_1kGP_hg_A = subset(full_1kGP_hg, substr(full_1kGP_hg$haplogroup, 1, 1) == "L")
+full_1kGP_hg_A$metahaplogroup = substr(full_1kGP_hg_A$haplogroup, 1, 2)
+full_1kGP_hg_N = subset(full_1kGP_hg, substr(full_1kGP_hg$haplogroup, 1, 1) != "L")
+full_1kGP_hg_N$metahaplogroup = substr(full_1kGP_hg_N$haplogroup, 1, 1)
+full_1kGP_hg = rbind(full_1kGP_hg_A, full_1kGP_hg_N, full_1kGP_hg_D)
+full_1kGP_hg = arrange(full_1kGP_hg, full_1kGP_hg$Individual)
+
+typed_1kGP_hg_D = subset(typed_1kGP_hg, typed_1kGP_hg$haplogroup %in% difficult_mhgs)
+typed_1kGP_hg_D$metahaplogroup = typed_1kGP_hg_D$haplogroup
+typed_1kGP_hg = subset(typed_1kGP_hg, typed_1kGP_hg$haplogroup %!in% difficult_mhgs)
+typed_1kGP_hg_A = subset(typed_1kGP_hg, substr(typed_1kGP_hg$haplogroup, 1, 1) == "L")
+typed_1kGP_hg_A$metahaplogroup = substr(typed_1kGP_hg_A$haplogroup, 1, 2)
+typed_1kGP_hg_N = subset(typed_1kGP_hg, substr(typed_1kGP_hg$haplogroup, 1, 1) != "L")
+typed_1kGP_hg_N$metahaplogroup = substr(typed_1kGP_hg_N$haplogroup, 1, 1)
+typed_1kGP_hg = rbind(typed_1kGP_hg_A, typed_1kGP_hg_N, typed_1kGP_hg_D)
+typed_1kGP_hg = arrange(typed_1kGP_hg, typed_1kGP_hg$Individual)
+
+imputed_1kGP_hg_D = subset(imputed_1kGP_hg, imputed_1kGP_hg$haplogroup %in% difficult_mhgs)
+imputed_1kGP_hg_D$metahaplogroup = imputed_1kGP_hg_D$haplogroup
+imputed_1kGP_hg = subset(imputed_1kGP_hg, imputed_1kGP_hg$haplogroup %!in% difficult_mhgs)
+imputed_1kGP_hg_A = subset(imputed_1kGP_hg, substr(imputed_1kGP_hg$haplogroup, 1, 1) == "L")
+imputed_1kGP_hg_A$metahaplogroup = substr(imputed_1kGP_hg_A$haplogroup, 1, 2)
+imputed_1kGP_hg_N = subset(imputed_1kGP_hg, substr(imputed_1kGP_hg$haplogroup, 1, 1) != "L")
+imputed_1kGP_hg_N$metahaplogroup = substr(imputed_1kGP_hg_N$haplogroup, 1, 1)
+imputed_1kGP_hg = rbind(imputed_1kGP_hg_A, imputed_1kGP_hg_N, imputed_1kGP_hg_D)
+imputed_1kGP_hg = arrange(imputed_1kGP_hg, imputed_1kGP_hg$Individual)
+
 ## CALCULATE HAPLOGROUP CONCORDANCE
 conc_typed = full_1kGP_hg$haplogroup == typed_1kGP_hg$haplogroup
 conc_imputed = full_1kGP_hg$haplogroup == imputed_1kGP_hg$haplogroup
 conc_typed_pc = length(conc_typed[conc_typed == T]) / length(conc_typed)
 conc_imputed_pc = length(conc_imputed[conc_imputed == T]) / length(conc_imputed)
-MCMC1$Typed.hg.Conc[i] = conc_typed_pc
-MCMC1$Imputed.hg.Conc[i] = conc_imputed_pc
+MCMC1$Typed.hg.Conc[1] = conc_typed_pc
+MCMC1$Imputed.hg.Conc[1] = conc_imputed_pc
+
+M_conc_typed = full_1kGP_hg$metahaplogroup == typed_1kGP_hg$metahaplogroup
+M_conc_imputed = full_1kGP_hg$metahaplogroup == imputed_1kGP_hg$metahaplogroup
+M_conc_typed_pc = length(M_conc_typed[M_conc_typed == T]) / length(M_conc_typed)
+M_conc_imputed_pc = length(M_conc_imputed[M_conc_imputed == T]) / length(M_conc_imputed)
+MCMC1$Typed.Mhg.Conc[1] = M_conc_typed_pc
+MCMC1$Imputed.Mhg.Conc[1] = M_conc_imputed_pc
 
 write.csv(MCMC1, "~/GitCode/MitoImputePrep/metadata/ADNI_concordance_HiMC.csv", quote = F, row.names = F)
 
-rect_csv = read.csv("/Users/u5015730/GitCode/MitoImputePrep/metadata/ADNI_samples_BOTH.csv", header = T)
+
+###################################### HAPLOGREP ###################################### 
+
 HaploGrep_WGS = read.table("/Volumes/TimMcInerney/MitoImpute/data/ADNI/Timpute/ADNI_reseq/adni_mito_genomes_180214_haplogrep2.txt", header = T)
 HaploGrep_TYP = read.table("/Volumes/TimMcInerney/MitoImpute/data/ADNI/Timpute/VCF/mitoimpute_adni/mitoimpute_adni_diploid.txt", header = T)
 HaploGrep_IMP = read.table("/Volumes/TimMcInerney/MitoImpute/data/ADNI/Timpute/IMPUTE2/MCMC1/mitoimpute_adni_imputed_MCMC1_haplogrep.txt", header = T)
@@ -139,9 +195,31 @@ for (i in 1:nrow(df)) {
 df$TYP_MATCH = df$WGS == df$TYP_HG
 df$IMP_MATCH = df$WGS == df$IMP_HG
 
-out_table = data.frame(matrix(ncol = 2, nrow = 1))
-names(out_table) = c("TYPED", "IMPUTED")
+A_df = subset(df, substr(df$WGS, 1, 1) == "L")
+A_df$META_WGS = substr(A_df$WGS, 1, 2)
+A_df$META_TYP_HG = substr(A_df$TYP_HG, 1, 2)
+A_df$META_IMP_HG = substr(A_df$IMP_HG, 1, 2)
 
-out_table$TYPED = nrow(subset(df, df$TYP_MATCH == T)) / nrow(df)
-out_table$IMPUTED = nrow(subset(df, df$IMP_MATCH == T)) / nrow(df)
+N_df = subset(df, substr(df$WGS, 1, 1) != "L")
+N_df$META_WGS = substr(N_df$WGS, 1, 1)
+N_df$META_TYP_HG = substr(N_df$TYP_HG, 1, 1)
+N_df$META_IMP_HG = substr(N_df$IMP_HG, 1, 1)
 
+df = rbind(N_df, A_df)
+df = arrange(df, df$SampleID)
+
+df$META_TYP_MATCH = df$META_WGS == df$META_TYP_HG
+df$META_IMP_MATCH = df$META_WGS == df$META_IMP_HG
+
+out_table = data.frame(matrix(ncol = 3, nrow = 2))
+names(out_table) = c("HG", "TYPED", "IMPUTED")
+
+out_table$HG[1] = "Haplogroup"
+out_table$TYPED[1] = nrow(subset(df, df$TYP_MATCH == T)) / nrow(df)
+out_table$IMPUTED[1] = nrow(subset(df, df$IMP_MATCH == T)) / nrow(df)
+
+out_table$HG[2] = "Meta-Haplogroup"
+out_table$TYPED[2] = nrow(subset(df, df$META_TYP_MATCH == T)) / nrow(df)
+out_table$IMPUTED[2] = nrow(subset(df, df$META_IMP_MATCH == T)) / nrow(df)
+
+write.csv(out_table, "~/GitCode/MitoImputePrep/metadata/ADNI_concordance_HaploGrep.csv", quote = F, row.names = F)
