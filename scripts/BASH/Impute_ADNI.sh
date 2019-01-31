@@ -61,7 +61,7 @@ fi
 echo
 echo "DECOMPOSING RESEQUENCED DATA VCF"
 
-samp_file=~/GitCode/MitoImputePrep/metadata/ADNI_samples_BOTH.txt
+samp_file=~/GitCode/MitoImputePrep/metadata/ADNI_samples_BOTH_reseq.txt
 reseq_ext=/Volumes/TimMcInerney/MitoImpute/data/ADNI/Timpute/ADNI_reseq/adni_mito_genomes_180214
 decom_ext=/Volumes/TimMcInerney/MitoImpute/data/ADNI/Timpute/ADNI_reseq/DECOMPOSED/adni_mito_genomes_180214
 orig_vcf=${reseq_ext}_fixed.vcf
@@ -69,14 +69,16 @@ norm_vcf=${decom_ext}_norm.vcf.gz
 decom_vcf=${decom_ext}_norm_decomposed.vcf.gz
 final_vcf=${decom_ext}_norm_decomposed_firstAlt.vcf.gz
 plink_vcf=${decom_ext}_norm_decomposed_firstAlt
+samps_adni=/Volumes/TimMcInerney/MitoImpute/metadata/SampleList_ADNI.txt
+sex_adni=/Volumes/TimMcInerney/MitoImpute/metadata/SampleList_ADNI_sex.txt
 
 bcftools annotate -x INFO,^FORMAT/GT ${orig_vcf} | bcftools norm -f ${ref_fasta_plink} -m - | bcftools view -V indels,mnps -S ${samp_file} | bcftools norm -m + | bcftools +fill-tags -Oz -o ${norm_vcf}
 vt decompose ${norm_vcf} | bcftools +fill-tags -Oz -o ${decom_vcf}
-python3 ~/GitCode/MitoImputePrep/scripts/PYTHON/pickFirstAlt ${decom_vcf} | bcftools view -Oz -o ${vcf_1kg}
-bcftools index ${vcf_1kg}
-plink --vcf ${vcf_1kg} --recode --double-id --keep-allele-order --out ${plink_1kg}
-bcftools query -l ${vcf_1kg} > ${samps_1kg}
-Rscript ~/GitCode/MitoImputePrep/scripts/R/assign_sex_label.R ${samps_1kg} ${sex_1kg}
+#python3 ~/GitCode/MitoImputePrep/scripts/PYTHON/pickFirstAlt ${decom_vcf} | bcftools view -Oz -o ${vcf_1kg}
+#bcftools index ${vcf_1kg}
+plink1.9 --vcf ${decom_vcf} --recode --double-id --keep-allele-order --out ${plink_vcf}
+bcftools query -l ${decom_vcf} > ${samps_adni}
+Rscript ~/GitCode/MitoImputePrep/scripts/R/assign_sex_label.R ${samps_adni} ${sex_adni}
 
 # STRIP AWAY PROBLEMATIC COLUMNS
 echo
