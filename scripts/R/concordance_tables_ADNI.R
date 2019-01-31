@@ -157,6 +157,40 @@ MCMC1$Imputed.Mhg.Conc[1] = M_conc_imputed_pc
 
 write.csv(MCMC1, "~/GitCode/MitoImputePrep/metadata/ADNI_concordance_HiMC.csv", quote = F, row.names = F)
 
+## UNIFY TABLE
+unity.table = data.frame(matrix(ncol = 7, nrow = nrow(full_1kGP_hg)))
+names(unity.table) = c("sample", "wgs", "wgs_meta", "typed", "imputed", "typed_meta", "imputed_meta")
+unity.table$sample = full_1kGP_hg$Individual
+unity.table$wgs = full_1kGP_hg$haplogroup
+unity.table$wgs_meta = full_1kGP_hg$metahaplogroup
+unity.table$typed = typed_1kGP_hg$haplogroup
+unity.table$typed_meta = typed_1kGP_hg$metahaplogroup
+unity.table$imputed = imputed_1kGP_hg$haplogroup
+unity.table$imputed_meta = imputed_1kGP_hg$metahaplogroup
+
+unity.table$typed_match = unity.table$wgs == unity.table$typed
+unity.table$typed_meta_match = unity.table$wgs_meta == unity.table$typed_meta
+unity.table$imputed_match = unity.table$wgs == unity.table$imputed
+unity.table$imputed_meta_match = unity.table$wgs_meta == unity.table$imputed_meta
+
+write.csv(unity.table, "~/GitCode/MitoImputePrep/metadata/ADNI_concordance_HiMC_FULL.csv", quote = F, row.names = F)
+
+## PER HAPLOGROUP TABLE
+hgs = names(table(unity.table$wgs))
+
+hgs_df = data.frame(matrix(nrow = 2, ncol = length(hgs) + 1))
+names(hgs_df) = c("chip", hgs)
+
+hgs_df$chip[1] = "typed"
+hgs_df$chip[2] = "imputed"
+
+for (hg in 1:length(hgs)) { # FOR EACH HAPLOGROUP IN THE WGS (TRUTH) COLUMN ...
+  t_t = subset(unity.table, unity.table$typed_match) # SUBSET TO ONLY TYPED MATCHES
+  t_i = subset(unity.table, unity.table$imputed_match) # SUBSET TO ONLY IMPUTED MATCHES
+  #v = nrow(t) / nrow(s)
+  hgs_df[1, hgs[hg]] = nrow(t_t) / nrow(unity.table) # WRITE PROPORTION MATCHING TO CELL FOR TYPED
+  hgs_df[2, hgs[hg]] = nrow(t_t) / nrow(unity.table) # WRITE PROPORTION MATCHING TO CELL FOR IMPUTED
+}
 
 ###################################### HAPLOGREP ###################################### 
 
