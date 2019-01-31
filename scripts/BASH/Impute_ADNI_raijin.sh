@@ -1,11 +1,33 @@
 #!/bin/bash
+#PBS -P te53
+#PBS -q normalbw
+#PBS -l walltime=04:00:00
+#PBS -l mem=16GB
+#PBS -l ncpus=1
+#PBS -N impute_ADNI
+#PBS -m e
+#PBS -M u5015730@anu.edu.au
+#PBS -j oe
+#PBS -o /g/data1a/te53/MitoImpute/logs/
 
-# ADNI RESEQUENCED VCF:		/Volumes/TimMcInerney/MitoImpute/data/ADNI/Timpute/ADNI_reseq/adni_mito_genomes_180214.vcf
-# ADNI GENOTYPED VCF:		/Volumes/TimMcInerney/MitoImpute/data/ADNI/Timpute/ADNI/mito_snps_rcrs_ed.vcf
+# LOAD THE MODULE
+module unload intel-fc intel-cc
+module load python/2.7.11
+module load intel-fc/16.0.3.210
+module load intel-cc/16.0.3.210
+module load Rpackages/3.4.3
+module load bcftools/1.8
+module load plink/1.9
+module load impute2/2.3.2
+module load vt
+module load java/jdk1.8.0_60
+
+# ADNI RESEQUENCED VCF:		/g/data1a/te53/MitoImpute/data/ADNI/ADNI_reseq/adni_mito_genomes_180214.vcf
+# ADNI GENOTYPED VCF:		/g/data1a/te53/MitoImpute/data/ADNI/ADNI/mito_snps_rcrs_ed.vcf
 
 # ADNI FILE (BELOW) HAD TO BE MANUALLY FIXED TO CONTAIN THE LINE "##contig=<ID=26,length=16569>"
-# /Volumes/TimMcInerney/MitoImpute/data/ADNI/Timpute/ADNI_reseq/adni_mito_genomes_180214.vcf
-# RENAMED TO: /Volumes/TimMcInerney/MitoImpute/data/ADNI/Timpute/ADNI_reseq/adni_mito_genomes_180214_fixed.vcf
+# /g/data1a/te53/MitoImpute/data/ADNI/ADNI_reseq/adni_mito_genomes_180214.vcf
+# RENAMED TO: /g/data1a/te53/MitoImpute/data/ADNI/ADNI_reseq/adni_mito_genomes_180214_fixed.vcf
 
 # SPECIFY REFERENCE PANEL
 REFpanel="ReferencePanel_v5"
@@ -23,7 +45,7 @@ echo
 echo "GENERATING HAPLOGREP HAPLOGROUP ASSIGNMENTS FROM RESEQUENCED DATA"
 
 ref_fasta_plink=~/GitCode/MitoImputePrep/scripts/REFERENCE_ALNS/26/rCRS.fasta
-reseq_ext=/Volumes/TimMcInerney/MitoImpute/data/ADNI/Timpute/ADNI_reseq/adni_mito_genomes_180214
+reseq_ext=/g/data1a/te53/MitoImpute/data/ADNI/ADNI_reseq/adni_mito_genomes_180214
 reseq_vcf=${reseq_ext}_fixed.vcf
 norm_vcf=${reseq_ext}_norm.vcf.gz
 reseq_fasta=${reseq_ext}.fasta
@@ -58,30 +80,30 @@ else
 fi
 
 ## DECOMPOSE RESEQUENCED DATA VCF
-#echo
-#echo "DECOMPOSING RESEQUENCED DATA VCF"
-#
-#reseq_ext=/Volumes/TimMcInerney/MitoImpute/data/ADNI/Timpute/ADNI_reseq/adni_mito_genomes_180214
-#decom_ext=/Volumes/TimMcInerney/MitoImpute/data/ADNI/Timpute/ADNI_reseq/DECOMPOSED/adni_mito_genomes_180214
-#orig_vcf=${reseq_ext}_fixed.vcf
-#norm_vcf=${decom_ext}_norm.vcf.gz
-#decom_vcf=${decom_ext}_norm_decomposed.vcf.gz
-#final_vcf=${decom_ext}_norm_decomposed_firstAlt.vcf.gz
-#plink_vcf=${decom_ext}_norm_decomposed_firstAlt
-#
-#bcftools annotate -x INFO,^FORMAT/GT ${orig_vcf} | bcftools norm -f ${ref_fasta_plink} -m - | bcftools view -V indels,mnps | bcftools norm -m + | bcftools +fill-tags -Oz -o ${norm_vcf}
-#vt decompose ${norm_vcf} | bcftools +fill-tags -Oz -o ${decom_vcf}
-#python3 ~/GitCode/MitoImputePrep/scripts/PYTHON/pickFirstAlt ${decom_vcf} | bcftools view -Oz -o ${vcf_1kg}
-#bcftools index ${vcf_1kg}
-#plink --vcf ${vcf_1kg} --recode --double-id --keep-allele-order --out ${plink_1kg}
-#bcftools query -l ${vcf_1kg} > ${samps_1kg}
-#Rscript ~/GitCode/MitoImputePrep/scripts/R/assign_sex_label.R ${samps_1kg} ${sex_1kg}
+echo
+echo "DECOMPOSING RESEQUENCED DATA VCF"
+
+reseq_ext=/g/data1a/te53/MitoImpute/data/ADNI/ADNI_reseq/adni_mito_genomes_180214
+decom_ext=/g/data1a/te53/MitoImpute/data/ADNI/ADNI_reseq/DECOMPOSED/adni_mito_genomes_180214
+orig_vcf=${reseq_ext}_fixed.vcf
+norm_vcf=${decom_ext}_norm.vcf.gz
+decom_vcf=${decom_ext}_norm_decomposed.vcf.gz
+final_vcf=${decom_ext}_norm_decomposed_firstAlt.vcf.gz
+plink_vcf=${decom_ext}_norm_decomposed_firstAlt
+
+bcftools annotate -x INFO,^FORMAT/GT ${orig_vcf} | bcftools norm -f ${ref_fasta_plink} -m - | bcftools view -V indels,mnps | bcftools norm -m + | bcftools +fill-tags -Oz -o ${norm_vcf}
+vt decompose ${norm_vcf} | bcftools +fill-tags -Oz -o ${decom_vcf}
+python3 ~/GitCode/MitoImputePrep/scripts/PYTHON/pickFirstAlt ${decom_vcf} | bcftools view -Oz -o ${vcf_1kg}
+bcftools index ${vcf_1kg}
+plink --vcf ${vcf_1kg} --recode --double-id --keep-allele-order --out ${plink_1kg}
+bcftools query -l ${vcf_1kg} > ${samps_1kg}
+Rscript ~/GitCode/MitoImputePrep/scripts/R/assign_sex_label.R ${samps_1kg} ${sex_1kg}
 
 # STRIP AWAY PROBLEMATIC COLUMNS
 echo
 echo "STRIPPING AWAY PROBLEMATIC COLUMNS"
 
-orig_adni=/Volumes/TimMcInerney/MitoImpute/data/ADNI/Timpute/ADNI/mito_snps_rcrs_ed.vcf
+orig_adni=/g/data1a/te53/MitoImpute/data/ADNI/ADNI/mito_snps_rcrs_ed.vcf
 ref_fasta=~/GitCode/MitoImputePrep/scripts/REFERENCE_ALNS/MT/rCRS.fasta
 
 bcftools annotate -x INFO,^FORMAT/GT ${orig_adni} | bcftools norm --check-ref s -f ${ref_fasta} -m +any | bcftools +fill-tags -Oz -o ${orig_adni}.gz
@@ -91,7 +113,7 @@ bcftools index ${orig_adni}.gz
 echo
 echo "SUBSETTING TO ONLY SAMPLES FOUND IN BOTH ADNI DATASETS"
 samp_file=~/GitCode/MitoImputePrep/metadata/ADNI_samples_BOTH.txt
-vcf=/Volumes/TimMcInerney/MitoImpute/data/ADNI/Timpute/VCF/mitoimpute_adni/mitoimpute_adni.vcf.gz
+vcf=/g/data1a/te53/MitoImpute/data/ADNI/VCF/mitoimpute_adni/mitoimpute_adni.vcf.gz
 
 bcftools view -S ${samp_file} ${orig_adni}.gz | bcftools +fill-tags -Oz -o ${vcf}
 bcftools index ${vcf}
@@ -99,11 +121,11 @@ bcftools index ${vcf}
 # CREATE DIPLOID VCF
 echo
 echo "GENERATING PLINK FILES (DIPLOID)"
-geno_ext=/Volumes/TimMcInerney/MitoImpute/data/ADNI/Timpute/VCF/mitoimpute_adni/mitoimpute_adni
+geno_ext=/g/data1a/te53/MitoImpute/data/ADNI/VCF/mitoimpute_adni/mitoimpute_adni
 ref_fasta_plink=~/GitCode/MitoImputePrep/scripts/REFERENCE_ALNS/MT/rCRS.fasta
 norm_vcf=${geno_ext}_norm.vcf.gz
 vcf_pos=${geno_ext}_norm_SNPpositions.txt
-geno_fasta=/Volumes/TimMcInerney/MitoImpute/data/ADNI/Timpute/FASTA/mitoimpute_adni.fasta
+geno_fasta=/g/data1a/te53/MitoImpute/data/ADNI/FASTA/mitoimpute_adni.fasta
 fixed_vcf=${geno_ext}_fixed.vcf
 diploid_vcf=${geno_ext}_diploid
 
@@ -136,7 +158,7 @@ fi
 echo
 echo "GENERATING GEN SAMPLE"
 sex=~/GitCode/MitoImputePrep/metadata/ADNI_samples_BOTH_SEX.txt 
-out=/Volumes/TimMcInerney/MitoImpute/data/ADNI/Timpute/OXFORD/mitoimpute_adni
+out=/g/data1a/te53/MitoImpute/data/ADNI/OXFORD/mitoimpute_adni
 
 bcftools convert --gensample ${out} ${vcf} --sex ${sex}
 Rscript ~/GitCode/MitoImputePrep/scripts/R/FixSamplesFile_raijin.R ${out}.samples
@@ -144,7 +166,7 @@ Rscript ~/GitCode/MitoImputePrep/scripts/R/FixSamplesFile_raijin.R ${out}.sample
 # GENERATE PLINK FILES
 echo
 echo "GENERATING PLINK FILES"
-out=/Volumes/TimMcInerney/MitoImpute/data/ADNI/Timpute/PLINK/mitoimpute_adni
+out=/g/data1a/te53/MitoImpute/data/ADNI/PLINK/mitoimpute_adni
 
 plink1.9 --vcf ${vcf} --recode --double-id --keep-allele-order --out ${out}
 
@@ -154,18 +176,18 @@ echo "RUNNING IMPUTE2 ON ${MtPlatforms}"
 m=~/GitCode/MitoImputePrep/DerivedData/${REFpanel}/${REFpanel}_MtMap.txt 
 h=~/GitCode/MitoImputePrep/DerivedData/${REFpanel}/${REFpanel}.hap.gz
 l=~/GitCode/MitoImputePrep/DerivedData/${REFpanel}/${REFpanel}.legend.gz
-g=/Volumes/TimMcInerney/MitoImpute/data/ADNI/Timpute/OXFORD/mitoimpute_adni.gen.gz
-s=/Volumes/TimMcInerney/MitoImpute/data/ADNI/Timpute/OXFORD/mitoimpute_adni.samples
-out=/Volumes/TimMcInerney/MitoImpute/data/ADNI/Timpute/IMPUTE2/MCMC${mcmc}/mitoimpute_adni_imputed_MCMC${mcmc}
+g=/g/data1a/te53/MitoImpute/data/ADNI/OXFORD/mitoimpute_adni.gen.gz
+s=/g/data1a/te53/MitoImpute/data/ADNI/OXFORD/mitoimpute_adni.samples
+out=/g/data1a/te53/MitoImpute/data/ADNI/IMPUTE2/MCMC${mcmc}/mitoimpute_adni_imputed_MCMC${mcmc}
 #g=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}.gen.gz
 #s=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}.samples
 #out=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/MCMC${mcmc}/chrMT_1kg_${MtPlatforms}_imputed_MCMC${mcmc}
 
-if [ -d /Volumes/TimMcInerney/MitoImpute/data/ADNI/Timpute/IMPUTE2/MCMC${mcmc}/ ]
+if [ -d /g/data1a/te53/MitoImpute/data/ADNI/IMPUTE2/MCMC${mcmc}/ ]
 then
 	echo "DIRECTORY FOUND"
 else
-	mkdir -p /Volumes/TimMcInerney/MitoImpute/data/ADNI/Timpute/IMPUTE2/MCMC${mcmc}/
+	mkdir -p /g/data1a/te53/MitoImpute/data/ADNI/IMPUTE2/MCMC${mcmc}/
 fi
 
 if [ -f ${out} ]
@@ -179,7 +201,7 @@ fi
 # FIX CHROMOSOME NAMES
 echo
 echo "FIXING CHROMOSOME NAMES"
-InFile=/Volumes/TimMcInerney/MitoImpute/data/ADNI/Timpute/IMPUTE2/MCMC${mcmc}/mitoimpute_adni_imputed_MCMC${mcmc}
+InFile=/g/data1a/te53/MitoImpute/data/ADNI/IMPUTE2/MCMC${mcmc}/mitoimpute_adni_imputed_MCMC${mcmc}
 OutFile=${InFile}_ChromFixed
 awk '{{$1 = "26"; print}}' ${InFile} > ${OutFile}
 
