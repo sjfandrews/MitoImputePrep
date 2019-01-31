@@ -93,7 +93,7 @@ plink_vcf=${decom_ext}_norm_decomposed_firstAlt
 
 bcftools annotate -x INFO,^FORMAT/GT ${orig_vcf} | bcftools norm -f ${ref_fasta_plink} -m - | bcftools view -V indels,mnps | bcftools norm -m + | bcftools +fill-tags -Oz -o ${norm_vcf}
 vt decompose ${norm_vcf} | bcftools +fill-tags -Oz -o ${decom_vcf}
-python3 ~/GitCode/MitoImputePrep/scripts/PYTHON/pickFirstAlt ${decom_vcf} | bcftools view -Oz -o ${vcf_1kg}
+python ~/GitCode/MitoImputePrep/scripts/PYTHON/pickFirstAlt ${decom_vcf} | bcftools view -Oz -o ${vcf_1kg}
 bcftools index ${vcf_1kg}
 plink --vcf ${vcf_1kg} --recode --double-id --keep-allele-order --out ${plink_1kg}
 bcftools query -l ${vcf_1kg} > ${samps_1kg}
