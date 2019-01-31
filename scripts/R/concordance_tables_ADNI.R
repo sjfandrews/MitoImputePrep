@@ -178,19 +178,44 @@ write.csv(unity.table, "~/GitCode/MitoImputePrep/metadata/ADNI_concordance_HiMC_
 ## PER HAPLOGROUP TABLE
 hgs = names(table(unity.table$wgs))
 
-hgs_df = data.frame(matrix(nrow = 2, ncol = length(hgs) + 1))
+hgs_df = data.frame(matrix(nrow = 3, ncol = length(hgs) + 1))
 names(hgs_df) = c("chip", hgs)
 
 hgs_df$chip[1] = "typed"
 hgs_df$chip[2] = "imputed"
+hgs_df$chip[3] = "num_obs"
 
 for (hg in 1:length(hgs)) { # FOR EACH HAPLOGROUP IN THE WGS (TRUTH) COLUMN ...
-  t_t = subset(unity.table, unity.table$typed_match) # SUBSET TO ONLY TYPED MATCHES
-  t_i = subset(unity.table, unity.table$imputed_match) # SUBSET TO ONLY IMPUTED MATCHES
+  s = subset(unity.table, unity.table$wgs == hgs[hg]) # SUBSET THE HAPLOGROUP CONCORDANCE CSV FOR ONLY THAT HAPLOGROUP
+  t_t = subset(s, s$typed_match) # SUBSET TO ONLY TYPED MATCHES
+  t_i = subset(s, s$imputed_match) # SUBSET TO ONLY IMPUTED MATCHES
   #v = nrow(t) / nrow(s)
-  hgs_df[1, hgs[hg]] = nrow(t_t) / nrow(unity.table) # WRITE PROPORTION MATCHING TO CELL FOR TYPED
-  hgs_df[2, hgs[hg]] = nrow(t_t) / nrow(unity.table) # WRITE PROPORTION MATCHING TO CELL FOR IMPUTED
+  hgs_df[1, hgs[hg]] = nrow(t_t) / nrow(s) # WRITE PROPORTION MATCHING TO CELL FOR TYPED
+  hgs_df[2, hgs[hg]] = nrow(t_i) / nrow(s) # WRITE PROPORTION MATCHING TO CELL FOR IMPUTED
+  hgs_df[3, hgs[hg]] = nrow(s) # WRITE NUMBER OBSERVED FOR WGS
 }
+
+M_hgs = names(table(unity.table$wgs_meta))
+
+M_hgs_df = data.frame(matrix(nrow = 3, ncol = length(M_hgs) + 1))
+names(M_hgs_df) = c("chip", M_hgs)
+
+M_hgs_df$chip[1] = "typed"
+M_hgs_df$chip[2] = "imputed"
+M_hgs_df$chip[3] = "num_obs"
+
+for (hg in 1:length(M_hgs)) { # FOR EACH HAPLOGROUP IN THE WGS (TRUTH) COLUMN ...
+  s = subset(unity.table, unity.table$wgs_meta == M_hgs[hg]) # SUBSET THE HAPLOGROUP CONCORDANCE CSV FOR ONLY THAT HAPLOGROUP
+  t_t = subset(s, s$typed_meta_match) # SUBSET TO ONLY TYPED MATCHES
+  t_i = subset(s, s$imputed_meta_match) # SUBSET TO ONLY IMPUTED MATCHES
+  #v = nrow(t) / nrow(s)
+  M_hgs_df[1, M_hgs[hg]] = nrow(t_t) / nrow(s) # WRITE PROPORTION MATCHING TO CELL FOR TYPED
+  M_hgs_df[2, M_hgs[hg]] = nrow(t_i) / nrow(s) # WRITE PROPORTION MATCHING TO CELL FOR IMPUTED
+  M_hgs_df[3, M_hgs[hg]] = nrow(s) # WRITE NUMBER OBSERVED FOR WGS
+}
+
+write.csv(hgs_df, "~/GitCode/MitoImputePrep/metadata/ADNI_concordance_HiMC_perHaplogroup.csv", quote = F, row.names = F)
+write.csv(M_hgs_df, "~/GitCode/MitoImputePrep/metadata/ADNI_concordance_HiMC_perMetaHaplogroup.csv", quote = F, row.names = F)
 
 ###################################### HAPLOGREP ###################################### 
 
@@ -256,4 +281,47 @@ out_table$HG[2] = "Meta-Haplogroup"
 out_table$TYPED[2] = nrow(subset(df, df$META_TYP_MATCH == T)) / nrow(df)
 out_table$IMPUTED[2] = nrow(subset(df, df$META_IMP_MATCH == T)) / nrow(df)
 
+write.csv(df, "~/GitCode/MitoImputePrep/metadata/ADNI_concordance_HaploGrep_FULL.csv", quote = F, row.names = F)
 write.csv(out_table, "~/GitCode/MitoImputePrep/metadata/ADNI_concordance_HaploGrep.csv", quote = F, row.names = F)
+
+## PER HAPLOGROUP TABLE
+hgs = names(table(df$WGS))
+
+hgs_df = data.frame(matrix(nrow = 3, ncol = length(hgs) + 1))
+names(hgs_df) = c("chip", hgs)
+
+hgs_df$chip[1] = "typed"
+hgs_df$chip[2] = "imputed"
+hgs_df$chip[3] = "num_obs"
+
+for (hg in 1:length(hgs)) { # FOR EACH HAPLOGROUP IN THE WGS (TRUTH) COLUMN ...
+  s = subset(df, df$WGS == hgs[hg]) # SUBSET THE HAPLOGROUP CONCORDANCE CSV FOR ONLY THAT HAPLOGROUP
+  t_t = subset(s, s$TYP_MATCH) # SUBSET TO ONLY TYPED MATCHES
+  t_i = subset(s, s$IMP_MATCH) # SUBSET TO ONLY IMPUTED MATCHES
+  #v = nrow(t) / nrow(s)
+  hgs_df[1, hgs[hg]] = nrow(t_t) / nrow(s) # WRITE PROPORTION MATCHING TO CELL FOR TYPED
+  hgs_df[2, hgs[hg]] = nrow(t_i) / nrow(s) # WRITE PROPORTION MATCHING TO CELL FOR IMPUTED
+  hgs_df[3, hgs[hg]] = nrow(s) # WRITE NUMBER OBSERVED FOR WGS
+}
+
+M_hgs = names(table(df$META_WGS))
+
+M_hgs_df = data.frame(matrix(nrow = 3, ncol = length(M_hgs) + 1))
+names(M_hgs_df) = c("chip", M_hgs)
+
+M_hgs_df$chip[1] = "typed"
+M_hgs_df$chip[2] = "imputed"
+M_hgs_df$chip[3] = "num_obs"
+
+for (hg in 1:length(M_hgs)) { # FOR EACH HAPLOGROUP IN THE WGS (TRUTH) COLUMN ...
+  s = subset(df, df$META_WGS == M_hgs[hg]) # SUBSET THE HAPLOGROUP CONCORDANCE CSV FOR ONLY THAT HAPLOGROUP
+  t_t = subset(s, s$META_TYP_MATCH) # SUBSET TO ONLY TYPED MATCHES
+  t_i = subset(s, s$META_IMP_MATCH) # SUBSET TO ONLY IMPUTED MATCHES
+  #v = nrow(t) / nrow(s)
+  M_hgs_df[1, M_hgs[hg]] = nrow(t_t) / nrow(s) # WRITE PROPORTION MATCHING TO CELL FOR TYPED
+  M_hgs_df[2, M_hgs[hg]] = nrow(t_i) / nrow(s) # WRITE PROPORTION MATCHING TO CELL FOR IMPUTED
+  M_hgs_df[3, M_hgs[hg]] = nrow(s) # WRITE NUMBER OBSERVED FOR WGS
+}
+
+write.csv(hgs_df, "~/GitCode/MitoImputePrep/metadata/ADNI_concordance_HaploGrep_perHaplogroup.csv", quote = F, row.names = F)
+write.csv(M_hgs_df, "~/GitCode/MitoImputePrep/metadata/ADNI_concordance_HaploGrep_perMetaHaplogroup.csv", quote = F, row.names = F)
