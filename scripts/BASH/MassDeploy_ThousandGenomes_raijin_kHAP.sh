@@ -4,7 +4,8 @@ STRAND_LIST=~/GitCode/MitoImputePrep/scripts/INFORMATION_LISTS/b37_platforms.txt
 MCMC_list=~/GitCode/MitoImputePrep/scripts/INFORMATION_LISTS/MCMC_list.txt
 MCMC="1"
 BURN="0"
-KHAP="30000"
+#KHAP="30000"
+KHAP=$1
 
 #-k_hap 100, 250, 500, 1000, 2500, 5000, 10000, 20000, 30000
 
