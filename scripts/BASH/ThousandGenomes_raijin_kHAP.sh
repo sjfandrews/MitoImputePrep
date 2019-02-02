@@ -19,6 +19,8 @@ module load bcftools/1.8
 module load plink/1.9
 module load impute2/2.3.2
 module load vt
+module load java/jdk1.8.0_60
+
 echo
 echo "LOADED R v3.4.3"
 echo "LOADED bcftools v1.8"
