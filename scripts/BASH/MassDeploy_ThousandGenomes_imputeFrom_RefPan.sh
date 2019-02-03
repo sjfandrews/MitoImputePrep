@@ -4,6 +4,8 @@ STRAND_LIST=~/GitCode/MitoImputePrep/scripts/INFORMATION_LISTS/b37_platforms.txt
 MCMC_list=~/GitCode/MitoImputePrep/scripts/INFORMATION_LISTS/MCMC_list.txt
 MCMC="1"
 BURN="0"
+KHAP="500"
+NE="20000"
 
 REFpanel=$1
 
