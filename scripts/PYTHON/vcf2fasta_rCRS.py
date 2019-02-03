@@ -78,8 +78,11 @@ def main():
                     line = line.split("\t")[9:]
                     for seq in line:
                         tmp_seq = seq.split("_")
-                        if tmp_seq[0] == tmp_seq[1]:
-                            seq_names.append(seq.split("_")[0])
+                        if len(tmp_seq) > 1:
+                            if tmp_seq[0] == tmp_seq[1]:
+                                seq_names.append(seq.split("_")[0])
+                            else:
+                                seq_names.append(seq)
                         else:
                             seq_names.append(seq)
                 else:
