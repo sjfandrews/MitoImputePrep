@@ -11,5 +11,5 @@ REFpanel=$1
 
 for i in `cat ${STRAND_LIST}`; do
 	qsub -v REFpanel=${REFpanel},MtPlatforms=${i},mcmc=${MCMC},burn=${BURN} ~/GitCode/MitoImputePrep/scripts/BASH/ThousandGenomes_imputeFrom_RefPan_v6.sh
-	echo "JOB FOR ${i} SUBMITTED WITH MCMC LENGTH = ${MCMC} AND ${BURN} BURN-INS"
+	echo "JOB FOR ${i} SUBMITTED FOR ${REFpanel} WITH MCMC LENGTH = ${MCMC} AND ${BURN} BURN-INS"
 done
