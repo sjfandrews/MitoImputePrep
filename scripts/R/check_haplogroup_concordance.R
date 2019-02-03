@@ -1,6 +1,10 @@
 library(tidyverse)
 library(readxl)
 library(HiMC); data(nodes)
+library(dplyr)
+
+'%!in%' = function(x,y)!('%in%'(x,y))
+difficult_mhgs = c("HV", "JT", "unclassified")
 
 ## READ IN THE LIST OF CHIPS
 chips = read.table("~/GitCode/MitoImputePrep/scripts/INFORMATION_LISTS/b37_platforms.txt")
@@ -12,6 +16,17 @@ info.cutoff = 0.3
 full_1kGP = generate_snp_data("/Volumes/TimMcInerney/MitoImpute/data/PLINK/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.map",
                               "/Volumes/TimMcInerney/MitoImpute/data/PLINK/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.ped")
 full_1kGP_hg_FULL = HiMC::getClassifications(full_1kGP)
+
+full_1kGP_meta = full_1kGP_hg_FULL
+full_1kGP_meta_D = subset(full_1kGP_meta, full_1kGP_meta$haplogroup %in% difficult_mhgs)
+full_1kGP_meta_D$metahaplogroup = full_1kGP_meta_D$haplogroup
+full_1kGP_meta = subset(full_1kGP_meta, full_1kGP_meta$haplogroup %!in% difficult_mhgs)
+full_1kGP_meta_A = subset(full_1kGP_meta, substr(full_1kGP_meta$haplogroup, 1 ,1) == "L")
+full_1kGP_meta_A$metahaplogroup = substr(full_1kGP_meta_A$haplogroup, 1, 2)
+full_1kGP_meta_N = subset(full_1kGP_meta, substr(full_1kGP_meta$haplogroup, 1 ,1) != "L")
+full_1kGP_meta_N$metahaplogroup = substr(full_1kGP_meta_N$haplogroup, 1, 1)
+
+full_1kGP_meta = rbind(full_1kGP_meta_D, full_1kGP_meta_N, full_1kGP_meta_A)
 
 hg.df = data.frame(cbind(full_1kGP_hg_FULL$Individual, full_1kGP_hg_FULL$haplogroup))
 names(hg.df) = c("Individual", "WGS")
