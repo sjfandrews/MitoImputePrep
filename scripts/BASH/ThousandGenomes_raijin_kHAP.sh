@@ -12,6 +12,7 @@
 
 # LOAD THE MODULE
 module unload intel-fc intel-cc
+module load python/2.7.11
 module load intel-fc/16.0.3.210
 module load intel-cc/16.0.3.210
 module load Rpackages/3.4.3
