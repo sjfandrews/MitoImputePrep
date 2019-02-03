@@ -27,6 +27,13 @@ full_1kGP_meta_N = subset(full_1kGP_meta, substr(full_1kGP_meta$haplogroup, 1 ,1
 full_1kGP_meta_N$metahaplogroup = substr(full_1kGP_meta_N$haplogroup, 1, 1)
 
 full_1kGP_meta = rbind(full_1kGP_meta_D, full_1kGP_meta_N, full_1kGP_meta_A)
+write.csv(data.frame(table(full_1kGP_meta$metahaplogroup)), "/Users/u5015730/GitCode/MitoImputePrep/metadata/haplogroup_concordance_allChips/metahaplogroup_freqs.csv", row.names = F, quote = F)
+write.csv(data.frame(table(full_1kGP_meta$haplogroup)), "/Users/u5015730/GitCode/MitoImputePrep/metadata/haplogroup_concordance_allChips/haplogroup_freqs.csv", row.names = F, quote = F)
+
+full_1kGP_meta_A_c = substr(full_1kGP_meta_A$haplogroup, 1, 1)
+full_1kGP_meta2 = rbind(full_1kGP_meta_D, full_1kGP_meta_N, full_1kGP_meta_A_c)
+write.csv(data.frame(table(full_1kGP_meta2$metahaplogroup)), "/Users/u5015730/GitCode/MitoImputePrep/metadata/haplogroup_concordance_allChips/metahaplogroup_freqs_collapseL.csv", row.names = F, quote = F)
+
 
 hg.df = data.frame(cbind(full_1kGP_hg_FULL$Individual, full_1kGP_hg_FULL$haplogroup))
 names(hg.df) = c("Individual", "WGS")
