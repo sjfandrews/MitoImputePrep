@@ -47,6 +47,7 @@ for (chip in 1:nrow(chip.table)) {
     tmp.hg.table = rbind(tmp.hg.table.A, tmp.hg.table.N)
     tmp.hg.table = arrange(tmp.hg.table, tmp.hg.table$SampleID)
     
+    tmp.hg.table$typed_match = truth.table$Haplogroup == tmp.hg.table$Haplogroup
     
   }
 }
