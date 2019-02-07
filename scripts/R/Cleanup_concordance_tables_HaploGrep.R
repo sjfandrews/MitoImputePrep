@@ -1,6 +1,68 @@
 require(ggplot2)
 require(tidyr)
 require(emmeans)
+require(dplyr)
+
+#########################################################################
+chip.table = read.table("~/GitCode/MitoImputePrep/scripts/INFORMATION_LISTS/b37_platforms.txt", header = F)
+truth.table = read.table("~/GitCode/MitoImputePrep/metadata/HaploGrep_concordance/chrMT_1kg_diploid_haplogrep.txt", header = T)
+container = "/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/chips/" #BDCHP-1X10-HUMANHAP240S_11216501_A-b37/MCMC_Experiments/MCMC1"
+
+truth.A = subset(truth.table, substr(truth.table$Haplogroup, 1, 1) == "L")
+truth.A$Macrohaplogroup = substr(truth.A$Haplogroup, 1, 2)
+truth.N = subset(truth.table, substr(truth.table$Haplogroup, 1, 1) != "L")
+truth.N$Macrohaplogroup = substr(truth.N$Haplogroup, 1, 1)
+
+truth.table = rbind(truth.A, truth.N)
+truth.table = arrange(truth.table, truth.table$SampleID)
+
+###############################################################################
+## MAF 
+
+exp.dir = "MCMC_Experiments"
+exp.var = "MCMC1"
+maf_df = chip.table
+names(maf_df) = c("chip")
+
+for (chip in 1:nrow(chip.table)) {
+  tmp.file = paste0(container, chip.table$V1[chip], "/", exp.dir, "/", exp.var, "/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_", exp.var, "_haplogrep.txt")
+  if (file.exists(tmp.file)) {
+    maf_df$imputed[chip] = T
+  }
+}
+
+for (chip in 1:nrow(chip.table)) {
+  tmp.file = paste0(container, chip.table$V1[chip], "/", exp.dir, "/", exp.var, "/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_", exp.var, "_haplogrep.txt")
+  if (file.exists(tmp.file)) {
+    tmp.hg.table = read.table(tmp.file, header = T)
+    
+    ## CREATE COLUMN FOR MACRO HAPLOGROUPS
+    # USE FIRST LETTER AND NUMBER FOR AFRICAN CLADES
+    tmp.hg.table.A = subset(tmp.hg.table, substr(tmp.hg.table$Haplogroup, 1, 1) == "L")
+    tmp.hg.table.A$Macrohaplogroup = substr(tmp.hg.table.A$Haplogroup, 1, 2)
+    # USE FIRST LETTER FOR NON-AFRICAN CLADES
+    tmp.hg.table.N = subset(tmp.hg.table, substr(tmp.hg.table$Haplogroup, 1, 1) != "L")
+    tmp.hg.table.N$Macrohaplogroup = substr(tmp.hg.table.N$Haplogroup, 1, 1)
+    # COMBINED AND REARRANGE
+    tmp.hg.table = rbind(tmp.hg.table.A, tmp.hg.table.N)
+    tmp.hg.table = arrange(tmp.hg.table, tmp.hg.table$SampleID)
+    
+    
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+############ OLD
 
 ###############################################################################
 ## MAF 
