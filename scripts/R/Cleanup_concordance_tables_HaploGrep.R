@@ -20,9 +20,18 @@ truth.table = arrange(truth.table, truth.table$SampleID)
 ## MAF 
 
 exp.dir = "MCMC_Experiments"
-exp.var = "MCMC1"
+exp.var = c("MCMC1", "MCMC5", "MCMC10", "MCMC20", "MCMC30")
 maf_df = chip.table
 names(maf_df) = c("chip")
+
+for (exp in 1:length(exp.var)) {
+  for (chip in 1:nrow(chip.table)) {
+    tmp.file = paste0(container, chip.table$V1[chip], "/", exp.dir, "/", exp.var, "/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_", exp.var, "_haplogrep.txt")
+    if (file.exists(tmp.file)) {
+      maf_df$imputed[chip] = T
+    }
+  }
+}
 
 for (chip in 1:nrow(chip.table)) {
   tmp.file = paste0(container, chip.table$V1[chip], "/", exp.dir, "/", exp.var, "/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_", exp.var, "_haplogrep.txt")
