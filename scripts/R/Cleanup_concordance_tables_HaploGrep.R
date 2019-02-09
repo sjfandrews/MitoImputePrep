@@ -21,24 +21,6 @@ truth.table = arrange(truth.table, truth.table$SampleID)
 
 exp.dir = "MCMC_Experiments"
 exp.var = c("MCMC1", "MCMC5", "MCMC10", "MCMC20", "MCMC30")
-
-maf_df = chip.table
-names(maf_df) = c("chip")
-
-for (exp in 1:length(exp.var)) {
-  for (chip in 1:nrow(chip.table)) {
-    tmp.file = paste0(container, chip.table$V1[chip], "/", exp.dir, "/", exp.var, "/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_", exp.var, "_haplogrep.txt")
-    if (file.exists(tmp.file)) {
-      maf_df$imputed[chip] = T
-    }
-  }
-}
-
-for (chip in 1:nrow(chip.table)) {
-  tmp.file = paste0(container, chip.table$V1[chip], "/", exp.dir, "/", exp.var, "/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_", exp.var, "_haplogrep.txt")
-  if (file.exists(tmp.file)) {
-    maf_df$imputed[chip] = T
-=======
 maf_df = data.frame(matrix(ncol = 1, nrow = nrow(chip.table)))
 names(maf_df) = c("chip")
 maf_df$chip = chip.table$V1
@@ -323,10 +305,16 @@ for (exp in 1:length(exp.var)) {
 }
 write.csv(main_df, paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/combined/ConcordanceTables_", exp.dir,"_COMBINED.csv"), row.names = F, quote = F)
 
+main_df$sub_experiment = factor(main_df$sub_experiment, levels = exp.var)
 
+k_hap_box = ggplot(main_df, aes(x = sub_experiment, y = imputed_macro_match)) +
+  geom_violin(fill = "#feb600", na.rm = T) +
+  geom_boxplot(width = 0.125, notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428") +
+  theme_bw() +
+  labs(x = "Number of reference haplotypes used",
+       y = "% concordance with resequenced dataset")
+ggsave(filename = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/plots/ConcordanceTables_", exp.dir,".png"), plot = k_hap_box, units = "mm", width = 297, height = 210, dpi = 300)
 
-ggplot(main_df, aes(x = sub_experiment, y = imputed_macro_match)) +
-  geom_boxplot()
 
 
 
