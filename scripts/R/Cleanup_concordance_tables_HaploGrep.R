@@ -21,7 +21,7 @@ truth.table = arrange(truth.table, truth.table$SampleID)
 
 exp.dir = "MCMC_Experiments"
 exp.var = c("MCMC1", "MCMC5", "MCMC10", "MCMC20", "MCMC30")
-<<<<<<< HEAD
+
 maf_df = chip.table
 names(maf_df) = c("chip")
 
@@ -117,7 +117,6 @@ for (exp in 1:length(exp.var)) {
       maf_df$imputed_match[chip] = nrow(subset(tmp2.hg.table, tmp2.hg.table$imputed_match == T)) / total_imputed
       maf_df$imputed_macro_match[chip] = nrow(subset(tmp2.hg.table, tmp2.hg.table$imputed_macro_match == T)) / total_imputed
     }
->>>>>>> 93ced4e4722f442416836c2dc5fa517e68415929
   }
   write.csv(maf_df, out.file, row.names = F, quote = F)
   message(paste0("WROTE ", out.file, " TO DISK"))
@@ -249,7 +248,7 @@ for (exp in 1:length(exp.var)) {
   out.file = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/combined/ConcordanceTables_", exp.var[exp], ".csv")
   maf_df$sub_experiment = exp.var[exp]
   for (chip in 1:nrow(chip.table)) {
-    tmp.file = paste0(container, chip.table$V1[chip], "/", ref.panel[exp], "/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_", exp.var[exp], "_haplogrep.txt")
+    tmp.file = paste0(container, chip.table$V1[chip], "/", ref.panel[exp], "/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_MCMC1", "_haplogrep.txt")
     if (file.exists(tmp.file) == T) {
       maf_df$imputed[chip] = T
       chip.table$imputed[chip] = T
@@ -294,7 +293,7 @@ for (exp in 1:length(exp.var)) {
     }
     
     # IMPUTED FILE
-    tmp2.file = paste0(container, chip.table$V1[chip], "/", exp.dir, "/", exp.var[exp], "/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_", exp.var[exp], "_haplogrep.txt")
+    tmp.file = paste0(container, chip.table$V1[chip], "/", ref.panel[exp], "/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_MCMC1", "_haplogrep.txt")
     if (file.exists(tmp2.file) == T) {
       tmp2.hg.table = read.table(tmp2.file, header = T)
       tmp2.hg.table$Range = NULL
