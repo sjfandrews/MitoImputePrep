@@ -1,13 +1,24 @@
 require(ggplot2)
 require(gridExtra)
-require(tidyr)
+library(tidyverse)
+library(readxl)
+library(HiMC); data(nodes)
 require(emmeans)
 require(dplyr)
 
 #########################################################################
 chip.table = read.table("~/GitCode/MitoImputePrep/scripts/INFORMATION_LISTS/b37_platforms.txt", header = F)
-truth.table = read.table("~/GitCode/MitoImputePrep/metadata/HaploGrep_concordance/chrMT_1kg_diploid_haplogrep.txt", header = T)
+#truth.table = read.table("~/GitCode/MitoImputePrep/metadata/HaploGrep_concordance/chrMT_1kg_diploid_haplogrep.txt", header = T)
 container = "/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/chips/" #BDCHP-1X10-HUMANHAP240S_11216501_A-b37/MCMC_Experiments/MCMC1"
+
+## READ IN .ped AND .map FILES FOR TRUTH SET 
+info.cutoff = 0.3
+full_1kGP = generate_snp_data("/Volumes/TimMcInerney/MitoImpute/data/PLINK/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.map",
+                              "/Volumes/TimMcInerney/MitoImpute/data/PLINK/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.ped")
+truth.table = HiMC::getClassifications(full_1kGP)
+names(truth.table)[3] = "Haplogroup"
+
+## MACRO HAPLOS
 
 truth.A = subset(truth.table, substr(truth.table$Haplogroup, 1, 1) == "L")
 truth.A$Macrohaplogroup = substr(truth.A$Haplogroup, 1, 2)
@@ -15,7 +26,8 @@ truth.N = subset(truth.table, substr(truth.table$Haplogroup, 1, 1) != "L")
 truth.N$Macrohaplogroup = substr(truth.N$Haplogroup, 1, 1)
 
 truth.table = rbind(truth.A, truth.N)
-truth.table = arrange(truth.table, truth.table$SampleID)
+truth.table = arrange(truth.table, truth.table$Individual)
+truth.table$full_path = NULL
 
 ###############################################################################
 ## MCMC 
@@ -30,10 +42,10 @@ tmp_mcmc_df$experiment = exp.dir
 main_mcmc_df = data.frame()
 
 for (exp in 1:length(exp.var)) {
-  out.file = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/combined/ConcordanceTables_", exp.var[exp], ".csv")
+  out.file = paste0("~/GitCode/MitoImputePrep/metadata/Concordance_tables/HiMC_HaploGrep/combined/ConcordanceTables_", exp.var[exp], "_HiMC.csv")
   tmp_mcmc_df$sub_experiment = exp.var[exp]
   for (chip in 1:nrow(chip.table)) {
-    tmp.file = paste0(container, chip.table$V1[chip], "/", exp.dir, "/", exp.var[exp], "/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_", exp.var[exp], "_haplogrep.txt")
+    tmp.file = paste0(container, chip.table$V1[chip], "/", exp.dir, "/", exp.var[exp], "/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_", exp.var[exp], "_info")
     if (file.exists(tmp.file) == T) {
       tmp_mcmc_df$imputed[chip] = T
       chip.table$imputed[chip] = T
@@ -55,10 +67,14 @@ for (exp in 1:length(exp.var)) {
   for (chip in 1:nrow(chip.table)) {
     message(paste0("WORKING ON CHIP FOR ", exp.var[exp], ":\t", chip, " / ", total))
     # TYPED FILE
-    tmp1.file = paste0(container, chip.table$V1[chip], "/", exp.dir, "/", "chrMT_1kg_", chip.table$V1[chip], "_diploid.txt")
+    tmp1.file = paste0(container, chip.table$V1[chip], "/ReferencePanel_v2/", "chrMT_1kg_", chip.table$V1[chip], ".ped")
+    tmp1.file_map = paste0(container, chip.table$V1[chip], "/ReferencePanel_v2/", "chrMT_1kg_", chip.table$V1[chip], ".map")
     if (file.exists(tmp1.file) == T) {
-      tmp1.hg.table = read.table(tmp1.file, header = T)
-      tmp1.hg.table$Range = NULL
+      typed_1kGP = generate_snp_data(tmp1.file_map,
+                                     tmp1.file)
+      tmp1.hg.table = HiMC::getClassifications(typed_1kGP)
+      names(tmp1.hg.table)[3] = "Haplogroup"
+      tmp1.hg.table$full_path = NULL
       
       ## CREATE COLUMN FOR MACRO HAPLOGROUPS
       # USE FIRST LETTER AND NUMBER FOR AFRICAN CLADES
@@ -69,7 +85,7 @@ for (exp in 1:length(exp.var)) {
       tmp1.hg.table.N$Macrohaplogroup = substr(tmp1.hg.table.N$Haplogroup, 1, 1)
       # COMBINED AND REARRANGE
       tmp1.hg.table = rbind(tmp1.hg.table.A, tmp1.hg.table.N)
-      tmp1.hg.table = arrange(tmp1.hg.table, tmp1.hg.table$SampleID)
+      tmp1.hg.table = arrange(tmp1.hg.table, tmp1.hg.table$Individual)
       
       tmp1.hg.table$typed_match = as.character(truth.table$Haplogroup) == as.character(tmp1.hg.table$Haplogroup)
       tmp1.hg.table$typed_macro_match = as.character(truth.table$Macrohaplogroup) == as.character(tmp1.hg.table$Macrohaplogroup)
@@ -79,11 +95,15 @@ for (exp in 1:length(exp.var)) {
     }
     
     # IMPUTED FILE
-    tmp2.file = paste0(container, chip.table$V1[chip], "/", exp.dir, "/", exp.var[exp], "/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_", exp.var[exp], "_haplogrep.txt")
+    tmp2.file = paste0(container, chip.table$V1[chip], "/", exp.dir, "/", exp.var[exp], "/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_", exp.var[exp], ".ped")
+    tmp2.file_map = paste0(container, chip.table$V1[chip], "/", exp.dir, "/", exp.var[exp], "/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_", exp.var[exp], ".map")
     tmp3.file = paste0(container, chip.table$V1[chip], "/", exp.dir, "/", exp.var[exp], "/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_", exp.var[exp], "_info")
     if (file.exists(tmp2.file) == T) {
-      tmp2.hg.table = read.table(tmp2.file, header = T)
-      tmp2.hg.table$Range = NULL
+      typed_1kGP = generate_snp_data(tmp2.file_map,
+                                     tmp2.file)
+      tmp2.hg.table = HiMC::getClassifications(typed_1kGP)
+      names(tmp2.hg.table)[3] = "Haplogroup"
+      tmp2.hg.table$full_path = NULL
       
       ## GATHER INFO SCORE
       info.table = read.table(tmp3.file, header = T)
@@ -98,7 +118,7 @@ for (exp in 1:length(exp.var)) {
       tmp2.hg.table.N$Macrohaplogroup = substr(tmp2.hg.table.N$Haplogroup, 1, 1)
       # COMBINED AND REARRANGE
       tmp2.hg.table = rbind(tmp2.hg.table.A, tmp2.hg.table.N)
-      tmp2.hg.table = arrange(tmp2.hg.table, tmp2.hg.table$SampleID)
+      tmp2.hg.table = arrange(tmp2.hg.table, tmp2.hg.table$Individual)
       
       tmp2.hg.table$imputed_match = as.character(truth.table$Haplogroup) == as.character(tmp2.hg.table$Haplogroup)
       tmp2.hg.table$imputed_macro_match = as.character(truth.table$Macrohaplogroup) == as.character(tmp2.hg.table$Macrohaplogroup)
@@ -113,7 +133,7 @@ for (exp in 1:length(exp.var)) {
 }
 main_mcmc_df$diff = main_mcmc_df$imputed_match - main_mcmc_df$typed_match
 main_mcmc_df$diff_macro = main_mcmc_df$imputed_macro_match - main_mcmc_df$typed_macro_match
-write.csv(main_mcmc_df, paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/combined/ConcordanceTables_", exp.dir,"_COMBINED.csv"), row.names = F, quote = F)
+write.csv(main_khap_df, paste0("~/GitCode/MitoImputePrep/metadata/Concordance_tables/HiMC_HaploGrep/combined/ConcordanceTables_", exp.dir,"_HiMC_COMBINED.csv"), row.names = F, quote = F)
 
 main_mcmc_df$sub_experiment = factor(main_mcmc_df$sub_experiment, levels = exp.var)
 
@@ -128,7 +148,7 @@ mcmc_box = ggplot(main_mcmc_df, aes(x = sub_experiment, y = imputed_match)) +
        y = "% concordance with resequenced dataset",
        title = expression(paste(bold("A."), " Markov chain Monte Carlo (MCMC) length variations")))
 mcmc_box
-ggsave(filename = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/plots/ConcordanceTables_", exp.dir,".png"), plot = mcmc_box, units = "mm", width = 297, height = 210, dpi = 300)
+ggsave(filename = paste0("~/GitCode/MitoImputePrep/metadata/Concordance_tables/HiMC_HaploGrep/plots/ConcordanceTables_", exp.dir,".png"), plot = mcmc_box, units = "mm", width = 297, height = 210, dpi = 300)
 
 macro_mcmc_box = ggplot(main_mcmc_df, aes(x = sub_experiment, y = imputed_macro_match)) +
   geom_violin(fill = "#feb600", na.rm = T) +
@@ -140,9 +160,9 @@ macro_mcmc_box = ggplot(main_mcmc_df, aes(x = sub_experiment, y = imputed_macro_
        y = "% concordance with resequenced dataset",
        title = expression(paste(bold("A."), " Markov chain Monte Carlo (MCMC) length variations")))
 macro_mcmc_box
-ggsave(filename = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/plots/ConcordanceTables_macro_", exp.dir,".png"), plot = macro_mcmc_box, units = "mm", width = 297, height = 210, dpi = 300)
+ggsave(filename = paste0("~/GitCode/MitoImputePrep/metadata/Concordance_tables/HiMC_HaploGrep/plots/ConcordanceTables_macro_", exp.dir,".png"), plot = macro_mcmc_box, units = "mm", width = 297, height = 210, dpi = 300)
 
-info_mcmc_box = ggplot(main_mcmc_df, aes(x = sub_experiment, y = info_score)) +
+info_mcmc_box = ggplot(main_mcmc_df , aes(x = sub_experiment, y = info_score)) +
   geom_violin(fill = "#feb600", na.rm = T) +
   geom_boxplot(width = rel(0.25), notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428") +
   theme_bw() +
@@ -152,7 +172,7 @@ info_mcmc_box = ggplot(main_mcmc_df, aes(x = sub_experiment, y = info_score)) +
        y = expression(paste("IMPUTE2 info score (", italic("r")^"2", ")")),
        title = expression(paste(bold("A."), " Markov chain Monte Carlo (MCMC) length variations")))
 info_mcmc_box
-ggsave(filename = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/plots/ConcordanceTables_info_", exp.dir,".png"), plot = info_mcmc_box, units = "mm", width = 297, height = 210, dpi = 300)
+ggsave(filename = paste0("~/GitCode/MitoImputePrep/metadata/Concordance_tables/HiMC_HaploGrep/plots/ConcordanceTables_info_", exp.dir,".png"), plot = info_mcmc_box, units = "mm", width = 297, height = 210, dpi = 300)
 
 ## KHAP 
 
@@ -166,10 +186,10 @@ tmp_khap_df$experiment = exp.dir
 main_khap_df = data.frame()
 
 for (exp in 1:length(exp.var)) {
-  out.file = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/combined/ConcordanceTables_", exp.var[exp], ".csv")
+  out.file = paste0("~/GitCode/MitoImputePrep/metadata/Concordance_tables/HiMC_HaploGrep/combined/ConcordanceTables_", exp.var[exp], "_HiMC.csv")
   tmp_khap_df$sub_experiment = exp.var[exp]
   for (chip in 1:nrow(chip.table)) {
-    tmp.file = paste0(container, chip.table$V1[chip], "/", exp.dir, "/", exp.var[exp], "/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_", exp.var[exp], "_haplogrep.txt")
+    tmp.file = paste0(container, chip.table$V1[chip], "/", exp.dir, "/", exp.var[exp], "/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_", exp.var[exp], "_info")
     if (file.exists(tmp.file) == T) {
       tmp_khap_df$imputed[chip] = T
       chip.table$imputed[chip] = T
@@ -191,10 +211,14 @@ for (exp in 1:length(exp.var)) {
   for (chip in 1:nrow(chip.table)) {
     message(paste0("WORKING ON CHIP FOR ", exp.var[exp], ":\t", chip, " / ", total))
     # TYPED FILE
-    tmp1.file = paste0(container, chip.table$V1[chip], "/", exp.dir, "/", "chrMT_1kg_", chip.table$V1[chip], "_diploid.txt")
+    tmp1.file = paste0(container, chip.table$V1[chip], "/ReferencePanel_v2/", "chrMT_1kg_", chip.table$V1[chip], ".ped")
+    tmp1.file_map = paste0(container, chip.table$V1[chip], "/ReferencePanel_v2/", "chrMT_1kg_", chip.table$V1[chip], ".map")
     if (file.exists(tmp1.file) == T) {
-      tmp1.hg.table = read.table(tmp1.file, header = T)
-      tmp1.hg.table$Range = NULL
+      typed_1kGP = generate_snp_data(tmp1.file_map,
+                                     tmp1.file)
+      tmp1.hg.table = HiMC::getClassifications(typed_1kGP)
+      names(tmp1.hg.table)[3] = "Haplogroup"
+      tmp1.hg.table$full_path = NULL
       
       ## CREATE COLUMN FOR MACRO HAPLOGROUPS
       # USE FIRST LETTER AND NUMBER FOR AFRICAN CLADES
@@ -205,25 +229,29 @@ for (exp in 1:length(exp.var)) {
       tmp1.hg.table.N$Macrohaplogroup = substr(tmp1.hg.table.N$Haplogroup, 1, 1)
       # COMBINED AND REARRANGE
       tmp1.hg.table = rbind(tmp1.hg.table.A, tmp1.hg.table.N)
-      tmp1.hg.table = arrange(tmp1.hg.table, tmp1.hg.table$SampleID)
+      tmp1.hg.table = arrange(tmp1.hg.table, tmp1.hg.table$Individual)
       
       tmp1.hg.table$typed_match = as.character(truth.table$Haplogroup) == as.character(tmp1.hg.table$Haplogroup)
       tmp1.hg.table$typed_macro_match = as.character(truth.table$Macrohaplogroup) == as.character(tmp1.hg.table$Macrohaplogroup)
       
-      tmp_khap_df$typed_match[chip] = nrow(subset(tmp1.hg.table, tmp1.hg.table$typed_match == T)) /  nrow(tmp2.hg.table)
-      tmp_khap_df$typed_macro_match[chip] = nrow(subset(tmp1.hg.table, tmp1.hg.table$typed_macro_match == T)) /  nrow(tmp2.hg.table)
+      tmp_khap_df$typed_match[chip] = nrow(subset(tmp1.hg.table, tmp1.hg.table$typed_match == T)) / nrow(tmp1.hg.table)
+      tmp_khap_df$typed_macro_match[chip] = nrow(subset(tmp1.hg.table, tmp1.hg.table$typed_macro_match == T)) / nrow(tmp1.hg.table)
     }
     
     # IMPUTED FILE
-    tmp2.file = paste0(container, chip.table$V1[chip], "/", exp.dir, "/", exp.var[exp], "/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_", exp.var[exp], "_haplogrep.txt")
+    tmp2.file = paste0(container, chip.table$V1[chip], "/", exp.dir, "/", exp.var[exp], "/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_", exp.var[exp], ".ped")
+    tmp2.file_map = paste0(container, chip.table$V1[chip], "/", exp.dir, "/", exp.var[exp], "/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_", exp.var[exp], ".map")
     tmp3.file = paste0(container, chip.table$V1[chip], "/", exp.dir, "/", exp.var[exp], "/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_", exp.var[exp], "_info")
     if (file.exists(tmp2.file) == T) {
-      tmp2.hg.table = read.table(tmp2.file, header = T)
-      tmp2.hg.table$Range = NULL
+      typed_1kGP = generate_snp_data(tmp2.file_map,
+                                     tmp2.file)
+      tmp2.hg.table = HiMC::getClassifications(typed_1kGP)
+      names(tmp2.hg.table)[3] = "Haplogroup"
+      tmp2.hg.table$full_path = NULL
       
       ## GATHER INFO SCORE
       info.table = read.table(tmp3.file, header = T)
-      tmp_mcmc_df$info_score[chip] = mean(info.table$info, na.rm = T)
+      tmp_khap_df$info_score[chip] = mean(info.table$info, na.rm = T)
       
       ## CREATE COLUMN FOR MACRO HAPLOGROUPS
       # USE FIRST LETTER AND NUMBER FOR AFRICAN CLADES
@@ -234,13 +262,13 @@ for (exp in 1:length(exp.var)) {
       tmp2.hg.table.N$Macrohaplogroup = substr(tmp2.hg.table.N$Haplogroup, 1, 1)
       # COMBINED AND REARRANGE
       tmp2.hg.table = rbind(tmp2.hg.table.A, tmp2.hg.table.N)
-      tmp2.hg.table = arrange(tmp2.hg.table, tmp2.hg.table$SampleID)
+      tmp2.hg.table = arrange(tmp2.hg.table, tmp2.hg.table$Individual)
       
       tmp2.hg.table$imputed_match = as.character(truth.table$Haplogroup) == as.character(tmp2.hg.table$Haplogroup)
       tmp2.hg.table$imputed_macro_match = as.character(truth.table$Macrohaplogroup) == as.character(tmp2.hg.table$Macrohaplogroup)
       
-      tmp_khap_df$imputed_match[chip] = nrow(subset(tmp2.hg.table, tmp2.hg.table$imputed_match == T)) / nrow(tmp2.hg.table)
-      tmp_khap_df$imputed_macro_match[chip] = nrow(subset(tmp2.hg.table, tmp2.hg.table$imputed_macro_match == T)) / nrow(tmp2.hg.table)
+      tmp_khap_df$imputed_match[chip] = nrow(subset(tmp2.hg.table, tmp2.hg.table$imputed_match == T)) /  nrow(tmp2.hg.table)
+      tmp_khap_df$imputed_macro_match[chip] = nrow(subset(tmp2.hg.table, tmp2.hg.table$imputed_macro_match == T)) /  nrow(tmp2.hg.table)
     }
   }
   write.csv(tmp_khap_df, out.file, row.names = F, quote = F)
@@ -249,7 +277,7 @@ for (exp in 1:length(exp.var)) {
 }
 main_khap_df$diff = main_khap_df$imputed_match - main_khap_df$typed_match
 main_khap_df$diff_macro = main_khap_df$imputed_macro_match - main_khap_df$typed_macro_match
-write.csv(main_khap_df, paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/combined/ConcordanceTables_", exp.dir,"_COMBINED.csv"), row.names = F, quote = F)
+write.csv(main_khap_df, paste0("~/GitCode/MitoImputePrep/metadata/Concordance_tables/HiMC_HaploGrep/combined/ConcordanceTables_", exp.dir,"_HiMC_COMBINED.csv"), row.names = F, quote = F)
 
 main_khap_df$sub_experiment = factor(main_khap_df$sub_experiment, levels = exp.var)
 
@@ -264,7 +292,7 @@ k_hap_box = ggplot(main_khap_df, aes(x = sub_experiment, y = imputed_match)) +
        y = "% concordance with resequenced dataset",
        title = expression(paste(bold("B."), " Number of included reference haplotypes (k_hap) variations")))
 k_hap_box
-ggsave(filename = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/plots/ConcordanceTables_", exp.dir,".png"), plot = k_hap_box, units = "mm", width = 297, height = 210, dpi = 300)
+ggsave(filename = paste0("~/GitCode/MitoImputePrep/metadata/Concordance_tables/HiMC_HaploGrep/plots/ConcordanceTables_", exp.dir,".png"), plot = k_hap_box, units = "mm", width = 297, height = 210, dpi = 300)
 
 macro_k_hap_box = ggplot(main_khap_df, aes(x = sub_experiment, y = imputed_macro_match)) +
   geom_violin(fill = "#feb600", na.rm = T) +
@@ -276,9 +304,9 @@ macro_k_hap_box = ggplot(main_khap_df, aes(x = sub_experiment, y = imputed_macro
        y = "% concordance with resequenced dataset",
        title = expression(paste(bold("B."), " Number of included reference haplotypes (k_hap) variations")))
 macro_k_hap_box
-ggsave(filename = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/plots/ConcordanceTables_macro_", exp.dir,".png"), plot = macro_k_hap_box, units = "mm", width = 297, height = 210, dpi = 300)
+ggsave(filename = paste0("~/GitCode/MitoImputePrep/metadata/Concordance_tables/HiMC_HaploGrep/plots/ConcordanceTables_macro_", exp.dir,".png"), plot = macro_k_hap_box, units = "mm", width = 297, height = 210, dpi = 300)
 
-info_k_hap_box = ggplot(main_khap_df, aes(x = sub_experiment, y = info_score)) +
+info_k_hap_box = ggplot(main_khap_df , aes(x = sub_experiment, y = info_score)) +
   geom_violin(fill = "#feb600", na.rm = T) +
   geom_boxplot(width = rel(0.25), notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428") +
   theme_bw() +
@@ -288,7 +316,7 @@ info_k_hap_box = ggplot(main_khap_df, aes(x = sub_experiment, y = info_score)) +
        y = expression(paste("IMPUTE2 info score (", italic("r")^"2", ")")),
        title = expression(paste(bold("B."), " Number of included reference haplotypes (k_hap) variations")))
 info_k_hap_box
-ggsave(filename = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/plots/ConcordanceTables_info_", exp.dir,".png"), plot = info_k_hap_box, units = "mm", width = 297, height = 210, dpi = 300)
+ggsave(filename = paste0("~/GitCode/MitoImputePrep/metadata/Concordance_tables/HiMC_HaploGrep/plots/ConcordanceTables_info_", exp.dir,".png"), plot = info_k_hap_box, units = "mm", width = 297, height = 210, dpi = 300)
 
 ## MAF 
 
@@ -303,10 +331,10 @@ tmp_maf_df$experiment = exp.dir
 main_maf_df = data.frame()
 
 for (exp in 1:length(exp.var)) {
-  out.file = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/combined/ConcordanceTables_", ref.panel[exp], ".csv")
+  out.file = paste0("~/GitCode/MitoImputePrep/metadata/Concordance_tables/HiMC_HaploGrep/combined/ConcordanceTables_", ref.panel[exp], "_HiMC.csv")
   tmp_maf_df$sub_experiment = exp.var[exp]
   for (chip in 1:nrow(chip.table)) {
-    tmp.file = paste0(container, chip.table$V1[chip], "/", ref.panel[exp], "/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_MCMC1", "_haplogrep.txt")
+    tmp.file = paste0(container, chip.table$V1[chip], "/", exp.dir, "/", exp.var[exp], "/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_", exp.var[exp], "_info")
     if (file.exists(tmp.file) == T) {
       tmp_maf_df$imputed[chip] = T
       chip.table$imputed[chip] = T
@@ -328,10 +356,14 @@ for (exp in 1:length(exp.var)) {
   for (chip in 1:nrow(chip.table)) {
     message(paste0("WORKING ON CHIP FOR ", exp.var[exp], ":\t", chip, " / ", total))
     # TYPED FILE
-    tmp1.file = paste0(container, chip.table$V1[chip], "/", ref.panel[exp], "/", "chrMT_1kg_", chip.table$V1[chip], "_diploid.txt")
+    tmp1.file = paste0(container, chip.table$V1[chip], "/ReferencePanel_v2/", "chrMT_1kg_", chip.table$V1[chip], ".ped")
+    tmp1.file_map = paste0(container, chip.table$V1[chip], "/ReferencePanel_v2/", "chrMT_1kg_", chip.table$V1[chip], ".map")
     if (file.exists(tmp1.file) == T) {
-      tmp1.hg.table = read.table(tmp1.file, header = T)
-      tmp1.hg.table$Range = NULL
+      typed_1kGP = generate_snp_data(tmp1.file_map,
+                                     tmp1.file)
+      tmp1.hg.table = HiMC::getClassifications(typed_1kGP)
+      names(tmp1.hg.table)[3] = "Haplogroup"
+      tmp1.hg.table$full_path = NULL
       
       ## CREATE COLUMN FOR MACRO HAPLOGROUPS
       # USE FIRST LETTER AND NUMBER FOR AFRICAN CLADES
@@ -342,25 +374,29 @@ for (exp in 1:length(exp.var)) {
       tmp1.hg.table.N$Macrohaplogroup = substr(tmp1.hg.table.N$Haplogroup, 1, 1)
       # COMBINED AND REARRANGE
       tmp1.hg.table = rbind(tmp1.hg.table.A, tmp1.hg.table.N)
-      tmp1.hg.table = arrange(tmp1.hg.table, tmp1.hg.table$SampleID)
+      tmp1.hg.table = arrange(tmp1.hg.table, tmp1.hg.table$Individual)
       
       tmp1.hg.table$typed_match = as.character(truth.table$Haplogroup) == as.character(tmp1.hg.table$Haplogroup)
       tmp1.hg.table$typed_macro_match = as.character(truth.table$Macrohaplogroup) == as.character(tmp1.hg.table$Macrohaplogroup)
       
-      tmp_maf_df$typed_match[chip] = nrow(subset(tmp1.hg.table, tmp1.hg.table$typed_match == T)) / nrow(tmp2.hg.table)
-      tmp_maf_df$typed_macro_match[chip] = nrow(subset(tmp1.hg.table, tmp1.hg.table$typed_macro_match == T)) / nrow(tmp2.hg.table)
+      tmp_maf_df$typed_match[chip] = nrow(subset(tmp1.hg.table, tmp1.hg.table$typed_match == T)) / nrow(tmp1.hg.table)
+      tmp_maf_df$typed_macro_match[chip] = nrow(subset(tmp1.hg.table, tmp1.hg.table$typed_macro_match == T)) / nrow(tmp1.hg.table)
     }
     
     # IMPUTED FILE
-    tmp2.file = paste0(container, chip.table$V1[chip], "/", ref.panel[exp], "/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_MCMC1", "_haplogrep.txt")
+    tmp2.file = paste0(container, chip.table$V1[chip], "/", ref.panel[exp], "/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_MCMC1", ".ped")
+    tmp2.file_map = paste0(container, chip.table$V1[chip], "/", ref.panel[exp], "/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_MCMC1", ".map")
     tmp3.file = paste0(container, chip.table$V1[chip], "/", ref.panel[exp], "/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_MCMC1", "_info")
     if (file.exists(tmp2.file) == T) {
-      tmp2.hg.table = read.table(tmp2.file, header = T)
-      tmp2.hg.table$Range = NULL
+      imputed_1kGP = generate_snp_data(tmp2.file_map,
+                                     tmp2.file)
+      tmp2.hg.table = HiMC::getClassifications(imputed_1kGP)
+      names(tmp2.hg.table)[3] = "Haplogroup"
+      tmp2.hg.table$full_path = NULL
       
       ## GATHER INFO SCORE
       info.table = read.table(tmp3.file, header = T)
-      tmp_mcmc_df$info_score[chip] = mean(info.table$info, na.rm = T)
+      tmp_maf_df$info_score[chip] = mean(info.table$info, na.rm = T)
       
       ## CREATE COLUMN FOR MACRO HAPLOGROUPS
       # USE FIRST LETTER AND NUMBER FOR AFRICAN CLADES
@@ -371,23 +407,22 @@ for (exp in 1:length(exp.var)) {
       tmp2.hg.table.N$Macrohaplogroup = substr(tmp2.hg.table.N$Haplogroup, 1, 1)
       # COMBINED AND REARRANGE
       tmp2.hg.table = rbind(tmp2.hg.table.A, tmp2.hg.table.N)
-      tmp2.hg.table = arrange(tmp2.hg.table, tmp2.hg.table$SampleID)
+      tmp2.hg.table = arrange(tmp2.hg.table, tmp2.hg.table$Individual)
       
       tmp2.hg.table$imputed_match = as.character(truth.table$Haplogroup) == as.character(tmp2.hg.table$Haplogroup)
       tmp2.hg.table$imputed_macro_match = as.character(truth.table$Macrohaplogroup) == as.character(tmp2.hg.table$Macrohaplogroup)
       
-      tmp_maf_df$imputed_match[chip] = nrow(subset(tmp2.hg.table, tmp2.hg.table$imputed_match == T)) / nrow(tmp2.hg.table)
-      tmp_maf_df$imputed_macro_match[chip] = nrow(subset(tmp2.hg.table, tmp2.hg.table$imputed_macro_match == T)) / nrow(tmp2.hg.table)
+      tmp_maf_df$imputed_match[chip] = nrow(subset(tmp2.hg.table, tmp2.hg.table$imputed_match == T)) /  nrow(tmp2.hg.table)
+      tmp_maf_df$imputed_macro_match[chip] = nrow(subset(tmp2.hg.table, tmp2.hg.table$imputed_macro_match == T)) /  nrow(tmp2.hg.table)
     }
   }
-  #print(head(tmp_maf_df))
   write.csv(tmp_maf_df, out.file, row.names = F, quote = F)
   message(paste0("WROTE ", out.file, " TO DISK"))
-  main_maf_df = rbind(main_maf_df, tmp_maf_df)
+  main_mcmc_df = rbind(main_mcmc_df, tmp_maf_df)
 }
 main_maf_df$diff = main_maf_df$imputed_match - main_maf_df$typed_match
 main_maf_df$diff_macro = main_maf_df$imputed_macro_match - main_maf_df$typed_macro_match
-write.csv(main_maf_df, paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/combined/ConcordanceTables_", exp.dir,"_COMBINED.csv"), row.names = F, quote = F)
+write.csv(main_khap_df, paste0("~/GitCode/MitoImputePrep/metadata/Concordance_tables/HiMC_HaploGrep/combined/ConcordanceTables_", exp.dir,"_HiMC_COMBINED.csv"), row.names = F, quote = F)
 
 main_maf_df$sub_experiment = factor(main_maf_df$sub_experiment, levels = exp.var)
 
@@ -402,7 +437,7 @@ maf_box = ggplot(main_maf_df, aes(x = sub_experiment, y = imputed_match)) +
        y = "% concordance with resequenced dataset",
        title = expression(paste(bold("C."), " Minor allele frequencies (MAF) variations")))
 maf_box
-ggsave(filename = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/plots/ConcordanceTables_", exp.dir,".png"), plot = maf_box, units = "mm", width = 297, height = 210, dpi = 300)
+ggsave(filename = paste0("~/GitCode/MitoImputePrep/metadata/Concordance_tables/HiMC_HaploGrep/plots/ConcordanceTables_", exp.dir,".png"), plot = maf_box, units = "mm", width = 297, height = 210, dpi = 300)
 
 
 macro_maf_box = ggplot(main_maf_df, aes(x = sub_experiment, y = imputed_macro_match)) +
@@ -412,10 +447,10 @@ macro_maf_box = ggplot(main_maf_df, aes(x = sub_experiment, y = imputed_macro_ma
   scale_y_continuous(breaks = c(0.0, 0.2, 0.4, 0.6, 0.8, 1.0),
                      limits = c(0, 1)) +
   labs(x = "Minor allele frequency",
-     y = "% concordance with resequenced dataset",
-     title = expression(paste(bold("C."), " Minor allele frequencies (MAF) variations")))
+       y = "% concordance with resequenced dataset",
+       title = expression(paste(bold("C."), " Minor allele frequencies (MAF) variations")))
 macro_maf_box
-ggsave(filename = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/plots/ConcordanceTables_macro_", exp.dir,".png"), plot = macro_maf_box, units = "mm", width = 297, height = 210, dpi = 300)
+ggsave(filename = paste0("~/GitCode/MitoImputePrep/metadata/Concordance_tables/HiMC_HaploGrep/plots/ConcordanceTables_macro_", exp.dir,".png"), plot = macro_maf_box, units = "mm", width = 297, height = 210, dpi = 300)
 
 info_maf_box = ggplot(main_maf_df , aes(x = sub_experiment, y = info_score)) +
   geom_violin(fill = "#feb600", na.rm = T) +
@@ -427,15 +462,15 @@ info_maf_box = ggplot(main_maf_df , aes(x = sub_experiment, y = info_score)) +
        y = expression(paste("IMPUTE2 info score (", italic("r")^"2", ")")),
        title = expression(paste(bold("C."), " Minor allele frequencies (MAF) variations")))
 info_maf_box
-ggsave(filename = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/plots/ConcordanceTables_info_", exp.dir,".png"), plot = info_maf_box, units = "mm", width = 297, height = 210, dpi = 300)
+ggsave(filename = paste0("~/GitCode/MitoImputePrep/metadata/Concordance_tables/HiMC_HaploGrep/plots/ConcordanceTables_info_", exp.dir,".png"), plot = info_maf_box, units = "mm", width = 297, height = 210, dpi = 300)
 
 ### ARRANGE THEM
 
 comb_box = grid.arrange(arrangeGrob(mcmc_box, k_hap_box, maf_box, ncol = 1, nrow = 3))
-ggsave(filename = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/plots/ConcordanceTables_Combined.png"), plot = comb_box, units = "mm", width = 297, height = 420, dpi = 300)
+ggsave(filename = paste0("~/GitCode/MitoImputePrep/metadata/Concordance_tables/HiMC_HaploGrep/plots/ConcordanceTables_Combined.png"), plot = comb_box, units = "mm", width = 297, height = 420, dpi = 300)
 
 macro_comb_box = grid.arrange(arrangeGrob(macro_mcmc_box, macro_k_hap_box, macro_maf_box, ncol = 1, nrow = 3))
-ggsave(filename = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/plots/ConcordanceTables_Combined_macro.png"), plot = macro_comb_box, units = "mm", width = 297, height = 420, dpi = 300)
+ggsave(filename = paste0("~/GitCode/MitoImputePrep/metadata/Concordance_tables/HiMC_HaploGrep/plots/ConcordanceTables_Combined_macro.png"), plot = macro_comb_box, units = "mm", width = 297, height = 420, dpi = 300)
 
 info_comb_box = grid.arrange(arrangeGrob(info_mcmc_box, info_k_hap_box, info_maf_box, ncol = 1, nrow = 3))
 ggsave(filename = paste0("~/GitCode/MitoImputePrep/metadata/Concordance_tables/HiMC_HaploGrep/plots/ConcordanceTables_Combined_info.png"), plot = info_comb_box, units = "mm", width = 297, height = 420, dpi = 300)
@@ -443,7 +478,7 @@ ggsave(filename = paste0("~/GitCode/MitoImputePrep/metadata/Concordance_tables/H
 
 # LINEAR MIXED MODELS
 
-stat.out.dir = "/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/stat_tests/"
+stat.out.dir = "~/GitCode/MitoImputePrep/metadata/Concordance_tables/HiMC_HaploGrep/stat_tests/"
 
 ## MCMC
 # IMPUTED
