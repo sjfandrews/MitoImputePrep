@@ -387,36 +387,45 @@ ggsave(filename = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/plot
 
 
 # LINEAR MIXED MODELS
+
+stat.out.dir = "/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/stat_tests/"
+
 ## MCMC
 # IMPUTED
 l_mcmc_imp = lm(imputed_match ~ sub_experiment, data = main_mcmc_df)
 anova(l_mcmc_imp)
 summary(l_mcmc_imp)
 emmeans(l_mcmc_imp, pairwise ~ sub_experiment)
-summary(emmeans(l_mcmc_imp, pairwise ~ sub_experiment))
+l_mcmc_imp_s = summary(emmeans(l_mcmc_imp, pairwise ~ sub_experiment))
+write.csv(data.frame(l_mcmc_imp_s$emmeans), paste0(stat.out.dir, "mcmc_imputed_emmeans.csv"), quote = F, row.names = F)
+write.csv(data.frame(l_mcmc_imp_s$contrasts), paste0(stat.out.dir, "mcmc_imputed_contrasts.csv"), quote = F, row.names = F)
 
 # IMPUTED MACRO
 l_mcmc_imp_macro = lm(imputed_macro_match ~ sub_experiment, data = main_mcmc_df)
 anova(l_mcmc_imp_macro)
 summary(l_mcmc_imp_macro)
 emmeans(l_mcmc_imp_macro, pairwise ~ sub_experiment) # ADD type="response" IF IN LOG SCALE
-summary(emmeans(l_mcmc_imp_macro, pairwise ~ sub_experiment))
+l_mcmc_imp_macro_s = summary(emmeans(l_mcmc_imp_macro, pairwise ~ sub_experiment))
+write.csv(data.frame(l_mcmc_imp_macro_s$emmeans), paste0(stat.out.dir, "mcmc_imputed_macro_emmeans.csv"), quote = F, row.names = F)
+write.csv(data.frame(l_mcmc_imp_macro_s$contrasts), paste0(stat.out.dir, "mcmc_imputed_macro_contrasts.csv"), quote = F, row.names = F)
 
 # DIFFERENCE
 l_mcmc_imp_diff = lm(diff ~ sub_experiment, data = main_mcmc_df)
 anova(l_mcmc_imp_diff)
 summary(l_mcmc_imp_diff)
 emmeans(l_mcmc_imp_diff, pairwise ~ sub_experiment) # ADD type="response" IF IN LOG SCALE
-summary(emmeans(l_mcmc_imp_diff, pairwise ~ sub_experiment))
+l_mcmc_imp_diff_s = summary(emmeans(l_mcmc_imp_diff, pairwise ~ sub_experiment))
+write.csv(data.frame(l_mcmc_imp_diff_s$emmeans), paste0(stat.out.dir, "mcmc_imputed_diff_emmeans.csv"), quote = F, row.names = F)
+write.csv(data.frame(l_mcmc_imp_diff_s$contrasts), paste0(stat.out.dir, "mcmc_imputed_diff_contrasts.csv"), quote = F, row.names = F)
 
 # DIFFERENCE MACRO
 l_mcmc_imp_diff_macro = lm(diff_macro ~ sub_experiment, data = main_mcmc_df)
 anova(l_mcmc_imp_diff_macro)
 summary(l_mcmc_imp_diff_macro)
 emmeans(l_mcmc_imp_diff_macro, pairwise ~ sub_experiment) # ADD type="response" IF IN LOG SCALE
-summary(emmeans(l_mcmc_imp_diff_macro, pairwise ~ sub_experiment))
-
-boxplot(diff_macro ~ sub_experiment, data = main_mcmc_df)
+l_mcmc_imp_diff_macro_s = summary(emmeans(l_mcmc_imp_diff_macro, pairwise ~ sub_experiment))
+write.csv(data.frame(l_mcmc_imp_diff_macro_s$emmeans), paste0(stat.out.dir, "mcmc_imputed_macro_diff_emmeans.csv"), quote = F, row.names = F)
+write.csv(data.frame(l_mcmc_imp_diff_macro_s$contrasts), paste0(stat.out.dir, "mcmc_imputed_macro_diff_contrasts.csv"), quote = F, row.names = F)
 
 ## KHAP
 # IMPUTED
@@ -424,249 +433,68 @@ l_khap_imp = lm(imputed_match ~ sub_experiment, data = main_khap_df)
 anova(l_khap_imp)
 summary(l_khap_imp)
 emmeans(l_khap_imp, pairwise ~ sub_experiment)
-summary(emmeans(l_khap_imp, pairwise ~ sub_experiment))
+l_khap_imp_s = summary(emmeans(l_khap_imp, pairwise ~ sub_experiment))
+write.csv(data.frame(l_khap_imp_s$emmeans), paste0(stat.out.dir, "khap_imputed_emmeans.csv"), quote = F, row.names = F)
+write.csv(data.frame(l_khap_imp_s$contrasts), paste0(stat.out.dir, "khap_imputed_contrasts.csv"), quote = F, row.names = F)
 
 # IMPUTED MACRO
 l_khap_imp_macro = lm(imputed_macro_match ~ sub_experiment, data = main_khap_df)
 anova(l_khap_imp_macro)
 summary(l_khap_imp_macro)
 emmeans(l_khap_imp_macro, pairwise ~ sub_experiment) # ADD type="response" IF IN LOG SCALE
-summary(emmeans(l_khap_imp_macro, pairwise ~ sub_experiment))
+l_khap_imp_macro_s = summary(emmeans(l_khap_imp_macro, pairwise ~ sub_experiment))
+write.csv(data.frame(l_khap_imp_macro_s$emmeans), paste0(stat.out.dir, "khap_imputed_macro_emmeans.csv"), quote = F, row.names = F)
+write.csv(data.frame(l_khap_imp_macro_s$contrasts), paste0(stat.out.dir, "khap_imputed_macro_contrasts.csv"), quote = F, row.names = F)
 
 # DIFFERENCE
 l_khap_imp_diff = lm(diff ~ sub_experiment, data = main_khap_df)
 anova(l_khap_imp_diff)
 summary(l_khap_imp_diff)
 emmeans(l_khap_imp_diff, pairwise ~ sub_experiment) # ADD type="response" IF IN LOG SCALE
-summary(emmeans(l_khap_imp_diff, pairwise ~ sub_experiment))
+l_khap_imp_diff_s = summary(emmeans(l_khap_imp_diff, pairwise ~ sub_experiment))
+write.csv(data.frame(l_khap_imp_diff_s$emmeans), paste0(stat.out.dir, "khap_imputed_diff_emmeans.csv"), quote = F, row.names = F)
+write.csv(data.frame(l_khap_imp_diff_s$contrasts), paste0(stat.out.dir, "khap_imputed_diff_contrasts.csv"), quote = F, row.names = F)
 
 # DIFFERENCE MACRO
 l_khap_imp_diff_macro = lm(diff_macro ~ sub_experiment, data = main_khap_df)
 anova(l_khap_imp_diff_macro)
 summary(l_khap_imp_diff_macro)
 emmeans(l_khap_imp_diff_macro, pairwise ~ sub_experiment) # ADD type="response" IF IN LOG SCALE
-summary(emmeans(l_khap_imp_diff_macro, pairwise ~ sub_experiment))
+l_khap_imp_diff_macro_s = summary(emmeans(l_khap_imp_diff_macro, pairwise ~ sub_experiment))
+write.csv(data.frame(l_khap_imp_diff_macro_s$emmeans), paste0(stat.out.dir, "khap_imputed_macro_diff_emmeans.csv"), quote = F, row.names = F)
+write.csv(data.frame(l_khap_imp_diff_macro_s$contrasts), paste0(stat.out.dir, "khap_imputed_macro_diff_contrasts.csv"), quote = F, row.names = F)
 
-## MAF
-# IMPUTED
 l_maf_imp = lm(imputed_match ~ sub_experiment, data = main_maf_df)
 anova(l_maf_imp)
 summary(l_maf_imp)
 emmeans(l_maf_imp, pairwise ~ sub_experiment)
-summary(emmeans(l_maf_imp, pairwise ~ sub_experiment))
+l_maf_imp_s = summary(emmeans(l_maf_imp, pairwise ~ sub_experiment))
+write.csv(data.frame(l_maf_imp_s$emmeans), paste0(stat.out.dir, "maf_imputed_emmeans.csv"), quote = F, row.names = F)
+write.csv(data.frame(l_maf_imp_s$contrasts), paste0(stat.out.dir, "maf_imputed_contrasts.csv"), quote = F, row.names = F)
 
 # IMPUTED MACRO
 l_maf_imp_macro = lm(imputed_macro_match ~ sub_experiment, data = main_maf_df)
 anova(l_maf_imp_macro)
 summary(l_maf_imp_macro)
 emmeans(l_maf_imp_macro, pairwise ~ sub_experiment) # ADD type="response" IF IN LOG SCALE
-summary(emmeans(l_maf_imp_macro, pairwise ~ sub_experiment))
+l_maf_imp_macro_s = summary(emmeans(l_maf_imp_macro, pairwise ~ sub_experiment))
+write.csv(data.frame(l_maf_imp_macro_s$emmeans), paste0(stat.out.dir, "maf_imputed_macro_emmeans.csv"), quote = F, row.names = F)
+write.csv(data.frame(l_maf_imp_macro_s$contrasts), paste0(stat.out.dir, "maf_imputed_macro_contrasts.csv"), quote = F, row.names = F)
 
 # DIFFERENCE
 l_maf_imp_diff = lm(diff ~ sub_experiment, data = main_maf_df)
 anova(l_maf_imp_diff)
 summary(l_maf_imp_diff)
 emmeans(l_maf_imp_diff, pairwise ~ sub_experiment) # ADD type="response" IF IN LOG SCALE
-summary(emmeans(l_maf_imp_diff, pairwise ~ sub_experiment))
+l_maf_imp_diff_s = summary(emmeans(l_maf_imp_diff, pairwise ~ sub_experiment))
+write.csv(data.frame(l_maf_imp_diff_s$emmeans), paste0(stat.out.dir, "maf_imputed_diff_emmeans.csv"), quote = F, row.names = F)
+write.csv(data.frame(l_maf_imp_diff_s$contrasts), paste0(stat.out.dir, "maf_imputed_diff_contrasts.csv"), quote = F, row.names = F)
 
 # DIFFERENCE MACRO
 l_maf_imp_diff_macro = lm(diff_macro ~ sub_experiment, data = main_maf_df)
 anova(l_maf_imp_diff_macro)
 summary(l_maf_imp_diff_macro)
 emmeans(l_maf_imp_diff_macro, pairwise ~ sub_experiment) # ADD type="response" IF IN LOG SCALE
-summary(emmeans(l_maf_imp_diff_macro, pairwise ~ sub_experiment))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-############ OLD
-
-###############################################################################
-## MAF 
-f = "~/GitCode/MitoImputePrep/metadata/Concordance_tables/ConcordanceTables_MAF_Combined.csv"
-x = read.csv(f, header = T)
-x[,2] = factor(x[,2])
-x2 = x
-
-x = x[-(3:9)]
-x = spread(x, names(x)[2], "Imputed.hg.Conc")
-v = names(x)[2:ncol(x)]
-#x$largest = NA
-largest = c()
-for (i in 1:nrow(x)) {
-  if (apply(x[i,2:ncol(x)], 1, function(u) all(u %in% NA))) {
-    #x$largest[i] = NA
-    largest = c(largest, NA)
-  } else {
-    #x$largest[i] = v[which(unlist(x[i,2:ncol(x)]) == max(unlist(x[i,2:ncol(x)])))]
-    largest = c(largest, paste(v[which(unlist(x[i,2:ncol(x)]) == max(unlist(x[i,2:ncol(x)]), na.rm = T))], collapse = ","))
-  }
-}
-x$largest = largest
-table(x$largest)
-
-
-x2$diff = x2$Imputed.hg.Conc - x2$Typed.hg.Conc
-x3 = x2
-x2 = x2[-(3:10)]
-x2 = spread(x2, names(x2)[2], "diff")
-#x$largest = NA
-largest = c()
-for (i in 1:nrow(x2)) {
-  if (apply(x2[i,2:ncol(x2)], 1, function(u) all(u %in% NA))) {
-    #x$largest[i] = NA
-    largest = c(largest, NA)
-  } else {
-    #x$largest[i] = v[which(unlist(x[i,2:ncol(x)]) == max(unlist(x[i,2:ncol(x)])))]
-    largest = c(largest, paste(v[which(unlist(x2[i,2:ncol(x2)]) == max(unlist(x2[i,2:ncol(x2)]), na.rm = T))], collapse = ","))
-  }
-}
-x2$largest = largest
-table(x2$largest)
-
-l = lm(diff ~ MAF, data = x3)
-anova(l)
-summary(l)
-emmeans(l, pairwise ~ MAF)
-summary(emmeans(l, pairwise ~ MAF))
-
-boxplot(diff ~ MAF, data = x3)
-
-l2 = lm(Imputed.hg.Conc ~ MAF, data = x3)
-anova(l2)
-summary(l2)
-emmeans(l2, pairwise ~ MAF, type="response")
-summary(emmeans(l2, pairwise ~ MAF))
-
-boxplot(Imputed.hg.Conc ~ MAF, data = x3)
-
-###############################################################################
-## kHAP 
-f = "~/GitCode/MitoImputePrep/metadata/Concordance_tables/ConcordanceTables_kHAP_Combined.csv"
-x = read.csv(f, header = T)
-x[,2] = factor(x[,2])
-x2 = x
-
-x = x[-(3:9)]
-x = spread(x, names(x)[2], "Imputed.hg.Conc")
-v = names(x)[2:ncol(x)]
-#x$largest = NA
-largest = c()
-for (i in 1:nrow(x)) {
-  if (apply(x[i,2:ncol(x)], 1, function(u) all(u %in% NA))) {
-    #x$largest[i] = NA
-    largest = c(largest, NA)
-  } else {
-    #x$largest[i] = v[which(unlist(x[i,2:ncol(x)]) == max(unlist(x[i,2:ncol(x)])))]
-    largest = c(largest, paste(v[which(unlist(x[i,2:ncol(x)]) == max(unlist(x[i,2:ncol(x)]), na.rm = T))], collapse = ","))
-  }
-}
-x$largest = largest
-table(x$largest)
-
-
-x2$diff = x2$Imputed.hg.Conc - x2$Typed.hg.Conc
-x3 = x2
-x2 = x2[-(3:10)]
-x2 = spread(x2, names(x2)[2], "diff")
-#x$largest = NA
-largest = c()
-for (i in 1:nrow(x2)) {
-  if (apply(x2[i,2:ncol(x2)], 1, function(u) all(u %in% NA))) {
-    #x$largest[i] = NA
-    largest = c(largest, NA)
-  } else {
-    #x$largest[i] = v[which(unlist(x[i,2:ncol(x)]) == max(unlist(x[i,2:ncol(x)])))]
-    largest = c(largest, paste(v[which(unlist(x2[i,2:ncol(x2)]) == max(unlist(x2[i,2:ncol(x2)]), na.rm = T))], collapse = ","))
-  }
-}
-x2$largest = largest
-table(x2$largest)
-
-l = lm(diff ~ kHAP, data = x3)
-anova(l)
-summary(l)
-emmeans(l, pairwise ~ kHAP)
-summary(emmeans(l, pairwise ~ kHAP))
-
-boxplot(diff ~ kHAP, data = x3)
-
-l2 = lm(Imputed.hg.Conc ~ kHAP, data = x3)
-anova(l2)
-summary(l2)
-emmeans(l2, pairwise ~ kHAP, type="response")
-summary(emmeans(l2, pairwise ~ kHAP))
-
-boxplot(Imputed.hg.Conc ~ kHAP, data = x3)
-
-###############################################################################
-## MCMC 
-f = "~/GitCode/MitoImputePrep/metadata/Concordance_tables/ConcordanceTables_MCMC_Combined.csv"
-x = read.csv(f, header = T)
-x[,2] = factor(x[,2])
-x2 = x
-
-x = x[-(3:9)]
-x = spread(x, names(x)[2], "Imputed.hg.Conc")
-v = names(x)[2:ncol(x)]
-#x$largest = NA
-largest = c()
-for (i in 1:nrow(x)) {
-  if (apply(x[i,2:ncol(x)], 1, function(u) all(u %in% NA))) {
-    #x$largest[i] = NA
-    largest = c(largest, NA)
-  } else {
-    #x$largest[i] = v[which(unlist(x[i,2:ncol(x)]) == max(unlist(x[i,2:ncol(x)])))]
-    largest = c(largest, paste(v[which(unlist(x[i,2:ncol(x)]) == max(unlist(x[i,2:ncol(x)]), na.rm = T))], collapse = ","))
-  }
-}
-x$largest = largest
-table(x$largest)
-
-
-x2$diff = x2$Imputed.hg.Conc - x2$Typed.hg.Conc
-x3 = x2
-x2 = x2[-(3:10)]
-x2 = spread(x2, names(x2)[2], "diff")
-#x$largest = NA
-largest = c()
-for (i in 1:nrow(x2)) {
-  if (apply(x2[i,2:ncol(x2)], 1, function(u) all(u %in% NA))) {
-    #x$largest[i] = NA
-    largest = c(largest, NA)
-  } else {
-    #x$largest[i] = v[which(unlist(x[i,2:ncol(x)]) == max(unlist(x[i,2:ncol(x)])))]
-    largest = c(largest, paste(v[which(unlist(x2[i,2:ncol(x2)]) == max(unlist(x2[i,2:ncol(x2)]), na.rm = T))], collapse = ","))
-  }
-}
-x2$largest = largest
-table(x2$largest)
-
-l = lm(diff ~ MCMC, data = x3)
-anova(l)
-summary(l)
-emmeans(l, pairwise ~ MCMC)
-summary(emmeans(l, pairwise ~ MCMC))
-
-boxplot(diff ~ MCMC, data = x3)
-
-l2 = lm(Imputed.hg.Conc ~ MCMC, data = x3)
-anova(l2)
-summary(l2)
-emmeans(l2, pairwise ~ MCMC)
-#emmeans(l2, pairwise ~ MCMC, type="response") # USE IF LOG SCALE IN lm FUNCTION
-summary(emmeans(l2, pairwise ~ MCMC))
-
-boxplot(Imputed.hg.Conc ~ MCMC, data = x3)
+l_maf_imp_diff_macro_s = summary(emmeans(l_maf_imp_diff_macro, pairwise ~ sub_experiment))
+write.csv(data.frame(l_maf_imp_diff_macro_s$emmeans), paste0(stat.out.dir, "maf_imputed_macro_diff_emmeans.csv"), quote = F, row.names = F)
+write.csv(data.frame(l_maf_imp_diff_macro_s$contrasts), paste0(stat.out.dir, "maf_imputed_macro_diff_contrasts.csv"), quote = F, row.names = F)
