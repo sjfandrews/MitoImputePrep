@@ -133,7 +133,7 @@ for (exp in 1:length(exp.var)) {
 }
 main_mcmc_df$diff = main_mcmc_df$imputed_match - main_mcmc_df$typed_match
 main_mcmc_df$diff_macro = main_mcmc_df$imputed_macro_match - main_mcmc_df$typed_macro_match
-write.csv(main_khap_df, paste0("~/GitCode/MitoImputePrep/metadata/Concordance_tables/HiMC_HaploGrep/combined/ConcordanceTables_", exp.dir,"_HiMC_COMBINED.csv"), row.names = F, quote = F)
+write.csv(main_mcmc_df, paste0("~/GitCode/MitoImputePrep/metadata/Concordance_tables/HiMC_HaploGrep/combined/ConcordanceTables_", exp.dir,"_HiMC_COMBINED.csv"), row.names = F, quote = F)
 
 main_mcmc_df$sub_experiment = factor(main_mcmc_df$sub_experiment, levels = exp.var)
 
@@ -422,7 +422,7 @@ for (exp in 1:length(exp.var)) {
 }
 main_maf_df$diff = main_maf_df$imputed_match - main_maf_df$typed_match
 main_maf_df$diff_macro = main_maf_df$imputed_macro_match - main_maf_df$typed_macro_match
-write.csv(main_khap_df, paste0("~/GitCode/MitoImputePrep/metadata/Concordance_tables/HiMC_HaploGrep/combined/ConcordanceTables_", exp.dir,"_HiMC_COMBINED.csv"), row.names = F, quote = F)
+write.csv(main_maf_df, paste0("~/GitCode/MitoImputePrep/metadata/Concordance_tables/HiMC_HaploGrep/combined/ConcordanceTables_", exp.dir,"_HiMC_COMBINED.csv"), row.names = F, quote = F)
 
 main_maf_df$sub_experiment = factor(main_maf_df$sub_experiment, levels = exp.var)
 
