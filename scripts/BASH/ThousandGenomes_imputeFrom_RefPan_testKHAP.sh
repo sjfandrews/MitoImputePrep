@@ -1,8 +1,8 @@
 #!/bin/bash
 #PBS -P te53
 #PBS -q normalbw
-#PBS -l walltime=04:00:00
-#PBS -l mem=16GB
+#PBS -l walltime=08:00:00
+#PBS -l mem=32GB
 #PBS -l ncpus=1
 #PBS -N impute_SNPchip_1kGP
 #PBS -m e
@@ -227,7 +227,7 @@ then
 	echo "${out} FOUND! ... PASSING"
 else
 	echo "${out} NOT FOUND! ... RUNNING IMPUTE2"
-	impute2 -chrX -m ${m} -h ${h} -l ${l} -g ${g} -sample_g ${s} -int 1 16569 -Ne 20000 -o ${out} -iter ${mcmc} -burnin ${burn}
+	impute2 -chrX -m ${m} -h ${h} -l ${l} -g ${g} -sample_g ${s} -int 1 16569 -Ne ${ne} -o ${out} -iter ${mcmc} -burnin ${burn} -k_hap ${khap}
 fi
 
 # FIX CHROMOSOME NAMES

@@ -11,7 +11,7 @@ NE="20000"
 
 echo
 echo "USAGE:"
-echo "sh ~/GitCode/MitoImputePrep/scripts/BASH/MassDeploy_ThousandGenomes_imputeFrom_RefPan.sh <REF_PANEL> <K_HAP>"
+echo "sh ~/GitCode/MitoImputePrep/scripts/BASH/MassDeploy_ThousandGenomes_imputeFrom_RefPan.sh <REF_PANEL>"
 
 #MCMC 1,0	5,1	10,3	20,6	30,10
 #KHAP 100, 250, 500, 1000, 2500, 5000, 10000, 20000, 30000
