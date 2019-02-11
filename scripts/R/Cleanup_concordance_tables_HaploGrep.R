@@ -223,7 +223,7 @@ for (exp in 1:length(exp.var)) {
       
       ## GATHER INFO SCORE
       info.table = read.table(tmp3.file, header = T)
-      tmp_mcmc_df$info_score[chip] = mean(info.table$info, na.rm = T)
+      tmp_khap_df$info_score[chip] = mean(info.table$info, na.rm = T)
       
       ## CREATE COLUMN FOR MACRO HAPLOGROUPS
       # USE FIRST LETTER AND NUMBER FOR AFRICAN CLADES
@@ -360,7 +360,7 @@ for (exp in 1:length(exp.var)) {
       
       ## GATHER INFO SCORE
       info.table = read.table(tmp3.file, header = T)
-      tmp_mcmc_df$info_score[chip] = mean(info.table$info, na.rm = T)
+      tmp_maf_df$info_score[chip] = mean(info.table$info, na.rm = T)
       
       ## CREATE COLUMN FOR MACRO HAPLOGROUPS
       # USE FIRST LETTER AND NUMBER FOR AFRICAN CLADES
