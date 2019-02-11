@@ -424,9 +424,10 @@ main_maf_df$diff = main_maf_df$imputed_match - main_maf_df$typed_match
 main_maf_df$diff_macro = main_maf_df$imputed_macro_match - main_maf_df$typed_macro_match
 write.csv(main_maf_df, paste0("~/GitCode/MitoImputePrep/metadata/Concordance_tables/HiMC_HaploGrep/combined/ConcordanceTables_", exp.dir,"_HiMC_COMBINED.csv"), row.names = F, quote = F)
 
+exp.dir = "MAF_Experiments"
+exp.var = c("MAF1%", "MAF0.5%", "MAF0.1%")
 main_maf_df$sub_experiment = factor(main_maf_df$sub_experiment, levels = exp.var)
 
-exp.dir = "MAF_Experiments"
 maf_box = ggplot(main_maf_df, aes(x = sub_experiment, y = imputed_match)) +
   geom_violin(fill = "#feb600", na.rm = T) +
   geom_boxplot(width = 0.125, notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428") +
