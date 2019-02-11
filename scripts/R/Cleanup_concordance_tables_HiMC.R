@@ -135,9 +135,10 @@ main_mcmc_df$diff = main_mcmc_df$imputed_match - main_mcmc_df$typed_match
 main_mcmc_df$diff_macro = main_mcmc_df$imputed_macro_match - main_mcmc_df$typed_macro_match
 write.csv(main_mcmc_df, paste0("~/GitCode/MitoImputePrep/metadata/Concordance_tables/HiMC_HaploGrep/combined/ConcordanceTables_", exp.dir,"_HiMC_COMBINED.csv"), row.names = F, quote = F)
 
-main_mcmc_df$sub_experiment = factor(main_mcmc_df$sub_experiment, levels = exp.var)
-
 exp.dir = "MCMC_Experiments"
+main_mcmc_df$sub_experiment = factor(main_mcmc_df$sub_experiment, levels = exp.var)
+exp.var = c("MCMC1", "MCMC5", "MCMC10", "MCMC20", "MCMC30")
+
 mcmc_box = ggplot(main_mcmc_df, aes(x = sub_experiment, y = imputed_match)) +
   geom_violin(fill = "#feb600", na.rm = T) +
   geom_boxplot(width = rel(0.25), notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428") +
@@ -279,9 +280,9 @@ main_khap_df$diff = main_khap_df$imputed_match - main_khap_df$typed_match
 main_khap_df$diff_macro = main_khap_df$imputed_macro_match - main_khap_df$typed_macro_match
 write.csv(main_khap_df, paste0("~/GitCode/MitoImputePrep/metadata/Concordance_tables/HiMC_HaploGrep/combined/ConcordanceTables_", exp.dir,"_HiMC_COMBINED.csv"), row.names = F, quote = F)
 
-main_khap_df$sub_experiment = factor(main_khap_df$sub_experiment, levels = exp.var)
-
 exp.dir = "kHAP_Experiments"
+exp.var = c("kHAP100", "kHAP250", "kHAP500", "kHAP1000", "kHAP2500", "kHAP5000", "kHAP10000", "kHAP20000", "kHAP30000")
+main_khap_df$sub_experiment = factor(main_khap_df$sub_experiment, levels = exp.var)
 k_hap_box = ggplot(main_khap_df, aes(x = sub_experiment, y = imputed_match)) +
   geom_violin(fill = "#feb600", na.rm = T) +
   geom_boxplot(width = 0.125, notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428") +
