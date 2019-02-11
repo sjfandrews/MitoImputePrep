@@ -213,13 +213,13 @@ h=~/GitCode/MitoImputePrep/DerivedData/${REFpanel}/${REFpanel}.hap.gz
 l=~/GitCode/MitoImputePrep/DerivedData/${REFpanel}/${REFpanel}.legend.gz
 g=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}.gen.gz
 s=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}.samples
-out=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/MCMC${mcmc}/chrMT_1kg_${MtPlatforms}_imputed_MCMC${mcmc}
+out=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/kHAP${khap}/chrMT_1kg_${MtPlatforms}_imputed_kHAP${khap}
 
-if [ -d /g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/MCMC${mcmc}/ ]
+if [ -d /g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/kHAP${khap}/ ]
 then
 	echo "DIRECTORY FOUND"
 else
-	mkdir -p /g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/MCMC${mcmc}/
+	mkdir -p /g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/kHAP${khap}/
 fi
 
 if [ -f ${out} ]
@@ -233,31 +233,31 @@ fi
 # FIX CHROMOSOME NAMES
 echo
 echo "FIXING CHROMOSOME NAMES"
-InFile=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/MCMC${mcmc}/chrMT_1kg_${MtPlatforms}_imputed_MCMC${mcmc}
-OutFile=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/MCMC${mcmc}/chrMT_1kg_${MtPlatforms}_imputed_MCMC${mcmc}_ChromFixed
+InFile=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/kHAP${khap}/chrMT_1kg_${MtPlatforms}_imputed_kHAP${khap}
+OutFile=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/kHAP${khap}/chrMT_1kg_${MtPlatforms}_imputed_kHAP${khap}_ChromFixed
 awk '{{$1 = "26"; print}}' ${InFile} > ${OutFile}
 
 # CONVERT OXFORD TO PEDIGREE
 echo
 echo "CONVERTING OXFORD TO PEDIGREE"
-gen=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/MCMC${mcmc}/chrMT_1kg_${MtPlatforms}_imputed_MCMC${mcmc}_ChromFixed
-sam=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/MCMC${mcmc}/chrMT_1kg_${MtPlatforms}_imputed_MCMC${mcmc}_samples
-out=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/MCMC${mcmc}/chrMT_1kg_${MtPlatforms}_imputed_MCMC${mcmc}
+gen=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/kHAP${khap}/chrMT_1kg_${MtPlatforms}_imputed_kHAP${khap}_ChromFixed
+sam=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/kHAP${khap}/chrMT_1kg_${MtPlatforms}_imputed_kHAP${khap}_samples
+out=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/kHAP${khap}/chrMT_1kg_${MtPlatforms}_imputed_kHAP${khap}
 
 plink1.9 --gen ${gen} --sample ${sam} --hard-call-threshold 0.49 --keep-allele-order --output-chr 26 --recode --out ${out}
 
 # CONVERT OXFORD TO VCF
 echo
 echo "CONVERTING OXFORD TO VCF"
-gen=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/MCMC${mcmc}/chrMT_1kg_${MtPlatforms}_imputed_MCMC${mcmc}_ChromFixed
-sam=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/MCMC${mcmc}/chrMT_1kg_${MtPlatforms}_imputed_MCMC${mcmc}_samples
-out=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/MCMC${mcmc}/chrMT_1kg_${MtPlatforms}_imputed_MCMC${mcmc}
+gen=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/kHAP${khap}/chrMT_1kg_${MtPlatforms}_imputed_kHAP${khap}_ChromFixed
+sam=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/kHAP${khap}/chrMT_1kg_${MtPlatforms}_imputed_kHAP${khap}_samples
+out=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/kHAP${khap}/chrMT_1kg_${MtPlatforms}_imputed_kHAP${khap}
 
 plink1.9 --gen ${gen} --sample ${sam} --hard-call-threshold 0.49 --keep-allele-order --output-chr 26 --recode vcf --out ${out}
 
 # CONVERT VCF TO FORMAT FOR HAPLOGREP2
 ref_fasta_plink=~/GitCode/MitoImputePrep/scripts/REFERENCE_ALNS/26/rCRS.fasta
-imp_ext=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/MCMC${mcmc}/chrMT_1kg_${MtPlatforms}_imputed_MCMC${mcmc}
+imp_ext=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/kHAP${khap}/chrMT_1kg_${MtPlatforms}_imputed_kHAP${khap}
 imp_vcf=${imp_ext}.vcf
 norm_imp_vcf=${imp_ext}_norm.vcf.gz
 imp_fasta=${imp_ext}.fasta
@@ -291,11 +291,11 @@ else
 	java -jar ${HAPLOGREP} --in ${final_vcf}.vcf --format vcf --chip --out ${final_vcf}.txt # assign haplogreps
 fi
 
-#if [ ! -d ~/GitCode/MitoImputePrep/metadata/HaploGrep_concordance/${REFpanel}/MCMC${mcmc}/ ]
+#if [ ! -d ~/GitCode/MitoImputePrep/metadata/HaploGrep_concordance/${REFpanel}/kHAP${khap}/ ]
 #then
-#	mkdir -p ~/GitCode/MitoImputePrep/metadata/HaploGrep_concordance/${REFpanel}/MCMC${mcmc}/
+#	mkdir -p ~/GitCode/MitoImputePrep/metadata/HaploGrep_concordance/${REFpanel}/kHAP${khap}/
 #fi
-#cp ${final_vcf}.txt ~/GitCode/MitoImputePrep/metadata/HaploGrep_concordance/${REFpanel}/MCMC${mcmc}/ # copy haplogroup outputs to Git
+#cp ${final_vcf}.txt ~/GitCode/MitoImputePrep/metadata/HaploGrep_concordance/${REFpanel}/kHAP${khap}/ # copy haplogroup outputs to Git
 
 if [ -f ${final_vcf}.txt ]
 then
