@@ -330,11 +330,11 @@ tmp_maf_df$experiment = exp.dir
 
 main_maf_df = data.frame()
 
-for (exp in 1:length(exp.var)) {
+for (exp in 2:length(exp.var)) {
   out.file = paste0("~/GitCode/MitoImputePrep/metadata/Concordance_tables/HiMC_HaploGrep/combined/ConcordanceTables_", ref.panel[exp], "_HiMC.csv")
   tmp_maf_df$sub_experiment = exp.var[exp]
   for (chip in 1:nrow(chip.table)) {
-    tmp.file = paste0(container, chip.table$V1[chip], "/", exp.dir, "/", exp.var[exp], "/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_", exp.var[exp], "_info")
+    tmp.file = tmp3.file = paste0(container, chip.table$V1[chip], "/", ref.panel[exp], "/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_MCMC1", "_info")
     if (file.exists(tmp.file) == T) {
       tmp_maf_df$imputed[chip] = T
       chip.table$imputed[chip] = T
@@ -418,7 +418,7 @@ for (exp in 1:length(exp.var)) {
   }
   write.csv(tmp_maf_df, out.file, row.names = F, quote = F)
   message(paste0("WROTE ", out.file, " TO DISK"))
-  main_mcmc_df = rbind(main_mcmc_df, tmp_maf_df)
+  main_maf_df = rbind(main_maf_df, tmp_maf_df)
 }
 main_maf_df$diff = main_maf_df$imputed_match - main_maf_df$typed_match
 main_maf_df$diff_macro = main_maf_df$imputed_macro_match - main_maf_df$typed_macro_match
