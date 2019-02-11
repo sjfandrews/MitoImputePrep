@@ -128,7 +128,7 @@ mcmc_box = ggplot(main_mcmc_df, aes(x = sub_experiment, y = imputed_match)) +
        y = "% concordance with resequenced dataset",
        title = expression(paste(bold("A."), " Markov chain Monte Carlo (MCMC) length variations")))
 mcmc_box
-ggsave(filename = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/plots/ConcordanceTables_", exp.dir,".png"), plot = mcmc_box, units = "mm", width = 297, height = 210, dpi = 300)
+ggsave(filename = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/plots/ConcordanceTables_", exp.dir,"_HaploGrep.png"), plot = mcmc_box, units = "mm", width = 297, height = 210, dpi = 300)
 
 macro_mcmc_box = ggplot(main_mcmc_df, aes(x = sub_experiment, y = imputed_macro_match)) +
   geom_violin(fill = "#feb600", na.rm = T) +
@@ -140,7 +140,7 @@ macro_mcmc_box = ggplot(main_mcmc_df, aes(x = sub_experiment, y = imputed_macro_
        y = "% concordance with resequenced dataset",
        title = expression(paste(bold("A."), " Markov chain Monte Carlo (MCMC) length variations")))
 macro_mcmc_box
-ggsave(filename = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/plots/ConcordanceTables_macro_", exp.dir,".png"), plot = macro_mcmc_box, units = "mm", width = 297, height = 210, dpi = 300)
+ggsave(filename = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/plots/ConcordanceTables_macro_", exp.dir,"_HaploGrep.png"), plot = macro_mcmc_box, units = "mm", width = 297, height = 210, dpi = 300)
 
 info_mcmc_box = ggplot(main_mcmc_df, aes(x = sub_experiment, y = info_score)) +
   geom_violin(fill = "#feb600", na.rm = T) +
@@ -152,7 +152,7 @@ info_mcmc_box = ggplot(main_mcmc_df, aes(x = sub_experiment, y = info_score)) +
        y = expression(paste("IMPUTE2 info score (", italic("r")^"2", ")")),
        title = expression(paste(bold("A."), " Markov chain Monte Carlo (MCMC) length variations")))
 info_mcmc_box
-ggsave(filename = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/plots/ConcordanceTables_info_", exp.dir,".png"), plot = info_mcmc_box, units = "mm", width = 297, height = 210, dpi = 300)
+ggsave(filename = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/plots/ConcordanceTables_info_", exp.dir,"_HaploGrep.png"), plot = info_mcmc_box, units = "mm", width = 297, height = 210, dpi = 300)
 
 ## KHAP 
 
@@ -264,7 +264,7 @@ k_hap_box = ggplot(main_khap_df, aes(x = sub_experiment, y = imputed_match)) +
        y = "% concordance with resequenced dataset",
        title = expression(paste(bold("B."), " Number of included reference haplotypes (k_hap) variations")))
 k_hap_box
-ggsave(filename = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/plots/ConcordanceTables_", exp.dir,".png"), plot = k_hap_box, units = "mm", width = 297, height = 210, dpi = 300)
+ggsave(filename = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/plots/ConcordanceTables_", exp.dir,"_HaploGrep.png"), plot = k_hap_box, units = "mm", width = 297, height = 210, dpi = 300)
 
 macro_k_hap_box = ggplot(main_khap_df, aes(x = sub_experiment, y = imputed_macro_match)) +
   geom_violin(fill = "#feb600", na.rm = T) +
@@ -276,7 +276,7 @@ macro_k_hap_box = ggplot(main_khap_df, aes(x = sub_experiment, y = imputed_macro
        y = "% concordance with resequenced dataset",
        title = expression(paste(bold("B."), " Number of included reference haplotypes (k_hap) variations")))
 macro_k_hap_box
-ggsave(filename = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/plots/ConcordanceTables_macro_", exp.dir,".png"), plot = macro_k_hap_box, units = "mm", width = 297, height = 210, dpi = 300)
+ggsave(filename = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/plots/ConcordanceTables_macro_", exp.dir,"_HaploGrep.png"), plot = macro_k_hap_box, units = "mm", width = 297, height = 210, dpi = 300)
 
 info_k_hap_box = ggplot(main_khap_df, aes(x = sub_experiment, y = info_score)) +
   geom_violin(fill = "#feb600", na.rm = T) +
@@ -288,7 +288,7 @@ info_k_hap_box = ggplot(main_khap_df, aes(x = sub_experiment, y = info_score)) +
        y = expression(paste("IMPUTE2 info score (", italic("r")^"2", ")")),
        title = expression(paste(bold("B."), " Number of included reference haplotypes (k_hap) variations")))
 info_k_hap_box
-ggsave(filename = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/plots/ConcordanceTables_info_", exp.dir,".png"), plot = info_k_hap_box, units = "mm", width = 297, height = 210, dpi = 300)
+ggsave(filename = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/plots/ConcordanceTables_info_", exp.dir,"_HaploGrep.png"), plot = info_k_hap_box, units = "mm", width = 297, height = 210, dpi = 300)
 
 ## MAF 
 
@@ -402,7 +402,7 @@ maf_box = ggplot(main_maf_df, aes(x = sub_experiment, y = imputed_match)) +
        y = "% concordance with resequenced dataset",
        title = expression(paste(bold("C."), " Minor allele frequencies (MAF) variations")))
 maf_box
-ggsave(filename = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/plots/ConcordanceTables_", exp.dir,".png"), plot = maf_box, units = "mm", width = 297, height = 210, dpi = 300)
+ggsave(filename = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/plots/ConcordanceTables_", exp.dir,"_HaploGrep.png"), plot = maf_box, units = "mm", width = 297, height = 210, dpi = 300)
 
 
 macro_maf_box = ggplot(main_maf_df, aes(x = sub_experiment, y = imputed_macro_match)) +
@@ -415,7 +415,7 @@ macro_maf_box = ggplot(main_maf_df, aes(x = sub_experiment, y = imputed_macro_ma
      y = "% concordance with resequenced dataset",
      title = expression(paste(bold("C."), " Minor allele frequencies (MAF) variations")))
 macro_maf_box
-ggsave(filename = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/plots/ConcordanceTables_macro_", exp.dir,".png"), plot = macro_maf_box, units = "mm", width = 297, height = 210, dpi = 300)
+ggsave(filename = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/plots/ConcordanceTables_macro_", exp.dir,"_HaploGrep.png"), plot = macro_maf_box, units = "mm", width = 297, height = 210, dpi = 300)
 
 info_maf_box = ggplot(main_maf_df , aes(x = sub_experiment, y = info_score)) +
   geom_violin(fill = "#feb600", na.rm = T) +
@@ -427,18 +427,18 @@ info_maf_box = ggplot(main_maf_df , aes(x = sub_experiment, y = info_score)) +
        y = expression(paste("IMPUTE2 info score (", italic("r")^"2", ")")),
        title = expression(paste(bold("C."), " Minor allele frequencies (MAF) variations")))
 info_maf_box
-ggsave(filename = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/plots/ConcordanceTables_info_", exp.dir,".png"), plot = info_maf_box, units = "mm", width = 297, height = 210, dpi = 300)
+ggsave(filename = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/plots/ConcordanceTables_info_", exp.dir,"_HaploGrep.png"), plot = info_maf_box, units = "mm", width = 297, height = 210, dpi = 300)
 
 ### ARRANGE THEM
 
 comb_box = grid.arrange(arrangeGrob(mcmc_box, k_hap_box, maf_box, ncol = 1, nrow = 3))
-ggsave(filename = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/plots/ConcordanceTables_Combined.png"), plot = comb_box, units = "mm", width = 297, height = 420, dpi = 300)
+ggsave(filename = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/plots/ConcordanceTables_Combined_HaploGrep.png"), plot = comb_box, units = "mm", width = 297, height = 420, dpi = 300)
 
 macro_comb_box = grid.arrange(arrangeGrob(macro_mcmc_box, macro_k_hap_box, macro_maf_box, ncol = 1, nrow = 3))
-ggsave(filename = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/plots/ConcordanceTables_Combined_macro.png"), plot = macro_comb_box, units = "mm", width = 297, height = 420, dpi = 300)
+ggsave(filename = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/plots/ConcordanceTables_Combined_macro_HaploGrep.png"), plot = macro_comb_box, units = "mm", width = 297, height = 420, dpi = 300)
 
 info_comb_box = grid.arrange(arrangeGrob(info_mcmc_box, info_k_hap_box, info_maf_box, ncol = 1, nrow = 3))
-ggsave(filename = paste0("~/GitCode/MitoImputePrep/metadata/Concordance_tables/HiMC_HaploGrep/plots/ConcordanceTables_Combined_info.png"), plot = info_comb_box, units = "mm", width = 297, height = 420, dpi = 300)
+ggsave(filename = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/plots/ConcordanceTables_Combined_info_HaploGrep.png"), plot = info_comb_box, units = "mm", width = 297, height = 420, dpi = 300)
 
 
 # LINEAR MIXED MODELS
