@@ -136,8 +136,8 @@ main_mcmc_df$diff_macro = main_mcmc_df$imputed_macro_match - main_mcmc_df$typed_
 write.csv(main_mcmc_df, paste0("~/GitCode/MitoImputePrep/metadata/Concordance_tables/HiMC_HaploGrep/combined/ConcordanceTables_", exp.dir,"_HiMC_COMBINED.csv"), row.names = F, quote = F)
 
 exp.dir = "MCMC_Experiments"
-main_mcmc_df$sub_experiment = factor(main_mcmc_df$sub_experiment, levels = exp.var)
 exp.var = c("MCMC1", "MCMC5", "MCMC10", "MCMC20", "MCMC30")
+main_mcmc_df$sub_experiment = factor(main_mcmc_df$sub_experiment, levels = exp.var)
 
 mcmc_box = ggplot(main_mcmc_df, aes(x = sub_experiment, y = imputed_match)) +
   geom_violin(fill = "#feb600", na.rm = T) +
@@ -389,8 +389,7 @@ for (exp in 2:length(exp.var)) {
     tmp2.file_map = paste0(container, chip.table$V1[chip], "/", ref.panel[exp], "/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_MCMC1", ".map")
     tmp3.file = paste0(container, chip.table$V1[chip], "/", ref.panel[exp], "/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_MCMC1", "_info")
     if (file.exists(tmp2.file) == T) {
-      imputed_1kGP = generate_snp_data(tmp2.file_map,
-                                     tmp2.file)
+      imputed_1kGP = generate_snp_data(tmp2.file_map, tmp2.file)
       tmp2.hg.table = HiMC::getClassifications(imputed_1kGP)
       names(tmp2.hg.table)[3] = "Haplogroup"
       tmp2.hg.table$full_path = NULL

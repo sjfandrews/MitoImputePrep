@@ -128,7 +128,7 @@ k_hap_box = ggplot(main_khap_df, aes(x = sub_experiment, y = imputed_match)) +
        y = "% concordance with resequenced dataset",
        title = expression(paste(bold("B."), " Number of included reference haplotypes (k_hap) variations")))
 k_hap_box
-ggsave(filename = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/plots/ConcordanceTables_", exp.dir,"_HaploGrep.png"), plot = k_hap_box, units = "mm", width = 297, height = 210, dpi = 300)
+ggsave(filename = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/plots/kHAP_MAF01/ConcordanceTables_", exp.dir,"_HaploGrep.png"), plot = k_hap_box, units = "mm", width = 297, height = 210, dpi = 300)
 
 macro_k_hap_box = ggplot(main_khap_df, aes(x = sub_experiment, y = imputed_macro_match)) +
   geom_violin(fill = "#feb600", na.rm = T) +
@@ -140,7 +140,7 @@ macro_k_hap_box = ggplot(main_khap_df, aes(x = sub_experiment, y = imputed_macro
        y = "% concordance with resequenced dataset",
        title = expression(paste(bold("B."), " Number of included reference haplotypes (k_hap) variations")))
 macro_k_hap_box
-ggsave(filename = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/plots/ConcordanceTables_macro_", exp.dir,"_HaploGrep.png"), plot = macro_k_hap_box, units = "mm", width = 297, height = 210, dpi = 300)
+ggsave(filename = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/plots/kHAP_MAF01/ConcordanceTables_macro_", exp.dir,"_HaploGrep.png"), plot = macro_k_hap_box, units = "mm", width = 297, height = 210, dpi = 300)
 
 info_k_hap_box = ggplot(main_khap_df, aes(x = sub_experiment, y = info_score)) +
   geom_violin(fill = "#feb600", na.rm = T) +
@@ -152,10 +152,11 @@ info_k_hap_box = ggplot(main_khap_df, aes(x = sub_experiment, y = info_score)) +
        y = expression(paste("IMPUTE2 info score (", italic("r")^"2", ")")),
        title = expression(paste(bold("B."), " Number of included reference haplotypes (k_hap) variations")))
 info_k_hap_box
-ggsave(filename = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/plots/ConcordanceTables_info_", exp.dir,"_HaploGrep.png"), plot = info_k_hap_box, units = "mm", width = 297, height = 210, dpi = 300)
+ggsave(filename = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/plots/kHAP_MAF01/ConcordanceTables_info_", exp.dir,"_HaploGrep.png"), plot = info_k_hap_box, units = "mm", width = 297, height = 210, dpi = 300)
 
 ## KHAP
 # IMPUTED
+stat.out.dir = "/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/stat_tests/kHAP_MAF01/"
 l_khap_imp = lm(imputed_match ~ sub_experiment, data = main_khap_df)
 #anova(l_khap_imp)
 #summary(l_khap_imp)
