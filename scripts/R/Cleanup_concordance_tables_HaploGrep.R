@@ -115,9 +115,9 @@ main_mcmc_df$diff = main_mcmc_df$imputed_match - main_mcmc_df$typed_match
 main_mcmc_df$diff_macro = main_mcmc_df$imputed_macro_match - main_mcmc_df$typed_macro_match
 write.csv(main_mcmc_df, paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/combined/ConcordanceTables_", exp.dir,"_COMBINED.csv"), row.names = F, quote = F)
 
-main_mcmc_df$sub_experiment = factor(main_mcmc_df$sub_experiment, levels = exp.var)
-
 exp.dir = "MCMC_Experiments"
+main_mcmc_df$sub_experiment = factor(main_mcmc_df$sub_experiment, levels = exp.var)
+exp.var = c("MCMC1", "MCMC5", "MCMC10", "MCMC20", "MCMC30")
 mcmc_box = ggplot(main_mcmc_df, aes(x = sub_experiment, y = imputed_match)) +
   geom_violin(fill = "#feb600", na.rm = T) +
   geom_boxplot(width = rel(0.25), notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428") +
@@ -210,8 +210,8 @@ for (exp in 1:length(exp.var)) {
       tmp1.hg.table$typed_match = as.character(truth.table$Haplogroup) == as.character(tmp1.hg.table$Haplogroup)
       tmp1.hg.table$typed_macro_match = as.character(truth.table$Macrohaplogroup) == as.character(tmp1.hg.table$Macrohaplogroup)
       
-      tmp_khap_df$typed_match[chip] = nrow(subset(tmp1.hg.table, tmp1.hg.table$typed_match == T)) /  nrow(tmp2.hg.table)
-      tmp_khap_df$typed_macro_match[chip] = nrow(subset(tmp1.hg.table, tmp1.hg.table$typed_macro_match == T)) /  nrow(tmp2.hg.table)
+      tmp_khap_df$typed_match[chip] = nrow(subset(tmp1.hg.table, tmp1.hg.table$typed_match == T)) /  nrow(tmp1.hg.table)
+      tmp_khap_df$typed_macro_match[chip] = nrow(subset(tmp1.hg.table, tmp1.hg.table$typed_macro_match == T)) /  nrow(tmp1.hg.table)
     }
     
     # IMPUTED FILE
@@ -251,9 +251,9 @@ main_khap_df$diff = main_khap_df$imputed_match - main_khap_df$typed_match
 main_khap_df$diff_macro = main_khap_df$imputed_macro_match - main_khap_df$typed_macro_match
 write.csv(main_khap_df, paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/combined/ConcordanceTables_", exp.dir,"_COMBINED.csv"), row.names = F, quote = F)
 
-main_khap_df$sub_experiment = factor(main_khap_df$sub_experiment, levels = exp.var)
-
 exp.dir = "kHAP_Experiments"
+exp.var = c("kHAP100", "kHAP250", "kHAP500", "kHAP1000", "kHAP2500", "kHAP5000", "kHAP10000", "kHAP20000", "kHAP30000")
+main_khap_df$sub_experiment = factor(main_khap_df$sub_experiment, levels = exp.var)
 k_hap_box = ggplot(main_khap_df, aes(x = sub_experiment, y = imputed_match)) +
   geom_violin(fill = "#feb600", na.rm = T) +
   geom_boxplot(width = 0.125, notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428") +
@@ -389,8 +389,9 @@ main_maf_df$diff = main_maf_df$imputed_match - main_maf_df$typed_match
 main_maf_df$diff_macro = main_maf_df$imputed_macro_match - main_maf_df$typed_macro_match
 write.csv(main_maf_df, paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/combined/ConcordanceTables_", exp.dir,"_COMBINED.csv"), row.names = F, quote = F)
 
+exp.dir = "MAF_Experiments"
+exp.var = c("MAF1%", "MAF0.5%", "MAF0.1%")
 main_maf_df$sub_experiment = factor(main_maf_df$sub_experiment, levels = exp.var)
-
 exp.dir = "MAF_Experiments"
 maf_box = ggplot(main_maf_df, aes(x = sub_experiment, y = imputed_match)) +
   geom_violin(fill = "#feb600", na.rm = T) +
@@ -519,6 +520,8 @@ l_khap_imp_diff_macro_s = summary(emmeans(l_khap_imp_diff_macro, pairwise ~ sub_
 write.csv(data.frame(l_khap_imp_diff_macro_s$emmeans), paste0(stat.out.dir, "khap_imputed_macro_diff_emmeans.csv"), quote = F, row.names = F)
 write.csv(data.frame(l_khap_imp_diff_macro_s$contrasts), paste0(stat.out.dir, "khap_imputed_macro_diff_contrasts.csv"), quote = F, row.names = F)
 
+## MAF
+# IMPUTED
 l_maf_imp = lm(imputed_match ~ sub_experiment, data = main_maf_df)
 #anova(l_maf_imp)
 #summary(l_maf_imp)
