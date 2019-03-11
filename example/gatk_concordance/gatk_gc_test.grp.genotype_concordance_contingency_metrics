@@ -1,0 +1,11 @@
+## htsjdk.samtools.metrics.StringHeader
+# GenotypeConcordance  --TRUTH_VCF /Volumes/TimMcInerney/MitoImpute/data/ADNI_raijin/ADNI_reseq/adni_mito_genomes_180214_n258_subset_relabelled.vcf.gz --CALL_VCF /Volumes/TimMcInerney/MitoImpute/data/ADNI_raijin/VCF/mitoimpute_adni/mitoimpute_adni.vcf.gz --OUTPUT /Users/u5015730/Desktop/gatk_gc_test.grp --TRUTH_SAMPLE ADNI_0074 --CALL_SAMPLE ADNI_0074 --IGNORE_FILTER_STATUS true --REFERENCE_SEQUENCE /Users/u5015730/GitCode/MitoImputePrep/scripts/REFERENCE_ALNS/MT/rCRS.fasta  --OUTPUT_VCF false --INTERSECT_INTERVALS true --MIN_GQ 0 --MIN_DP 0 --OUTPUT_ALL_ROWS false --USE_VCF_INDEX false --MISSING_SITES_HOM_REF false --VERBOSITY INFO --QUIET false --VALIDATION_STRINGENCY STRICT --COMPRESSION_LEVEL 2 --MAX_RECORDS_IN_RAM 500000 --CREATE_INDEX false --CREATE_MD5_FILE false --GA4GH_CLIENT_SECRETS client_secrets.json --help false --version false --showHidden false --USE_JDK_DEFLATER false --USE_JDK_INFLATER false
+## htsjdk.samtools.metrics.StringHeader
+# Started on: Fri Mar 08 12:07:57 AEDT 2019
+
+## METRICS CLASS	picard.vcf.GenotypeConcordanceContingencyMetrics
+VARIANT_TYPE	TRUTH_SAMPLE	CALL_SAMPLE	TP_COUNT	TN_COUNT	FP_COUNT	FN_COUNT	EMPTY_COUNT
+SNP	ADNI_0074	ADNI_0074	0	0	3	1172	0
+INDEL	ADNI_0074	ADNI_0074	0	0	0	0	0
+
+
