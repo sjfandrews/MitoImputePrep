@@ -3,6 +3,11 @@ library(ggforce)
 library(readxl)
 library(HiMC); data(nodes)
 
+# PACKAGES THAT WILL ACTUALLY BE NEEDED
+# dplyr
+# readr
+# purrr
+
 mccr <- function (act, pred) 
 {
   TP <- sum(act %in% 1 & pred %in% 1)
@@ -53,7 +58,9 @@ snp.intersect <- wgs_1kg.vcf %>%
   select(POS) %>% 
   semi_join(imp_1kg.vcf, by = 'POS') %>%
   mutate(POS = paste0('mt', POS))
+
 ##  obtain intersect of SNPs from imputed and wgs 
+# THIS IS FOR TYPED, BUT WE DONT NEED IT
 snp.intersect.typ <- wgs_1kg.vcf %>% 
   select(POS) %>% 
   semi_join(typ_1kg.vcf, by = 'POS') %>%
@@ -130,10 +137,16 @@ typ_1kg <- typ_1kg %>%
   mutate_at(vars(contains('mt')), as.integer) 
 
 ##
+## JUST USED FOR HiMC, DONT NEED FOR MCC
 imp_1kg.info <- mutate(imp_1kg.info, info_comb = ifelse(info_type0 == -1, info,info_type0 ))
 imp_1kg.info <- mutate(imp_1kg.info, himc = ifelse(position %in% c(825, 1018, 1438, 1719, 1736, 2092, 3505, 3552, 3594, 4580, 4769, 4917, 4977, 5178, 5442, 6371, 7028, 8251, 8414, 8468, 8703, 9042, 9055, 9347, 9950, 10115, 10398, 10398, 10400, 10550, 11177, 11251, 11947, 12007, 12308, 12705, 13263, 13368, 13506, 13708, 13789, 14178, 14318, 14470, 14560, 14668, 14766, 15043, 15326, 15452, 15535, 16111, 16189, 16391), 'yes', 'no'))
 
 ## SNP Concordance Statisitics
+# NOTE: SHOULD ONLY REALLY BE LOOKING AT TYPE 1 and 2 SNPS (in REF ONLY and SAMPLE ONLY)
+# TYPE 0 SHOULD HAVE A MCC = 1
+# TYPE 2 MAY BE PERFECT, SO LOOK AT THIS
+# ONLY WANT TO LOOK AT MCC FOR IMPUTED SNPs
+
 ## calculate MCC between imputed and typed SNPs
 mccr.geno <- unlist(map2(wgs_1kg[,2:ncol(wgs_1kg)], imp_1kg[,2:ncol(imp_1kg)], function(a,b) mccr(a,b)))
 mccr.geno.typ <- unlist(map2(wgs_1kg[,2:ncol(wgs_1kg)], typ_1kg[,2:ncol(typ_1kg)], function(a,b) mccr(a,b)))
@@ -161,7 +174,19 @@ summary.stats %>% count(concodance < 0.9)
 summary.stats %>% count(info > 0.3); summary.stats %>% count(info > 0.5)
 
 ##  Plots by bp position - all SNPs
-ggplot(summary.stats, aes(x = pos, y = mcc, colour = info.cat, size = af, shape = himc)) + geom_point() + theme_bw() + 
+# MCC
+ggplot(summary.stats, aes(x = pos, y = mcc, colour = as.factor(type), size = af)) + geom_point() + theme_bw() + 
   labs(x = 'mtDNA position', y = 'MCC', title = 'Imputed mtSNP allele vs sequenced mtSNP allele') + 
   guides(colour=guide_legend(title="Impute2 Info")) + 
   guides(size=guide_legend(title="Allele Frequency"))
+
+# CONCORDANCE
+ggplot(summary.stats, aes(x = pos, y = concodance, colour = info.cat, size = af)) + geom_point() + theme_bw() + 
+  labs(x = 'mtDNA position', y = 'Concordance', title = 'Imputed mtSNP allele vs sequenced mtSNP allele') + 
+  guides(colour=guide_legend(title="Impute2 Info")) + 
+  guides(size=guide_legend(title="Allele Frequency"))
+
+# INFO SCORE
+ggplot(summary.stats, aes(x = pos, y = info_comb, colour = as.factor(type), size = af)) + geom_point() + theme_bw() + 
+  labs(x = 'mtDNA position', y = 'Info Score', title = 'Info Score of imputed mtSNPs') + 
+  guides(colour=guide_legend(title="SNP Type")) 
