@@ -53,6 +53,11 @@ snp.intersect <- wgs_1kg.vcf %>%
   select(POS) %>% 
   semi_join(imp_1kg.vcf, by = 'POS') %>%
   mutate(POS = paste0('mt', POS))
+##  obtain intersect of SNPs from imputed and wgs 
+snp.intersect.typ <- wgs_1kg.vcf %>% 
+  select(POS) %>% 
+  semi_join(typ_1kg.vcf, by = 'POS') %>%
+  mutate(POS = paste0('mt', POS))
 
 ##  Munge imputed dataframe
 # Drop all columns but position and genotypes
@@ -92,18 +97,46 @@ wgs_1kg <- wgs_1kg %>%
 
 # substitute allels for NA, 0, 1 calls, change formate to interger
 wgs_1kg[wgs_1kg == './.'] <- NA
+wgs_1kg[wgs_1kg == '.'] <- NA
 wgs_1kg[wgs_1kg == '0/0'] <- 0
+wgs_1kg[wgs_1kg == '0'] <- 0
 wgs_1kg[wgs_1kg == '1/1'] <- 1
+wgs_1kg[wgs_1kg == '1'] <- 1
 wgs_1kg <- wgs_1kg %>% 
   select(var_name, snp.intersect$POS) %>% 
   mutate_at(vars(contains('mt')), as.integer) 
 
+##  Munge ADNI typ dataframe
+# Drop all columns but position and genotypes
+typ_1kg <- typ_1kg.vcf %>% 
+  select(-`#CHROM`, -ID, -REF, -ALT, -QUAL, -FILTER, -INFO, -FORMAT) %>% 
+  distinct(POS, .keep_all = T) %>% 
+  mutate(POS = paste0('mt', POS))
+
+# Transpose dataframe
+typ_1kg <- typ_1kg %>%
+  gather(key = var_name, value = value, 2:ncol(typ_1kg)) %>% 
+  spread_(key = names(typ_1kg)[1],value = 'value')
+
+# substitute allels for NA, 0, 1 calls, change formate to interger
+typ_1kg[typ_1kg == './.'] <- NA
+typ_1kg[typ_1kg == '.'] <- NA
+typ_1kg[typ_1kg == '0/0'] <- 0
+typ_1kg[typ_1kg == '0'] <- 0
+typ_1kg[typ_1kg == '1/1'] <- 1
+typ_1kg[typ_1kg == '1'] <- 1
+typ_1kg <- typ_1kg %>% 
+  select(var_name, snp.intersect.typ$POS) %>% 
+  mutate_at(vars(contains('mt')), as.integer) 
+
+##
 imp_1kg.info <- mutate(imp_1kg.info, info_comb = ifelse(info_type0 == -1, info,info_type0 ))
 imp_1kg.info <- mutate(imp_1kg.info, himc = ifelse(position %in% c(825, 1018, 1438, 1719, 1736, 2092, 3505, 3552, 3594, 4580, 4769, 4917, 4977, 5178, 5442, 6371, 7028, 8251, 8414, 8468, 8703, 9042, 9055, 9347, 9950, 10115, 10398, 10398, 10400, 10550, 11177, 11251, 11947, 12007, 12308, 12705, 13263, 13368, 13506, 13708, 13789, 14178, 14318, 14470, 14560, 14668, 14766, 15043, 15326, 15452, 15535, 16111, 16189, 16391), 'yes', 'no'))
 
 ## SNP Concordance Statisitics
 ## calculate MCC between imputed and typed SNPs
 mccr.geno <- unlist(map2(wgs_1kg[,2:ncol(wgs_1kg)], imp_1kg[,2:ncol(imp_1kg)], function(a,b) mccr(a,b)))
+mccr.geno.typ <- unlist(map2(wgs_1kg[,2:ncol(wgs_1kg)], typ_1kg[,2:ncol(typ_1kg)], function(a,b) mccr(a,b)))
 
 ##  Calculate concordance between imputed and typed SNPs
 concodance.geno <- unlist(map2(imp_1kg[,2:ncol(imp_1kg)], wgs_1kg[,2:ncol(wgs_1kg)], function(a, b) sum(a == b, na.rm = T)/length(a)))
