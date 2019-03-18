@@ -1,3 +1,4 @@
+library(tidyr)
 library(dplyr)
 library(readr)
 library(purrr)
@@ -38,6 +39,13 @@ mccr <- function (act, pred) {
 start.time = proc.time() # Start the timer!
 
 ### SPECIFY ARGUMENTS!
+print("USAGE HINTS")
+print("ARGUMENT 1:  WGS VCF FILE")
+print("ARGUMENT 2:  Genotyped VCF FILE")
+print("ARGUMENT 3:  Imputed VCF FILE")
+print("ARGUMENT 4:  IMPUTE2 INFO FILE")
+print("ARGUMENT 5:  OUTPUT FILE PREFIX")
+
 args = commandArgs(trailingOnly = TRUE) # Set arguments from the command line
 
 wgs.vcf = args[1] # WGS VCF file
@@ -209,12 +217,14 @@ summary.stats.typ %>% count(info > 0.3); summary.stats.typ %>% count(info > 0.5)
 
 ##
 write.table(summary.stats.imp, out_file_imp, quote = F, row.names = F)
+message(paste0("IMPUTED MCC STATS WRITTEN TO: ", out_file_imp))
 write.table(summary.stats.typ, out_file_typ, quote = F, row.names = F)
-summary.stats.imp
-summary.stats.typ
+message(paste0("GENOTYPED MCC STATS WRITTEN TO: ", out_file_typ))
+#summary.stats.imp
+#summary.stats.typ
 
 ## END!
-
+timer = T
 if (timer == TRUE) {
   print(printTime(proc.time() - start.time))
 }
