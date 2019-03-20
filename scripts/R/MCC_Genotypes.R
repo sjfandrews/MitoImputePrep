@@ -71,7 +71,7 @@ typ_1kg.vcf = read_tsv(typ.vcf, comment = '##', na = c(".", "", "NA"))
 
 # READ IN THE IMPUTED VCF FILE AND INFO FILE
 #imp.vcf = "/Volumes/TimMcInerney/MitoImpute/data/STRANDS/BDCHP-1X10-HUMANHAP240S_11216501_A-b37/ReferencePanel_v2/MCMC1/chrMT_1kg_BDCHP-1X10-HUMANHAP240S_11216501_A-b37_imputed_MCMC1_haplogrep.vcf.gz"
-imp.info = "/Volumes/TimMcInerney/MitoImpute/data/STRANDS/BDCHP-1X10-HUMANHAP240S_11216501_A-b37/ReferencePanel_v2/MCMC1/chrMT_1kg_BDCHP-1X10-HUMANHAP240S_11216501_A-b37_imputed_MCMC1_info"
+#imp.info = "/Volumes/TimMcInerney/MitoImpute/data/STRANDS/BDCHP-1X10-HUMANHAP240S_11216501_A-b37/ReferencePanel_v2/MCMC1/chrMT_1kg_BDCHP-1X10-HUMANHAP240S_11216501_A-b37_imputed_MCMC1_info"
 imp_1kg.vcf <- read_tsv(imp.vcf, comment = '##', na = c(".", "", "NA"))
 imp_1kg.info <- read_delim(imp.info, delim = " ")
 
