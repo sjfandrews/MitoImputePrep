@@ -55,8 +55,8 @@ imp.info = args[4] # IMPUTE2 INFO file
 out.file = args[5] # Outfile prefix
 
 # FIX OUTFILE
-out_file_imp = paste0(out.file, "_imputed_MCC.txt")
-out_file_typ = paste0(out.file, "_typed_MCC.txt")
+out_file_imp = paste0(out.file, "_imputed_MCC.csv")
+out_file_typ = paste0(out.file, "_typed_MCC.csv")
 #out_file_imp = "~/GitCode/MitoImputePrep/metadata/MCC_files/BDCHP-1X10-HUMANHAP240S_11216501_A-b37/BDCHP-1X10-HUMANHAP240S_11216501_A-b37_imputed_MCC.txt"
 #out_file_typ = "~/GitCode/MitoImputePrep/metadata/MCC_files/BDCHP-1X10-HUMANHAP240S_11216501_A-b37/BDCHP-1X10-HUMANHAP240S_11216501_A-b37_typed_MCC.txt"
 
@@ -200,6 +200,7 @@ summary.stats.typ <- tibble(mtSNP = colnames(wgs_1kg.typ[,2:ncol(wgs_1kg.typ)]),
 ##  merge on info.score file
 summary.stats.imp <- left_join(summary.stats.imp, select(imp_1kg.info, c(-snp_id, -rs_id)), by = c('pos' = 'position')) 
 summary.stats.imp <- mutate(summary.stats.imp, info.cat = cut_width(summary.stats.imp$info, 0.25, boundary = 0))
+summary.stats.imp$info.cat = sub(",", "-", summary.stats.imp$info.cat)
 ##  basic summary stats
 summary.stats.imp %>% count(af > 0.01)
 summary.stats.imp %>% count(mcc > 0.4)
@@ -209,6 +210,7 @@ summary.stats.imp %>% count(info > 0.3); summary.stats.imp %>% count(info > 0.5)
 ##  merge on info.score file
 summary.stats.typ <- left_join(summary.stats.typ, select(imp_1kg.info, c(-snp_id, -rs_id)), by = c('pos' = 'position')) 
 summary.stats.typ <- mutate(summary.stats.typ, info.cat = cut_width(summary.stats.typ$info, 0.25, boundary = 0))
+summary.stats.typ$info.cat = sub(",", "-", summary.stats.typ$info.cat)
 ##  basic summary stats
 summary.stats.typ %>% count(af > 0.01)
 summary.stats.typ %>% count(mcc > 0.4)
@@ -216,9 +218,9 @@ summary.stats.typ %>% count(concodance < 0.9)
 summary.stats.typ %>% count(info > 0.3); summary.stats.typ %>% count(info > 0.5)
 
 ##
-write.table(summary.stats.imp, out_file_imp, quote = F, row.names = F)
+write.csv(summary.stats.imp, out_file_imp, quote = F, row.names = F)
 message(paste0("IMPUTED MCC STATS WRITTEN TO: ", out_file_imp))
-write.table(summary.stats.typ, out_file_typ, quote = F, row.names = F)
+write.csv(summary.stats.typ, out_file_typ, quote = F, row.names = F)
 message(paste0("GENOTYPED MCC STATS WRITTEN TO: ", out_file_typ))
 #summary.stats.imp
 #summary.stats.typ
@@ -226,5 +228,7 @@ message(paste0("GENOTYPED MCC STATS WRITTEN TO: ", out_file_typ))
 ## END!
 timer = T
 if (timer == TRUE) {
+  print("")
   print(printTime(proc.time() - start.time))
+  print("")
 }

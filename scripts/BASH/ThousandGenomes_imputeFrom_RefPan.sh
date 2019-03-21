@@ -1,7 +1,7 @@
 #!/bin/bash
 #PBS -P te53
-#PBS -q normalbw
-#PBS -l walltime=04:00:00
+#PBS -q express
+#PBS -l walltime=00:15:00
 #PBS -l mem=16GB
 #PBS -l ncpus=1
 #PBS -N impute_SNPchip_1kGP
@@ -291,20 +291,37 @@ else
 	java -jar ${HAPLOGREP} --in ${final_vcf}.vcf --format vcf --chip --out ${final_vcf}.txt # assign haplogreps
 fi
 
+## CALCULATE Matthew's Correlation Coefficient
+WGS_VCF=${snpOnly_vcf}
+TYP_VCF=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}.vcf.gz
+IMP_VCF=${imp_ext}.vcf
+IMP_INFO=${imp_ext}_info
+OUT_FILE=${imp_ext}
+
+if [ -f ${OUT_FILE}_imputed_MCC.csv ] & [ -f ${OUT_FILE}_typed_MCC.csv ]
+then
+	echo
+	echo "${OUT_FILE}_imputed_MCC.csv AND ${OUT_FILE}_typed_MCC.csv FOUND ... PIPELINE COMPLETED"
+else
+	echo
+	Rscript ~/GitCode/MitoImputePrep/scripts/R/MCC_Genotypes.R ${WGS_VCF} ${TYP_VCF} ${IMP_VCF} ${IMP_INFO} ${OUT_FILE}
+fi
+
+
 #if [ ! -d ~/GitCode/MitoImputePrep/metadata/HaploGrep_concordance/${REFpanel}/MCMC${mcmc}/ ]
 #then
 #	mkdir -p ~/GitCode/MitoImputePrep/metadata/HaploGrep_concordance/${REFpanel}/MCMC${mcmc}/
 #fi
 #cp ${final_vcf}.txt ~/GitCode/MitoImputePrep/metadata/HaploGrep_concordance/${REFpanel}/MCMC${mcmc}/ # copy haplogroup outputs to Git
 
-if [ -f ${final_vcf}.txt ]
-then
-	echo
-	echo "${final_vcf}.txt FOUND ... PIPELINE COMPLETED"
-else
-	echo
-	echo "${final_vcf}.txt NOT FOUND ... SOMETHING HAS GONE WRONG"
-fi
+#if [ -f ${final_vcf}.txt ]
+#then
+#	echo
+#	echo "${final_vcf}.txt FOUND ... PIPELINE COMPLETED"
+#else
+#	echo
+#	echo "${final_vcf}.txt NOT FOUND ... SOMETHING HAS GONE WRONG"
+#fi
 
 echo
 
