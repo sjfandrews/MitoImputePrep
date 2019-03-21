@@ -292,7 +292,7 @@ else
 fi
 
 ## CALCULATE Matthew's Correlation Coefficient
-WGS_VCF=${snpOnly_vcf}
+WGS_VCF=${snpOnly_vcf}.vcf.gz
 TYP_VCF=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}.vcf.gz
 IMP_VCF=${imp_ext}.vcf
 IMP_INFO=${imp_ext}_info
