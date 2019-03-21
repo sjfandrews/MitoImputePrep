@@ -202,20 +202,20 @@ summary.stats.imp <- left_join(summary.stats.imp, select(imp_1kg.info, c(-snp_id
 summary.stats.imp <- mutate(summary.stats.imp, info.cat = cut_width(summary.stats.imp$info, 0.25, boundary = 0))
 summary.stats.imp$info.cat = sub(",", "-", summary.stats.imp$info.cat)
 ##  basic summary stats
-summary.stats.imp %>% count(af > 0.01)
-summary.stats.imp %>% count(mcc > 0.4)
-summary.stats.imp %>% count(concodance < 0.9)
-summary.stats.imp %>% count(info > 0.3); summary.stats.imp %>% count(info > 0.5)
+#summary.stats.imp %>% count(af > 0.01)
+#summary.stats.imp %>% count(mcc > 0.4)
+#summary.stats.imp %>% count(concodance < 0.9)
+#summary.stats.imp %>% count(info > 0.3); summary.stats.imp %>% count(info > 0.5)
 
 ##  merge on info.score file
 summary.stats.typ <- left_join(summary.stats.typ, select(imp_1kg.info, c(-snp_id, -rs_id)), by = c('pos' = 'position')) 
 summary.stats.typ <- mutate(summary.stats.typ, info.cat = cut_width(summary.stats.typ$info, 0.25, boundary = 0))
 summary.stats.typ$info.cat = sub(",", "-", summary.stats.typ$info.cat)
 ##  basic summary stats
-summary.stats.typ %>% count(af > 0.01)
-summary.stats.typ %>% count(mcc > 0.4)
-summary.stats.typ %>% count(concodance < 0.9)
-summary.stats.typ %>% count(info > 0.3); summary.stats.typ %>% count(info > 0.5)
+#summary.stats.typ %>% count(af > 0.01)
+#summary.stats.typ %>% count(mcc > 0.4)
+#summary.stats.typ %>% count(concodance < 0.9)
+#summary.stats.typ %>% count(info > 0.3); summary.stats.typ %>% count(info > 0.5)
 
 ##
 write.csv(summary.stats.imp, out_file_imp, quote = F, row.names = F)
