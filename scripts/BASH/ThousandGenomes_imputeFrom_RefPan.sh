@@ -4,7 +4,7 @@
 #PBS -l walltime=00:30:00
 #PBS -l mem=8GB
 #PBS -l ncpus=1
-#PBS -N impute_SNPchip_1kGP
+#PBS -N KH_MAF_impute_SNPchip_1kGP
 #PBS -m e
 #PBS -M u5015730@anu.edu.au
 #PBS -j oe
