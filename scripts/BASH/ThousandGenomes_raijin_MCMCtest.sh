@@ -43,6 +43,7 @@ decom_vcf=/g/data1a/te53/MitoImpute/data/VCF/chrMT_1kg_norm_decomposed.vcf.gz
 vcf_1kg=/g/data1a/te53/MitoImpute/data/VCF/chrMT_1kg_norm_decomposed_firstAlt.vcf.gz
 plink_1kg=/g/data1a/te53/MitoImpute/data/PLINK/chrMT_1kg_norm_decomposed_firstAlt
 orig_vcf=/g/data1a/te53/haploco/data/originals/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz
+snpOnly_vcf=/g/data1a/te53/MitoImpute/data/VCF/chrMT_1kg_SNPonly
 samps_1kg=/g/data1a/te53/MitoImpute/metadata/SampleList1kg.txt
 sex_1kg=/g/data1a/te53/MitoImpute/metadata/SampleList1kg_sex.txt
 ref_fasta=/g/data1a/te53/MitoImpute/data/FASTA/rCRS.fasta
@@ -204,6 +205,8 @@ final_vcf=${imp_ext}_haplogrep
 
 if [ ! -f ${final_vcf}.txt ]
 then
+	echo
+	echo "RUNNING HAPLOGREP2 COMMANDS"
 	bcftools annotate --set-id '.' ${imp_vcf} | bcftools norm --check-ref s -f ${ref_fasta_plink} -m +any | bcftools view -Oz -o ${norm_imp_vcf} # Normalise: remove SNP IDs, reformat to rCRS, join biallelic repeated sites into multiallelic sites, then output to gzip
 	bcftools index ${norm_imp_vcf} # index normalised vcf
 	bcftools query -f '%POS\n' ${norm_imp_vcf} > ${vcf_pos} # extract genomic positions
@@ -231,7 +234,7 @@ else
 	java -jar ${HAPLOGREP} --in ${final_vcf}.vcf --format vcf --chip --out ${final_vcf}.txt # assign haplogreps
 fi
 ## CALCULATE Matthew's Correlation Coefficient FOR GENOTYPE CONCORDANCE
-WGS_VCF=${snpOnly_vcf}.vcf.gz
+WGS_VCF=/g/data1a/te53/MitoImpute/data/VCF/chrMT_1kg_SNPonly.vcf.gz
 TYP_VCF=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}.vcf.gz
 IMP_VCF=${imp_ext}.vcf
 IMP_INFO=${imp_ext}_info

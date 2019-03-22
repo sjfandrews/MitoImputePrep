@@ -267,6 +267,8 @@ final_vcf=${imp_ext}_haplogrep
 
 if [ ! -f ${final_vcf}.txt ]
 then
+	echo
+	echo "RUNNING HAPLOGREP2 COMMANDS"
 	bcftools annotate --set-id '.' ${imp_vcf} | bcftools norm --check-ref s -f ${ref_fasta_plink} -m +any | bcftools view -Oz -o ${norm_imp_vcf} # Normalise: remove SNP IDs, reformat to rCRS, join biallelic repeated sites into multiallelic sites, then output to gzip
 	bcftools index ${norm_imp_vcf} # index normalised vcf
 	bcftools query -f '%POS\n' ${norm_imp_vcf} > ${vcf_pos} # extract genomic positions
@@ -295,7 +297,7 @@ else
 fi
 
 ## CALCULATE Matthew's Correlation Coefficient
-WGS_VCF=${snpOnly_vcf}.vcf.gz
+WGS_VCF=/g/data1a/te53/MitoImpute/data/VCF/chrMT_1kg_SNPonly.vcf.gz
 TYP_VCF=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}.vcf.gz
 IMP_VCF=${imp_ext}.vcf
 IMP_INFO=${imp_ext}_info
