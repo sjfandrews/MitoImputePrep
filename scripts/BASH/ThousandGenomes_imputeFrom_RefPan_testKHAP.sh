@@ -33,13 +33,14 @@ REFpanel=${REFpanel}
 HAPLOGREP=~/GitCode/MitoImputePrep/haplogrep/2.1.19/haplogrep-2.1.19.jar
 echo
 echo "REFERENCE PANEL:				${REFpanel}"
-echo "SNP CHIP:					${MtPlatforms}"
+echo "SNP CHIP:						${MtPlatforms}"
 echo "HAPLOGREP:					${HAPLOGREP}"
 echo "MCMC LENGTH:					${mcmc}"
 echo "MCMC BURN-IN:					${burn}"
-echo "REF HAPLOTYPES (k_hap):				${khap}"
-echo "EFFECTIVE POP. SIZE (Ne):			${ne}"
+echo "REF HAPLOTYPES (k_hap):		${khap}"
+echo "EFFECTIVE POP. SIZE (Ne):		${ne}"
 echo
+
 
 # CHECK FOR OR CREATE THE DECOMPOSED 1,000 GENOMES VCF FILE
 git_vcf=~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/chrMT_1kg_norm_decomposed_firstAlt.vcf.gz
