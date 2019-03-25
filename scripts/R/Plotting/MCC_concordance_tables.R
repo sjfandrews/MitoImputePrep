@@ -7,7 +7,7 @@ MCMC_imp = read.csv("~/Desktop/ConcordanceTables_MCMC_Experiments_MCC_imputed_ge
 MCMC_typ = read.csv("~/Desktop/ConcordanceTables_MCMC_Experiments_MCC_imputed_genotype.csv", header = T)
 MCMC_imp$version = "imputed"
 MCMC_typ$version = "genotyped"
-#main_mcmc_df = rbind(MCMC_imp, MCMC_typ)
+main_mcmc_df = rbind(MCMC_imp, MCMC_typ)
 main_mcmc_df = MCMC_imp
 
 exp.dir = "MCMC_Experiments"

@@ -163,7 +163,7 @@ for (exp in 1:length(exp.var)) {
       tmp_mcmc_imputed_df_t3$info_comb[chip]         = mean(tmp.imp.table_t3$info_comb, na.rm = T)
     }
     
-    # IMPUTED FILE
+    # TYPED FILE
     if (file.exists(tmp.typ.file) == T) {
       tmp.typ.table = read.csv(tmp.typ.file, header = T)
       
