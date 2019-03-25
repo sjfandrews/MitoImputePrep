@@ -276,7 +276,7 @@ maf_mcc_box = ggplot(main_maf_df, aes(x = sub_experiment, y = abs(mcc))) +
   labs(x = "",
        #x = "Length of MAF chain",
        y = "Matthew's Correlation Coefficient",
-       title = expression(paste(bold("A."), " Markov chain Monte Carlo (MAF) length variations")))
+       title = expression(paste(bold("A."), "")))
 maf_mcc_box
 
 maf_info_box = ggplot(main_maf_df, aes(x = sub_experiment, y = info)) +
