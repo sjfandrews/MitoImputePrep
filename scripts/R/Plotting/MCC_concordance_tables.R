@@ -1,4 +1,8 @@
 require(ggplot2)
+require(gridExtra)
+require(tidyr)
+require(emmeans)
+require(dplyr)
 require(scales)
 
 # MCMC
@@ -7,7 +11,7 @@ MCMC_imp = read.csv("~/Desktop/ConcordanceTables_MCMC_Experiments_MCC_imputed_ge
 MCMC_typ = read.csv("~/Desktop/ConcordanceTables_MCMC_Experiments_MCC_imputed_genotype.csv", header = T)
 MCMC_imp$version = "imputed"
 MCMC_typ$version = "genotyped"
-main_mcmc_df = rbind(MCMC_imp, MCMC_typ)
+#main_mcmc_df = rbind(MCMC_imp, MCMC_typ)
 main_mcmc_df = MCMC_imp
 
 exp.dir = "MCMC_Experiments"
@@ -22,7 +26,7 @@ mcmc_mcc_box = ggplot(main_mcmc_df, aes(x = sub_experiment, y = abs(mcc))) +
                      limits = c(0, 1)) +
   labs(x = "Length of MCMC chain",
        y = "Matthew's Correlation Coefficient",
-       title = expression(paste(bold("A."), " Markov chain Monte Carlo (MCMC) length variations")))
+       title = expression(paste(bold("A."), "")))
 mcmc_mcc_box
 
 mcmc_info_box = ggplot(main_mcmc_df, aes(x = sub_experiment, y = info)) +
@@ -33,7 +37,8 @@ mcmc_info_box = ggplot(main_mcmc_df, aes(x = sub_experiment, y = info)) +
                      limits = c(0, 1)) +
   labs(x = "Length of MCMC chain",
        y = expression(paste("IMPUTE2 info score (", italic("r")^"2", ")")),
-       title = expression(paste(bold("A."), " Markov chain Monte Carlo (MCMC) length variations")))
+       #title = expression(paste(bold("B."), " Markov chain Monte Carlo (MCMC) length variations")))
+       title = expression(paste(bold("B."), "")))
 mcmc_info_box
 
 mcmc_infoComb_box = ggplot(main_mcmc_df, aes(x = sub_experiment, y = info_comb)) +
@@ -52,8 +57,8 @@ mcmc_cert_box = ggplot(main_mcmc_df, aes(x = sub_experiment, y = certainty)) +
   geom_boxplot(width = rel(0.25), notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428") +
   theme_bw() +
   labs(x = "Length of MCMC chain",
-       y = expression(paste("IMPUTE2 info score (", italic("r")^"2", ")")),
-       title = expression(paste(bold("A."), " Markov chain Monte Carlo (MCMC) length variations")))
+       y = "Certainty",
+       title = expression(paste(bold("C."), "")))
 mcmc_cert_box
 
 mcmc_conc_box = ggplot(main_mcmc_df, aes(x = sub_experiment, y = concordance)) +
@@ -61,9 +66,14 @@ mcmc_conc_box = ggplot(main_mcmc_df, aes(x = sub_experiment, y = concordance)) +
   geom_boxplot(width = rel(0.25), notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428") +
   theme_bw() +
   labs(x = "Length of MCMC chain",
-       y = expression(paste("IMPUTE2 info score (", italic("r")^"2", ")")),
-       title = expression(paste(bold("A."), " Markov chain Monte Carlo (MCMC) length variations")))
+       y = "Concordance",
+       title = expression(paste(bold("D."), "")))
 mcmc_conc_box
+
+mcmc_plots = grid.arrange(top = "Markov chain Monte Carlo (MCMC) length variations",
+                          arrangeGrob(mcmc_mcc_box, mcmc_info_box, mcmc_cert_box, mcmc_conc_box, ncol = 2, nrow = 2)
+                          )
+ggsave(filename = "~/Desktop/MCMC_MCC.png", plot = mcmc_plots, width = 297, height = 210, units = "mm", dpi = 300)
 
 # KHAP
 KHAP_imp = read.csv("~/Desktop/ConcordanceTables_KHAP_Experiments_MCC_imputed_genotype.csv", header = T)
@@ -85,7 +95,7 @@ khap_mcc_box = ggplot(main_khap_df, aes(x = sub_experiment, y = abs(mcc))) +
                      limits = c(0, 1)) +
   labs(x = "Length of KHAP chain",
        y = "Matthew's Correlation Coefficient",
-       title = expression(paste(bold("A."), " Markov chain Monte Carlo (KHAP) length variations")))
+       title = expression(paste(bold("A."), "")))
 khap_mcc_box
 
 khap_info_box = ggplot(main_khap_df, aes(x = sub_experiment, y = info)) +
@@ -96,7 +106,7 @@ khap_info_box = ggplot(main_khap_df, aes(x = sub_experiment, y = info)) +
                      limits = c(0, 1)) +
   labs(x = "Length of KHAP chain",
        y = expression(paste("IMPUTE2 info score (", italic("r")^"2", ")")),
-       title = expression(paste(bold("A."), " Markov chain Monte Carlo (KHAP) length variations")))
+       title = expression(paste(bold("B."), "")))
 khap_info_box
 
 khap_infoComb_box = ggplot(main_khap_df, aes(x = sub_experiment, y = info_comb)) +
@@ -115,8 +125,8 @@ khap_cert_box = ggplot(main_khap_df, aes(x = sub_experiment, y = certainty)) +
   geom_boxplot(width = rel(0.25), notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428") +
   theme_bw() +
   labs(x = "Length of KHAP chain",
-       y = expression(paste("IMPUTE2 info score (", italic("r")^"2", ")")),
-       title = expression(paste(bold("A."), " Markov chain Monte Carlo (KHAP) length variations")))
+       y = "Certainty",
+       title = expression(paste(bold("C."), "")))
 khap_cert_box
 
 khap_conc_box = ggplot(main_khap_df, aes(x = sub_experiment, y = concordance)) +
@@ -124,9 +134,14 @@ khap_conc_box = ggplot(main_khap_df, aes(x = sub_experiment, y = concordance)) +
   geom_boxplot(width = rel(0.25), notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428") +
   theme_bw() +
   labs(x = "Length of KHAP chain",
-       y = expression(paste("IMPUTE2 info score (", italic("r")^"2", ")")),
-       title = expression(paste(bold("A."), " Markov chain Monte Carlo (KHAP) length variations")))
+       y = "Concordance",
+       title = expression(paste(bold("D."), "")))
 khap_conc_box
+
+khap_plots = grid.arrange(top = "Number of included reference haplotypes (k_hap) variations",
+                          arrangeGrob(khap_mcc_box, khap_info_box, khap_cert_box, khap_conc_box, ncol = 2, nrow = 2)
+                          )
+ggsave(filename = "~/Desktop/KHAP_MCC.png", plot = khap_plots, width = 297, height = 210, units = "mm", dpi = 300)
 
 ## MAF
 
@@ -134,7 +149,7 @@ MAF_imp = read.csv("~/Desktop/ConcordanceTables_MAF_Experiments_MCC_imputed_geno
 MAF_typ = read.csv("~/Desktop/ConcordanceTables_MAF_Experiments_MCC_imputed_genotype.csv", header = T)
 MAF_imp$version = "imputed"
 MAF_typ$version = "genotyped"
-main_maf_df = rbind(MAF_imp, MAF_typ)
+#main_maf_df = rbind(MAF_imp, MAF_typ)
 main_maf_df = MAF_imp
 
 exp.dir = "MAF_Experiments"
@@ -160,7 +175,7 @@ maf_info_box = ggplot(main_maf_df, aes(x = sub_experiment, y = info)) +
                      limits = c(0, 1)) +
   labs(x = "Length of MAF chain",
        y = expression(paste("IMPUTE2 info score (", italic("r")^"2", ")")),
-       title = expression(paste(bold("A."), " Markov chain Monte Carlo (MAF) length variations")))
+       title = expression(paste(bold("B."), "")))
 maf_info_box
 
 maf_infoComb_box = ggplot(main_maf_df, aes(x = sub_experiment, y = info_comb)) +
@@ -179,8 +194,8 @@ maf_cert_box = ggplot(main_maf_df, aes(x = sub_experiment, y = certainty)) +
   geom_boxplot(width = rel(0.25), notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428") +
   theme_bw() +
   labs(x = "Length of MAF chain",
-       y = expression(paste("IMPUTE2 info score (", italic("r")^"2", ")")),
-       title = expression(paste(bold("A."), " Markov chain Monte Carlo (MAF) length variations")))
+       y = "Certainty",
+       title = expression(paste(bold("C."), "")))
 maf_cert_box
 
 maf_conc_box = ggplot(main_maf_df, aes(x = sub_experiment, y = concordance)) +
@@ -188,6 +203,12 @@ maf_conc_box = ggplot(main_maf_df, aes(x = sub_experiment, y = concordance)) +
   geom_boxplot(width = rel(0.25), notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428") +
   theme_bw() +
   labs(x = "Length of MAF chain",
-       y = expression(paste("IMPUTE2 info score (", italic("r")^"2", ")")),
-       title = expression(paste(bold("A."), " Markov chain Monte Carlo (MAF) length variations")))
+       y = "Concordance",
+       title = expression(paste(bold("D."), "")))
 maf_conc_box
+
+maf_plots = grid.arrange(top = "Number of included reference haplotypes (k_hap) variations",
+                         arrangeGrob(maf_mcc_box, maf_info_box, maf_cert_box, maf_conc_box, ncol = 2, nrow = 2)
+                         )
+ggsave(filename = "~/Desktop/MAF_MCC.png", plot = maf_plots, width = 297, height = 210, units = "mm", dpi = 300)
+
