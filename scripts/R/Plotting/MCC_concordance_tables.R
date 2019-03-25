@@ -207,7 +207,7 @@ maf_conc_box = ggplot(main_maf_df, aes(x = sub_experiment, y = concordance)) +
        title = expression(paste(bold("D."), "")))
 maf_conc_box
 
-maf_plots = grid.arrange(top = "Number of included reference haplotypes (k_hap) variations",
+maf_plots = grid.arrange(top = "Minor allele frequencies (MAF) variations",
                          arrangeGrob(maf_mcc_box, maf_info_box, maf_cert_box, maf_conc_box, ncol = 2, nrow = 2)
                          )
 ggsave(filename = "~/Desktop/MAF_MCC.png", plot = maf_plots, width = 297, height = 210, units = "mm", dpi = 300)
