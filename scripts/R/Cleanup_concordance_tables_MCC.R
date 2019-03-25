@@ -76,9 +76,9 @@ for (exp in 1:length(exp.var)) {
     tmp_mcmc_imputed_df$concord_type0[chip] = NA
     tmp_mcmc_imputed_df$r2_type0[chip] = NA
     tmp_mcmc_imputed_df$info_comb[chip] = NA
-    
-    tmp_mcmc_typed_df = tmp_mcmc_imputed_df
   }
+  
+  tmp_mcmc_typed_df = tmp_mcmc_imputed_df
   
   tmp_mcmc_imputed_df_t0 = tmp_mcmc_imputed_df
   tmp_mcmc_imputed_df_t1 = tmp_mcmc_imputed_df
@@ -331,9 +331,9 @@ for (exp in 1:length(exp.var)) {
     tmp_khap_imputed_df$concord_type0[chip] = NA
     tmp_khap_imputed_df$r2_type0[chip] = NA
     tmp_khap_imputed_df$info_comb[chip] = NA
-    
-    tmp_khap_typed_df = tmp_khap_imputed_df
   }
+  
+  tmp_khap_typed_df = tmp_khap_imputed_df
   
   tmp_khap_imputed_df_t0 = tmp_khap_imputed_df
   tmp_khap_imputed_df_t1 = tmp_khap_imputed_df
@@ -590,9 +590,9 @@ for (exp in 1:length(exp.var)) {
     tmp_maf_imputed_df$concord_type0[chip] = NA
     tmp_maf_imputed_df$r2_type0[chip] = NA
     tmp_maf_imputed_df$info_comb[chip] = NA
-    
-    tmp_maf_typed_df = tmp_maf_imputed_df
   }
+  
+  tmp_maf_typed_df = tmp_maf_imputed_df
   
   tmp_maf_imputed_df_t0 = tmp_maf_imputed_df
   tmp_maf_imputed_df_t1 = tmp_maf_imputed_df

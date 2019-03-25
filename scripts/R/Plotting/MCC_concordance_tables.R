@@ -5,13 +5,15 @@ require(emmeans)
 require(dplyr)
 require(scales)
 
+container = "/Volumes/TimMcInerney/MitoImpute/analyses/concordance/MCC/"
+
 # MCMC
 
-MCMC_imp = read.csv("~/Desktop/ConcordanceTables_MCMC_Experiments_MCC_imputed_genotype.csv", header = T)
-MCMC_typ = read.csv("~/Desktop/ConcordanceTables_MCMC_Experiments_MCC_imputed_genotype.csv", header = T)
+MCMC_imp = read.csv(paste0(container, "MCMC/ConcordanceTables_MCMC_Experiments_MCC_imputed_genotype.csv"), header = T)
+MCMC_typ = read.csv(paste0(container, "MCMC/ConcordanceTables_MCMC_Experiments_MCC_typed_genotype.csv"), header = T)
 MCMC_imp$version = "imputed"
 MCMC_typ$version = "genotyped"
-#main_mcmc_df = rbind(MCMC_imp, MCMC_typ)
+main_mcmc_df = rbind(MCMC_imp, MCMC_typ)
 main_mcmc_df = MCMC_imp
 
 exp.dir = "MCMC_Experiments"
@@ -19,53 +21,103 @@ exp.var = c("MCMC1", "MCMC5", "MCMC10", "MCMC20", "MCMC30")
 main_mcmc_df$sub_experiment = factor(main_mcmc_df$sub_experiment, levels = exp.var)
 
 mcmc_mcc_box = ggplot(main_mcmc_df, aes(x = sub_experiment, y = abs(mcc))) +
-  geom_violin(fill = "#feb600", na.rm = T) +
-  geom_boxplot(width = rel(0.25), notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428") +
-  theme_bw() +
+  geom_violin(fill = "#feb600", na.rm = T, lwd = 0.25) +
+  geom_boxplot(width = rel(0.25), notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428", lwd = 0.25) +
+  #theme_bw() +
+  theme(axis.text.x = element_text(hjust = 1.0, angle = 45),
+        axis.title.x = element_text(vjust = -1.0),
+        legend.position = "bottom",
+        legend.background = element_rect(fill = "transparent"),
+        legend.box.background = element_rect(fill = "transparent", colour = NA),
+        panel.grid.major = element_line(colour = "black", size = 0.25), 
+        panel.grid.minor = element_line(colour = "black", linetype = 2, size = 0.25),
+        panel.background = element_rect(fill = "transparent",colour = "black"),
+        plot.background = element_rect(fill = "transparent",colour = NA)) +
   scale_y_continuous(breaks = c(0.0, 0.2, 0.4, 0.6, 0.8, 1.0),
                      limits = c(0, 1)) +
-  labs(x = "Length of MCMC chain",
+  labs(x = "",
+       #x = "Length of MCMC chain",
        y = "Matthew's Correlation Coefficient",
        title = expression(paste(bold("A."), "")))
 mcmc_mcc_box
 
 mcmc_info_box = ggplot(main_mcmc_df, aes(x = sub_experiment, y = info)) +
-  geom_violin(fill = "#feb600", na.rm = T) +
-  geom_boxplot(width = rel(0.25), notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428") +
-  theme_bw() +
+  geom_violin(fill = "#feb600", na.rm = T, lwd = 0.25) +
+  geom_boxplot(width = rel(0.25), notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428", lwd = 0.25) +
+  #theme_bw() +
+  theme(axis.text.x = element_text(hjust = 1.0, angle = 45),
+        axis.title.x = element_text(vjust = -1.0),
+        legend.position = "bottom",
+        legend.background = element_rect(fill = "transparent"),
+        legend.box.background = element_rect(fill = "transparent", colour = NA),
+        panel.grid.major = element_line(colour = "black", size = 0.25), 
+        panel.grid.minor = element_line(colour = "black", linetype = 2, size = 0.25),
+        panel.background = element_rect(fill = "transparent",colour = "black"),
+        plot.background = element_rect(fill = "transparent",colour = NA)) +
   scale_y_continuous(breaks = c(0.0, 0.2, 0.4, 0.6, 0.8, 1.0),
                      limits = c(0, 1)) +
-  labs(x = "Length of MCMC chain",
+  labs(x = "",
+       #x = "Length of MCMC chain",
        y = expression(paste("IMPUTE2 info score (", italic("r")^"2", ")")),
        #title = expression(paste(bold("B."), " Markov chain Monte Carlo (MCMC) length variations")))
        title = expression(paste(bold("B."), "")))
 mcmc_info_box
 
 mcmc_infoComb_box = ggplot(main_mcmc_df, aes(x = sub_experiment, y = info_comb)) +
-  geom_violin(fill = "#feb600", na.rm = T) +
-  geom_boxplot(width = rel(0.25), notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428") +
-  theme_bw() +
+  geom_violin(fill = "#feb600", na.rm = T, lwd = 0.25) +
+  geom_boxplot(width = rel(0.25), notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428", lwd = 0.25) +
+  #theme_bw() +
+  theme(axis.text.x = element_text(hjust = 1.0, angle = 45),
+        axis.title.x = element_text(vjust = -1.0),
+        legend.position = "bottom",
+        legend.background = element_rect(fill = "transparent"),
+        legend.box.background = element_rect(fill = "transparent", colour = NA),
+        panel.grid.major = element_line(colour = "black", size = 0.25), 
+        panel.grid.minor = element_line(colour = "black", linetype = 2, size = 0.25),
+        panel.background = element_rect(fill = "transparent",colour = "black"),
+        plot.background = element_rect(fill = "transparent",colour = NA)) +
   scale_y_continuous(breaks = c(0.0, 0.2, 0.4, 0.6, 0.8, 1.0),
                      limits = c(0, 1)) +
-  labs(x = "Length of MCMC chain",
+  labs(x = "",
+       #x = "Length of MCMC chain",
        y = expression(paste("IMPUTE2 info score (", italic("r")^"2", ")")),
        title = expression(paste(bold("A."), " Markov chain Monte Carlo (MCMC) length variations")))
 mcmc_infoComb_box
 
 mcmc_cert_box = ggplot(main_mcmc_df, aes(x = sub_experiment, y = certainty)) +
-  geom_violin(fill = "#feb600", na.rm = T) +
-  geom_boxplot(width = rel(0.25), notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428") +
-  theme_bw() +
-  labs(x = "Length of MCMC chain",
+  geom_violin(fill = "#feb600", na.rm = T, lwd = 0.25) +
+  geom_boxplot(width = rel(0.25), notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428", lwd = 0.25) +
+  #theme_bw() +
+  theme(axis.text.x = element_text(hjust = 1.0, angle = 45),
+        axis.title.x = element_text(vjust = -1.0),
+        legend.position = "bottom",
+        legend.background = element_rect(fill = "transparent"),
+        legend.box.background = element_rect(fill = "transparent", colour = NA),
+        panel.grid.major = element_line(colour = "black", size = 0.25), 
+        panel.grid.minor = element_line(colour = "black", linetype = 2, size = 0.25),
+        panel.background = element_rect(fill = "transparent",colour = "black"),
+        plot.background = element_rect(fill = "transparent",colour = NA)) +
+  labs(x = "",
+       #x = "Length of MCMC chain",
        y = "Certainty",
        title = expression(paste(bold("C."), "")))
 mcmc_cert_box
 
 mcmc_conc_box = ggplot(main_mcmc_df, aes(x = sub_experiment, y = concordance)) +
-  geom_violin(fill = "#feb600", na.rm = T) +
-  geom_boxplot(width = rel(0.25), notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428") +
-  theme_bw() +
-  labs(x = "Length of MCMC chain",
+  geom_violin(fill = "#feb600", na.rm = T, lwd = 0.25) +
+  geom_boxplot(width = rel(0.25), notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428", lwd = 0.25) +
+  #theme_bw() +
+  theme(axis.text.x = element_text(hjust = 1.0, angle = 45),
+        axis.title.x = element_text(vjust = -1.0),
+        legend.position = "bottom",
+        legend.background = element_rect(fill = "transparent"),
+        legend.box.background = element_rect(fill = "transparent", colour = NA),
+        panel.grid.major = element_line(colour = "black", size = 0.25), 
+        panel.grid.minor = element_line(colour = "black", linetype = 2, size = 0.25),
+        panel.background = element_rect(fill = "transparent",colour = "black"),
+        plot.background = element_rect(fill = "transparent",colour = NA)) +
+  labs(x = "",
+       #x = "Length of MCMC chain",
        y = "Concordance",
        title = expression(paste(bold("D."), "")))
 mcmc_conc_box
@@ -73,11 +125,11 @@ mcmc_conc_box
 mcmc_plots = grid.arrange(top = "Markov chain Monte Carlo (MCMC) length variations",
                           arrangeGrob(mcmc_mcc_box, mcmc_info_box, mcmc_cert_box, mcmc_conc_box, ncol = 2, nrow = 2)
                           )
-ggsave(filename = "~/Desktop/MCMC_MCC.png", plot = mcmc_plots, width = 297, height = 210, units = "mm", dpi = 300)
+ggsave(filename = paste0(container, "Plots/MCMC_MCC.png"), plot = mcmc_plots, width = 297, height = 210, units = "mm", dpi = 300, bg = "transparent")
 
 # KHAP
-KHAP_imp = read.csv("~/Desktop/ConcordanceTables_KHAP_Experiments_MCC_imputed_genotype.csv", header = T)
-KHAP_typ = read.csv("~/Desktop/ConcordanceTables_KHAP_Experiments_MCC_imputed_genotype.csv", header = T)
+KHAP_imp = read.csv(paste0(container, "KHAP/ConcordanceTables_KHAP_Experiments_MCC_imputed_genotype.csv"), header = T)
+KHAP_typ = read.csv(paste0(container, "KHAP/ConcordanceTables_KHAP_Experiments_MCC_typed_genotype.csv"), header = T)
 KHAP_imp$version = "imputed"
 KHAP_typ$version = "genotyped"
 #main_khap_df = rbind(KHAP_imp, KHAP_typ)
@@ -88,52 +140,102 @@ exp.var = c("kHAP100", "kHAP250", "kHAP500", "kHAP1000", "kHAP2500", "kHAP5000",
 main_khap_df$sub_experiment = factor(main_khap_df$sub_experiment, levels = exp.var)
 
 khap_mcc_box = ggplot(main_khap_df, aes(x = sub_experiment, y = abs(mcc))) +
-  geom_violin(fill = "#feb600", na.rm = T) +
-  geom_boxplot(width = rel(0.25), notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428") +
-  theme_bw() +
+  geom_violin(fill = "#feb600", na.rm = T, lwd = 0.25) +
+  geom_boxplot(width = rel(0.25), notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428", lwd = 0.25) +
+  #theme_bw() +
+  theme(axis.text.x = element_text(hjust = 1.0, angle = 45),
+        axis.title.x = element_text(vjust = -1.0),
+        legend.position = "bottom",
+        legend.background = element_rect(fill = "transparent"),
+        legend.box.background = element_rect(fill = "transparent", colour = NA),
+        panel.grid.major = element_line(colour = "black", size = 0.25), 
+        panel.grid.minor = element_line(colour = "black", linetype = 2, size = 0.25),
+        panel.background = element_rect(fill = "transparent",colour = "black"),
+        plot.background = element_rect(fill = "transparent",colour = NA)) +
   scale_y_continuous(breaks = c(0.0, 0.2, 0.4, 0.6, 0.8, 1.0),
                      limits = c(0, 1)) +
-  labs(x = "Length of KHAP chain",
+  labs(x = "",
+       #x = "Length of KHAP chain",
        y = "Matthew's Correlation Coefficient",
        title = expression(paste(bold("A."), "")))
 khap_mcc_box
 
 khap_info_box = ggplot(main_khap_df, aes(x = sub_experiment, y = info)) +
-  geom_violin(fill = "#feb600", na.rm = T) +
-  geom_boxplot(width = rel(0.25), notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428") +
-  theme_bw() +
+  geom_violin(fill = "#feb600", na.rm = T, lwd = 0.25) +
+  geom_boxplot(width = rel(0.25), notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428", lwd = 0.25) +
+  #theme_bw() +
+  theme(axis.text.x = element_text(hjust = 1.0, angle = 45),
+        axis.title.x = element_text(vjust = -1.0),
+        legend.position = "bottom",
+        legend.background = element_rect(fill = "transparent"),
+        legend.box.background = element_rect(fill = "transparent", colour = NA),
+        panel.grid.major = element_line(colour = "black", size = 0.25), 
+        panel.grid.minor = element_line(colour = "black", linetype = 2, size = 0.25),
+        panel.background = element_rect(fill = "transparent",colour = "black"),
+        plot.background = element_rect(fill = "transparent",colour = NA)) +
   scale_y_continuous(breaks = c(0.0, 0.2, 0.4, 0.6, 0.8, 1.0),
                      limits = c(0, 1)) +
-  labs(x = "Length of KHAP chain",
+  labs(x = "",
+       #x = "Length of KHAP chain",
        y = expression(paste("IMPUTE2 info score (", italic("r")^"2", ")")),
        title = expression(paste(bold("B."), "")))
 khap_info_box
 
 khap_infoComb_box = ggplot(main_khap_df, aes(x = sub_experiment, y = info_comb)) +
-  geom_violin(fill = "#feb600", na.rm = T) +
-  geom_boxplot(width = rel(0.25), notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428") +
-  theme_bw() +
+  geom_violin(fill = "#feb600", na.rm = T, lwd = 0.25) +
+  geom_boxplot(width = rel(0.25), notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428", lwd = 0.25) +
+  #theme_bw() +
+  theme(axis.text.x = element_text(hjust = 1.0, angle = 45),
+        axis.title.x = element_text(vjust = -1.0),
+        legend.position = "bottom",
+        legend.background = element_rect(fill = "transparent"),
+        legend.box.background = element_rect(fill = "transparent", colour = NA),
+        panel.grid.major = element_line(colour = "black", size = 0.25), 
+        panel.grid.minor = element_line(colour = "black", linetype = 2, size = 0.25),
+        panel.background = element_rect(fill = "transparent",colour = "black"),
+        plot.background = element_rect(fill = "transparent",colour = NA)) +
   scale_y_continuous(breaks = c(0.0, 0.2, 0.4, 0.6, 0.8, 1.0),
                      limits = c(0, 1)) +
-  labs(x = "Length of KHAP chain",
+  labs(x = "",
+       #x = "Length of KHAP chain",
        y = expression(paste("IMPUTE2 info score (", italic("r")^"2", ")")),
        title = expression(paste(bold("A."), " Markov chain Monte Carlo (KHAP) length variations")))
 khap_infoComb_box
 
 khap_cert_box = ggplot(main_khap_df, aes(x = sub_experiment, y = certainty)) +
-  geom_violin(fill = "#feb600", na.rm = T) +
-  geom_boxplot(width = rel(0.25), notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428") +
-  theme_bw() +
-  labs(x = "Length of KHAP chain",
+  geom_violin(fill = "#feb600", na.rm = T, lwd = 0.25) +
+  geom_boxplot(width = rel(0.25), notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428", lwd = 0.25) +
+  #theme_bw() +
+  theme(axis.text.x = element_text(hjust = 1.0, angle = 45),
+        axis.title.x = element_text(vjust = -1.0),
+        legend.position = "bottom",
+        legend.background = element_rect(fill = "transparent"),
+        legend.box.background = element_rect(fill = "transparent", colour = NA),
+        panel.grid.major = element_line(colour = "black", size = 0.25), 
+        panel.grid.minor = element_line(colour = "black", linetype = 2, size = 0.25),
+        panel.background = element_rect(fill = "transparent",colour = "black"),
+        plot.background = element_rect(fill = "transparent",colour = NA)) +
+  labs(x = "",
+       #x = "Length of KHAP chain",
        y = "Certainty",
        title = expression(paste(bold("C."), "")))
 khap_cert_box
 
 khap_conc_box = ggplot(main_khap_df, aes(x = sub_experiment, y = concordance)) +
-  geom_violin(fill = "#feb600", na.rm = T) +
-  geom_boxplot(width = rel(0.25), notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428") +
-  theme_bw() +
-  labs(x = "Length of KHAP chain",
+  geom_violin(fill = "#feb600", na.rm = T, lwd = 0.25) +
+  geom_boxplot(width = rel(0.25), notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428", lwd = 0.25) +
+  #theme_bw() +
+  theme(axis.text.x = element_text(hjust = 1.0, angle = 45),
+        axis.title.x = element_text(vjust = -1.0),
+        legend.position = "bottom",
+        legend.background = element_rect(fill = "transparent"),
+        legend.box.background = element_rect(fill = "transparent", colour = NA),
+        panel.grid.major = element_line(colour = "black", size = 0.25), 
+        panel.grid.minor = element_line(colour = "black", linetype = 2, size = 0.25),
+        panel.background = element_rect(fill = "transparent",colour = "black"),
+        plot.background = element_rect(fill = "transparent",colour = NA)) +
+  labs(x = "",
+       #x = "Length of KHAP chain",
        y = "Concordance",
        title = expression(paste(bold("D."), "")))
 khap_conc_box
@@ -141,12 +243,12 @@ khap_conc_box
 khap_plots = grid.arrange(top = "Number of included reference haplotypes (k_hap) variations",
                           arrangeGrob(khap_mcc_box, khap_info_box, khap_cert_box, khap_conc_box, ncol = 2, nrow = 2)
                           )
-ggsave(filename = "~/Desktop/KHAP_MCC.png", plot = khap_plots, width = 297, height = 210, units = "mm", dpi = 300)
+ggsave(filename = paste0(container, "Plots/KHAP_MCC.png"), plot = khap_plots, width = 297, height = 210, units = "mm", dpi = 300, bg = "transparent")
 
 ## MAF
 
-MAF_imp = read.csv("~/Desktop/ConcordanceTables_MAF_Experiments_MCC_imputed_genotype.csv", header = T)
-MAF_typ = read.csv("~/Desktop/ConcordanceTables_MAF_Experiments_MCC_imputed_genotype.csv", header = T)
+MAF_imp = read.csv(paste0(container, "MAF/ConcordanceTables_MAF_Experiments_MCC_imputed_genotype.csv"), header = T)
+MAF_typ = read.csv(paste0(container, "MAF/ConcordanceTables_MAF_Experiments_MCC_typed_genotype.csv"), header = T)
 MAF_imp$version = "imputed"
 MAF_typ$version = "genotyped"
 #main_maf_df = rbind(MAF_imp, MAF_typ)
@@ -157,52 +259,102 @@ exp.var = c("MAF1%", "MAF0.5%", "MAF0.1%")
 main_maf_df$sub_experiment = factor(main_maf_df$sub_experiment, levels = exp.var)
 
 maf_mcc_box = ggplot(main_maf_df, aes(x = sub_experiment, y = abs(mcc))) +
-  geom_violin(fill = "#feb600", na.rm = T) +
-  geom_boxplot(width = rel(0.25), notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428") +
-  theme_bw() +
+  geom_violin(fill = "#feb600", na.rm = T, lwd = 0.25) +
+  geom_boxplot(width = rel(0.25), notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428", lwd = 0.25) +
+  #theme_bw() +
+  theme(axis.text.x = element_text(hjust = 1.0, angle = 45),
+        axis.title.x = element_text(vjust = -1.0),
+        legend.position = "bottom",
+        legend.background = element_rect(fill = "transparent"),
+        legend.box.background = element_rect(fill = "transparent", colour = NA),
+        panel.grid.major = element_line(colour = "black", size = 0.25), 
+        panel.grid.minor = element_line(colour = "black", linetype = 2, size = 0.25),
+        panel.background = element_rect(fill = "transparent",colour = "black"),
+        plot.background = element_rect(fill = "transparent",colour = NA)) +
   scale_y_continuous(breaks = c(0.0, 0.2, 0.4, 0.6, 0.8, 1.0),
                      limits = c(0, 1)) +
-  labs(x = "Length of MAF chain",
+  labs(x = "",
+       #x = "Length of MAF chain",
        y = "Matthew's Correlation Coefficient",
        title = expression(paste(bold("A."), " Markov chain Monte Carlo (MAF) length variations")))
 maf_mcc_box
 
 maf_info_box = ggplot(main_maf_df, aes(x = sub_experiment, y = info)) +
-  geom_violin(fill = "#feb600", na.rm = T) +
-  geom_boxplot(width = rel(0.25), notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428") +
-  theme_bw() +
+  geom_violin(fill = "#feb600", na.rm = T, lwd = 0.25) +
+  geom_boxplot(width = rel(0.25), notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428", lwd = 0.25) +
+  #theme_bw() +
+  theme(axis.text.x = element_text(hjust = 1.0, angle = 45),
+        axis.title.x = element_text(vjust = -1.0),
+        legend.position = "bottom",
+        legend.background = element_rect(fill = "transparent"),
+        legend.box.background = element_rect(fill = "transparent", colour = NA),
+        panel.grid.major = element_line(colour = "black", size = 0.25), 
+        panel.grid.minor = element_line(colour = "black", linetype = 2, size = 0.25),
+        panel.background = element_rect(fill = "transparent",colour = "black"),
+        plot.background = element_rect(fill = "transparent",colour = NA)) +
   scale_y_continuous(breaks = c(0.0, 0.2, 0.4, 0.6, 0.8, 1.0),
                      limits = c(0, 1)) +
-  labs(x = "Length of MAF chain",
+  labs(x = "",
+       #x = "Length of MAF chain",
        y = expression(paste("IMPUTE2 info score (", italic("r")^"2", ")")),
        title = expression(paste(bold("B."), "")))
 maf_info_box
 
 maf_infoComb_box = ggplot(main_maf_df, aes(x = sub_experiment, y = info_comb)) +
-  geom_violin(fill = "#feb600", na.rm = T) +
-  geom_boxplot(width = rel(0.25), notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428") +
-  theme_bw() +
+  geom_violin(fill = "#feb600", na.rm = T, lwd = 0.25) +
+  geom_boxplot(width = rel(0.25), notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428", lwd = 0.25) +
+  #theme_bw() +
+  theme(axis.text.x = element_text(hjust = 1.0, angle = 45),
+        axis.title.x = element_text(vjust = -1.0),
+        legend.position = "bottom",
+        legend.background = element_rect(fill = "transparent"),
+        legend.box.background = element_rect(fill = "transparent", colour = NA),
+        panel.grid.major = element_line(colour = "black", size = 0.25), 
+        panel.grid.minor = element_line(colour = "black", linetype = 2, size = 0.25),
+        panel.background = element_rect(fill = "transparent",colour = "black"),
+        plot.background = element_rect(fill = "transparent",colour = NA)) +
   scale_y_continuous(breaks = c(0.0, 0.2, 0.4, 0.6, 0.8, 1.0),
                      limits = c(0, 1)) +
-  labs(x = "Length of MAF chain",
+  labs(x = "",
+       #x = "Length of MAF chain",
        y = expression(paste("IMPUTE2 info score (", italic("r")^"2", ")")),
        title = expression(paste(bold("A."), " Markov chain Monte Carlo (MAF) length variations")))
 maf_infoComb_box
 
 maf_cert_box = ggplot(main_maf_df, aes(x = sub_experiment, y = certainty)) +
-  geom_violin(fill = "#feb600", na.rm = T) +
-  geom_boxplot(width = rel(0.25), notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428") +
-  theme_bw() +
-  labs(x = "Length of MAF chain",
+  geom_violin(fill = "#feb600", na.rm = T, lwd = 0.25) +
+  geom_boxplot(width = rel(0.25), notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428", lwd = 0.25) +
+  #theme_bw() +
+  theme(axis.text.x = element_text(hjust = 1.0, angle = 45),
+        axis.title.x = element_text(vjust = -1.0),
+        legend.position = "bottom",
+        legend.background = element_rect(fill = "transparent"),
+        legend.box.background = element_rect(fill = "transparent", colour = NA),
+        panel.grid.major = element_line(colour = "black", size = 0.25), 
+        panel.grid.minor = element_line(colour = "black", linetype = 2, size = 0.25),
+        panel.background = element_rect(fill = "transparent",colour = "black"),
+        plot.background = element_rect(fill = "transparent",colour = NA)) +
+  labs(x = "",
+       #x = "Length of MAF chain",
        y = "Certainty",
        title = expression(paste(bold("C."), "")))
 maf_cert_box
 
 maf_conc_box = ggplot(main_maf_df, aes(x = sub_experiment, y = concordance)) +
-  geom_violin(fill = "#feb600", na.rm = T) +
-  geom_boxplot(width = rel(0.25), notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428") +
-  theme_bw() +
-  labs(x = "Length of MAF chain",
+  geom_violin(fill = "#feb600", na.rm = T, lwd = 0.25) +
+  geom_boxplot(width = rel(0.25), notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428", lwd = 0.25) +
+  #theme_bw() +
+  theme(axis.text.x = element_text(hjust = 1.0, angle = 45),
+        axis.title.x = element_text(vjust = -1.0),
+        legend.position = "bottom",
+        legend.background = element_rect(fill = "transparent"),
+        legend.box.background = element_rect(fill = "transparent", colour = NA),
+        panel.grid.major = element_line(colour = "black", size = 0.25), 
+        panel.grid.minor = element_line(colour = "black", linetype = 2, size = 0.25),
+        panel.background = element_rect(fill = "transparent",colour = "black"),
+        plot.background = element_rect(fill = "transparent",colour = NA)) +
+  labs(x = "",
+       #x = "Length of MAF chain",
        y = "Concordance",
        title = expression(paste(bold("D."), "")))
 maf_conc_box
@@ -210,5 +362,5 @@ maf_conc_box
 maf_plots = grid.arrange(top = "Minor allele frequencies (MAF) variations",
                          arrangeGrob(maf_mcc_box, maf_info_box, maf_cert_box, maf_conc_box, ncol = 2, nrow = 2)
                          )
-ggsave(filename = "~/Desktop/MAF_MCC.png", plot = maf_plots, width = 297, height = 210, units = "mm", dpi = 300)
+ggsave(filename = paste0(container, "Plots/MAF_MCC.png"), plot = maf_plots, width = 297, height = 210, units = "mm", dpi = 300, bg = "transparent")
 
