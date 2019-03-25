@@ -40,25 +40,30 @@ main_mcmc_typed_df_t2 = data.frame()
 main_mcmc_typed_df_t3 = data.frame()
 
 for (exp in 1:length(exp.var)) {
-  out.file = paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/MCMC/ConcordanceTables_", exp.var[exp], "_MCCgenotype.csv")
-  out.file.t0 = paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/MCMC/ConcordanceTables_", exp.var[exp], "_MCCgenotype_t0.csv")
-  out.file.t1 = paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/MCMC/ConcordanceTables_", exp.var[exp], "_MCCgenotype_t1.csv")
-  out.file.t2 = paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/MCMC/ConcordanceTables_", exp.var[exp], "_MCCgenotype_t2.csv")
-  out.file.t3 = paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/MCMC/ConcordanceTables_", exp.var[exp], "_MCCgenotype_t3.csv")
+  message(paste0(exp.var[exp]))
+  imp.out.file = paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/MCMC/ConcordanceTables_", exp.var[exp], "_MCC_imputed_genotype.csv")
+  imp.out.file.t0 = paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/MCMC/ConcordanceTables_", exp.var[exp], "_MCC_imputed_genotype_t0.csv")
+  imp.out.file.t1 = paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/MCMC/ConcordanceTables_", exp.var[exp], "_MCC_imputed_genotype_t1.csv")
+  imp.out.file.t2 = paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/MCMC/ConcordanceTables_", exp.var[exp], "_MCC_imputed_genotype_t2.csv")
+  imp.out.file.t3 = paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/MCMC/ConcordanceTables_", exp.var[exp], "_MCC_imputed_genotype_t3.csv")
+  
+  typ.out.file = paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/MCMC/ConcordanceTables_", exp.var[exp], "_MCC_typed_genotype.csv")
+  typ.out.file.t0 = paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/MCMC/ConcordanceTables_", exp.var[exp], "_MCC_typed_genotype_t0.csv")
+  typ.out.file.t1 = paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/MCMC/ConcordanceTables_", exp.var[exp], "_MCC_typed_genotype_t1.csv")
+  typ.out.file.t2 = paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/MCMC/ConcordanceTables_", exp.var[exp], "_MCC_typed_genotype_t2.csv")
+  typ.out.file.t3 = paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/MCMC/ConcordanceTables_", exp.var[exp], "_MCC_typed_genotype_t3.csv")
   
   tmp_mcmc_imputed_df$sub_experiment = exp.var[exp]
-  tmp_mcmc_typed_df$sub_experiment = exp.var[exp]
+  #tmp_mcmc_typed_df$sub_experiment = exp.var[exp]
   for (chip in 1:nrow(chip.table)) {
     tmp.imp.file = paste0(container, chip.table$V1[chip], "/", exp.dir, "/", exp.var[exp], "/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_", exp.var[exp], "_imputed_MCC.csv")
     tmp.typ.file = paste0(container, chip.table$V1[chip], "/", exp.dir, "/", exp.var[exp], "/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_", exp.var[exp], "_typed_MCC.csv")
     
     if (file.exists(tmp.imp.file) == T) {
       tmp_mcmc_imputed_df$imputed[chip] = T
-      tmp_mcmc_typed_df$imputed[chip] = T
       chip.table$imputed[chip] = T
     } else {
       tmp_mcmc_imputed_df$imputed[chip] = F
-      tmp_mcmc_typed_df$imputed[chip] = F
       chip.table$imputed[chip] = F
     }
     
@@ -72,6 +77,7 @@ for (exp in 1:length(exp.var)) {
     tmp_mcmc_imputed_df$r2_type0[chip] = NA
     tmp_mcmc_imputed_df$info_comb[chip] = NA
     
+    tmp_mcmc_typed_df = tmp_mcmc_imputed_df
   }
   
   tmp_mcmc_imputed_df_t0 = tmp_mcmc_imputed_df
@@ -222,16 +228,27 @@ for (exp in 1:length(exp.var)) {
       tmp_mcmc_typed_df_t3$info_comb[chip]         = mean(tmp.typ.table_t3$info_comb, na.rm = T)
     }
   }
-  write.csv(tmp_mcmc_df, out.file, row.names = F, quote = F)
-  message(paste0("WROTE ", out.file, " TO DISK"))
-  write.csv(tmp_mcmc_df, out.file.t0, row.names = F, quote = F)
-  message(paste0("WROTE ", out.file.t0, " TO DISK"))
-  write.csv(tmp_mcmc_df, out.file.t1, row.names = F, quote = F)
-  message(paste0("WROTE ", out.file.t1, " TO DISK"))
-  write.csv(tmp_mcmc_df, out.file.t2, row.names = F, quote = F)
-  message(paste0("WROTE ", out.file.t2, " TO DISK"))
-  write.csv(tmp_mcmc_df, out.file.t3, row.names = F, quote = F)
-  message(paste0("WROTE ", out.file.t3, " TO DISK"))
+  write.csv(tmp_mcmc_imputed_df, imp.out.file, row.names = F, quote = F)
+  message(paste0("WROTE ", imp.out.file, " TO DISK"))
+  write.csv(tmp_mcmc_imputed_df_t0, imp.out.file.t0, row.names = F, quote = F)
+  message(paste0("WROTE ", imp.out.file.t0, " TO DISK"))
+  write.csv(tmp_mcmc_imputed_df_t1, imp.out.file.t1, row.names = F, quote = F)
+  message(paste0("WROTE ", imp.out.file.t1, " TO DISK"))
+  write.csv(tmp_mcmc_imputed_df_t2, imp.out.file.t2, row.names = F, quote = F)
+  message(paste0("WROTE ", imp.out.file.t2, " TO DISK"))
+  write.csv(tmp_mcmc_imputed_df_t3, imp.out.file.t3, row.names = F, quote = F)
+  message(paste0("WROTE ", imp.out.file.t3, " TO DISK"))
+  #
+  write.csv(tmp_mcmc_typed_df, typ.out.file, row.names = F, quote = F)
+  message(paste0("WROTE ", typ.out.file, " TO DISK"))
+  write.csv(tmp_mcmc_typed_df_t0, typ.out.file.t0, row.names = F, quote = F)
+  message(paste0("WROTE ", typ.out.file.t0, " TO DISK"))
+  write.csv(tmp_mcmc_typed_df_t1, typ.out.file.t1, row.names = F, quote = F)
+  message(paste0("WROTE ", typ.out.file.t1, " TO DISK"))
+  write.csv(tmp_mcmc_typed_df_t2, typ.out.file.t2, row.names = F, quote = F)
+  message(paste0("WROTE ", typ.out.file.t2, " TO DISK"))
+  write.csv(tmp_mcmc_typed_df_t3, typ.out.file.t3, row.names = F, quote = F)
+  message(paste0("WROTE ", typ.out.file.t3, " TO DISK"))
   
   main_mcmc_imputed_df = rbind(main_mcmc_imputed_df, tmp_mcmc_imputed_df)
   main_mcmc_imputed_df_t0 = rbind(main_mcmc_imputed_df_t0, tmp_mcmc_imputed_df_t0)
@@ -245,446 +262,535 @@ for (exp in 1:length(exp.var)) {
   main_mcmc_typed_df_t2 = rbind(main_mcmc_typed_df_t2, tmp_mcmc_typed_df_t2)
   main_mcmc_typed_df_t3 = rbind(main_mcmc_typed_df_t3, tmp_mcmc_typed_df_t3)
 }
-write.csv(main_mcmc_df, paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/combined/ConcordanceTables_", exp.dir,"_COMBINED.csv"), row.names = F, quote = F)
-
-exp.dir = "MCMC_Experiments"
-main_mcmc_df$sub_experiment = factor(main_mcmc_df$sub_experiment, levels = exp.var)
-exp.var = c("MCMC1", "MCMC5", "MCMC10", "MCMC20", "MCMC30")
-mcmc_box = ggplot(main_mcmc_df, aes(x = sub_experiment, y = imputed_match)) +
-  geom_violin(fill = "#feb600", na.rm = T) +
-  geom_boxplot(width = rel(0.25), notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428") +
-  theme_bw() +
-  scale_y_continuous(breaks = c(0.0, 0.2, 0.4, 0.6, 0.8, 1.0),
-                     limits = c(0, 1)) +
-  labs(x = "Length of MCMC chain",
-       y = "% concordance with resequenced dataset",
-       title = expression(paste(bold("A."), " Markov chain Monte Carlo (MCMC) length variations")))
-mcmc_box
-ggsave(filename = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/plots/ConcordanceTables_", exp.dir,"_HaploGrep.png"), plot = mcmc_box, units = "mm", width = 297, height = 210, dpi = 300)
-
-macro_mcmc_box = ggplot(main_mcmc_df, aes(x = sub_experiment, y = imputed_macro_match)) +
-  geom_violin(fill = "#feb600", na.rm = T) +
-  geom_boxplot(width = rel(0.25), notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428") +
-  theme_bw() +
-  scale_y_continuous(breaks = c(0.0, 0.2, 0.4, 0.6, 0.8, 1.0),
-                     limits = c(0, 1)) +
-  labs(x = "Length of MCMC chain",
-       y = "% concordance with resequenced dataset",
-       title = expression(paste(bold("A."), " Markov chain Monte Carlo (MCMC) length variations")))
-macro_mcmc_box
-ggsave(filename = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/plots/ConcordanceTables_macro_", exp.dir,"_HaploGrep.png"), plot = macro_mcmc_box, units = "mm", width = 297, height = 210, dpi = 300)
-
-info_mcmc_box = ggplot(main_mcmc_df, aes(x = sub_experiment, y = info_score)) +
-  geom_violin(fill = "#feb600", na.rm = T) +
-  geom_boxplot(width = rel(0.25), notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428") +
-  theme_bw() +
-  scale_y_continuous(breaks = c(0.0, 0.2, 0.4, 0.6, 0.8, 1.0),
-                     limits = c(0, 1)) +
-  labs(x = "Length of MCMC chain",
-       y = expression(paste("IMPUTE2 info score (", italic("r")^"2", ")")),
-       title = expression(paste(bold("A."), " Markov chain Monte Carlo (MCMC) length variations")))
-info_mcmc_box
-ggsave(filename = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/plots/ConcordanceTables_info_", exp.dir,"_HaploGrep.png"), plot = info_mcmc_box, units = "mm", width = 297, height = 210, dpi = 300)
+write.csv(main_mcmc_imputed_df, paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/MCMC/ConcordanceTables_", exp.dir,"_MCC_imputed_genotype.csv"), row.names = F, quote = F)
+write.csv(main_mcmc_imputed_df_t0, paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/MCMC/ConcordanceTables_", exp.dir,"_MCC_imputed_genotype_t0.csv"), row.names = F, quote = F)
+write.csv(main_mcmc_imputed_df_t1, paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/MCMC/ConcordanceTables_", exp.dir,"_MCC_imputed_genotype_t1.csv"), row.names = F, quote = F)
+write.csv(main_mcmc_imputed_df_t2, paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/MCMC/ConcordanceTables_", exp.dir,"_MCC_imputed_genotype_t2.csv"), row.names = F, quote = F)
+write.csv(main_mcmc_imputed_df_t3, paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/MCMC/ConcordanceTables_", exp.dir,"_MCC_imputed_genotype_t3.csv"), row.names = F, quote = F)
+write.csv(main_mcmc_typed_df, paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/MCMC/ConcordanceTables_", exp.dir,"_MCC_typed_genotype.csv"), row.names = F, quote = F)
+write.csv(main_mcmc_typed_df_t0, paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/MCMC/ConcordanceTables_", exp.dir,"_MCC_typed_genotype_t0.csv"), row.names = F, quote = F)
+write.csv(main_mcmc_typed_df_t1, paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/MCMC/ConcordanceTables_", exp.dir,"_MCC_typed_genotype_t1.csv"), row.names = F, quote = F)
+write.csv(main_mcmc_typed_df_t2, paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/MCMC/ConcordanceTables_", exp.dir,"_MCC_typed_genotype_t2.csv"), row.names = F, quote = F)
+write.csv(main_mcmc_typed_df_t3, paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/MCMC/ConcordanceTables_", exp.dir,"_MCC_typed_genotype_t3.csv"), row.names = F, quote = F)
 
 ## KHAP 
 
 exp.dir = "kHAP_Experiments"
 exp.var = c("kHAP100", "kHAP250", "kHAP500", "kHAP1000", "kHAP2500", "kHAP5000", "kHAP10000", "kHAP20000", "kHAP30000")
-tmp_khap_df = data.frame(matrix(ncol = 1, nrow = nrow(chip.table)))
-names(tmp_khap_df) = c("chip")
-tmp_khap_df$chip = chip.table$V1
-tmp_khap_df$experiment = exp.dir
+tmp_khap_imputed_df = data.frame(matrix(ncol = 1, nrow = nrow(chip.table)))
+names(tmp_khap_imputed_df) = c("chip")
+tmp_khap_imputed_df$chip = chip.table$V1
+tmp_khap_imputed_df$experiment = exp.dir
 
-main_khap_df = data.frame()
+main_khap_imputed_df = data.frame()
+main_khap_imputed_df_t0 = data.frame()
+main_khap_imputed_df_t1 = data.frame()
+main_khap_imputed_df_t2 = data.frame()
+main_khap_imputed_df_t3 = data.frame()
+
+main_khap_typed_df = data.frame()
+main_khap_typed_df_t0 = data.frame()
+main_khap_typed_df_t1 = data.frame()
+main_khap_typed_df_t2 = data.frame()
+main_khap_typed_df_t3 = data.frame()
 
 for (exp in 1:length(exp.var)) {
-  out.file = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/combined/ConcordanceTables_", exp.var[exp], ".csv")
-  tmp_khap_df$sub_experiment = exp.var[exp]
+  message(paste0(exp.var[exp]))
+  imp.out.file = paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/KHAP/ConcordanceTables_", exp.var[exp], "_MCC_imputed_genotype.csv")
+  imp.out.file.t0 = paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/KHAP/ConcordanceTables_", exp.var[exp], "_MCC_imputed_genotype_t0.csv")
+  imp.out.file.t1 = paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/KHAP/ConcordanceTables_", exp.var[exp], "_MCC_imputed_genotype_t1.csv")
+  imp.out.file.t2 = paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/KHAP/ConcordanceTables_", exp.var[exp], "_MCC_imputed_genotype_t2.csv")
+  imp.out.file.t3 = paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/KHAP/ConcordanceTables_", exp.var[exp], "_MCC_imputed_genotype_t3.csv")
+  
+  typ.out.file = paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/KHAP/ConcordanceTables_", exp.var[exp], "_MCC_typed_genotype.csv")
+  typ.out.file.t0 = paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/KHAP/ConcordanceTables_", exp.var[exp], "_MCC_typed_genotype_t0.csv")
+  typ.out.file.t1 = paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/KHAP/ConcordanceTables_", exp.var[exp], "_MCC_typed_genotype_t1.csv")
+  typ.out.file.t2 = paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/KHAP/ConcordanceTables_", exp.var[exp], "_MCC_typed_genotype_t2.csv")
+  typ.out.file.t3 = paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/KHAP/ConcordanceTables_", exp.var[exp], "_MCC_typed_genotype_t3.csv")
+  
+  tmp_khap_imputed_df$sub_experiment = exp.var[exp]
+  #tmp_khap_typed_df$sub_experiment = exp.var[exp]
   for (chip in 1:nrow(chip.table)) {
-    tmp.file = paste0(container, chip.table$V1[chip], "/", exp.dir, "/", exp.var[exp], "/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_", exp.var[exp], "_haplogrep.txt")
-    if (file.exists(tmp.file) == T) {
-      tmp_khap_df$imputed[chip] = T
+    tmp.imp.file = paste0(container, chip.table$V1[chip], "/", exp.dir, "/", exp.var[exp], "/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_", exp.var[exp], "_imputed_MCC.csv")
+    tmp.typ.file = paste0(container, chip.table$V1[chip], "/", exp.dir, "/", exp.var[exp], "/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_", exp.var[exp], "_typed_MCC.csv")
+    
+    if (file.exists(tmp.imp.file) == T) {
+      tmp_khap_imputed_df$imputed[chip] = T
       chip.table$imputed[chip] = T
     } else {
-      tmp_khap_df$imputed[chip] = F
+      tmp_khap_imputed_df$imputed[chip] = F
       chip.table$imputed[chip] = F
     }
+    
+    tmp_khap_imputed_df$allele_freq[chip] = NA
+    tmp_khap_imputed_df$mcc[chip] = NA
+    tmp_khap_imputed_df$concordance[chip] = NA
+    tmp_khap_imputed_df$info[chip] = NA
+    tmp_khap_imputed_df$certainty[chip] = NA
+    tmp_khap_imputed_df$info_type0[chip] = NA
+    tmp_khap_imputed_df$concord_type0[chip] = NA
+    tmp_khap_imputed_df$r2_type0[chip] = NA
+    tmp_khap_imputed_df$info_comb[chip] = NA
+    
+    tmp_khap_typed_df = tmp_khap_imputed_df
   }
   
-  tmp_khap_df$info_score[chip] = NA
-  tmp_khap_df$typed_match[chip] = NA
-  tmp_khap_df$typed_macro_match[chip] = NA
-  tmp_khap_df$imputed_match[chip] = NA
-  tmp_khap_df$imputed_macro_match[chip] = NA
+  tmp_khap_imputed_df_t0 = tmp_khap_imputed_df
+  tmp_khap_imputed_df_t1 = tmp_khap_imputed_df
+  tmp_khap_imputed_df_t2 = tmp_khap_imputed_df
+  tmp_khap_imputed_df_t3 = tmp_khap_imputed_df
+  
+  tmp_khap_typed_df_t0 = tmp_khap_imputed_df_t0
+  tmp_khap_typed_df_t1 = tmp_khap_imputed_df_t1
+  tmp_khap_typed_df_t2 = tmp_khap_imputed_df_t2
+  tmp_khap_typed_df_t3 = tmp_khap_imputed_df_t3
   
   total = nrow(chip.table)
   total_imputed = nrow(subset(chip.table, chip.table$imputed == T))
   
   for (chip in 1:nrow(chip.table)) {
     message(paste0("WORKING ON CHIP FOR ", exp.var[exp], ":\t", chip, " / ", total))
-    # TYPED FILE
-    tmp1.file = paste0(container, chip.table$V1[chip], "/", exp.dir, "/", "chrMT_1kg_", chip.table$V1[chip], "_diploid.txt")
-    if (file.exists(tmp1.file) == T) {
-      tmp1.hg.table = read.table(tmp1.file, header = T)
-      tmp1.hg.table$Range = NULL
+    
+    tmp.imp.file = paste0(container, chip.table$V1[chip], "/", exp.dir, "/", exp.var[exp], "/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_", exp.var[exp], "_imputed_MCC.csv")
+    tmp.typ.file = paste0(container, chip.table$V1[chip], "/", exp.dir, "/", exp.var[exp], "/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_", exp.var[exp], "_typed_MCC.csv")
+    # IMPUTED FILE
+    if (file.exists(tmp.imp.file) == T) {
+      tmp.imp.table = read.csv(tmp.imp.file, header = T)
       
-      ## CREATE COLUMN FOR MACRO HAPLOGROUPS
-      # USE FIRST LETTER AND NUMBER FOR AFRICAN CLADES
-      tmp1.hg.table.A = subset(tmp1.hg.table, substr(tmp1.hg.table$Haplogroup, 1, 1) == "L")
-      tmp1.hg.table.A$Macrohaplogroup = substr(tmp1.hg.table.A$Haplogroup, 1, 2)
-      # USE FIRST LETTER FOR NON-AFRICAN CLADES
-      tmp1.hg.table.N = subset(tmp1.hg.table, substr(tmp1.hg.table$Haplogroup, 1, 1) != "L")
-      tmp1.hg.table.N$Macrohaplogroup = substr(tmp1.hg.table.N$Haplogroup, 1, 1)
-      # COMBINED AND REARRANGE
-      tmp1.hg.table = rbind(tmp1.hg.table.A, tmp1.hg.table.N)
-      tmp1.hg.table = arrange(tmp1.hg.table, tmp1.hg.table$SampleID)
+      # THE FULL THING
+      tmp_khap_imputed_df$allele_freq[chip]       = mean(tmp.imp.table$af, na.rm = T)
+      tmp_khap_imputed_df$mcc[chip]               = mean(tmp.imp.table$mcc, na.rm = T)
+      tmp_khap_imputed_df$concordance[chip]       = mean(tmp.imp.table$concodance, na.rm = T)
+      tmp_khap_imputed_df$info[chip]              = mean(tmp.imp.table$info, na.rm = T)
+      tmp_khap_imputed_df$certainty[chip]         = mean(tmp.imp.table$certainty, na.rm = T)
+      tmp_khap_imputed_df$info_type0[chip]        = mean(tmp.imp.table$info_type0, na.rm = T)
+      tmp_khap_imputed_df$concord_type0[chip]     = mean(tmp.imp.table$concord_type0, na.rm = T)
+      tmp_khap_imputed_df$r2_type0[chip]          = mean(tmp.imp.table$r2_type0, na.rm = T)
+      tmp_khap_imputed_df$info_comb[chip]         = mean(tmp.imp.table$info_comb, na.rm = T)
       
-      tmp1.hg.table$typed_match = as.character(truth.table$Haplogroup) == as.character(tmp1.hg.table$Haplogroup)
-      tmp1.hg.table$typed_macro_match = as.character(truth.table$Macrohaplogroup) == as.character(tmp1.hg.table$Macrohaplogroup)
+      # TYPE 0 ONLY!
+      tmp.imp.table_t0 = subset(tmp.imp.table, tmp.imp.table$type == 0)
       
-      tmp_khap_df$typed_match[chip] = nrow(subset(tmp1.hg.table, tmp1.hg.table$typed_match == T)) /  nrow(tmp1.hg.table)
-      tmp_khap_df$typed_macro_match[chip] = nrow(subset(tmp1.hg.table, tmp1.hg.table$typed_macro_match == T)) /  nrow(tmp1.hg.table)
+      tmp_khap_imputed_df_t0$allele_freq[chip]       = mean(tmp.imp.table_t0$af, na.rm = T)
+      tmp_khap_imputed_df_t0$mcc[chip]               = mean(tmp.imp.table_t0$mcc, na.rm = T)
+      tmp_khap_imputed_df_t0$concordance[chip]       = mean(tmp.imp.table_t0$concodance, na.rm = T)
+      tmp_khap_imputed_df_t0$info[chip]              = mean(tmp.imp.table_t0$info, na.rm = T)
+      tmp_khap_imputed_df_t0$certainty[chip]         = mean(tmp.imp.table_t0$certainty, na.rm = T)
+      tmp_khap_imputed_df_t0$info_type0[chip]        = mean(tmp.imp.table_t0$info_type0, na.rm = T)
+      tmp_khap_imputed_df_t0$concord_type0[chip]     = mean(tmp.imp.table_t0$concord_type0, na.rm = T)
+      tmp_khap_imputed_df_t0$r2_type0[chip]          = mean(tmp.imp.table_t0$r2_type0, na.rm = T)
+      tmp_khap_imputed_df_t0$info_comb[chip]         = mean(tmp.imp.table_t0$info_comb, na.rm = T)
+      # TYPE 1 ONLY!
+      tmp.imp.table_t1 = subset(tmp.imp.table, tmp.imp.table$type == 1)
+      
+      tmp_khap_imputed_df_t1$allele_freq[chip]       = mean(tmp.imp.table_t1$af, na.rm = T)
+      tmp_khap_imputed_df_t1$mcc[chip]               = mean(tmp.imp.table_t1$mcc, na.rm = T)
+      tmp_khap_imputed_df_t1$concordance[chip]       = mean(tmp.imp.table_t1$concodance, na.rm = T)
+      tmp_khap_imputed_df_t1$info[chip]              = mean(tmp.imp.table_t1$info, na.rm = T)
+      tmp_khap_imputed_df_t1$certainty[chip]         = mean(tmp.imp.table_t1$certainty, na.rm = T)
+      tmp_khap_imputed_df_t1$info_type0[chip]        = mean(tmp.imp.table_t1$info_type0, na.rm = T)
+      tmp_khap_imputed_df_t1$concord_type0[chip]     = mean(tmp.imp.table_t1$concord_type0, na.rm = T)
+      tmp_khap_imputed_df_t1$r2_type0[chip]          = mean(tmp.imp.table_t1$r2_type0, na.rm = T)
+      tmp_khap_imputed_df_t1$info_comb[chip]         = mean(tmp.imp.table_t1$info_comb, na.rm = T)
+      # TYPE 2 ONLY!
+      tmp.imp.table_t2 = subset(tmp.imp.table, tmp.imp.table$type == 2)
+      
+      tmp_khap_imputed_df_t2$allele_freq[chip]       = mean(tmp.imp.table_t2$af, na.rm = T)
+      tmp_khap_imputed_df_t2$mcc[chip]               = mean(tmp.imp.table_t2$mcc, na.rm = T)
+      tmp_khap_imputed_df_t2$concordance[chip]       = mean(tmp.imp.table_t2$concodance, na.rm = T)
+      tmp_khap_imputed_df_t2$info[chip]              = mean(tmp.imp.table_t2$info, na.rm = T)
+      tmp_khap_imputed_df_t2$certainty[chip]         = mean(tmp.imp.table_t2$certainty, na.rm = T)
+      tmp_khap_imputed_df_t2$info_type0[chip]        = mean(tmp.imp.table_t2$info_type0, na.rm = T)
+      tmp_khap_imputed_df_t2$concord_type0[chip]     = mean(tmp.imp.table_t2$concord_type0, na.rm = T)
+      tmp_khap_imputed_df_t2$r2_type0[chip]          = mean(tmp.imp.table_t2$r2_type0, na.rm = T)
+      tmp_khap_imputed_df_t2$info_comb[chip]         = mean(tmp.imp.table_t2$info_comb, na.rm = T)
+      # TYPE 3 ONLY!
+      tmp.imp.table_t3 = subset(tmp.imp.table, tmp.imp.table$type == 3)
+      
+      tmp_khap_imputed_df_t3$allele_freq[chip]       = mean(tmp.imp.table_t3$af, na.rm = T)
+      tmp_khap_imputed_df_t3$mcc[chip]               = mean(tmp.imp.table_t3$mcc, na.rm = T)
+      tmp_khap_imputed_df_t3$concordance[chip]       = mean(tmp.imp.table_t3$concodance, na.rm = T)
+      tmp_khap_imputed_df_t3$info[chip]              = mean(tmp.imp.table_t3$info, na.rm = T)
+      tmp_khap_imputed_df_t3$certainty[chip]         = mean(tmp.imp.table_t3$certainty, na.rm = T)
+      tmp_khap_imputed_df_t3$info_type0[chip]        = mean(tmp.imp.table_t3$info_type0, na.rm = T)
+      tmp_khap_imputed_df_t3$concord_type0[chip]     = mean(tmp.imp.table_t3$concord_type0, na.rm = T)
+      tmp_khap_imputed_df_t3$r2_type0[chip]          = mean(tmp.imp.table_t3$r2_type0, na.rm = T)
+      tmp_khap_imputed_df_t3$info_comb[chip]         = mean(tmp.imp.table_t3$info_comb, na.rm = T)
     }
     
     # IMPUTED FILE
-    tmp2.file = paste0(container, chip.table$V1[chip], "/", exp.dir, "/", exp.var[exp], "/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_", exp.var[exp], "_haplogrep.txt")
-    tmp3.file = paste0(container, chip.table$V1[chip], "/", exp.dir, "/", exp.var[exp], "/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_", exp.var[exp], "_info")
-    if (file.exists(tmp2.file) == T) {
-      tmp2.hg.table = read.table(tmp2.file, header = T)
-      tmp2.hg.table$Range = NULL
+    if (file.exists(tmp.typ.file) == T) {
+      tmp.typ.table = read.csv(tmp.typ.file, header = T)
       
-      ## GATHER INFO SCORE
-      info.table = read.table(tmp3.file, header = T)
-      tmp_khap_df$info_score[chip] = mean(info.table$info, na.rm = T)
+      # THE FULL THING
+      tmp_khap_typed_df$allele_freq[chip]       = mean(tmp.typ.table$af, na.rm = T)
+      tmp_khap_typed_df$mcc[chip]               = mean(tmp.typ.table$mcc, na.rm = T)
+      tmp_khap_typed_df$concordance[chip]       = mean(tmp.typ.table$concodance, na.rm = T)
+      tmp_khap_typed_df$info[chip]              = mean(tmp.typ.table$info, na.rm = T)
+      tmp_khap_typed_df$certainty[chip]         = mean(tmp.typ.table$certainty, na.rm = T)
+      tmp_khap_typed_df$info_type0[chip]        = mean(tmp.typ.table$info_type0, na.rm = T)
+      tmp_khap_typed_df$concord_type0[chip]     = mean(tmp.typ.table$concord_type0, na.rm = T)
+      tmp_khap_typed_df$r2_type0[chip]          = mean(tmp.typ.table$r2_type0, na.rm = T)
+      tmp_khap_typed_df$info_comb[chip]         = mean(tmp.typ.table$info_comb, na.rm = T)
       
-      ## CREATE COLUMN FOR MACRO HAPLOGROUPS
-      # USE FIRST LETTER AND NUMBER FOR AFRICAN CLADES
-      tmp2.hg.table.A = subset(tmp2.hg.table, substr(tmp2.hg.table$Haplogroup, 1, 1) == "L")
-      tmp2.hg.table.A$Macrohaplogroup = substr(tmp2.hg.table.A$Haplogroup, 1, 2)
-      # USE FIRST LETTER FOR NON-AFRICAN CLADES
-      tmp2.hg.table.N = subset(tmp2.hg.table, substr(tmp2.hg.table$Haplogroup, 1, 1) != "L")
-      tmp2.hg.table.N$Macrohaplogroup = substr(tmp2.hg.table.N$Haplogroup, 1, 1)
-      # COMBINED AND REARRANGE
-      tmp2.hg.table = rbind(tmp2.hg.table.A, tmp2.hg.table.N)
-      tmp2.hg.table = arrange(tmp2.hg.table, tmp2.hg.table$SampleID)
+      # TYPE 0 ONLY!
+      tmp.typ.table_t0 = subset(tmp.typ.table, tmp.typ.table$type == 0)
       
-      tmp2.hg.table$imputed_match = as.character(truth.table$Haplogroup) == as.character(tmp2.hg.table$Haplogroup)
-      tmp2.hg.table$imputed_macro_match = as.character(truth.table$Macrohaplogroup) == as.character(tmp2.hg.table$Macrohaplogroup)
+      tmp_khap_typed_df_t0$allele_freq[chip]       = mean(tmp.typ.table_t0$af, na.rm = T)
+      tmp_khap_typed_df_t0$mcc[chip]               = mean(tmp.typ.table_t0$mcc, na.rm = T)
+      tmp_khap_typed_df_t0$concordance[chip]       = mean(tmp.typ.table_t0$concodance, na.rm = T)
+      tmp_khap_typed_df_t0$info[chip]              = mean(tmp.typ.table_t0$info, na.rm = T)
+      tmp_khap_typed_df_t0$certainty[chip]         = mean(tmp.typ.table_t0$certainty, na.rm = T)
+      tmp_khap_typed_df_t0$info_type0[chip]        = mean(tmp.typ.table_t0$info_type0, na.rm = T)
+      tmp_khap_typed_df_t0$concord_type0[chip]     = mean(tmp.typ.table_t0$concord_type0, na.rm = T)
+      tmp_khap_typed_df_t0$r2_type0[chip]          = mean(tmp.typ.table_t0$r2_type0, na.rm = T)
+      tmp_khap_typed_df_t0$info_comb[chip]         = mean(tmp.typ.table_t0$info_comb, na.rm = T)
+      # TYPE 1 ONLY!
+      tmp.typ.table_t1 = subset(tmp.typ.table, tmp.typ.table$type == 1)
       
-      tmp_khap_df$imputed_match[chip] = nrow(subset(tmp2.hg.table, tmp2.hg.table$imputed_match == T)) / nrow(tmp2.hg.table)
-      tmp_khap_df$imputed_macro_match[chip] = nrow(subset(tmp2.hg.table, tmp2.hg.table$imputed_macro_match == T)) / nrow(tmp2.hg.table)
+      tmp_khap_typed_df_t1$allele_freq[chip]       = mean(tmp.typ.table_t1$af, na.rm = T)
+      tmp_khap_typed_df_t1$mcc[chip]               = mean(tmp.typ.table_t1$mcc, na.rm = T)
+      tmp_khap_typed_df_t1$concordance[chip]       = mean(tmp.typ.table_t1$concodance, na.rm = T)
+      tmp_khap_typed_df_t1$info[chip]              = mean(tmp.typ.table_t1$info, na.rm = T)
+      tmp_khap_typed_df_t1$certainty[chip]         = mean(tmp.typ.table_t1$certainty, na.rm = T)
+      tmp_khap_typed_df_t1$info_type0[chip]        = mean(tmp.typ.table_t1$info_type0, na.rm = T)
+      tmp_khap_typed_df_t1$concord_type0[chip]     = mean(tmp.typ.table_t1$concord_type0, na.rm = T)
+      tmp_khap_typed_df_t1$r2_type0[chip]          = mean(tmp.typ.table_t1$r2_type0, na.rm = T)
+      tmp_khap_typed_df_t1$info_comb[chip]         = mean(tmp.typ.table_t1$info_comb, na.rm = T)
+      # TYPE 2 ONLY!
+      tmp.typ.table_t2 = subset(tmp.typ.table, tmp.typ.table$type == 2)
+      
+      tmp_khap_typed_df_t2$allele_freq[chip]       = mean(tmp.typ.table_t2$af, na.rm = T)
+      tmp_khap_typed_df_t2$mcc[chip]               = mean(tmp.typ.table_t2$mcc, na.rm = T)
+      tmp_khap_typed_df_t2$concordance[chip]       = mean(tmp.typ.table_t2$concodance, na.rm = T)
+      tmp_khap_typed_df_t2$info[chip]              = mean(tmp.typ.table_t2$info, na.rm = T)
+      tmp_khap_typed_df_t2$certainty[chip]         = mean(tmp.typ.table_t2$certainty, na.rm = T)
+      tmp_khap_typed_df_t2$info_type0[chip]        = mean(tmp.typ.table_t2$info_type0, na.rm = T)
+      tmp_khap_typed_df_t2$concord_type0[chip]     = mean(tmp.typ.table_t2$concord_type0, na.rm = T)
+      tmp_khap_typed_df_t2$r2_type0[chip]          = mean(tmp.typ.table_t2$r2_type0, na.rm = T)
+      tmp_khap_typed_df_t2$info_comb[chip]         = mean(tmp.typ.table_t2$info_comb, na.rm = T)
+      # TYPE 3 ONLY!
+      tmp.typ.table_t3 = subset(tmp.typ.table, tmp.typ.table$type == 3)
+      
+      tmp_khap_typed_df_t3$allele_freq[chip]       = mean(tmp.typ.table_t3$af, na.rm = T)
+      tmp_khap_typed_df_t3$mcc[chip]               = mean(tmp.typ.table_t3$mcc, na.rm = T)
+      tmp_khap_typed_df_t3$concordance[chip]       = mean(tmp.typ.table_t3$concodance, na.rm = T)
+      tmp_khap_typed_df_t3$info[chip]              = mean(tmp.typ.table_t3$info, na.rm = T)
+      tmp_khap_typed_df_t3$certainty[chip]         = mean(tmp.typ.table_t3$certainty, na.rm = T)
+      tmp_khap_typed_df_t3$info_type0[chip]        = mean(tmp.typ.table_t3$info_type0, na.rm = T)
+      tmp_khap_typed_df_t3$concord_type0[chip]     = mean(tmp.typ.table_t3$concord_type0, na.rm = T)
+      tmp_khap_typed_df_t3$r2_type0[chip]          = mean(tmp.typ.table_t3$r2_type0, na.rm = T)
+      tmp_khap_typed_df_t3$info_comb[chip]         = mean(tmp.typ.table_t3$info_comb, na.rm = T)
     }
   }
-  write.csv(tmp_khap_df, out.file, row.names = F, quote = F)
-  message(paste0("WROTE ", out.file, " TO DISK"))
-  main_khap_df = rbind(main_khap_df, tmp_khap_df)
+  write.csv(tmp_khap_imputed_df, imp.out.file, row.names = F, quote = F)
+  message(paste0("WROTE ", imp.out.file, " TO DISK"))
+  write.csv(tmp_khap_imputed_df_t0, imp.out.file.t0, row.names = F, quote = F)
+  message(paste0("WROTE ", imp.out.file.t0, " TO DISK"))
+  write.csv(tmp_khap_imputed_df_t1, imp.out.file.t1, row.names = F, quote = F)
+  message(paste0("WROTE ", imp.out.file.t1, " TO DISK"))
+  write.csv(tmp_khap_imputed_df_t2, imp.out.file.t2, row.names = F, quote = F)
+  message(paste0("WROTE ", imp.out.file.t2, " TO DISK"))
+  write.csv(tmp_khap_imputed_df_t3, imp.out.file.t3, row.names = F, quote = F)
+  message(paste0("WROTE ", imp.out.file.t3, " TO DISK"))
+  #
+  write.csv(tmp_khap_typed_df, typ.out.file, row.names = F, quote = F)
+  message(paste0("WROTE ", typ.out.file, " TO DISK"))
+  write.csv(tmp_khap_typed_df_t0, typ.out.file.t0, row.names = F, quote = F)
+  message(paste0("WROTE ", typ.out.file.t0, " TO DISK"))
+  write.csv(tmp_khap_typed_df_t1, typ.out.file.t1, row.names = F, quote = F)
+  message(paste0("WROTE ", typ.out.file.t1, " TO DISK"))
+  write.csv(tmp_khap_typed_df_t2, typ.out.file.t2, row.names = F, quote = F)
+  message(paste0("WROTE ", typ.out.file.t2, " TO DISK"))
+  write.csv(tmp_khap_typed_df_t3, typ.out.file.t3, row.names = F, quote = F)
+  message(paste0("WROTE ", typ.out.file.t3, " TO DISK"))
+  
+  main_khap_imputed_df = rbind(main_khap_imputed_df, tmp_khap_imputed_df)
+  main_khap_imputed_df_t0 = rbind(main_khap_imputed_df_t0, tmp_khap_imputed_df_t0)
+  main_khap_imputed_df_t1 = rbind(main_khap_imputed_df_t1, tmp_khap_imputed_df_t1)
+  main_khap_imputed_df_t2 = rbind(main_khap_imputed_df_t2, tmp_khap_imputed_df_t2)
+  main_khap_imputed_df_t3 = rbind(main_khap_imputed_df_t3, tmp_khap_imputed_df_t3)
+  
+  main_khap_typed_df = rbind(main_khap_typed_df, tmp_khap_typed_df)
+  main_khap_typed_df_t0 = rbind(main_khap_typed_df_t0, tmp_khap_typed_df_t0)
+  main_khap_typed_df_t1 = rbind(main_khap_typed_df_t1, tmp_khap_typed_df_t1)
+  main_khap_typed_df_t2 = rbind(main_khap_typed_df_t2, tmp_khap_typed_df_t2)
+  main_khap_typed_df_t3 = rbind(main_khap_typed_df_t3, tmp_khap_typed_df_t3)
 }
-main_khap_df$diff = main_khap_df$imputed_match - main_khap_df$typed_match
-main_khap_df$diff_macro = main_khap_df$imputed_macro_match - main_khap_df$typed_macro_match
-write.csv(main_khap_df, paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/combined/ConcordanceTables_", exp.dir,"_COMBINED.csv"), row.names = F, quote = F)
-
-exp.dir = "kHAP_Experiments"
-exp.var = c("kHAP100", "kHAP250", "kHAP500", "kHAP1000", "kHAP2500", "kHAP5000", "kHAP10000", "kHAP20000", "kHAP30000")
-main_khap_df$sub_experiment = factor(main_khap_df$sub_experiment, levels = exp.var)
-k_hap_box = ggplot(main_khap_df, aes(x = sub_experiment, y = imputed_match)) +
-  geom_violin(fill = "#feb600", na.rm = T) +
-  geom_boxplot(width = 0.125, notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428") +
-  theme_bw() +
-  scale_y_continuous(breaks = c(0.0, 0.2, 0.4, 0.6, 0.8, 1.0),
-                     limits = c(0, 1)) +
-  labs(x = "Number of reference haplotypes used",
-       y = "% concordance with resequenced dataset",
-       title = expression(paste(bold("B."), " Number of included reference haplotypes (k_hap) variations")))
-k_hap_box
-ggsave(filename = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/plots/ConcordanceTables_", exp.dir,"_HaploGrep.png"), plot = k_hap_box, units = "mm", width = 297, height = 210, dpi = 300)
-
-macro_k_hap_box = ggplot(main_khap_df, aes(x = sub_experiment, y = imputed_macro_match)) +
-  geom_violin(fill = "#feb600", na.rm = T) +
-  geom_boxplot(width = 0.125, notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428") +
-  theme_bw() +
-  scale_y_continuous(breaks = c(0.0, 0.2, 0.4, 0.6, 0.8, 1.0),
-                     limits = c(0, 1)) +
-  labs(x = "Number of reference haplotypes used",
-       y = "% concordance with resequenced dataset",
-       title = expression(paste(bold("B."), " Number of included reference haplotypes (k_hap) variations")))
-macro_k_hap_box
-ggsave(filename = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/plots/ConcordanceTables_macro_", exp.dir,"_HaploGrep.png"), plot = macro_k_hap_box, units = "mm", width = 297, height = 210, dpi = 300)
-
-info_k_hap_box = ggplot(main_khap_df, aes(x = sub_experiment, y = info_score)) +
-  geom_violin(fill = "#feb600", na.rm = T) +
-  geom_boxplot(width = rel(0.25), notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428") +
-  theme_bw() +
-  scale_y_continuous(breaks = c(0.0, 0.2, 0.4, 0.6, 0.8, 1.0),
-                     limits = c(0, 1)) +
-  labs(x = "Length of MCMC chain",
-       y = expression(paste("IMPUTE2 info score (", italic("r")^"2", ")")),
-       title = expression(paste(bold("B."), " Number of included reference haplotypes (k_hap) variations")))
-info_k_hap_box
-ggsave(filename = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/plots/ConcordanceTables_info_", exp.dir,"_HaploGrep.png"), plot = info_k_hap_box, units = "mm", width = 297, height = 210, dpi = 300)
+write.csv(main_khap_imputed_df, paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/KHAP/ConcordanceTables_", exp.dir,"_MCC_imputed_genotype.csv"), row.names = F, quote = F)
+write.csv(main_khap_imputed_df_t0, paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/KHAP/ConcordanceTables_", exp.dir,"_MCC_imputed_genotype_t0.csv"), row.names = F, quote = F)
+write.csv(main_khap_imputed_df_t1, paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/KHAP/ConcordanceTables_", exp.dir,"_MCC_imputed_genotype_t1.csv"), row.names = F, quote = F)
+write.csv(main_khap_imputed_df_t2, paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/KHAP/ConcordanceTables_", exp.dir,"_MCC_imputed_genotype_t2.csv"), row.names = F, quote = F)
+write.csv(main_khap_imputed_df_t3, paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/KHAP/ConcordanceTables_", exp.dir,"_MCC_imputed_genotype_t3.csv"), row.names = F, quote = F)
+write.csv(main_khap_typed_df, paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/KHAP/ConcordanceTables_", exp.dir,"_MCC_typed_genotype.csv"), row.names = F, quote = F)
+write.csv(main_khap_typed_df_t0, paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/KHAP/ConcordanceTables_", exp.dir,"_MCC_typed_genotype_t0.csv"), row.names = F, quote = F)
+write.csv(main_khap_typed_df_t1, paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/KHAP/ConcordanceTables_", exp.dir,"_MCC_typed_genotype_t1.csv"), row.names = F, quote = F)
+write.csv(main_khap_typed_df_t2, paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/KHAP/ConcordanceTables_", exp.dir,"_MCC_typed_genotype_t2.csv"), row.names = F, quote = F)
+write.csv(main_khap_typed_df_t3, paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/KHAP/ConcordanceTables_", exp.dir,"_MCC_typed_genotype_t3.csv"), row.names = F, quote = F)
 
 ## MAF 
 
 exp.dir = "MAF_Experiments"
 ref.panel = c("ReferencePanel_v2", "ReferencePanel_v4", "ReferencePanel_v3")
 exp.var = c("MAF1%", "MAF0.5%", "MAF0.1%")
-tmp_maf_df = data.frame(matrix(ncol = 1, nrow = nrow(chip.table)))
-names(tmp_maf_df) = c("chip")
-tmp_maf_df$chip = chip.table$V1
-tmp_maf_df$experiment = exp.dir
 
-main_maf_df = data.frame()
+tmp_maf_imputed_df = data.frame(matrix(ncol = 1, nrow = nrow(chip.table)))
+names(tmp_maf_imputed_df) = c("chip")
+tmp_maf_imputed_df$chip = chip.table$V1
+tmp_maf_imputed_df$experiment = exp.dir
+
+main_maf_imputed_df = data.frame()
+main_maf_imputed_df_t0 = data.frame()
+main_maf_imputed_df_t1 = data.frame()
+main_maf_imputed_df_t2 = data.frame()
+main_maf_imputed_df_t3 = data.frame()
+
+main_maf_typed_df = data.frame()
+main_maf_typed_df_t0 = data.frame()
+main_maf_typed_df_t1 = data.frame()
+main_maf_typed_df_t2 = data.frame()
+main_maf_typed_df_t3 = data.frame()
 
 for (exp in 1:length(exp.var)) {
-  out.file = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/combined/ConcordanceTables_", ref.panel[exp], ".csv")
-  tmp_maf_df$sub_experiment = exp.var[exp]
+  message(paste0(exp.var[exp]))
+  # out.file = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/combined/ConcordanceTables_", ref.panel[exp], ".csv")
+  imp.out.file = paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/MAF/ConcordanceTables_", ref.panel[exp], "_MCC_imputed_genotype.csv")
+  imp.out.file.t0 = paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/MAF/ConcordanceTables_", ref.panel[exp], "_MCC_imputed_genotype_t0.csv")
+  imp.out.file.t1 = paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/MAF/ConcordanceTables_", ref.panel[exp], "_MCC_imputed_genotype_t1.csv")
+  imp.out.file.t2 = paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/MAF/ConcordanceTables_", ref.panel[exp], "_MCC_imputed_genotype_t2.csv")
+  imp.out.file.t3 = paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/MAF/ConcordanceTables_", ref.panel[exp], "_MCC_imputed_genotype_t3.csv")
+  
+  typ.out.file = paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/MAF/ConcordanceTables_", ref.panel[exp], "_MCC_typed_genotype.csv")
+  typ.out.file.t0 = paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/MAF/ConcordanceTables_", ref.panel[exp], "_MCC_typed_genotype_t0.csv")
+  typ.out.file.t1 = paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/MAF/ConcordanceTables_", ref.panel[exp], "_MCC_typed_genotype_t1.csv")
+  typ.out.file.t2 = paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/MAF/ConcordanceTables_", ref.panel[exp], "_MCC_typed_genotype_t2.csv")
+  typ.out.file.t3 = paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/MAF/ConcordanceTables_", ref.panel[exp], "_MCC_typed_genotype_t3.csv")
+  
+  tmp_maf_imputed_df$sub_experiment = exp.var[exp]
+  #tmp_maf_typed_df$sub_experiment = exp.var[exp]
   for (chip in 1:nrow(chip.table)) {
-    tmp.file = paste0(container, chip.table$V1[chip], "/", ref.panel[exp], "/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_MCMC1", "_haplogrep.txt")
-    if (file.exists(tmp.file) == T) {
-      tmp_maf_df$imputed[chip] = T
+    # tmp1.file = paste0(container, chip.table$V1[chip], "/", ref.panel[exp], "/", "chrMT_1kg_", chip.table$V1[chip], "_diploid.txt")
+    tmp.imp.file = paste0(container, chip.table$V1[chip], "/", ref.panel[exp], "/MCMC1/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_MCMC1", "_imputed_MCC.csv")
+    tmp.typ.file = paste0(container, chip.table$V1[chip], "/", ref.panel[exp], "/MCMC1/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_MCMC1", "_typed_MCC.csv")
+    
+    if (file.exists(tmp.imp.file) == T) {
+      tmp_maf_imputed_df$imputed[chip] = T
       chip.table$imputed[chip] = T
     } else {
-      tmp_maf_df$imputed[chip] = F
+      tmp_maf_imputed_df$imputed[chip] = F
       chip.table$imputed[chip] = F
     }
+    
+    tmp_maf_imputed_df$allele_freq[chip] = NA
+    tmp_maf_imputed_df$mcc[chip] = NA
+    tmp_maf_imputed_df$concordance[chip] = NA
+    tmp_maf_imputed_df$info[chip] = NA
+    tmp_maf_imputed_df$certainty[chip] = NA
+    tmp_maf_imputed_df$info_type0[chip] = NA
+    tmp_maf_imputed_df$concord_type0[chip] = NA
+    tmp_maf_imputed_df$r2_type0[chip] = NA
+    tmp_maf_imputed_df$info_comb[chip] = NA
+    
+    tmp_maf_typed_df = tmp_maf_imputed_df
   }
   
-  tmp_maf_df$info_score[chip] = NA
-  tmp_maf_df$typed_match[chip] = NA
-  tmp_maf_df$typed_macro_match[chip] = NA
-  tmp_maf_df$imputed_match[chip] = NA
-  tmp_maf_df$imputed_macro_match[chip] = NA
+  tmp_maf_imputed_df_t0 = tmp_maf_imputed_df
+  tmp_maf_imputed_df_t1 = tmp_maf_imputed_df
+  tmp_maf_imputed_df_t2 = tmp_maf_imputed_df
+  tmp_maf_imputed_df_t3 = tmp_maf_imputed_df
+  
+  tmp_maf_typed_df_t0 = tmp_maf_imputed_df_t0
+  tmp_maf_typed_df_t1 = tmp_maf_imputed_df_t1
+  tmp_maf_typed_df_t2 = tmp_maf_imputed_df_t2
+  tmp_maf_typed_df_t3 = tmp_maf_imputed_df_t3
   
   total = nrow(chip.table)
   total_imputed = nrow(subset(chip.table, chip.table$imputed == T))
   
   for (chip in 1:nrow(chip.table)) {
     message(paste0("WORKING ON CHIP FOR ", exp.var[exp], ":\t", chip, " / ", total))
-    # TYPED FILE
-    tmp1.file = paste0(container, chip.table$V1[chip], "/", ref.panel[exp], "/", "chrMT_1kg_", chip.table$V1[chip], "_diploid.txt")
-    if (file.exists(tmp1.file) == T) {
-      tmp1.hg.table = read.table(tmp1.file, header = T)
-      tmp1.hg.table$Range = NULL
+    
+    # tmp1.file = paste0(container, chip.table$V1[chip], "/", ref.panel[exp], "/", "chrMT_1kg_", chip.table$V1[chip], "_diploid.txt")
+    tmp.imp.file = paste0(container, chip.table$V1[chip], "/", ref.panel[exp], "/MCMC1/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_MCMC1", "_imputed_MCC.csv")
+    tmp.typ.file = paste0(container, chip.table$V1[chip], "/", ref.panel[exp], "/MCMC1/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_MCMC1", "_typed_MCC.csv")
+    
+    # IMPUTED FILE
+    if (file.exists(tmp.imp.file) == T) {
+      tmp.imp.table = read.csv(tmp.imp.file, header = T)
       
-      ## CREATE COLUMN FOR MACRO HAPLOGROUPS
-      # USE FIRST LETTER AND NUMBER FOR AFRICAN CLADES
-      tmp1.hg.table.A = subset(tmp1.hg.table, substr(tmp1.hg.table$Haplogroup, 1, 1) == "L")
-      tmp1.hg.table.A$Macrohaplogroup = substr(tmp1.hg.table.A$Haplogroup, 1, 2)
-      # USE FIRST LETTER FOR NON-AFRICAN CLADES
-      tmp1.hg.table.N = subset(tmp1.hg.table, substr(tmp1.hg.table$Haplogroup, 1, 1) != "L")
-      tmp1.hg.table.N$Macrohaplogroup = substr(tmp1.hg.table.N$Haplogroup, 1, 1)
-      # COMBINED AND REARRANGE
-      tmp1.hg.table = rbind(tmp1.hg.table.A, tmp1.hg.table.N)
-      tmp1.hg.table = arrange(tmp1.hg.table, tmp1.hg.table$SampleID)
+      # THE FULL THING
+      tmp_maf_imputed_df$allele_freq[chip]       = mean(tmp.imp.table$af, na.rm = T)
+      tmp_maf_imputed_df$mcc[chip]               = mean(tmp.imp.table$mcc, na.rm = T)
+      tmp_maf_imputed_df$concordance[chip]       = mean(tmp.imp.table$concodance, na.rm = T)
+      tmp_maf_imputed_df$info[chip]              = mean(tmp.imp.table$info, na.rm = T)
+      tmp_maf_imputed_df$certainty[chip]         = mean(tmp.imp.table$certainty, na.rm = T)
+      tmp_maf_imputed_df$info_type0[chip]        = mean(tmp.imp.table$info_type0, na.rm = T)
+      tmp_maf_imputed_df$concord_type0[chip]     = mean(tmp.imp.table$concord_type0, na.rm = T)
+      tmp_maf_imputed_df$r2_type0[chip]          = mean(tmp.imp.table$r2_type0, na.rm = T)
+      tmp_maf_imputed_df$info_comb[chip]         = mean(tmp.imp.table$info_comb, na.rm = T)
       
-      tmp1.hg.table$typed_match = as.character(truth.table$Haplogroup) == as.character(tmp1.hg.table$Haplogroup)
-      tmp1.hg.table$typed_macro_match = as.character(truth.table$Macrohaplogroup) == as.character(tmp1.hg.table$Macrohaplogroup)
+      # TYPE 0 ONLY!
+      tmp.imp.table_t0 = subset(tmp.imp.table, tmp.imp.table$type == 0)
       
-      tmp_maf_df$typed_match[chip] = nrow(subset(tmp1.hg.table, tmp1.hg.table$typed_match == T)) / nrow(tmp2.hg.table)
-      tmp_maf_df$typed_macro_match[chip] = nrow(subset(tmp1.hg.table, tmp1.hg.table$typed_macro_match == T)) / nrow(tmp2.hg.table)
+      tmp_maf_imputed_df_t0$allele_freq[chip]       = mean(tmp.imp.table_t0$af, na.rm = T)
+      tmp_maf_imputed_df_t0$mcc[chip]               = mean(tmp.imp.table_t0$mcc, na.rm = T)
+      tmp_maf_imputed_df_t0$concordance[chip]       = mean(tmp.imp.table_t0$concodance, na.rm = T)
+      tmp_maf_imputed_df_t0$info[chip]              = mean(tmp.imp.table_t0$info, na.rm = T)
+      tmp_maf_imputed_df_t0$certainty[chip]         = mean(tmp.imp.table_t0$certainty, na.rm = T)
+      tmp_maf_imputed_df_t0$info_type0[chip]        = mean(tmp.imp.table_t0$info_type0, na.rm = T)
+      tmp_maf_imputed_df_t0$concord_type0[chip]     = mean(tmp.imp.table_t0$concord_type0, na.rm = T)
+      tmp_maf_imputed_df_t0$r2_type0[chip]          = mean(tmp.imp.table_t0$r2_type0, na.rm = T)
+      tmp_maf_imputed_df_t0$info_comb[chip]         = mean(tmp.imp.table_t0$info_comb, na.rm = T)
+      # TYPE 1 ONLY!
+      tmp.imp.table_t1 = subset(tmp.imp.table, tmp.imp.table$type == 1)
+      
+      tmp_maf_imputed_df_t1$allele_freq[chip]       = mean(tmp.imp.table_t1$af, na.rm = T)
+      tmp_maf_imputed_df_t1$mcc[chip]               = mean(tmp.imp.table_t1$mcc, na.rm = T)
+      tmp_maf_imputed_df_t1$concordance[chip]       = mean(tmp.imp.table_t1$concodance, na.rm = T)
+      tmp_maf_imputed_df_t1$info[chip]              = mean(tmp.imp.table_t1$info, na.rm = T)
+      tmp_maf_imputed_df_t1$certainty[chip]         = mean(tmp.imp.table_t1$certainty, na.rm = T)
+      tmp_maf_imputed_df_t1$info_type0[chip]        = mean(tmp.imp.table_t1$info_type0, na.rm = T)
+      tmp_maf_imputed_df_t1$concord_type0[chip]     = mean(tmp.imp.table_t1$concord_type0, na.rm = T)
+      tmp_maf_imputed_df_t1$r2_type0[chip]          = mean(tmp.imp.table_t1$r2_type0, na.rm = T)
+      tmp_maf_imputed_df_t1$info_comb[chip]         = mean(tmp.imp.table_t1$info_comb, na.rm = T)
+      # TYPE 2 ONLY!
+      tmp.imp.table_t2 = subset(tmp.imp.table, tmp.imp.table$type == 2)
+      
+      tmp_maf_imputed_df_t2$allele_freq[chip]       = mean(tmp.imp.table_t2$af, na.rm = T)
+      tmp_maf_imputed_df_t2$mcc[chip]               = mean(tmp.imp.table_t2$mcc, na.rm = T)
+      tmp_maf_imputed_df_t2$concordance[chip]       = mean(tmp.imp.table_t2$concodance, na.rm = T)
+      tmp_maf_imputed_df_t2$info[chip]              = mean(tmp.imp.table_t2$info, na.rm = T)
+      tmp_maf_imputed_df_t2$certainty[chip]         = mean(tmp.imp.table_t2$certainty, na.rm = T)
+      tmp_maf_imputed_df_t2$info_type0[chip]        = mean(tmp.imp.table_t2$info_type0, na.rm = T)
+      tmp_maf_imputed_df_t2$concord_type0[chip]     = mean(tmp.imp.table_t2$concord_type0, na.rm = T)
+      tmp_maf_imputed_df_t2$r2_type0[chip]          = mean(tmp.imp.table_t2$r2_type0, na.rm = T)
+      tmp_maf_imputed_df_t2$info_comb[chip]         = mean(tmp.imp.table_t2$info_comb, na.rm = T)
+      # TYPE 3 ONLY!
+      tmp.imp.table_t3 = subset(tmp.imp.table, tmp.imp.table$type == 3)
+      
+      tmp_maf_imputed_df_t3$allele_freq[chip]       = mean(tmp.imp.table_t3$af, na.rm = T)
+      tmp_maf_imputed_df_t3$mcc[chip]               = mean(tmp.imp.table_t3$mcc, na.rm = T)
+      tmp_maf_imputed_df_t3$concordance[chip]       = mean(tmp.imp.table_t3$concodance, na.rm = T)
+      tmp_maf_imputed_df_t3$info[chip]              = mean(tmp.imp.table_t3$info, na.rm = T)
+      tmp_maf_imputed_df_t3$certainty[chip]         = mean(tmp.imp.table_t3$certainty, na.rm = T)
+      tmp_maf_imputed_df_t3$info_type0[chip]        = mean(tmp.imp.table_t3$info_type0, na.rm = T)
+      tmp_maf_imputed_df_t3$concord_type0[chip]     = mean(tmp.imp.table_t3$concord_type0, na.rm = T)
+      tmp_maf_imputed_df_t3$r2_type0[chip]          = mean(tmp.imp.table_t3$r2_type0, na.rm = T)
+      tmp_maf_imputed_df_t3$info_comb[chip]         = mean(tmp.imp.table_t3$info_comb, na.rm = T)
     }
     
     # IMPUTED FILE
-    tmp2.file = paste0(container, chip.table$V1[chip], "/", ref.panel[exp], "/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_MCMC1", "_haplogrep.txt")
-    tmp3.file = paste0(container, chip.table$V1[chip], "/", ref.panel[exp], "/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_MCMC1", "_info")
-    if (file.exists(tmp2.file) == T) {
-      tmp2.hg.table = read.table(tmp2.file, header = T)
-      tmp2.hg.table$Range = NULL
+    if (file.exists(tmp.typ.file) == T) {
+      tmp.typ.table = read.csv(tmp.typ.file, header = T)
       
-      ## GATHER INFO SCORE
-      info.table = read.table(tmp3.file, header = T)
-      tmp_maf_df$info_score[chip] = mean(info.table$info, na.rm = T)
+      # THE FULL THING
+      tmp_maf_typed_df$allele_freq[chip]       = mean(tmp.typ.table$af, na.rm = T)
+      tmp_maf_typed_df$mcc[chip]               = mean(tmp.typ.table$mcc, na.rm = T)
+      tmp_maf_typed_df$concordance[chip]       = mean(tmp.typ.table$concodance, na.rm = T)
+      tmp_maf_typed_df$info[chip]              = mean(tmp.typ.table$info, na.rm = T)
+      tmp_maf_typed_df$certainty[chip]         = mean(tmp.typ.table$certainty, na.rm = T)
+      tmp_maf_typed_df$info_type0[chip]        = mean(tmp.typ.table$info_type0, na.rm = T)
+      tmp_maf_typed_df$concord_type0[chip]     = mean(tmp.typ.table$concord_type0, na.rm = T)
+      tmp_maf_typed_df$r2_type0[chip]          = mean(tmp.typ.table$r2_type0, na.rm = T)
+      tmp_maf_typed_df$info_comb[chip]         = mean(tmp.typ.table$info_comb, na.rm = T)
       
-      ## CREATE COLUMN FOR MACRO HAPLOGROUPS
-      # USE FIRST LETTER AND NUMBER FOR AFRICAN CLADES
-      tmp2.hg.table.A = subset(tmp2.hg.table, substr(tmp2.hg.table$Haplogroup, 1, 1) == "L")
-      tmp2.hg.table.A$Macrohaplogroup = substr(tmp2.hg.table.A$Haplogroup, 1, 2)
-      # USE FIRST LETTER FOR NON-AFRICAN CLADES
-      tmp2.hg.table.N = subset(tmp2.hg.table, substr(tmp2.hg.table$Haplogroup, 1, 1) != "L")
-      tmp2.hg.table.N$Macrohaplogroup = substr(tmp2.hg.table.N$Haplogroup, 1, 1)
-      # COMBINED AND REARRANGE
-      tmp2.hg.table = rbind(tmp2.hg.table.A, tmp2.hg.table.N)
-      tmp2.hg.table = arrange(tmp2.hg.table, tmp2.hg.table$SampleID)
+      # TYPE 0 ONLY!
+      tmp.typ.table_t0 = subset(tmp.typ.table, tmp.typ.table$type == 0)
       
-      tmp2.hg.table$imputed_match = as.character(truth.table$Haplogroup) == as.character(tmp2.hg.table$Haplogroup)
-      tmp2.hg.table$imputed_macro_match = as.character(truth.table$Macrohaplogroup) == as.character(tmp2.hg.table$Macrohaplogroup)
+      tmp_maf_typed_df_t0$allele_freq[chip]       = mean(tmp.typ.table_t0$af, na.rm = T)
+      tmp_maf_typed_df_t0$mcc[chip]               = mean(tmp.typ.table_t0$mcc, na.rm = T)
+      tmp_maf_typed_df_t0$concordance[chip]       = mean(tmp.typ.table_t0$concodance, na.rm = T)
+      tmp_maf_typed_df_t0$info[chip]              = mean(tmp.typ.table_t0$info, na.rm = T)
+      tmp_maf_typed_df_t0$certainty[chip]         = mean(tmp.typ.table_t0$certainty, na.rm = T)
+      tmp_maf_typed_df_t0$info_type0[chip]        = mean(tmp.typ.table_t0$info_type0, na.rm = T)
+      tmp_maf_typed_df_t0$concord_type0[chip]     = mean(tmp.typ.table_t0$concord_type0, na.rm = T)
+      tmp_maf_typed_df_t0$r2_type0[chip]          = mean(tmp.typ.table_t0$r2_type0, na.rm = T)
+      tmp_maf_typed_df_t0$info_comb[chip]         = mean(tmp.typ.table_t0$info_comb, na.rm = T)
+      # TYPE 1 ONLY!
+      tmp.typ.table_t1 = subset(tmp.typ.table, tmp.typ.table$type == 1)
       
-      tmp_maf_df$imputed_match[chip] = nrow(subset(tmp2.hg.table, tmp2.hg.table$imputed_match == T)) / nrow(tmp2.hg.table)
-      tmp_maf_df$imputed_macro_match[chip] = nrow(subset(tmp2.hg.table, tmp2.hg.table$imputed_macro_match == T)) / nrow(tmp2.hg.table)
+      tmp_maf_typed_df_t1$allele_freq[chip]       = mean(tmp.typ.table_t1$af, na.rm = T)
+      tmp_maf_typed_df_t1$mcc[chip]               = mean(tmp.typ.table_t1$mcc, na.rm = T)
+      tmp_maf_typed_df_t1$concordance[chip]       = mean(tmp.typ.table_t1$concodance, na.rm = T)
+      tmp_maf_typed_df_t1$info[chip]              = mean(tmp.typ.table_t1$info, na.rm = T)
+      tmp_maf_typed_df_t1$certainty[chip]         = mean(tmp.typ.table_t1$certainty, na.rm = T)
+      tmp_maf_typed_df_t1$info_type0[chip]        = mean(tmp.typ.table_t1$info_type0, na.rm = T)
+      tmp_maf_typed_df_t1$concord_type0[chip]     = mean(tmp.typ.table_t1$concord_type0, na.rm = T)
+      tmp_maf_typed_df_t1$r2_type0[chip]          = mean(tmp.typ.table_t1$r2_type0, na.rm = T)
+      tmp_maf_typed_df_t1$info_comb[chip]         = mean(tmp.typ.table_t1$info_comb, na.rm = T)
+      # TYPE 2 ONLY!
+      tmp.typ.table_t2 = subset(tmp.typ.table, tmp.typ.table$type == 2)
+      
+      tmp_maf_typed_df_t2$allele_freq[chip]       = mean(tmp.typ.table_t2$af, na.rm = T)
+      tmp_maf_typed_df_t2$mcc[chip]               = mean(tmp.typ.table_t2$mcc, na.rm = T)
+      tmp_maf_typed_df_t2$concordance[chip]       = mean(tmp.typ.table_t2$concodance, na.rm = T)
+      tmp_maf_typed_df_t2$info[chip]              = mean(tmp.typ.table_t2$info, na.rm = T)
+      tmp_maf_typed_df_t2$certainty[chip]         = mean(tmp.typ.table_t2$certainty, na.rm = T)
+      tmp_maf_typed_df_t2$info_type0[chip]        = mean(tmp.typ.table_t2$info_type0, na.rm = T)
+      tmp_maf_typed_df_t2$concord_type0[chip]     = mean(tmp.typ.table_t2$concord_type0, na.rm = T)
+      tmp_maf_typed_df_t2$r2_type0[chip]          = mean(tmp.typ.table_t2$r2_type0, na.rm = T)
+      tmp_maf_typed_df_t2$info_comb[chip]         = mean(tmp.typ.table_t2$info_comb, na.rm = T)
+      # TYPE 3 ONLY!
+      tmp.typ.table_t3 = subset(tmp.typ.table, tmp.typ.table$type == 3)
+      
+      tmp_maf_typed_df_t3$allele_freq[chip]       = mean(tmp.typ.table_t3$af, na.rm = T)
+      tmp_maf_typed_df_t3$mcc[chip]               = mean(tmp.typ.table_t3$mcc, na.rm = T)
+      tmp_maf_typed_df_t3$concordance[chip]       = mean(tmp.typ.table_t3$concodance, na.rm = T)
+      tmp_maf_typed_df_t3$info[chip]              = mean(tmp.typ.table_t3$info, na.rm = T)
+      tmp_maf_typed_df_t3$certainty[chip]         = mean(tmp.typ.table_t3$certainty, na.rm = T)
+      tmp_maf_typed_df_t3$info_type0[chip]        = mean(tmp.typ.table_t3$info_type0, na.rm = T)
+      tmp_maf_typed_df_t3$concord_type0[chip]     = mean(tmp.typ.table_t3$concord_type0, na.rm = T)
+      tmp_maf_typed_df_t3$r2_type0[chip]          = mean(tmp.typ.table_t3$r2_type0, na.rm = T)
+      tmp_maf_typed_df_t3$info_comb[chip]         = mean(tmp.typ.table_t3$info_comb, na.rm = T)
     }
   }
-  #print(head(tmp_maf_df))
-  write.csv(tmp_maf_df, out.file, row.names = F, quote = F)
-  message(paste0("WROTE ", out.file, " TO DISK"))
-  main_maf_df = rbind(main_maf_df, tmp_maf_df)
+  write.csv(tmp_maf_imputed_df, imp.out.file, row.names = F, quote = F)
+  message(paste0("WROTE ", imp.out.file, " TO DISK"))
+  write.csv(tmp_maf_imputed_df_t0, imp.out.file.t0, row.names = F, quote = F)
+  message(paste0("WROTE ", imp.out.file.t0, " TO DISK"))
+  write.csv(tmp_maf_imputed_df_t1, imp.out.file.t1, row.names = F, quote = F)
+  message(paste0("WROTE ", imp.out.file.t1, " TO DISK"))
+  write.csv(tmp_maf_imputed_df_t2, imp.out.file.t2, row.names = F, quote = F)
+  message(paste0("WROTE ", imp.out.file.t2, " TO DISK"))
+  write.csv(tmp_maf_imputed_df_t3, imp.out.file.t3, row.names = F, quote = F)
+  message(paste0("WROTE ", imp.out.file.t3, " TO DISK"))
+  #
+  write.csv(tmp_maf_typed_df, typ.out.file, row.names = F, quote = F)
+  message(paste0("WROTE ", typ.out.file, " TO DISK"))
+  write.csv(tmp_maf_typed_df_t0, typ.out.file.t0, row.names = F, quote = F)
+  message(paste0("WROTE ", typ.out.file.t0, " TO DISK"))
+  write.csv(tmp_maf_typed_df_t1, typ.out.file.t1, row.names = F, quote = F)
+  message(paste0("WROTE ", typ.out.file.t1, " TO DISK"))
+  write.csv(tmp_maf_typed_df_t2, typ.out.file.t2, row.names = F, quote = F)
+  message(paste0("WROTE ", typ.out.file.t2, " TO DISK"))
+  write.csv(tmp_maf_typed_df_t3, typ.out.file.t3, row.names = F, quote = F)
+  message(paste0("WROTE ", typ.out.file.t3, " TO DISK"))
+  
+  main_maf_imputed_df = rbind(main_maf_imputed_df, tmp_maf_imputed_df)
+  main_maf_imputed_df_t0 = rbind(main_maf_imputed_df_t0, tmp_maf_imputed_df_t0)
+  main_maf_imputed_df_t1 = rbind(main_maf_imputed_df_t1, tmp_maf_imputed_df_t1)
+  main_maf_imputed_df_t2 = rbind(main_maf_imputed_df_t2, tmp_maf_imputed_df_t2)
+  main_maf_imputed_df_t3 = rbind(main_maf_imputed_df_t3, tmp_maf_imputed_df_t3)
+  
+  main_maf_typed_df = rbind(main_maf_typed_df, tmp_maf_typed_df)
+  main_maf_typed_df_t0 = rbind(main_maf_typed_df_t0, tmp_maf_typed_df_t0)
+  main_maf_typed_df_t1 = rbind(main_maf_typed_df_t1, tmp_maf_typed_df_t1)
+  main_maf_typed_df_t2 = rbind(main_maf_typed_df_t2, tmp_maf_typed_df_t2)
+  main_maf_typed_df_t3 = rbind(main_maf_typed_df_t3, tmp_maf_typed_df_t3)
 }
-main_maf_df$diff = main_maf_df$imputed_match - main_maf_df$typed_match
-main_maf_df$diff_macro = main_maf_df$imputed_macro_match - main_maf_df$typed_macro_match
-write.csv(main_maf_df, paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/combined/ConcordanceTables_", exp.dir,"_COMBINED.csv"), row.names = F, quote = F)
-
-exp.dir = "MAF_Experiments"
-exp.var = c("MAF1%", "MAF0.5%", "MAF0.1%")
-main_maf_df$sub_experiment = factor(main_maf_df$sub_experiment, levels = exp.var)
-exp.dir = "MAF_Experiments"
-maf_box = ggplot(main_maf_df, aes(x = sub_experiment, y = imputed_match)) +
-  geom_violin(fill = "#feb600", na.rm = T) +
-  geom_boxplot(width = 0.125, notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428") +
-  theme_bw() +
-  scale_y_continuous(breaks = c(0.0, 0.2, 0.4, 0.6, 0.8, 1.0),
-                     limits = c(0, 1)) +
-  labs(x = "Minor allele frequency",
-       y = "% concordance with resequenced dataset",
-       title = expression(paste(bold("C."), " Minor allele frequencies (MAF) variations")))
-maf_box
-ggsave(filename = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/plots/ConcordanceTables_", exp.dir,"_HaploGrep.png"), plot = maf_box, units = "mm", width = 297, height = 210, dpi = 300)
+write.csv(main_maf_imputed_df, paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/MAF/ConcordanceTables_", exp.dir,"_MCC_imputed_genotype.csv"), row.names = F, quote = F)
+write.csv(main_maf_imputed_df_t0, paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/MAF/ConcordanceTables_", exp.dir,"_MCC_imputed_genotype_t0.csv"), row.names = F, quote = F)
+write.csv(main_maf_imputed_df_t1, paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/MAF/ConcordanceTables_", exp.dir,"_MCC_imputed_genotype_t1.csv"), row.names = F, quote = F)
+write.csv(main_maf_imputed_df_t2, paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/MAF/ConcordanceTables_", exp.dir,"_MCC_imputed_genotype_t2.csv"), row.names = F, quote = F)
+write.csv(main_maf_imputed_df_t3, paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/MAF/ConcordanceTables_", exp.dir,"_MCC_imputed_genotype_t3.csv"), row.names = F, quote = F)
+write.csv(main_maf_typed_df, paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/MAF/ConcordanceTables_", exp.dir,"_MCC_typed_genotype.csv"), row.names = F, quote = F)
+write.csv(main_maf_typed_df_t0, paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/MAF/ConcordanceTables_", exp.dir,"_MCC_typed_genotype_t0.csv"), row.names = F, quote = F)
+write.csv(main_maf_typed_df_t1, paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/MAF/ConcordanceTables_", exp.dir,"_MCC_typed_genotype_t1.csv"), row.names = F, quote = F)
+write.csv(main_maf_typed_df_t2, paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/MAF/ConcordanceTables_", exp.dir,"_MCC_typed_genotype_t2.csv"), row.names = F, quote = F)
+write.csv(main_maf_typed_df_t3, paste0("/g/data1a/te53/MitoImpute/analyses/concordance/MCC/MAF/ConcordanceTables_", exp.dir,"_MCC_typed_genotype_t3.csv"), row.names = F, quote = F)
 
 
-macro_maf_box = ggplot(main_maf_df, aes(x = sub_experiment, y = imputed_macro_match)) +
-  geom_violin(fill = "#feb600", na.rm = T) +
-  geom_boxplot(width = 0.125, notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428") +
-  theme_bw() +
-  scale_y_continuous(breaks = c(0.0, 0.2, 0.4, 0.6, 0.8, 1.0),
-                     limits = c(0, 1)) +
-  labs(x = "Minor allele frequency",
-       y = "% concordance with resequenced dataset",
-       title = expression(paste(bold("C."), " Minor allele frequencies (MAF) variations")))
-macro_maf_box
-ggsave(filename = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/plots/ConcordanceTables_macro_", exp.dir,"_HaploGrep.png"), plot = macro_maf_box, units = "mm", width = 297, height = 210, dpi = 300)
-
-info_maf_box = ggplot(main_maf_df , aes(x = sub_experiment, y = info_score)) +
-  geom_violin(fill = "#feb600", na.rm = T) +
-  geom_boxplot(width = rel(0.25), notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428") +
-  theme_bw() +
-  scale_y_continuous(breaks = c(0.0, 0.2, 0.4, 0.6, 0.8, 1.0),
-                     limits = c(0, 1)) +
-  labs(x = "Length of MCMC chain",
-       y = expression(paste("IMPUTE2 info score (", italic("r")^"2", ")")),
-       title = expression(paste(bold("C."), " Minor allele frequencies (MAF) variations")))
-info_maf_box
-ggsave(filename = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/plots/ConcordanceTables_info_", exp.dir,"_HaploGrep.png"), plot = info_maf_box, units = "mm", width = 297, height = 210, dpi = 300)
-
-### ARRANGE THEM
-
-comb_box = grid.arrange(arrangeGrob(mcmc_box, k_hap_box, maf_box, ncol = 1, nrow = 3))
-ggsave(filename = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/plots/ConcordanceTables_Combined_HaploGrep.png"), plot = comb_box, units = "mm", width = 297, height = 420, dpi = 300)
-
-macro_comb_box = grid.arrange(arrangeGrob(macro_mcmc_box, macro_k_hap_box, macro_maf_box, ncol = 1, nrow = 3))
-ggsave(filename = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/plots/ConcordanceTables_Combined_macro_HaploGrep.png"), plot = macro_comb_box, units = "mm", width = 297, height = 420, dpi = 300)
-
-info_comb_box = grid.arrange(arrangeGrob(info_mcmc_box, info_k_hap_box, info_maf_box, ncol = 1, nrow = 3))
-ggsave(filename = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/plots/ConcordanceTables_Combined_info_HaploGrep.png"), plot = info_comb_box, units = "mm", width = 297, height = 420, dpi = 300)
-
-
-# LINEAR MIXED MODELS
-
-stat.out.dir = "/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/stat_tests/"
-
-## MCMC
-# IMPUTED
-l_mcmc_imp = lm(imputed_match ~ sub_experiment, data = main_mcmc_df)
-#anova(l_mcmc_imp)
-#summary(l_mcmc_imp)
-#emmeans(l_mcmc_imp, pairwise ~ sub_experiment)
-l_mcmc_imp_s = summary(emmeans(l_mcmc_imp, pairwise ~ sub_experiment))
-write.csv(data.frame(l_mcmc_imp_s$emmeans), paste0(stat.out.dir, "mcmc_imputed_emmeans.csv"), quote = F, row.names = F)
-write.csv(data.frame(l_mcmc_imp_s$contrasts), paste0(stat.out.dir, "mcmc_imputed_contrasts.csv"), quote = F, row.names = F)
-
-# IMPUTED MACRO
-l_mcmc_imp_macro = lm(imputed_macro_match ~ sub_experiment, data = main_mcmc_df)
-#anova(l_mcmc_imp_macro)
-#summary(l_mcmc_imp_macro)
-#emmeans(l_mcmc_imp_macro, pairwise ~ sub_experiment) # ADD type="response" IF IN LOG SCALE
-l_mcmc_imp_macro_s = summary(emmeans(l_mcmc_imp_macro, pairwise ~ sub_experiment))
-write.csv(data.frame(l_mcmc_imp_macro_s$emmeans), paste0(stat.out.dir, "mcmc_imputed_macro_emmeans.csv"), quote = F, row.names = F)
-write.csv(data.frame(l_mcmc_imp_macro_s$contrasts), paste0(stat.out.dir, "mcmc_imputed_macro_contrasts.csv"), quote = F, row.names = F)
-
-# DIFFERENCE
-l_mcmc_imp_diff = lm(diff ~ sub_experiment, data = main_mcmc_df)
-#anova(l_mcmc_imp_diff)
-#summary(l_mcmc_imp_diff)
-#emmeans(l_mcmc_imp_diff, pairwise ~ sub_experiment) # ADD type="response" IF IN LOG SCALE
-l_mcmc_imp_diff_s = summary(emmeans(l_mcmc_imp_diff, pairwise ~ sub_experiment))
-write.csv(data.frame(l_mcmc_imp_diff_s$emmeans), paste0(stat.out.dir, "mcmc_imputed_diff_emmeans.csv"), quote = F, row.names = F)
-write.csv(data.frame(l_mcmc_imp_diff_s$contrasts), paste0(stat.out.dir, "mcmc_imputed_diff_contrasts.csv"), quote = F, row.names = F)
-
-# DIFFERENCE MACRO
-l_mcmc_imp_diff_macro = lm(diff_macro ~ sub_experiment, data = main_mcmc_df)
-#anova(l_mcmc_imp_diff_macro)
-#summary(l_mcmc_imp_diff_macro)
-#emmeans(l_mcmc_imp_diff_macro, pairwise ~ sub_experiment) # ADD type="response" IF IN LOG SCALE
-l_mcmc_imp_diff_macro_s = summary(emmeans(l_mcmc_imp_diff_macro, pairwise ~ sub_experiment))
-write.csv(data.frame(l_mcmc_imp_diff_macro_s$emmeans), paste0(stat.out.dir, "mcmc_imputed_macro_diff_emmeans.csv"), quote = F, row.names = F)
-write.csv(data.frame(l_mcmc_imp_diff_macro_s$contrasts), paste0(stat.out.dir, "mcmc_imputed_macro_diff_contrasts.csv"), quote = F, row.names = F)
-
-## KHAP
-# IMPUTED
-l_khap_imp = lm(imputed_match ~ sub_experiment, data = main_khap_df)
-#anova(l_khap_imp)
-#summary(l_khap_imp)
-#emmeans(l_khap_imp, pairwise ~ sub_experiment)
-l_khap_imp_s = summary(emmeans(l_khap_imp, pairwise ~ sub_experiment))
-write.csv(data.frame(l_khap_imp_s$emmeans), paste0(stat.out.dir, "khap_imputed_emmeans.csv"), quote = F, row.names = F)
-write.csv(data.frame(l_khap_imp_s$contrasts), paste0(stat.out.dir, "khap_imputed_contrasts.csv"), quote = F, row.names = F)
-
-# IMPUTED MACRO
-l_khap_imp_macro = lm(imputed_macro_match ~ sub_experiment, data = main_khap_df)
-#anova(l_khap_imp_macro)
-#summary(l_khap_imp_macro)
-#emmeans(l_khap_imp_macro, pairwise ~ sub_experiment) # ADD type="response" IF IN LOG SCALE
-l_khap_imp_macro_s = summary(emmeans(l_khap_imp_macro, pairwise ~ sub_experiment))
-write.csv(data.frame(l_khap_imp_macro_s$emmeans), paste0(stat.out.dir, "khap_imputed_macro_emmeans.csv"), quote = F, row.names = F)
-write.csv(data.frame(l_khap_imp_macro_s$contrasts), paste0(stat.out.dir, "khap_imputed_macro_contrasts.csv"), quote = F, row.names = F)
-
-# DIFFERENCE
-l_khap_imp_diff = lm(diff ~ sub_experiment, data = main_khap_df)
-#anova(l_khap_imp_diff)
-#summary(l_khap_imp_diff)
-#emmeans(l_khap_imp_diff, pairwise ~ sub_experiment) # ADD type="response" IF IN LOG SCALE
-l_khap_imp_diff_s = summary(emmeans(l_khap_imp_diff, pairwise ~ sub_experiment))
-write.csv(data.frame(l_khap_imp_diff_s$emmeans), paste0(stat.out.dir, "khap_imputed_diff_emmeans.csv"), quote = F, row.names = F)
-write.csv(data.frame(l_khap_imp_diff_s$contrasts), paste0(stat.out.dir, "khap_imputed_diff_contrasts.csv"), quote = F, row.names = F)
-
-# DIFFERENCE MACRO
-l_khap_imp_diff_macro = lm(diff_macro ~ sub_experiment, data = main_khap_df)
-#anova(l_khap_imp_diff_macro)
-#summary(l_khap_imp_diff_macro)
-#emmeans(l_khap_imp_diff_macro, pairwise ~ sub_experiment) # ADD type="response" IF IN LOG SCALE
-l_khap_imp_diff_macro_s = summary(emmeans(l_khap_imp_diff_macro, pairwise ~ sub_experiment))
-write.csv(data.frame(l_khap_imp_diff_macro_s$emmeans), paste0(stat.out.dir, "khap_imputed_macro_diff_emmeans.csv"), quote = F, row.names = F)
-write.csv(data.frame(l_khap_imp_diff_macro_s$contrasts), paste0(stat.out.dir, "khap_imputed_macro_diff_contrasts.csv"), quote = F, row.names = F)
-
-## MAF
-# IMPUTED
-l_maf_imp = lm(imputed_match ~ sub_experiment, data = main_maf_df)
-#anova(l_maf_imp)
-#summary(l_maf_imp)
-#emmeans(l_maf_imp, pairwise ~ sub_experiment)
-l_maf_imp_s = summary(emmeans(l_maf_imp, pairwise ~ sub_experiment))
-write.csv(data.frame(l_maf_imp_s$emmeans), paste0(stat.out.dir, "maf_imputed_emmeans.csv"), quote = F, row.names = F)
-write.csv(data.frame(l_maf_imp_s$contrasts), paste0(stat.out.dir, "maf_imputed_contrasts.csv"), quote = F, row.names = F)
-
-# IMPUTED MACRO
-l_maf_imp_macro = lm(imputed_macro_match ~ sub_experiment, data = main_maf_df)
-#anova(l_maf_imp_macro)
-#summary(l_maf_imp_macro)
-#emmeans(l_maf_imp_macro, pairwise ~ sub_experiment) # ADD type="response" IF IN LOG SCALE
-l_maf_imp_macro_s = summary(emmeans(l_maf_imp_macro, pairwise ~ sub_experiment))
-write.csv(data.frame(l_maf_imp_macro_s$emmeans), paste0(stat.out.dir, "maf_imputed_macro_emmeans.csv"), quote = F, row.names = F)
-write.csv(data.frame(l_maf_imp_macro_s$contrasts), paste0(stat.out.dir, "maf_imputed_macro_contrasts.csv"), quote = F, row.names = F)
-
-# DIFFERENCE
-l_maf_imp_diff = lm(diff ~ sub_experiment, data = main_maf_df)
-#anova(l_maf_imp_diff)
-#summary(l_maf_imp_diff)
-#emmeans(l_maf_imp_diff, pairwise ~ sub_experiment) # ADD type="response" IF IN LOG SCALE
-l_maf_imp_diff_s = summary(emmeans(l_maf_imp_diff, pairwise ~ sub_experiment))
-write.csv(data.frame(l_maf_imp_diff_s$emmeans), paste0(stat.out.dir, "maf_imputed_diff_emmeans.csv"), quote = F, row.names = F)
-write.csv(data.frame(l_maf_imp_diff_s$contrasts), paste0(stat.out.dir, "maf_imputed_diff_contrasts.csv"), quote = F, row.names = F)
-
-# DIFFERENCE MACRO
-l_maf_imp_diff_macro = lm(diff_macro ~ sub_experiment, data = main_maf_df)
-#anova(l_maf_imp_diff_macro)
-#summary(l_maf_imp_diff_macro)
-#emmeans(l_maf_imp_diff_macro, pairwise ~ sub_experiment) # ADD type="response" IF IN LOG SCALE
-l_maf_imp_diff_macro_s = summary(emmeans(l_maf_imp_diff_macro, pairwise ~ sub_experiment))
-write.csv(data.frame(l_maf_imp_diff_macro_s$emmeans), paste0(stat.out.dir, "maf_imputed_macro_diff_emmeans.csv"), quote = F, row.names = F)
-write.csv(data.frame(l_maf_imp_diff_macro_s$contrasts), paste0(stat.out.dir, "maf_imputed_macro_diff_contrasts.csv"), quote = F, row.names = F)
+message("")
+message("END!")
+message("")
+## END
