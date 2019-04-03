@@ -60,7 +60,7 @@ for (exp in 1:length(exp.var)) {
   #tmp_mcmc_typed_df$sub_experiment = exp.var[exp]
   for (chip in 1:nrow(chip.table)) {
     tmp.imp.file = paste0(container, chip.table$V1[chip], "/", exp.dir, "/", exp.var[exp], "/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_", exp.var[exp], "_imputed_MCC.csv")
-    tmp.typ.file = paste0(container, chip.table$V1[chip], "/", exp.dir, "/", exp.var[exp], "/", "chrMT_1kg_", chip.table$V1[chip], "_typed_", exp.var[exp], "_typed_MCC.csv")
+    tmp.typ.file = paste0(container, chip.table$V1[chip], "/", exp.dir, "/", exp.var[exp], "/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_", exp.var[exp], "_typed_MCC.csv")
     
     if (file.exists(tmp.imp.file) == T) {
       tmp_mcmc_imputed_df$imputed[chip] = T
@@ -100,7 +100,7 @@ for (exp in 1:length(exp.var)) {
     message(paste0("WORKING ON CHIP FOR ", exp.var[exp], ":\t", chip, " / ", total))
     
     tmp.imp.file = paste0(container, chip.table$V1[chip], "/", exp.dir, "/", exp.var[exp], "/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_", exp.var[exp], "_imputed_MCC.csv")
-    tmp.typ.file = paste0(container, chip.table$V1[chip], "/", exp.dir, "/", exp.var[exp], "/", "chrMT_1kg_", chip.table$V1[chip], "_typed_", exp.var[exp], "_typed_MCC.csv")
+    tmp.typ.file = paste0(container, chip.table$V1[chip], "/", exp.dir, "/", exp.var[exp], "/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_", exp.var[exp], "_typed_MCC.csv")
     # IMPUTED FILE
     if (file.exists(tmp.imp.file) == T) {
       tmp.imp.table = read.csv(tmp.imp.file, header = T)
@@ -324,7 +324,7 @@ for (exp in 1:length(exp.var)) {
   #tmp_khap_typed_df$sub_experiment = exp.var[exp]
   for (chip in 1:nrow(chip.table)) {
     tmp.imp.file = paste0(container, chip.table$V1[chip], "/", exp.dir, "/", exp.var[exp], "/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_", exp.var[exp], "_imputed_MCC.csv")
-    tmp.typ.file = paste0(container, chip.table$V1[chip], "/", exp.dir, "/", exp.var[exp], "/", "chrMT_1kg_", chip.table$V1[chip], "_typed_", exp.var[exp], "_typed_MCC.csv")
+    tmp.typ.file = paste0(container, chip.table$V1[chip], "/", exp.dir, "/", exp.var[exp], "/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_", exp.var[exp], "_typed_MCC.csv")
     
     if (file.exists(tmp.imp.file) == T) {
       tmp_khap_imputed_df$imputed[chip] = T
@@ -364,7 +364,7 @@ for (exp in 1:length(exp.var)) {
     message(paste0("WORKING ON CHIP FOR ", exp.var[exp], ":\t", chip, " / ", total))
     
     tmp.imp.file = paste0(container, chip.table$V1[chip], "/", exp.dir, "/", exp.var[exp], "/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_", exp.var[exp], "_imputed_MCC.csv")
-    tmp.typ.file = paste0(container, chip.table$V1[chip], "/", exp.dir, "/", exp.var[exp], "/", "chrMT_1kg_", chip.table$V1[chip], "_typed_", exp.var[exp], "_typed_MCC.csv")
+    tmp.typ.file = paste0(container, chip.table$V1[chip], "/", exp.dir, "/", exp.var[exp], "/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_", exp.var[exp], "_typed_MCC.csv")
     # IMPUTED FILE
     if (file.exists(tmp.imp.file) == T) {
       tmp.imp.table = read.csv(tmp.imp.file, header = T)
@@ -430,7 +430,7 @@ for (exp in 1:length(exp.var)) {
       tmp_khap_imputed_df_t3$info_comb[chip]         = mean(tmp.imp.table_t3$info_comb, na.rm = T)
     }
     
-    # IMPUTED FILE
+    # GENOTYPED FILE
     if (file.exists(tmp.typ.file) == T) {
       tmp.typ.table = read.csv(tmp.typ.file, header = T)
       
@@ -593,11 +593,12 @@ for (exp in 1:length(exp.var)) {
   for (chip in 1:nrow(chip.table)) {
     # tmp1.file = paste0(container, chip.table$V1[chip], "/", ref.panel[exp], "/", "chrMT_1kg_", chip.table$V1[chip], "_diploid.txt")
     tmp.imp.file = paste0(container, chip.table$V1[chip], "/", ref.panel[exp], "/MCMC1/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_MCMC1", "_imputed_MCC.csv")
-    tmp.typ.file = paste0(container, chip.table$V1[chip], "/", ref.panel[exp], "/MCMC1/", "chrMT_1kg_", chip.table$V1[chip], "_typed_MCMC1", "_typed_MCC.csv")
+    tmp.typ.file = paste0(container, chip.table$V1[chip], "/", ref.panel[exp], "/MCMC1/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_MCMC1", "_typed_MCC.csv")
     
     if (file.exists(tmp.imp.file) == T) {
       tmp_maf_imputed_df$imputed[chip] = T
       chip.table$imputed[chip] = T
+      #message(T)
     } else {
       tmp_maf_imputed_df$imputed[chip] = F
       chip.table$imputed[chip] = F
@@ -634,7 +635,7 @@ for (exp in 1:length(exp.var)) {
     
     # tmp1.file = paste0(container, chip.table$V1[chip], "/", ref.panel[exp], "/", "chrMT_1kg_", chip.table$V1[chip], "_diploid.txt")
     tmp.imp.file = paste0(container, chip.table$V1[chip], "/", ref.panel[exp], "/MCMC1/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_MCMC1", "_imputed_MCC.csv")
-    tmp.typ.file = paste0(container, chip.table$V1[chip], "/", ref.panel[exp], "/MCMC1/", "chrMT_1kg_", chip.table$V1[chip], "_typed_MCMC1", "_typed_MCC.csv")
+    tmp.typ.file = paste0(container, chip.table$V1[chip], "/", ref.panel[exp], "/MCMC1/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_MCMC1", "_typed_MCC.csv")
     
     # IMPUTED FILE
     if (file.exists(tmp.imp.file) == T) {
@@ -701,7 +702,7 @@ for (exp in 1:length(exp.var)) {
       tmp_maf_imputed_df_t3$info_comb[chip]         = mean(tmp.imp.table_t3$info_comb, na.rm = T)
     }
     
-    # IMPUTED FILE
+    # GENOTYPED FILE
     if (file.exists(tmp.typ.file) == T) {
       tmp.typ.table = read.csv(tmp.typ.file, header = T)
       
