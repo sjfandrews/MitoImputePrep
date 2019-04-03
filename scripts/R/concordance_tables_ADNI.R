@@ -6,7 +6,7 @@ library(dplyr)
 '%!in%' = function(x,y)!('%in%'(x,y))
 
 ## READ IN FILE TO RECONCILE SAMPLE IDs
-rect_csv = read.csv("/Users/u5015730/GitCode/MitoImputePrep/metadata/ADNI_samples_BOTH.csv", header = T) 
+rect_csv = read.csv("~/GitCode/MitoImputePrep/metadata/ADNI_samples_BOTH.csv", header = T) 
 
 ## READ IN THE LIST OF CHIPS
 chips = read.table("~/GitCode/MitoImputePrep/scripts/INFORMATION_LISTS/b37_platforms.txt")

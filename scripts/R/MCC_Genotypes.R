@@ -173,7 +173,7 @@ imp_1kg.info <- mutate(imp_1kg.info, himc = ifelse(position %in% c(825, 1018, 14
 # TYPE 2 MAY BE PERFECT, SO LOOK AT THIS
 # ONLY WANT TO LOOK AT MCC FOR IMPUTED SNPs
 
-## calculate MCC between imputed and typed SNPs
+## calculate MCC between [imputed & wgs] and [typed & wgs] SNPs
 mccr.geno.imp <- unlist(map2(wgs_1kg.imp[,2:ncol(wgs_1kg.imp)], imp_1kg[,2:ncol(imp_1kg)], function(a,b) mccr(a,b)))
 mccr.geno.typ <- unlist(map2(wgs_1kg.typ[,2:ncol(wgs_1kg.typ)], typ_1kg[,2:ncol(typ_1kg)], function(a,b) mccr(a,b)))
 
