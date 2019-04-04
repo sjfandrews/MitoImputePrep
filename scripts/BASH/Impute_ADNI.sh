@@ -12,11 +12,21 @@ REFpanel="ReferencePanel_v5"
 HAPLOGREP=~/GitCode/MitoImputePrep/haplogrep/2.1.19/haplogrep-2.1.19.jar
 mcmc=1
 burn=0
+
+WGS_VCF=""
+TYP_VCF=""
+IMP_VCF=""
+
 echo
 echo "REFERENCE PANEL:	${REFpanel}"
 echo "HAPLOGREP:		${HAPLOGREP}"
 echo "MCMC LENGTH:		${mcmc}"
 echo "MCMC BURN-IN:		${burn}"
+echo
+echo "WGS VCF FILE:		${WGS_VCF}"
+echo "GENOTYPED VCF:	${TYP_VCF}"
+echo "IMPUTED VCF:		${IMP_VCF}"
+echo
 
 # GENERATE HAPLOGREP HAPLOGROUP ASSIGNMENTS FROM RESEQUENCED DATA
 echo
