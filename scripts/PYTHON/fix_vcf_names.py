@@ -12,9 +12,11 @@ import fcntl, termios, struct
 
 from tqdm import *
 
-samples_csv = "/Users/u5015730/GitCode/MitoImputePrep/metadata/ADNI_samples_BOTH.csv"
-WGS_vcf = "/Volumes/TimMcInerney/MitoImpute/data/ADNI_raijin/ADNI_reseq/adni_mito_genomes_180214_n258_subset.vcf.gz"
-relabelled_vcf = "/Volumes/TimMcInerney/MitoImpute/data/ADNI_raijin/ADNI_reseq/adni_mito_genomes_180214_n258_subset_relabelled.vcf"
+samples_csv = "/Users/TimMcInerney/GitCode/MitoImputePrep/metadata/ADNI_samples_BOTH.csv"
+#WGS_vcf = "/Volumes/TimMcInerney/MitoImpute/data/ADNI_raijin/ADNI_reseq/adni_mito_genomes_180214_n258_subset.vcf.gz"
+#relabelled_vcf = "/Volumes/TimMcInerney/MitoImpute/data/ADNI_raijin/ADNI_reseq/adni_mito_genomes_180214_n258_subset_relabelled.vcf"
+WGS_vcf="/Volumes/TimMcInerney/MitoImpute/data/ADNI_REDO/WGS/VCF/adni_mito_genomes_180214_fixed_n258_biallelic.vcf.gz"
+relabelled_vcf="/Volumes/TimMcInerney/MitoImpute/data/ADNI_REDO/WGS/VCF/adni_mito_genomes_180214_fixed_n258_biallelic_relabelled.vcf"
 
 csv_lines = []
 
