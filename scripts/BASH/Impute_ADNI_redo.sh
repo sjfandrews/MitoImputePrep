@@ -50,9 +50,9 @@ bcftools index ${TYP_n258}
 bcftools view -S ~/GitCode/MitoImputePrep/metadata/ADNI_samples_BOTH_reseq.txt ${WGS_VCF} | bcftools +fill-tags -Oz -o ${WGS_n258}
 bcftools index ${WGS_n258}
 
-# DECOMPOSE VCF FILES AND SPLIT MULTIALLELIC RECORDS INTO BIALLELIC 
+# FILTER VCF TO CONTAIN ONLY SNVs 
 echo
-echo "DECOMPOSE VCF FILES AND SPLIT MULTIALLELIC RECORDS INTO BIALLELIC "
+echo "FILTER VCF TO CONTAIN ONLY SNVs"
 TYP_n258_tmp=${WK_DIR}MitoImpute/data/ADNI_REDO/GENOTYPED/VCF/mito_snps_rcrs_ed_n258_tmp.vcf.gz
 WGS_n258_tmp=${WK_DIR}MitoImpute/data/ADNI_REDO/WGS/VCF/adni_mito_genomes_180214_fixed_n258_tmp.vcf.gz
 REF26=~/GitCode/MitoImputePrep/scripts/REFERENCE_ALNS/26/rCRS.fasta 
@@ -69,7 +69,7 @@ bcftools index ${TYP_n258_tmp}
 
 # DECOMPOSE VCF FILES AND SPLIT MULTIALLELIC RECORDS INTO BIALLELIC 
 echo
-echo "DECOMPOSE VCF FILES AND SPLIT MULTIALLELIC RECORDS INTO BIALLELIC "
+echo "DECOMPOSE VCF FILES AND SPLIT MULTIALLELIC RECORDS INTO BIALLELIC"
 
 TYP_n258_biallelic=${WK_DIR}MitoImpute/data/ADNI_REDO/GENOTYPED/VCF/mito_snps_rcrs_ed_n258_biallelic.vcf.gz
 WGS_n258_biallelic=${WK_DIR}MitoImpute/data/ADNI_REDO/WGS/VCF/adni_mito_genomes_180214_fixed_n258_biallelic.vcf.gz
@@ -113,7 +113,7 @@ TYP_PLINK=${WK_DIR}MitoImpute/data/ADNI_REDO/GENOTYPED/VCF/mito_snps_rcrs_ed_n25
 plink1.9 --vcf ${WGS_relab} --recode --double-id --keep-allele-order --out ${WGS_PLINK}
 plink1.9 --vcf ${TYP_n258_biallelic} --recode --double-id --keep-allele-order --out ${TYP_PLINK}
 
-# GENERATE GEN HAP LEGEND AND SAMPLE FILES
+# GENERATE GEN FILES
 echo 
 echo "GENERATE GEN HAP LEGEND AND SAMPLE FILES"
 WGS_GEN_OUT=${WK_DIR}MitoImpute/data/ADNI_REDO/WGS/HAP_LEGEND_GEN/adni_mito_genomes_180214_fixed_n258_biallelic_relabelled
@@ -122,6 +122,28 @@ TYP_GEN_OUT=${WK_DIR}MitoImpute/data/ADNI_REDO/GENOTYPED/HAP_LEGEND_GEN/mito_snp
 
 bcftools convert --gensample ${WGS_GEN_OUT} ${WGS_relab} --sex ${WGS_SEX_SAMPLE}
 bcftools convert --gensample ${TYP_GEN_OUT} ${TYP_n258_biallelic} --sex ${TYP_SEX_SAMPLE}
+
+# RUN IMPUTE2
+map=~/GitCode/MitoImputePrep/DerivedData/${REFpanel}/${REFpanel}_MtMap.txt
+hap=~/GitCode/MitoImputePrep/DerivedData/${REFpanel}/${REFpanel}.hap.gz
+leg=~/GitCode/MitoImputePrep/DerivedData/${REFpanel}/${REFpanel}.legend.gz
+gen=${TYP_GEN_OUT}.gen.gz
+sam=${TYP_GEN_OUT}.samples
+out_dir=${WK_DIR}MitoImpute/data/ADNI_REDO/IMPUTED/${REFpanel}/IMPUTE2/
+out=${out_dir}MitoImpute_${REFpanel}_imputed
+
+if [ ! -d ${out_dir} ]
+then
+	mkdir -p {out_dir}
+fi
+
+if [ -f ${out} ]
+then
+	echo "${out} FOUND! ... PASSING"
+else
+	echo "${out} NOT FOUND! ... RUNNING IMPUTE2"
+	impute2 -chrX -m ${map} -h ${hap} -l ${leg} -g ${gen} -sample_g ${sam} -int 1 16569 -Ne 20000 -o ${out} -iter ${mcmc} -burnin ${burn}
+fi
 
 #
 ## GENERATE GEN SAMPLE
