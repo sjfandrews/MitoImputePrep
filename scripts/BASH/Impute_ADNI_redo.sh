@@ -53,19 +53,38 @@ bcftools index ${WGS_n258}
 # DECOMPOSE VCF FILES AND SPLIT MULTIALLELIC RECORDS INTO BIALLELIC 
 echo
 echo "DECOMPOSE VCF FILES AND SPLIT MULTIALLELIC RECORDS INTO BIALLELIC "
-TYP_n258_biallelic=${WK_DIR}MitoImpute/data/ADNI_REDO/GENOTYPED/VCF/mito_snps_rcrs_ed_n258_biallelic.vcf.gz
-WGS_n258_biallelic=${WK_DIR}MitoImpute/data/ADNI_REDO/WGS/VCF/adni_mito_genomes_180214_fixed_n258_biallelic.vcf.gz
+TYP_n258_tmp=${WK_DIR}MitoImpute/data/ADNI_REDO/GENOTYPED/VCF/mito_snps_rcrs_ed_n258_tmp.vcf.gz
+WGS_n258_tmp=${WK_DIR}MitoImpute/data/ADNI_REDO/WGS/VCF/adni_mito_genomes_180214_fixed_n258_tmp.vcf.gz
 REF26=~/GitCode/MitoImputePrep/scripts/REFERENCE_ALNS/26/rCRS.fasta 
 REFMT=~/GitCode/MitoImputePrep/scripts/REFERENCE_ALNS/MT/rCRS.fasta 
 
-bcftools annotate -x INFO,^FORMAT/GT ${WGS_n258} | bcftools norm --check-ref s -f ${REF26} -m - | bcftools view -V indels,mnps | bcftools +fill-tags -Oz -o ${WGS_n258_biallelic}
-bcftools annotate -x INFO,^FORMAT/GT ${TYP_n258} | bcftools norm --check-ref s -f ${REFMT} -m - | bcftools view -V indels,mnps | bcftools +fill-tags -Oz -o ${TYP_n258_biallelic}
+#bcftools annotate -x INFO,^FORMAT/GT ${WGS_n258} | bcftools norm --check-ref s -f ${REF26} -m - | bcftools view -V indels,mnps | bcftools +fill-tags -Oz -o ${WGS_n258_biallelic}
+#bcftools annotate -x INFO,^FORMAT/GT ${TYP_n258} | bcftools norm --check-ref s -f ${REFMT} -m - | bcftools view -V indels,mnps | bcftools +fill-tags -Oz -o ${TYP_n258_biallelic}
+
+bcftools annotate -x INFO,^FORMAT/GT ${WGS_n258} | bcftools norm --check-ref s -f ${REF26} | bcftools view -V indels,mnps | bcftools norm -m + | bcftools +fill-tags -Oz -o ${WGS_n258_tmp}
+bcftools annotate -x INFO,^FORMAT/GT ${TYP_n258} | bcftools norm --check-ref s -f ${REFMT} | bcftools view -V indels,mnps | bcftools norm -m + | bcftools +fill-tags -Oz -o ${TYP_n258_tmp}
+
+bcftools index ${WGS_n258_tmp}
+bcftools index ${TYP_n258_tmp}
+
+# DECOMPOSE VCF FILES AND SPLIT MULTIALLELIC RECORDS INTO BIALLELIC 
+echo
+echo "DECOMPOSE VCF FILES AND SPLIT MULTIALLELIC RECORDS INTO BIALLELIC "
+
+TYP_n258_biallelic=${WK_DIR}MitoImpute/data/ADNI_REDO/GENOTYPED/VCF/mito_snps_rcrs_ed_n258_biallelic.vcf.gz
+WGS_n258_biallelic=${WK_DIR}MitoImpute/data/ADNI_REDO/WGS/VCF/adni_mito_genomes_180214_fixed_n258_biallelic.vcf.gz
+
+vt decompose ${WGS_n258_tmp} | bcftools +fill-tags -Oz -o ${WGS_n258_biallelic}
+vt decompose ${TYP_n258_tmp} | bcftools +fill-tags -Oz -o ${TYP_n258_biallelic}
+
 bcftools index ${WGS_n258_biallelic}
 bcftools index ${TYP_n258_biallelic}
 
 # RELABEL WGS TO ADNI1 SAMPLE IDs
+samples_csv=~/GitCode/MitoImputePrep/metadata/ADNI_samples_BOTH.csv
 WGS_relab=${WK_DIR}MitoImpute/data/ADNI_REDO/WGS/VCF/adni_mito_genomes_180214_fixed_n258_biallelic_relabelled.vcf
 
+python ~/GitCode/MitoImputePrep/scripts/PYTHON/fix_vcf_names.py -i ${TYP_n258_biallelic} -o ${WGS_relab} -c ${samples_csv} -v
 # TIM YOU HAVE TO MAKE THIS COMMAND LINE >:(
 
 # GZIP USING BCFTOOLS TO MAKE SURE VCF CONFORMS TO STANDARDS
