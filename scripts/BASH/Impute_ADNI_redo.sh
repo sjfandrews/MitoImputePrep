@@ -123,6 +123,12 @@ TYP_GEN_OUT=${WK_DIR}MitoImpute/data/ADNI_REDO/GENOTYPED/HAP_LEGEND_GEN/mito_snp
 bcftools convert --gensample ${WGS_GEN_OUT} ${WGS_relab} --sex ${WGS_SEX_SAMPLE}
 bcftools convert --gensample ${TYP_GEN_OUT} ${TYP_n258_biallelic} --sex ${TYP_SEX_SAMPLE}
 
+# FIX SEX ID COLUMN IN .samples FILE
+echo
+echo "FIXING SEX ID COLUMN IN .samples FILE"
+Rscript ~/GitCode/MitoImputePrep/scripts/R/FixSamplesFile_raijin.R ${WGS_GEN_OUT}.samples
+Rscript ~/GitCode/MitoImputePrep/scripts/R/FixSamplesFile_raijin.R ${TYP_GEN_OUT}.samples
+
 # RUN IMPUTE2
 map=~/GitCode/MitoImputePrep/DerivedData/${REFpanel}/${REFpanel}_MtMap.txt
 hap=~/GitCode/MitoImputePrep/DerivedData/${REFpanel}/${REFpanel}.hap.gz
@@ -130,19 +136,72 @@ leg=~/GitCode/MitoImputePrep/DerivedData/${REFpanel}/${REFpanel}.legend.gz
 gen=${TYP_GEN_OUT}.gen.gz
 sam=${TYP_GEN_OUT}.samples
 out_dir=${WK_DIR}MitoImpute/data/ADNI_REDO/IMPUTED/${REFpanel}/IMPUTE2/
-out=${out_dir}MitoImpute_${REFpanel}_imputed
+impute2_out=${out_dir}MitoImpute_${REFpanel}_imputed
 
 if [ ! -d ${out_dir} ]
 then
-	mkdir -p {out_dir}
+	mkdir -p ${out_dir}
 fi
 
-if [ -f ${out} ]
+if [ -f ${impute2_out} ]
 then
-	echo "${out} FOUND! ... PASSING"
+	echo "${impute2_out} FOUND! ... PASSING"
 else
-	echo "${out} NOT FOUND! ... RUNNING IMPUTE2"
-	impute2 -chrX -m ${map} -h ${hap} -l ${leg} -g ${gen} -sample_g ${sam} -int 1 16569 -Ne 20000 -o ${out} -iter ${mcmc} -burnin ${burn}
+	echo "${impute2_out} NOT FOUND! ... RUNNING IMPUTE2"
+	impute2 -chrX -m ${map} -h ${hap} -l ${leg} -g ${gen} -sample_g ${sam} -int 1 16569 -Ne 20000 -o ${impute2_out} -iter ${mcmc} -burnin ${burn}
+fi
+
+# FIX CHROMOSOME NAMES
+echo
+echo "FIXING CHROMOSOME NAMES"
+#impute2_out=${WK_DIR}MitoImpute/data/ADNI_REDO/IMPUTED/IMPUTE2/${REFpanel}/MitoImpute_ADNI_imputed
+impute2_out_fixed=${impute2_out}_ChromFixed
+awk '{{$1 = "26"; print}}' ${impute2_out} > ${impute2_out_fixed}
+
+# CONVERT OXFORD TO PEDIGREE
+echo
+echo "CONVERTING OXFORD TO PEDIGREE"
+impute2_gen=${impute2_out}_ChromFixed
+impute2_sam=${impute2_out}_samples
+#impute2_out=${impute2_out}
+
+plink1.9 --gen ${impute2_gen} --sample ${impute2_sam} --hard-call-threshold 0.49 --keep-allele-order --output-chr 26 --recode --out ${impute2_out}
+
+# CONVERT OXFORD TO VCF
+echo
+echo "CONVERTING OXFORD TO VCF"
+impute2_gen=${impute2_out}_ChromFixed
+impute2_sam=${impute2_out}_samples
+#impute2_out=${impute2_out}
+
+plink1.9 --gen ${impute2_gen} --sample ${impute2_sam} --hard-call-threshold 0.49 --keep-allele-order --output-chr 26 --recode vcf --out ${impute2_out}
+
+# MAKE SURE IMPUTED VCF HAS REFERENCE ALLELES THE SAME AS rCRS AND CONVERT TO MULTI-ALLELIC FOR THIS PURPOSE
+echo
+echo "MAKING SURE IMPUTED VCF HAS REFERENCE ALLELES THE SAME AS rCRS, AND CONVERT TO MULTI-ALLELIC FOR THIS PURPOSE"
+IMP_VCF_rCRS=${impute2_out}_rCRS.vcf
+IMP_VCF=${impute2_out}_FINAL.vcf.gz
+bcftools norm --check-ref s -f ${REF26} -m + ${impute2_out}.vcf -Oz -o ${IMP_VCF_rCRS}
+
+# DECOMPOSE
+vt decompose ${IMP_VCF_rCRS} | bcftools +fill-tags -Oz -o ${IMP_VCF}
+bcftools -index ${IMP_VCF}
+
+## CALCULATE Matthew's Correlation Coefficient
+WGS_VCF=${WGS_relab}.gz
+TYP_VCF=${TYP_n258_biallelic}
+IMP_VCF=${impute2_out}.vcf
+IMP_INFO=${impute2_out}_info
+OUT_FILE=${impute2_out}
+
+if [ -f ${OUT_FILE}_imputed_MCC.csv ] & [ -f ${OUT_FILE}_typed_MCC.csv ]
+then
+	echo
+	echo "${OUT_FILE}_imputed_MCC.csv AND ${OUT_FILE}_typed_MCC.csv FOUND ... PIPELINE COMPLETED"
+else
+	echo
+	echo "${OUT_FILE}_imputed_MCC.csv AND ${OUT_FILE}_typed_MCC.csv NOT FOUND ... CALCULATING MCC GENOTYPE CONCORDANCE"
+	Rscript ~/GitCode/MitoImputePrep/scripts/R/MCC_Genotypes.R ${WGS_VCF} ${TYP_VCF} ${IMP_VCF} ${IMP_INFO} ${OUT_FILE}
 fi
 
 #
