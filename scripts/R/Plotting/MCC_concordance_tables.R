@@ -33,8 +33,8 @@ mcmc_mcc_box = ggplot(main_mcmc_df, aes(x = sub_experiment, y = mcc)) +
         panel.grid.minor = element_line(colour = "black", linetype = 2, size = 0.25),
         panel.background = element_rect(fill = "transparent",colour = "black"),
         plot.background = element_rect(fill = "transparent",colour = NA)) +
-  scale_y_continuous(breaks = c(0.0, 0.2, 0.4, 0.6, 0.8, 1.0),
-                     limits = c(0, 1)) +
+  scale_y_continuous(breaks = seq(-1.0, 1.0, by = 0.2),
+                     limits = c(-1, 1)) +
   labs(x = "",
        #x = "Length of MCMC chain",
        y = "Matthew's Correlation Coefficient",
@@ -152,8 +152,8 @@ khap_mcc_box = ggplot(main_khap_df, aes(x = sub_experiment, y = mcc)) +
         panel.grid.minor = element_line(colour = "black", linetype = 2, size = 0.25),
         panel.background = element_rect(fill = "transparent",colour = "black"),
         plot.background = element_rect(fill = "transparent",colour = NA)) +
-  scale_y_continuous(breaks = c(0.0, 0.2, 0.4, 0.6, 0.8, 1.0),
-                     limits = c(0, 1)) +
+  scale_y_continuous(breaks = seq(-1.0, 1.0, by = 0.2),
+                     limits = c(-1, 1)) +
   labs(x = "",
        #x = "Length of KHAP chain",
        y = "Matthew's Correlation Coefficient",
@@ -271,8 +271,8 @@ maf_mcc_box = ggplot(main_maf_df, aes(x = sub_experiment, y = mcc)) +
         panel.grid.minor = element_line(colour = "black", linetype = 2, size = 0.25),
         panel.background = element_rect(fill = "transparent",colour = "black"),
         plot.background = element_rect(fill = "transparent",colour = NA)) +
-  scale_y_continuous(breaks = c(0.0, 0.2, 0.4, 0.6, 0.8, 1.0),
-                     limits = c(0, 1)) +
+  scale_y_continuous(breaks = seq(-1.0, 1.0, by = 0.2),
+                     limits = c(-1, 1)) +
   labs(x = "",
        #x = "Length of MAF chain",
        y = "Matthew's Correlation Coefficient",
