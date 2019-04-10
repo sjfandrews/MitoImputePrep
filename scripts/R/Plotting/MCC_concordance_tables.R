@@ -20,7 +20,7 @@ exp.dir = "MCMC_Experiments"
 exp.var = c("MCMC1", "MCMC5", "MCMC10", "MCMC20", "MCMC30")
 main_mcmc_df$sub_experiment = factor(main_mcmc_df$sub_experiment, levels = exp.var)
 
-mcmc_mcc_box = ggplot(main_mcmc_df, aes(x = sub_experiment, y = abs(mcc))) +
+mcmc_mcc_box = ggplot(main_mcmc_df, aes(x = sub_experiment, y = mcc)) +
   geom_violin(fill = "#feb600", na.rm = T, lwd = 0.25) +
   geom_boxplot(width = rel(0.25), notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428", lwd = 0.25) +
   #theme_bw() +
@@ -139,7 +139,7 @@ exp.dir = "kHAP_Experiments"
 exp.var = c("kHAP100", "kHAP250", "kHAP500", "kHAP1000", "kHAP2500", "kHAP5000", "kHAP10000", "kHAP20000", "kHAP30000")
 main_khap_df$sub_experiment = factor(main_khap_df$sub_experiment, levels = exp.var)
 
-khap_mcc_box = ggplot(main_khap_df, aes(x = sub_experiment, y = abs(mcc))) +
+khap_mcc_box = ggplot(main_khap_df, aes(x = sub_experiment, y = mcc)) +
   geom_violin(fill = "#feb600", na.rm = T, lwd = 0.25) +
   geom_boxplot(width = rel(0.25), notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428", lwd = 0.25) +
   #theme_bw() +
@@ -258,7 +258,7 @@ exp.dir = "MAF_Experiments"
 exp.var = c("MAF1%", "MAF0.5%", "MAF0.1%")
 main_maf_df$sub_experiment = factor(main_maf_df$sub_experiment, levels = exp.var)
 
-maf_mcc_box = ggplot(main_maf_df, aes(x = sub_experiment, y = abs(mcc))) +
+maf_mcc_box = ggplot(main_maf_df, aes(x = sub_experiment, y = mcc)) +
   geom_violin(fill = "#feb600", na.rm = T, lwd = 0.25) +
   geom_boxplot(width = rel(0.25), notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428", lwd = 0.25) +
   #theme_bw() +

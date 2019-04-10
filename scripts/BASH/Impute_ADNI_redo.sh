@@ -115,7 +115,7 @@ plink1.9 --vcf ${TYP_n258_biallelic} --recode --double-id --keep-allele-order --
 
 # GENERATE GEN FILES
 echo 
-echo "GENERATE GEN HAP LEGEND AND SAMPLE FILES"
+echo "GENERATE GEN AND SAMPLE FILES"
 WGS_GEN_OUT=${WK_DIR}MitoImpute/data/ADNI_REDO/WGS/HAP_LEGEND_GEN/adni_mito_genomes_180214_fixed_n258_biallelic_relabelled
 TYP_GEN_OUT=${WK_DIR}MitoImpute/data/ADNI_REDO/GENOTYPED/HAP_LEGEND_GEN/mito_snps_rcrs_ed_n258_biallelic
 
