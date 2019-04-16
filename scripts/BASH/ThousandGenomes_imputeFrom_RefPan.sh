@@ -303,10 +303,12 @@ WGS_VCF=${vcf_1kg}
 TYP_VCF=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}.vcf.gz
 TYP_VCF_MULTIALLELIC=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}_multiallelic.vcf.gz
 TYP_VCF_DECOMPOSED=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}_biallelic_decomposed.vcf.gz
-IMP_VCF=${imp_ext}.vcf
+#IMP_VCF=${imp_ext}.vcf
 IMP_INFO=${imp_ext}_info
 OUT_FILE=${imp_ext}
 
+echo
+echo "# NORMALISE GENOTYPED VCF"
 # NORMALISE GENOTYPED VCF
 bcftools norm --check-ref s -f ${REFMT} -m + ${TYP_VCF} -Oz -o ${TYP_VCF_MULTIALLELIC}
 
@@ -314,10 +316,12 @@ bcftools norm --check-ref s -f ${REFMT} -m + ${TYP_VCF} -Oz -o ${TYP_VCF_MULTIAL
 vt decompose ${TYP_VCF_MULTIALLELIC} | bcftools +fill-tags -Oz -o ${TYP_VCF_DECOMPOSED}
 bcftools index ${TYP_VCF_DECOMPOSED}
 
+echo
+echo "NORMALISE IMPUTED VCF"
 # NORMALISE IMPUTED VCF
 IMP_VCF_rCRS=${imp_ext}_rCRS.vcf
 IMP_VCF=${imp_ext}_FINAL.vcf.gz
-bcftools norm --check-ref s -f ${REF26} -m + ${IMP_VCF} -Oz -o ${IMP_VCF_rCRS}
+bcftools norm --check-ref s -f ${REF26} -m + ${imp_ext}.vcf -Oz -o ${IMP_VCF_rCRS}
 
 # DECOMPOSE IMPUTED VCF
 vt decompose ${IMP_VCF_rCRS} | bcftools +fill-tags -Oz -o ${IMP_VCF}
