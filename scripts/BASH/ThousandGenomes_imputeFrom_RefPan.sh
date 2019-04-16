@@ -1,8 +1,8 @@
 #!/bin/bash
 #PBS -P gw26
 #PBS -q biodev
-#PBS -l walltime=00:15:00
-#PBS -l mem=2GB
+#PBS -l walltime=00:30:00
+#PBS -l mem=4GB
 #PBS -l ncpus=1
 #PBS -N impute_SNPchip_1kGP
 #PBS -m e

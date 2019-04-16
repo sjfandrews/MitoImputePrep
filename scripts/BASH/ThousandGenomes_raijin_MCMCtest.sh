@@ -1,8 +1,8 @@
 #!/bin/bash
-#PBS -P te53
-#PBS -q express
-#PBS -l walltime=00:10:00
-#PBS -l mem=8GB
+#PBS -P gw26
+#PBS -q biodev
+#PBS -l walltime=00:30:00
+#PBS -l mem=4GB
 #PBS -l ncpus=1
 #PBS -N MCMC_impute_SNPchip_1kGP
 #PBS -m e
