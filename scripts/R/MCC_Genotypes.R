@@ -29,7 +29,7 @@ mccr <- function (act, pred) {
   TN <- sum(act %in% 0 & pred %in% 0)
   FP <- sum(act %in% 0 & pred %in% 1)
   FN <- sum(act %in% 1 & pred %in% 0)
-  denom <- as.double(TP + FP) * (TP + FN) * (TN + FP) * (TN + FN)
+  denom <- as.double((TP + FP) * (TP + FN) * (TN + FP) * (TN + FN))
   if (any((TP + FP) == 0, (TP + FN) == 0, (TN + FP) == 0, (TN + FN) == 0)) 
     denom <- 1
   mcc <- ((TP * TN) - (FP * FN))/sqrt(denom)

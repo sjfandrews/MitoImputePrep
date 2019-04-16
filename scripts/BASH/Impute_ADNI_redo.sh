@@ -185,12 +185,12 @@ bcftools norm --check-ref s -f ${REF26} -m + ${impute2_out}.vcf -Oz -o ${IMP_VCF
 
 # DECOMPOSE
 vt decompose ${IMP_VCF_rCRS} | bcftools +fill-tags -Oz -o ${IMP_VCF}
-bcftools -index ${IMP_VCF}
+bcftools index ${IMP_VCF}
 
 ## CALCULATE Matthew's Correlation Coefficient
 WGS_VCF=${WGS_relab}.gz
 TYP_VCF=${TYP_n258_biallelic}
-IMP_VCF=${impute2_out}.vcf
+#IMP_VCF=${impute2_out}.vcf
 IMP_INFO=${impute2_out}_info
 OUT_FILE=${impute2_out}
 

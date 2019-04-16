@@ -20,6 +20,21 @@ exp.dir = "MCMC_Experiments"
 exp.var = c("MCMC1", "MCMC5", "MCMC10", "MCMC20", "MCMC30")
 main_mcmc_df$sub_experiment = factor(main_mcmc_df$sub_experiment, levels = exp.var)
 
+mcmc_mcc_info_regression = ggplot(main_mcmc_df, aes(x = mcc, y = info, colour = sub_experiment)) +
+  geom_point() +
+  theme(axis.text.x = element_text(hjust = 1.0, angle = 45),
+        axis.title.x = element_text(vjust = -1.0),
+        legend.position = "bottom",
+        legend.background = element_rect(fill = "transparent"),
+        legend.box.background = element_rect(fill = "transparent", colour = NA),
+        panel.grid.major = element_line(colour = "black", size = 0.25), 
+        panel.grid.minor = element_line(colour = "black", linetype = 2, size = 0.25),
+        panel.background = element_rect(fill = "transparent",colour = "black"),
+        plot.background = element_rect(fill = "transparent",colour = NA)) +
+  labs(y = expression(paste("IMPUTE2 info score (", italic("r")^"2", ")")),
+       x = "Matthew's Correlation Coefficient")
+ggsave(filename = paste0(container, "Plots/MCMC_MCCvINFO_regression.png"), plot = mcmc_mcc_info_regression, width = 297, height = 210, units = "mm", dpi = 300, bg = "transparent")
+
 mcmc_mcc_box = ggplot(main_mcmc_df, aes(x = sub_experiment, y = mcc)) +
   geom_violin(fill = "#feb600", na.rm = T, lwd = 0.25) +
   geom_boxplot(width = rel(0.25), notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428", lwd = 0.25) +
@@ -138,6 +153,21 @@ main_khap_df = KHAP_imp
 exp.dir = "kHAP_Experiments"
 exp.var = c("kHAP100", "kHAP250", "kHAP500", "kHAP1000", "kHAP2500", "kHAP5000", "kHAP10000", "kHAP20000", "kHAP30000")
 main_khap_df$sub_experiment = factor(main_khap_df$sub_experiment, levels = exp.var)
+
+khap_mcc_info_regression = ggplot(main_khap_df, aes(x = mcc, y = info, colour = sub_experiment)) +
+  geom_point() +
+  theme(axis.text.x = element_text(hjust = 1.0, angle = 45),
+        axis.title.x = element_text(vjust = -1.0),
+        legend.position = "bottom",
+        legend.background = element_rect(fill = "transparent"),
+        legend.box.background = element_rect(fill = "transparent", colour = NA),
+        panel.grid.major = element_line(colour = "black", size = 0.25), 
+        panel.grid.minor = element_line(colour = "black", linetype = 2, size = 0.25),
+        panel.background = element_rect(fill = "transparent",colour = "black"),
+        plot.background = element_rect(fill = "transparent",colour = NA)) +
+  labs(y = expression(paste("IMPUTE2 info score (", italic("r")^"2", ")")),
+       x = "Matthew's Correlation Coefficient")
+#ggsave(filename = paste0(container, "Plots/MCMC_MCCvINFO_regression.png"), plot = mcmc_mcc_info_regression, width = 297, height = 210, units = "mm", dpi = 300, bg = "transparent")
 
 khap_mcc_box = ggplot(main_khap_df, aes(x = sub_experiment, y = mcc)) +
   geom_violin(fill = "#feb600", na.rm = T, lwd = 0.25) +
@@ -258,6 +288,23 @@ exp.dir = "MAF_Experiments"
 exp.var = c("MAF1%", "MAF0.5%", "MAF0.1%")
 main_maf_df$sub_experiment = factor(main_maf_df$sub_experiment, levels = exp.var)
 
+maf_mcc_info_regression = ggplot(main_maf_df, aes(x = mcc, y = info, colour = sub_experiment)) +
+  geom_point() +
+  #stat_smooth(method = "lm") +
+  theme(axis.text.x = element_text(hjust = 1.0, angle = 45),
+        axis.title.x = element_text(vjust = -1.0),
+        legend.position = "bottom",
+        legend.background = element_rect(fill = "transparent"),
+        legend.box.background = element_rect(fill = "transparent", colour = NA),
+        panel.grid.major = element_line(colour = "black", size = 0.25), 
+        panel.grid.minor = element_line(colour = "black", linetype = 2, size = 0.25),
+        panel.background = element_rect(fill = "transparent",colour = "black"),
+        plot.background = element_rect(fill = "transparent",colour = NA)) +
+  labs(y = expression(paste("IMPUTE2 info score (", italic("r")^"2", ")")),
+       x = "Matthew's Correlation Coefficient")
+#ggsave(filename = paste0(container, "Plots/MCMC_MCCvINFO_regression.png"), plot = mcmc_mcc_info_regression, width = 297, height = 210, units = "mm", dpi = 300, bg = "transparent")
+
+
 maf_mcc_box = ggplot(main_maf_df, aes(x = sub_experiment, y = mcc)) +
   geom_violin(fill = "#feb600", na.rm = T, lwd = 0.25) +
   geom_boxplot(width = rel(0.25), notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428", lwd = 0.25) +
@@ -363,4 +410,9 @@ maf_plots = grid.arrange(top = "Minor allele frequencies (MAF) variations",
                          arrangeGrob(maf_mcc_box, maf_info_box, maf_cert_box, maf_conc_box, ncol = 2, nrow = 2)
                          )
 ggsave(filename = paste0(container, "Plots/MAF_MCC.png"), plot = maf_plots, width = 297, height = 210, units = "mm", dpi = 300, bg = "transparent")
+
+regressionPlots = grid.arrange(arrangeGrob(mcmc_mcc_info_regression, khap_mcc_info_regression, maf_mcc_info_regression,
+                                           ncol = 1, nrow = 3))
+
+ggsave(filename = paste0(container, "Plots/MCC_v_INFO_regression.png"), plot = regressionPlots, width = 297, height = 297, units = "mm", dpi = 300, bg = "transparent")
 

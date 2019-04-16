@@ -1,8 +1,8 @@
 #!/bin/bash
-#PBS -P gw26
-#PBS -q biodev
-#PBS -l walltime=00:15:00
-#PBS -l mem=2GB
+#PBS -P te53
+#PBS -q normalbw
+#PBS -l walltime=48:00:00
+#PBS -l mem=64GB
 #PBS -l ncpus=1
 #PBS -N impute_SNPchip_1kGP
 #PBS -m e
@@ -297,42 +297,20 @@ else
 fi
 
 ## CALCULATE Matthew's Correlation Coefficient
-REF26=~/GitCode/MitoImputePrep/scripts/REFERENCE_ALNS/26/rCRS.fasta 
-REFMT=~/GitCode/MitoImputePrep/scripts/REFERENCE_ALNS/MT/rCRS.fasta 
-WGS_VCF=${vcf_1kg}
+WGS_VCF=/g/data1a/te53/MitoImpute/data/VCF/chrMT_1kg_SNPonly.vcf.gz
 TYP_VCF=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}.vcf.gz
-TYP_VCF_MULTIALLELIC=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}_multiallelic.vcf.gz
-TYP_VCF_DECOMPOSED=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}_biallelic_decomposed.vcf.gz
 IMP_VCF=${imp_ext}.vcf
 IMP_INFO=${imp_ext}_info
 OUT_FILE=${imp_ext}
-
-# NORMALISE GENOTYPED VCF
-bcftools norm --check-ref s -f ${REFMT} -m + ${TYP_VCF} -Oz -o ${TYP_VCF_MULTIALLELIC}
-
-# DECOMPOSE GENOTYPED VCF
-vt decompose ${TYP_VCF_MULTIALLELIC} | bcftools +fill-tags -Oz -o ${TYP_VCF_DECOMPOSED}
-bcftools index ${TYP_VCF_DECOMPOSED}
-
-# NORMALISE IMPUTED VCF
-IMP_VCF_rCRS=${imp_ext}_rCRS.vcf
-IMP_VCF=${imp_ext}_FINAL.vcf.gz
-bcftools norm --check-ref s -f ${REF26} -m + ${IMP_VCF} -Oz -o ${IMP_VCF_rCRS}
-
-# DECOMPOSE IMPUTED VCF
-vt decompose ${IMP_VCF_rCRS} | bcftools +fill-tags -Oz -o ${IMP_VCF}
-bcftools index ${IMP_VCF}
 
 if [ -f ${OUT_FILE}_imputed_MCC.csv ] & [ -f ${OUT_FILE}_typed_MCC.csv ]
 then
 	echo
 	echo "${OUT_FILE}_imputed_MCC.csv AND ${OUT_FILE}_typed_MCC.csv FOUND ... PIPELINE COMPLETED"
-	echo "ACTUALLY ... DO IT ANYWAY (DOUBLE CHECKING, REMOVE THIS LATER"
-	Rscript ~/GitCode/MitoImputePrep/scripts/R/MCC_Genotypes.R ${WGS_VCF} ${TYP_VCF_DECOMPOSED} ${IMP_VCF} ${IMP_INFO} ${OUT_FILE}
 else
 	echo
 	echo "${OUT_FILE}_imputed_MCC.csv AND ${OUT_FILE}_typed_MCC.csv NOT FOUND ... CALCULATING MCC GENOTYPE CONCORDANCE"
-	Rscript ~/GitCode/MitoImputePrep/scripts/R/MCC_Genotypes.R ${WGS_VCF} ${TYP_VCF_DECOMPOSED} ${IMP_VCF} ${IMP_INFO} ${OUT_FILE}
+	Rscript ~/GitCode/MitoImputePrep/scripts/R/MCC_Genotypes.R ${WGS_VCF} ${TYP_VCF} ${IMP_VCF} ${IMP_INFO} ${OUT_FILE}
 fi
 
 
