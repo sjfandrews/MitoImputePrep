@@ -596,6 +596,7 @@ for (exp in 1:length(exp.var)) {
     tmp.typ.file = paste0(container, chip.table$V1[chip], "/", ref.panel[exp], "/MCMC1/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_MCMC1", "_typed_MCC.csv")
     
     platform.snps = paste0(container, chip.table$V1[chip], "/", chip.table$V1[chip], "_MT_snps.txt")
+    print(platform.snps)
     snps = read.table(platform.snps, header = F, sep = "\t")
     
     if (file.exists(tmp.imp.file) == T) {
