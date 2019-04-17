@@ -646,7 +646,6 @@ for (exp in 1:length(exp.var)) {
       tmp.imp.table = read.csv(tmp.imp.file, header = T)
       
       # THE FULL THING
-      tmp_maf_imputed_df$n.snps[chip]            = nrow(snps)
       tmp_maf_imputed_df$allele_freq[chip]       = mean(tmp.imp.table$af, na.rm = T)
       tmp_maf_imputed_df$mcc[chip]               = mean(tmp.imp.table$mcc, na.rm = T)
       tmp_maf_imputed_df$concordance[chip]       = mean(tmp.imp.table$concodance, na.rm = T)
