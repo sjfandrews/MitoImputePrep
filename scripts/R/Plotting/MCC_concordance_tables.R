@@ -33,7 +33,7 @@ mcmc_mcc_info_regression = ggplot(main_mcmc_df, aes(x = mcc, y = info, colour = 
         plot.background = element_rect(fill = "transparent",colour = NA)) +
   labs(y = expression(paste("IMPUTE2 info score (", italic("r")^"2", ")")),
        x = "Matthew's Correlation Coefficient")
-ggsave(filename = paste0(container, "Plots/MCMC_MCCvINFO_regression.png"), plot = mcmc_mcc_info_regression, width = 297, height = 210, units = "mm", dpi = 300, bg = "transparent")
+ggsave(filename = paste0(container, "Plots/MCMC_MCCvINFO_regression.png"), plot = mcmc_mcc_info_regression, width = 297, height = 210, units = "mm", dpi = 300)
 
 mcmc_mcc_box = ggplot(main_mcmc_df, aes(x = sub_experiment, y = mcc)) +
   geom_violin(fill = "#feb600", na.rm = T, lwd = 0.25) +
@@ -140,7 +140,7 @@ mcmc_conc_box
 mcmc_plots = grid.arrange(top = "Markov chain Monte Carlo (MCMC) length variations",
                           arrangeGrob(mcmc_mcc_box, mcmc_info_box, mcmc_cert_box, mcmc_conc_box, ncol = 2, nrow = 2)
                           )
-ggsave(filename = paste0(container, "Plots/MCMC_MCC.png"), plot = mcmc_plots, width = 297, height = 210, units = "mm", dpi = 300, bg = "transparent")
+ggsave(filename = paste0(container, "Plots/MCMC_MCC.png"), plot = mcmc_plots, width = 297, height = 210, units = "mm", dpi = 300)
 
 # KHAP
 KHAP_imp = read.csv(paste0(container, "KHAP/ConcordanceTables_KHAP_Experiments_MCC_imputed_genotype.csv"), header = T)
@@ -167,7 +167,7 @@ khap_mcc_info_regression = ggplot(main_khap_df, aes(x = mcc, y = info, colour = 
         plot.background = element_rect(fill = "transparent",colour = NA)) +
   labs(y = expression(paste("IMPUTE2 info score (", italic("r")^"2", ")")),
        x = "Matthew's Correlation Coefficient")
-#ggsave(filename = paste0(container, "Plots/MCMC_MCCvINFO_regression.png"), plot = mcmc_mcc_info_regression, width = 297, height = 210, units = "mm", dpi = 300, bg = "transparent")
+#ggsave(filename = paste0(container, "Plots/MCMC_MCCvINFO_regression.png"), plot = mcmc_mcc_info_regression, width = 297, height = 210, units = "mm", dpi = 300)
 
 khap_mcc_box = ggplot(main_khap_df, aes(x = sub_experiment, y = mcc)) +
   geom_violin(fill = "#feb600", na.rm = T, lwd = 0.25) +
@@ -273,7 +273,7 @@ khap_conc_box
 khap_plots = grid.arrange(top = "Number of included reference haplotypes (k_hap) variations",
                           arrangeGrob(khap_mcc_box, khap_info_box, khap_cert_box, khap_conc_box, ncol = 2, nrow = 2)
                           )
-ggsave(filename = paste0(container, "Plots/KHAP_MCC.png"), plot = khap_plots, width = 297, height = 210, units = "mm", dpi = 300, bg = "transparent")
+ggsave(filename = paste0(container, "Plots/KHAP_MCC.png"), plot = khap_plots, width = 297, height = 210, units = "mm", dpi = 300)
 
 ## MAF
 
@@ -302,7 +302,7 @@ maf_mcc_info_regression = ggplot(main_maf_df, aes(x = mcc, y = info, colour = su
         plot.background = element_rect(fill = "transparent",colour = NA)) +
   labs(y = expression(paste("IMPUTE2 info score (", italic("r")^"2", ")")),
        x = "Matthew's Correlation Coefficient")
-#ggsave(filename = paste0(container, "Plots/MCMC_MCCvINFO_regression.png"), plot = mcmc_mcc_info_regression, width = 297, height = 210, units = "mm", dpi = 300, bg = "transparent")
+#ggsave(filename = paste0(container, "Plots/MCMC_MCCvINFO_regression.png"), plot = mcmc_mcc_info_regression, width = 297, height = 210, units = "mm", dpi = 300)
 
 
 maf_mcc_box = ggplot(main_maf_df, aes(x = sub_experiment, y = mcc)) +
@@ -409,10 +409,10 @@ maf_conc_box
 maf_plots = grid.arrange(top = "Minor allele frequencies (MAF) variations",
                          arrangeGrob(maf_mcc_box, maf_info_box, maf_cert_box, maf_conc_box, ncol = 2, nrow = 2)
                          )
-ggsave(filename = paste0(container, "Plots/MAF_MCC.png"), plot = maf_plots, width = 297, height = 210, units = "mm", dpi = 300, bg = "transparent")
+ggsave(filename = paste0(container, "Plots/MAF_MCC.png"), plot = maf_plots, width = 297, height = 210, units = "mm", dpi = 300)
 
 regressionPlots = grid.arrange(arrangeGrob(mcmc_mcc_info_regression, khap_mcc_info_regression, maf_mcc_info_regression,
                                            ncol = 1, nrow = 3))
 
-ggsave(filename = paste0(container, "Plots/MCC_v_INFO_regression.png"), plot = regressionPlots, width = 297, height = 297, units = "mm", dpi = 300, bg = "transparent")
+ggsave(filename = paste0(container, "Plots/MCC_v_INFO_regression.png"), plot = regressionPlots, width = 297, height = 297, units = "mm", dpi = 300)
 

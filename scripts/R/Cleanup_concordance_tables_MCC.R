@@ -54,6 +54,9 @@ for (exp in 1:length(exp.var)) {
     tmp.imp.file = paste0(container, chip.table$V1[chip], "/", exp.dir, "/", exp.var[exp], "/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_", exp.var[exp], "_imputed_MCC.csv")
     tmp.typ.file = paste0(container, chip.table$V1[chip], "/", exp.dir, "/", exp.var[exp], "/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_", exp.var[exp], "_typed_MCC.csv")
     
+    platform.snps = paste0(container, chip.table$V1[chip], "/", chip.table$V1[chip], "_MT_snps.txt")
+    snps = read.table(platform.snps, header = F, sep = "\t")
+    
     if (file.exists(tmp.imp.file) == T) {
       tmp_mcmc_imputed_df$imputed[chip] = T
       chip.table$imputed[chip] = T
@@ -62,6 +65,7 @@ for (exp in 1:length(exp.var)) {
       chip.table$imputed[chip] = F
     }
     
+    tmp_mcmc_imputed_df$n.snps[chip] = nrow(snps)
     tmp_mcmc_imputed_df$allele_freq[chip] = NA
     tmp_mcmc_imputed_df$mcc[chip] = NA
     tmp_mcmc_imputed_df$concordance[chip] = NA
@@ -318,6 +322,9 @@ for (exp in 1:length(exp.var)) {
     tmp.imp.file = paste0(container, chip.table$V1[chip], "/", exp.dir, "/", exp.var[exp], "/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_", exp.var[exp], "_imputed_MCC.csv")
     tmp.typ.file = paste0(container, chip.table$V1[chip], "/", exp.dir, "/", exp.var[exp], "/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_", exp.var[exp], "_typed_MCC.csv")
     
+    platform.snps = paste0(container, chip.table$V1[chip], "/", chip.table$V1[chip], "_MT_snps.txt")
+    snps = read.table(platform.snps, header = F, sep = "\t")
+    
     if (file.exists(tmp.imp.file) == T) {
       tmp_khap_imputed_df$imputed[chip] = T
       chip.table$imputed[chip] = T
@@ -326,6 +333,7 @@ for (exp in 1:length(exp.var)) {
       chip.table$imputed[chip] = F
     }
     
+    tmp_khap_imputed_df$n.snps[chip] = nrow(snps)
     tmp_khap_imputed_df$allele_freq[chip] = NA
     tmp_khap_imputed_df$mcc[chip] = NA
     tmp_khap_imputed_df$concordance[chip] = NA
@@ -587,6 +595,9 @@ for (exp in 1:length(exp.var)) {
     tmp.imp.file = paste0(container, chip.table$V1[chip], "/", ref.panel[exp], "/MCMC1/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_MCMC1", "_imputed_MCC.csv")
     tmp.typ.file = paste0(container, chip.table$V1[chip], "/", ref.panel[exp], "/MCMC1/", "chrMT_1kg_", chip.table$V1[chip], "_imputed_MCMC1", "_typed_MCC.csv")
     
+    platform.snps = paste0(container, chip.table$V1[chip], "/", chip.table$V1[chip], "_MT_snps.txt")
+    snps = read.table(platform.snps, header = F, sep = "\t")
+    
     if (file.exists(tmp.imp.file) == T) {
       tmp_maf_imputed_df$imputed[chip] = T
       chip.table$imputed[chip] = T
@@ -596,6 +607,7 @@ for (exp in 1:length(exp.var)) {
       chip.table$imputed[chip] = F
     }
     
+    tmp_maf_imputed_df$n.snps[chip] = nrow(snps)
     tmp_maf_imputed_df$allele_freq[chip] = NA
     tmp_maf_imputed_df$mcc[chip] = NA
     tmp_maf_imputed_df$concordance[chip] = NA
@@ -634,6 +646,7 @@ for (exp in 1:length(exp.var)) {
       tmp.imp.table = read.csv(tmp.imp.file, header = T)
       
       # THE FULL THING
+      tmp_maf_imputed_df$n.snps[chip]            = nrow(snps)
       tmp_maf_imputed_df$allele_freq[chip]       = mean(tmp.imp.table$af, na.rm = T)
       tmp_maf_imputed_df$mcc[chip]               = mean(tmp.imp.table$mcc, na.rm = T)
       tmp_maf_imputed_df$concordance[chip]       = mean(tmp.imp.table$concodance, na.rm = T)
