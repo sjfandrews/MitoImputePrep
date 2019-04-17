@@ -261,8 +261,6 @@ for (exp in 1:length(exp.var)) {
   main_mcmc_typed_df_t1 = rbind(main_mcmc_typed_df_t1, tmp_mcmc_typed_df_t1)
   main_mcmc_typed_df_t2 = rbind(main_mcmc_typed_df_t2, tmp_mcmc_typed_df_t2)
   main_mcmc_typed_df_t3 = rbind(main_mcmc_typed_df_t3, tmp_mcmc_typed_df_t3)
-  
-  print(head(main_mcmc_imputed_df))
 }
 write.csv(main_mcmc_imputed_df, paste0(outward_dir, "MCMC/ConcordanceTables_", exp.dir,"_MCC_imputed_genotype.csv"), row.names = F, quote = F)
 write.csv(main_mcmc_imputed_df_t0, paste0(outward_dir, "MCMC/ConcordanceTables_", exp.dir,"_MCC_imputed_genotype_t0.csv"), row.names = F, quote = F)
