@@ -7,18 +7,10 @@ require(dplyr)
 #########################################################################
 chip.table = read.table("~/GitCode/MitoImputePrep/scripts/INFORMATION_LISTS/b37_platforms.txt", header = F)
 #truth.table = read.table("~/GitCode/MitoImputePrep/metadata/HaploGrep_concordance/chrMT_1kg_diploid_haplogrep.txt", header = T)
-#container = "/g/data1a/te53/MitoImpute/data/STRANDS/" #BDCHP-1X10-HUMANHAP240S_11216501_A-b37/MCMC_Experiments/MCMC1"
-#outward_dir = "/g/data1a/te53/MitoImpute/analyses/concordance/MCC/"
-container = "/Volumes/TimMcInerney/MitoImpute/data/STRANDS/"
-outward_dir = "/Volumes/TimMcInerney/MitoImpute/analyses/concordance/MCC/"
-
-#truth.A = subset(truth.table, substr(truth.table$Haplogroup, 1, 1) == "L")
-#truth.A$Macrohaplogroup = substr(truth.A$Haplogroup, 1, 2)
-#truth.N = subset(truth.table, substr(truth.table$Haplogroup, 1, 1) != "L")
-#truth.N$Macrohaplogroup = substr(truth.N$Haplogroup, 1, 1)
-#
-#truth.table = rbind(truth.A, truth.N)
-#truth.table = arrange(truth.table, truth.table$SampleID)
+container = "/g/data1a/te53/MitoImpute/data/STRANDS/" #BDCHP-1X10-HUMANHAP240S_11216501_A-b37/MCMC_Experiments/MCMC1"
+outward_dir = "/g/data1a/te53/MitoImpute/analyses/concordance/MCC/"
+#container = "/Volumes/TimMcInerney/MitoImpute/data/STRANDS/"
+#outward_dir = "/Volumes/TimMcInerney/MitoImpute/analyses/concordance/MCC/"
 
 ###############################################################################
 ## MCMC 
