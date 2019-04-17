@@ -38,6 +38,7 @@ ggsave(filename = paste0(container, "Plots/MCMC_MCCvINFO_regression.png"), plot 
 mcmc_mcc_box = ggplot(main_mcmc_df, aes(x = sub_experiment, y = mcc)) +
   geom_violin(fill = "#feb600", na.rm = T, lwd = 0.25) +
   geom_boxplot(width = rel(0.25), notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428", lwd = 0.25) +
+  geom_jitter(position=position_jitter(0.25), aes(size = n.snps), na.rm = T, shape = 21, fill = NA, colour = "#802428", stroke = rel(0.5)) + #colour = "#f3e5b1"
   #theme_bw() +
   theme(axis.text.x = element_text(hjust = 1.0, angle = 45),
         axis.title.x = element_text(vjust = -1.0),
@@ -121,6 +122,7 @@ mcmc_cert_box
 mcmc_conc_box = ggplot(main_mcmc_df, aes(x = sub_experiment, y = concordance)) +
   geom_violin(fill = "#feb600", na.rm = T, lwd = 0.25) +
   geom_boxplot(width = rel(0.25), notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428", lwd = 0.25) +
+  geom_jitter(position=position_jitter(0.25), aes(size = n.snps), na.rm = T, shape = 21, fill = NA, colour = "#802428", stroke = rel(0.5)) + #colour = "#f3e5b1"
   #theme_bw() +
   theme(axis.text.x = element_text(hjust = 1.0, angle = 45),
         axis.title.x = element_text(vjust = -1.0),
@@ -172,6 +174,7 @@ khap_mcc_info_regression = ggplot(main_khap_df, aes(x = mcc, y = info, colour = 
 khap_mcc_box = ggplot(main_khap_df, aes(x = sub_experiment, y = mcc)) +
   geom_violin(fill = "#feb600", na.rm = T, lwd = 0.25) +
   geom_boxplot(width = rel(0.25), notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428", lwd = 0.25) +
+  geom_jitter(position=position_jitter(0.25), aes(size = n.snps), na.rm = T, shape = 21, fill = NA, colour = "#802428", stroke = rel(0.5)) + #colour = "#f3e5b1"
   #theme_bw() +
   theme(axis.text.x = element_text(hjust = 1.0, angle = 45),
         axis.title.x = element_text(vjust = -1.0),
@@ -254,6 +257,7 @@ khap_cert_box
 khap_conc_box = ggplot(main_khap_df, aes(x = sub_experiment, y = concordance)) +
   geom_violin(fill = "#feb600", na.rm = T, lwd = 0.25) +
   geom_boxplot(width = rel(0.25), notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428", lwd = 0.25) +
+  geom_jitter(position=position_jitter(0.25), aes(size = n.snps), na.rm = T, shape = 21, fill = NA, colour = "#802428", stroke = rel(0.5)) + #colour = "#f3e5b1"
   #theme_bw() +
   theme(axis.text.x = element_text(hjust = 1.0, angle = 45),
         axis.title.x = element_text(vjust = -1.0),
@@ -308,6 +312,7 @@ maf_mcc_info_regression = ggplot(main_maf_df, aes(x = mcc, y = info, colour = su
 maf_mcc_box = ggplot(main_maf_df, aes(x = sub_experiment, y = mcc)) +
   geom_violin(fill = "#feb600", na.rm = T, lwd = 0.25) +
   geom_boxplot(width = rel(0.25), notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428", lwd = 0.25) +
+  geom_jitter(position=position_jitter(0.25), aes(size = n.snps), na.rm = T, shape = 21, fill = NA, colour = "#802428", stroke = rel(0.5)) + #colour = "#f3e5b1"
   #theme_bw() +
   theme(axis.text.x = element_text(hjust = 1.0, angle = 45),
         axis.title.x = element_text(vjust = -1.0),
@@ -390,6 +395,7 @@ maf_cert_box
 maf_conc_box = ggplot(main_maf_df, aes(x = sub_experiment, y = concordance)) +
   geom_violin(fill = "#feb600", na.rm = T, lwd = 0.25) +
   geom_boxplot(width = rel(0.25), notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428", lwd = 0.25) +
+  geom_jitter(position=position_jitter(0.25), aes(size = n.snps), na.rm = T, shape = 21, fill = NA, colour = "#802428", stroke = rel(0.5)) + #colour = "#f3e5b1"
   #theme_bw() +
   theme(axis.text.x = element_text(hjust = 1.0, angle = 45),
         axis.title.x = element_text(vjust = -1.0),
