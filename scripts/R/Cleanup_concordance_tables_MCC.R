@@ -60,17 +60,20 @@ for (exp in 1:length(exp.var)) {
     if (file.exists(tmp.imp.file) == T) {
       tmp_mcmc_imputed_df$imputed[chip] = T
       chip.table$imputed[chip] = T
-    } else {
-      tmp_mcmc_imputed_df$imputed[chip] = F
-      chip.table$imputed[chip] = F
-    }
-    
-    if (file.exists(platform.snps) == T) {
       snps = read.table(platform.snps, header = F, sep = "\t")
       tmp_mcmc_imputed_df$n.snps[chip] = nrow(snps)
     } else {
+      tmp_mcmc_imputed_df$imputed[chip] = F
+      chip.table$imputed[chip] = F
       tmp_mcmc_imputed_df$n.snps[chip] = 0
     }
+    
+    #if (file.exists(platform.snps) == T) {
+    #  snps = read.table(platform.snps, header = F, sep = "\t")
+    #  tmp_mcmc_imputed_df$n.snps[chip] = nrow(snps)
+    #} else {
+    #  tmp_mcmc_imputed_df$n.snps[chip] = 0
+    #}
     
     tmp_mcmc_imputed_df$allele_freq[chip] = NA
     tmp_mcmc_imputed_df$mcc[chip] = NA
