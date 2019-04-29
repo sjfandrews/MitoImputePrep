@@ -4,10 +4,10 @@ library(HiMC); data(nodes)
 library(taRifx)
 
 ##  Function
-generate_snp_data_fixed <- function (map_file, ped_file) 
+generate_snp_data_fixed <- function (map_file, ped_file)
 {
   map <- read.csv(map_file, sep = "\t", header = FALSE, stringsAsFactors = FALSE)
-  header_row <- c("Family", "Individual", "Father", "Mother", 
+  header_row <- c("Family", "Individual", "Father", "Mother",
                   "Sex", "Phenotype")
   snps = map[, 4]
   new_header = c(header_row, snps)
@@ -31,16 +31,16 @@ setwd("~/Dropbox/STRANDS")
 setwd("~/Desktop/STRANDS")
 setwd("~/Desktop/STRANDS_ref3")
 ##===============================##
-##  WGS plink Files 
+##  WGS plink Files
 ##===============================##
-wgs.map <- '~/Dropbox/src/MitoImputePrep/DerivedData/ThousandGenomes/chrMT_1kg_norm_decomposed_firstAlt.map'
-wgs.ped <- '~/Dropbox/src/MitoImputePrep/DerivedData/ThousandGenomes/chrMT_1kg_norm_decomposed_firstAlt.ped'
-wgs.dat <- generate_snp_data_fixed(wgs.map, wgs.ped)  
+wgs.map <- '~/Dropbox/src/MitoImputePrep/DerivedData/ThousandGenomes/chrMT_1kg_norm_firstAlt.map'
+wgs.ped <- '~/Dropbox/src/MitoImputePrep/DerivedData/ThousandGenomes/chrMT_1kg_norm_firstAlt.ped'
+wgs.dat <- generate_snp_data_fixed(wgs.map, wgs.ped)
 
 # Assign haplogorups
-MTwgs.classifications <- HiMC::getClassifications(wgs.dat) 
+MTwgs.classifications <- HiMC::getClassifications(wgs.dat)
 MTwgs.classifications <- as.tibble(MTwgs.classifications)
-  
+
 ##===============================##
 #  Typed only
 ##===============================##
@@ -61,35 +61,35 @@ typ.dat <- mapply(generate_snp_data_fixed, typ.map, typ.ped, SIMPLIFY = F)
 MTtyp.classifications <- pblapply(typ.dat, HiMC::getClassifications)
 MTtyp.classifications <- lapply(MTtyp.classifications, as.tibble)
 
-# Join Typed and WGS classifications 
+# Join Typed and WGS classifications
 MT_haps.out <- lapply(MTtyp.classifications, function(x){
-  out <- x %>% 
-    left_join(MTwgs.classifications, by = 'Individual', suffix = c("_typ", "_wgs")) %>% 
+  out <- x %>%
+    left_join(MTwgs.classifications, by = 'Individual', suffix = c("_typ", "_wgs")) %>%
     as.tibble()
   out
 })
 names(MT_haps.out) <- typ.names$platform
 
-MT_haps <- MT_haps.out[imp.names$platform] 
+MT_haps <- MT_haps.out[imp.names$platform]
 
 saveRDS(MT_haps, "~/Dropbox/Research/PostDoc-MSSM/3_mitoWAX/3_Scripts/ShinnyApp/MT_haps.rds")
 
 ##===============================##
-##  Imputed plink files 
+##  Imputed plink files
 ##===============================##
 
 ## file names
-# 0.01 MAF Reference 
+# 0.01 MAF Reference
 imp.map <- list.files(path = "~/Dropbox/STRANDS", recursive = TRUE, pattern = "*imputed.map")
 imp.ped <- list.files(path = "~/Dropbox/STRANDS", recursive = TRUE, pattern = "*imputed.ped")
 imp.names <- imp.map %>% as.tibble() %>% separate(value, c('platform', 'file'), sep = '/')
 
-# 0.005 MAF Reference 
+# 0.005 MAF Reference
 imp.map <- list.files(path = "~/Desktop/STRANDS", recursive = TRUE, pattern = "*imputed.map")
 imp.ped <- list.files(path = "~/Desktop/STRANDS", recursive = TRUE, pattern = "*imputed.ped")
 imp.names <- imp.map %>% as.tibble() %>% separate(value, c('platform', 'reference', 'file'), sep = '/')
 
-# 0.001 MAF Reference 
+# 0.001 MAF Reference
 imp.map <- list.files(path = "~/Desktop/STRANDS_ref3", recursive = TRUE, pattern = "*.map")
 imp.map <- grep('Imputed_', imp.map, value = T)
 imp.ped <- list.files(path = "~/Desktop/STRANDS_ref3", recursive = TRUE, pattern = "*.ped")
@@ -176,34 +176,34 @@ imp.dat001 <- imp.dat
 saveRDS(imp.dat001, "~/Dropbox/Research/PostDoc-MSSM/3_mitoWAX/3_Scripts/ShinnyApp/imp.dat001.rds")
 
 ##===============================##
-##  Info Score Files 
+##  Info Score Files
 ##===============================##
 HiMC <- tibble(
   himc = 'yes',
   pos = as.numeric(c('10115', '1018', '10398', '10400', '10550', '11177', '11251', '11719', '11947', '12007', '12308', '12414', '12705', '13263', '13368', '13506', '13708', '13789', '14178', '14318', '1438', '14470', '14560', '14668', '14766', '14905', '15043', '15326', '15452', '15535', '16111', '16189', '16271', '16362', '16390', '16391', '16391', '1719', '1736', '2092', '3505', '3552', '3594', '4580', '4769', '4883', '4917', '4977', '5178', '5442', '6371', '7028', '825', '8251', '8414', '8468', '8703', '9042', '9055', '9347', '9950')),
   Haplogroup = c("L2", "L3", "K1", "M", "K", "B2", "JT", "R0", "W", "A2", "U", "N2", "R", "C", "T", "L2'3'4'6", "J", "L1", "L1", "C", "H2", "K", ".", "D4", "HV", "T", "N1a1b", "H2a2a", "JT", "B4b'd'e", "A2", "T1", "JT", "L4", "L2", "I", "I", "X2", "A", "D1", "W", "C", "L3'4", "V", "H2a", "M80'D", "T", "B2", "D ", "L0", "X ", "H", "L2'3'4'6", "N1a1b", "D4", "L2'3'4'6", "D2", "L0", "U8b", "L0", "B2"))
 
-# 0.01 MAF Reference 
+# 0.01 MAF Reference
 info <- list.files(path = "~/Dropbox/STRANDS", recursive = TRUE, pattern = "*_info")
 info.names <- info %>% as.tibble() %>% separate(value, c('platform', 'file'), sep = '/')
 
-# 0.005 MAF Reference 
+# 0.005 MAF Reference
 info <- list.files(path = "~/Desktop/STRANDS", recursive = TRUE, pattern = "*_imputed_info")
 info <- info[!grepl('by_sample', info)]
 
-# 0.001 MAF Reference 
+# 0.001 MAF Reference
 info <- list.files(path = "~/Desktop/STRANDS_ref3", recursive = TRUE, pattern = "*_imputed_info")
 info <- info[!grepl('by_sample', info)]
 
-info.names <- info %>% as.tibble() %>% 
-  filter(!grepl('by_sample', value)) %>% 
+info.names <- info %>% as.tibble() %>%
+  filter(!grepl('by_sample', value)) %>%
   separate(value, c('platform', 'reference', 'file'), sep = '/')
 
 info.dat <- lapply(info, read_delim, delim = " ")
 names(info.dat) <- info.names$platform
 
 imp.info <- lapply(info.dat, function(x){
-  out <- x %>% mutate(info_comb = ifelse(info_type0 == -1, info,info_type0 )) %>% 
+  out <- x %>% mutate(info_comb = ifelse(info_type0 == -1, info,info_type0 )) %>%
     left_join(HiMC, by = c('position' = 'pos')) %>%
     mutate(himc = ifelse(is.na(himc), 'no', himc))
   out
@@ -212,28 +212,13 @@ imp.info <- lapply(info.dat, function(x){
 imp.info01 <- imp.info
 saveRDS(imp.info01, "~/Dropbox/Research/PostDoc-MSSM/3_mitoWAX/3_Scripts/ShinnyApp/imp.info01.rds")
 
-imp.info005 <- imp.info 
+imp.info005 <- imp.info
 saveRDS(imp.info005, "~/Dropbox/Research/PostDoc-MSSM/3_mitoWAX/3_Scripts/ShinnyApp/imp.info005.rds")
 
-imp.info001 <- imp.info 
+imp.info001 <- imp.info
 saveRDS(imp.info001, "~/Dropbox/Research/PostDoc-MSSM/3_mitoWAX/3_Scripts/ShinnyApp/imp.info001.rds")
 
 
 ##===============================##
-##   
+##
 ##===============================##
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

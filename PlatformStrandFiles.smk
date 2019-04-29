@@ -4,6 +4,8 @@
 import os
 from snakemake.remote.HTTP import RemoteProvider as HTTPRemoteProvider
 
+shell.executable("/bin/bash")
+
 RWD = os.getcwd()
 HTTP = HTTPRemoteProvider()
 
@@ -20,7 +22,7 @@ rule all:
 
 rule StrandFiles:
     input:
-        temp(HTTP.remote("http://www.well.ox.ac.uk/~wrayner/strand/{platforms}-strand.zip", keep_local=True))
+        temp(HTTP.remote("http://www.well.ox.ac.uk/~wrayner/strand/{platforms}-strand.zip", allow_redirects=True))
     output:
         'data/platforms/{platforms}/platform.strand'
     shell:

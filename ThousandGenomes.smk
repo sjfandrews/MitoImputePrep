@@ -8,94 +8,77 @@ from snakemake.remote.FTP import RemoteProvider as FTPRemoteProvider
 
 shell.prefix('module load plink/1.90 R/3.4.3 curl/7.61.0 vt bcftools impute2; ')
 
-with open('data/platforms/Mt_platforms.txt', "r") as f:
-    MtPlatforms = [x.rstrip() for x in f]
-#MtPlatforms = ['GSA-24v1-0_A2-b37', 'Human610-Quadv1_B-b37', 'NeuroX_15036164_A-b37']
+#with open('data/platforms/Mt_platforms.txt', "r") as f:
+#    MtPlatforms = [x.rstrip() for x in f]
+MtPlatforms = ['GSA-24v1-0_A2-b37', 'Human610-Quadv1_B-b37', 'NeuroX_15036164_A-b37']
 
 #REFDATA = "example/ReferencePanel"
 REFDATA = "DerivedData/ReferencePanel"
 
 ## Parameters for IMPUTE2
 configfile: 'ThousandGenomes_config.yaml'
-config['MCMC'] = [str(x) for x in config['MCMC']]
-MCMC = [x.split(".") for x in config['MCMC']]
-MCMC = {k: {'iter': v[0], 'burnin': v[1]} for k,v in zip(config['MCMC'], MCMC)}
+MCMC = [str(x).split(".") for x in config['MCMC']]
+MCMC = {'.'.join(x): {'iter': x[0], 'burnin': x[1]} for x in MCMC}
+# 1KGP MCMC params {'1.0': {'burnin': '0', 'iter': '1'}, ...}
 KHAP = config['KHAP']
 
 FTP = FTPRemoteProvider()
 RWD = os.getcwd()
 
+TG_derived = 'DerivedData/ThousandGenomes' #Directory for derived 1kgp files
 rule all:
     input:
-        expand("DerivedData/ThousandGenomes/{MtPlatforms}/chrMT_1kg_{MtPlatforms}.{ext}", ext = ['gen.gz', 'samples'], MtPlatforms=MtPlatforms),
-        expand("DerivedData/ThousandGenomes/{MtPlatforms}/chrMT_1kg_{MtPlatforms}.{ext}", ext = ['ped', 'map'], MtPlatforms=MtPlatforms),
-        expand("DerivedData/ThousandGenomes/chrMT_1kg_norm_decomposed_firstAlt.{ext}", ext = ['ped', 'map']),
-        "DerivedData/ThousandGenomes/chrMT_1kg_norm_decomposed_firstAlt.vcf.gz",
-        expand('DerivedData/ThousandGenomes/{MtPlatforms}/KHAP_{KHAP}/MCMC_{MCMC}/chrMT_1kg_{MtPlatforms}_imputed',
-        MtPlatforms=MtPlatforms, KHAP=KHAP, MCMC=MCMC),
-        expand('DerivedData/ThousandGenomes/{MtPlatforms}/KHAP_{KHAP}/MCMC_{MCMC}/chrMT_1kg_{MtPlatforms}_imputed_samples',
-        MtPlatforms=MtPlatforms, KHAP=KHAP, MCMC=MCMC),
-        expand("DerivedData/ThousandGenomes/{MtPlatforms}/KHAP_{KHAP}/MCMC_{MCMC}/chrMT_1kg_{MtPlatforms}_imputed.{ext}",
-        MtPlatforms=MtPlatforms, KHAP=KHAP, MCMC=MCMC, ext = ['ped', 'map']),
-        expand("DerivedData/ThousandGenomes/{MtPlatforms}/KHAP_{KHAP}/MCMC_{MCMC}/chrMT_1kg_{MtPlatforms}_imputed.vcf",
-        MtPlatforms=MtPlatforms, KHAP=KHAP, MCMC=MCMC),
-        expand("DerivedData/ThousandGenomes/{MtPlatforms}/KHAP_{KHAP}/MCMC_{MCMC}/chrMT_1kg_{MtPlatforms}_mtImputed_QC.html",
-        MtPlatforms=MtPlatforms, KHAP=KHAP, MCMC=MCMC)
-
-
+        expand(TG_derived + '/{MtPlatforms}/chrMT_1kg_{MtPlatforms}.{ext}',
+               ext=['gen.gz', 'samples', 'ped', 'map'],
+               MtPlatforms=MtPlatforms),
+        expand(TG_derived + '/chrMT_1kg_norm_firstAlt.{ext}',
+               ext = ['ped', 'map', '.vcf.gz']),
+        expand(TG_derived + '/{MtPlatforms}/KHAP_{KHAP}/MCMC_{MCMC}/' +
+               'chrMT_1kg_{MtPlatforms}_imputed{tail}',
+               MtPlatforms=MtPlatforms, KHAP=KHAP, MCMC=MCMC,
+               tail=['','_samples','.ped', '.map', '.vcf', '_QC.html'])
 
 # 1. Pull down 1000 genomes mitochondrial vcf file from ftp
+TG_releasedir = 'ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/'
+TG_vcf = 'ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz'
+
 rule Get1kgMT_vcf:
     input:
-        vcf = FTP.remote("http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz", keep_local=True),
-        tbi = FTP.remote("http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz.tbi", keep_local=True)
+        vcf = FTP.remote(TG_releasedir + TG_vcf, keep_local=True),
+        tbi = FTP.remote(TG_releasedir + TG_vcf + '.tbi', keep_local=True)
     output:
-        vcf = "data/ThousandGenomes/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz",
-        tbi = "data/ThousandGenomes/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz.tbi"
+        vcf = 'data/ThousandGenomes/' + TG_vcf,
+        tbi = 'data/ThousandGenomes/' + TG_vcf + '.tbi'
     shell:
         "mv {input.vcf} {output.vcf}; "
         "mv {input.tbi} {output.tbi}"
 
 rule NormaliseVcf:
     input:
-        vcf = "data/ThousandGenomes/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz",
+        vcf = rules.Get1kgMT_vcf.output.vcf,
         fasta = "data/ReferencePanel/rCRS.fasta"
     output:
-        vcf = "DerivedData/ThousandGenomes/chrMT_1kg_norm.vcf.gz"
+        vcf = "DerivedData/ThousandGenomes/chrMT_1kg_norm_firstAlt.vcf.gz"
     shell:
-        'bcftools norm -f {input.fasta} -m - {input.vcf} | bcftools view -V indels,mnps | bcftools norm -m + | bcftools +fill-tags -Oz -o {output.vcf}'
-
-rule DecomposeVcf:
-    input:
-        vcf = "DerivedData/ThousandGenomes/chrMT_1kg_norm.vcf.gz",
-    output:
-        vcf = "DerivedData/ThousandGenomes/chrMT_1kg_norm_decomposed.vcf.gz"
-    shell:
-        'vt decompose {input.vcf} | bcftools +fill-tags -Oz -o {output.vcf}'
-
-rule pickFirstAlt:
-    input:
-        vcf = "DerivedData/ThousandGenomes/chrMT_1kg_norm_decomposed.vcf.gz",
-    output:
-        vcf = "DerivedData/ThousandGenomes/chrMT_1kg_norm_decomposed_firstAlt.vcf.gz"
-    shell:
-        "./scripts/PYTHON/pickFirstAlt {input.vcf} | bgzip > {output.vcf}; "
-        "bcftools index {output.vcf}"
+        '''
+vt {input.vcf} | bcftools norm -f {input.fasta} | bcftools view -v snps | \
+   bcftools norm -d all | bcftools +fill-tags -o {output.vcf} -Oz
+'''
 
 rule wgs_vcf2Plink:
     input:
-        vcf = "DerivedData/ThousandGenomes/chrMT_1kg_norm_decomposed_firstAlt.vcf.gz",
+        vcf = "DerivedData/ThousandGenomes/chrMT_1kg_norm_firstAlt.vcf.gz",
     output:
-        expand("DerivedData/ThousandGenomes/chrMT_1kg_norm_decomposed_firstAlt.{ext}", ext = ['ped', 'map'])
+        expand("DerivedData/ThousandGenomes/chrMT_1kg_norm_firstAlt.{ext}", ext = ['ped', 'map'])
     params:
-        out = "DerivedData/ThousandGenomes/chrMT_1kg_norm_decomposed_firstAlt"
+        out = "DerivedData/ThousandGenomes/chrMT_1kg_norm_firstAlt"
     shell:
         'plink --vcf {input.vcf} --recode --double-id --keep-allele-order --out {params.out}'
 
 ## 6a. Extract sample names from Reference Panel
 rule SampleNames1kg:
     input:
-        "DerivedData/ThousandGenomes/chrMT_1kg_norm_decomposed_firstAlt.vcf.gz",
+        "DerivedData/ThousandGenomes/chrMT_1kg_norm_firstAlt.vcf.gz",
     output:
         "DerivedData/ThousandGenomes/SampleList1kg.txt",
     shell:
@@ -114,7 +97,7 @@ rule SampleSex1kg:
 rule ExtractPlatformMTsnps:
     input:
         MTSnps = 'data/platforms/{MtPlatforms}/{MtPlatforms}_MT_snps.txt',
-        vcf_1kg = "DerivedData/ThousandGenomes/chrMT_1kg_norm_decomposed_firstAlt.vcf.gz"
+        vcf_1kg = "DerivedData/ThousandGenomes/chrMT_1kg_norm_firstAlt.vcf.gz"
     output:
         vcf = "DerivedData/ThousandGenomes/{MtPlatforms}/chrMT_1kg_{MtPlatforms}.vcf.gz"
     shell:
@@ -202,9 +185,9 @@ rule oxford2vcf:
 rule Imputation_QC_Report:
     input:
         script = 'scripts/R/MT_imputation_QC.Rmd',
-        wgs_map = 'DerivedData/ThousandGenomes/chrMT_1kg_norm_decomposed_firstAlt.map',
-        wgs_ped = 'DerivedData/ThousandGenomes/chrMT_1kg_norm_decomposed_firstAlt.ped',
-        wgs_vcf = 'DerivedData/ThousandGenomes/chrMT_1kg_norm_decomposed_firstAlt.vcf.gz',
+        wgs_map = 'DerivedData/ThousandGenomes/chrMT_1kg_norm_firstAlt.map',
+        wgs_ped = 'DerivedData/ThousandGenomes/chrMT_1kg_norm_firstAlt.ped',
+        wgs_vcf = 'DerivedData/ThousandGenomes/chrMT_1kg_norm_firstAlt.vcf.gz',
         typ_map = "DerivedData/ThousandGenomes/{MtPlatforms}/chrMT_1kg_{MtPlatforms}.map",
         typ_ped = "DerivedData/ThousandGenomes/{MtPlatforms}/chrMT_1kg_{MtPlatforms}.ped",
         typ_vcf = 'DerivedData/ThousandGenomes/{MtPlatforms}/chrMT_1kg_{MtPlatforms}.vcf.gz',
