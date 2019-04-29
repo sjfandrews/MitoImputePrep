@@ -22,9 +22,8 @@ rule all:
 rule ambiguous2missing:
     input:
         in_script = "scripts/PYTHON/ambiguous2missing.py",
-        in_fasta = expand(DATAIN + "/{Reference}.fasta", Reference=FILENAME)
-    output:
-        out = temp(expand(DATAOUT + "/{Reference}_ambig2missing.fasta", Reference=FILENAME)),
+        in_fasta = DATAIN + "/{Reference}.fasta"
+    output: temp(DATAOUT + "/{Reference}_ambig2missing.fasta")
     shell:
         'python {input.in_script} -i {input.in_fasta} -o {output.out} -v'
 
@@ -32,52 +31,52 @@ rule ambiguous2missing:
 rule LowQualitySequences:
     input:
         in_script = "scripts/R/removeLowQuality_cmdline.R",
-        in_fasta = expand(DATAOUT + "/{Reference}_ambig2missing.fasta", Reference=FILENAME),
-    output:
-        out = expand(DATAOUT + "/ReferencePanel_highQualitySequences.txt", Reference=FILENAME),
+        in_fasta = DATAOUT + "/{Reference}_ambig2missing.fasta"
+    output: DATAOUT + "/ReferencePanel_highQualitySequences.txt"
     shell:
-        'Rscript {input.in_script} {input.in_fasta} {output.out}'
+        'Rscript {input.in_script} {input.in_fasta} {output}'
 
 ## 3a. Run the fasta2vcf_mtDNA.py script
 rule fasta2vcf:
     input:
         in_script = "scripts/PYTHON/fasta2vcf_mtDNA.py",
-        in_fasta = expand(DATAOUT + "/{Reference}_ambig2missing.fasta", Reference=FILENAME)
+        in_fasta = DATAOUT + "/{Reference}_ambig2missing.fasta"
     output:
-        out_vcf = temp(expand(DATAOUT + "/{Reference}_ambig2missing.vcf.gz", Reference=FILENAME))
+        out_vcf = temp(DATAOUT + "/{Reference}_ambig2missing.vcf.gz")
     shell:
         'python {input.in_script} -i {input.in_fasta} -o {output.out_vcf} -v'
 
 # 3b. Pass the resulting VCF through BCFTOOLS to make sure it conforms to all standards and index it
 rule VcfCheck:
-    input:
-        in_vcf = expand(DATAOUT + "/{Reference}_ambig2missing.vcf.gz", Reference=FILENAME),
-    output:
-        out_vcf = temp(DATAOUT + "/Reference_panal.vcf.gz"),
-    run:
-        shell('bcftools view -Oz -o {output.out_vcf} {input.in_vcf}')
-        shell('bcftools index {output.out_vcf}')
+    input: expand(DATAOUT + "/{Reference}_ambig2missing.vcf.gz", Reference=FILENAME),
+    output: temp(DATAOUT + "/Reference_panal.vcf.gz"),
+    shell:
+        'bcftools view -Oz -o {output} {input}'
+        'bcftools index {output}'
 
 ## 4. Remove low quality sequences from VCF
 rule RemoveLowQuality:
     input:
-        quality = DATAOUT + "/ReferencePanel_highQualitySequences.txt",
+        qual = DATAOUT + "/ReferencePanel_highQualitySequences.txt",
         in_vcf = DATAOUT + "/Reference_panal.vcf.gz",
-    output:
-        out_vcf = temp(DATAOUT + "/ReferencePanel_highQual.vcf.gz"),
-    run:
-        shell('bcftools view --force-samples -S {input.quality} -Oz -o {output.out_vcf} {input.in_vcf}')
-        shell('bcftools index {output.out_vcf}')
+    output: temp(DATAOUT + "/ReferencePanel_highQual.vcf.gz"),
+    shell:
+        '''
+bcftools view --force-samples -S {input.qual} -Oz -o {output} {input.in_vcf}
+bcftools index {output}
+'''
 
 ## 5. Apply filtration criteria
 rule SiteFiltration:
-    input:
-        in_vcf = DATAOUT + "/ReferencePanel_highQual.vcf.gz",
-    output:
-        out_vcf = DATAOUT + "/ReferencePanel.vcf.gz",
-    run:
-        shell('vt decompose {input.in_vcf} | bcftools +fill-tags | bcftools view -i \'ALT!="-" \' | bcftools view -q 0.01 -Q 0.99 | bcftools view -Oz -o {output.out_vcf}')
-        shell('bcftools index {output.out_vcf}')
+    input: DATAOUT + "/ReferencePanel_highQual.vcf.gz",
+    output: DATAOUT + "/ReferencePanel.vcf.gz",
+    shell:
+        '''
+vt decompose {input} | bcftools +fill-tags | \
+  bcftools view -i \'ALT!="-" \' | \
+  bcftools view -q 0.01 -Q 0.99 -Oz -o {output}
+'bcftools index {output}')
+'''
 
 ## 6a. Extract sample names from Reference Panel
 rule RefSampleNames:
@@ -90,13 +89,10 @@ rule RefSampleNames:
 
 ## 6b. Assign M sex label to reference Samples
 rule RefSampleSex:
-    input:
-        in_samples = DATAOUT + "/RefSampleList.txt",
-        in_script = "scripts/R/assign_sex_label.R"
-    output:
-        outfile = DATAOUT + "/RefSampleList_sex.txt",
+    input: DATAOUT + "/RefSampleList.txt"
+    output: DATAOUT + "/RefSampleList_sex.txt"
     shell:
-        'Rscript {input.in_script} {input.in_samples} {output.outfile}'
+        '''awk -F "\t" '$2 = "M"' {input} {output}'''
 
 ## 7. Convert to Oxford format
 rule Oxford:
