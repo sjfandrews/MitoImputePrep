@@ -45,9 +45,33 @@ lm_KHAP = lm(mcc ~ sub_experiment, data = main_khap_df)
 #anova(lm_MCMC)
 #summary(lm_MCMC)
 #emmeans(lm_MCMC, pairwise ~ sub_experiment)
-lm_KHAP.df = summary(emmeans(lm_MCMC, pairwise ~ sub_experiment))
+lm_KHAP.df = summary(emmeans(lm_KHAP, pairwise ~ sub_experiment))
 lm_KHAP.df$emmeans
 lm_KHAP.df$contrasts
 
-write.csv(lm_KHAP.df$contrasts, paste0(stat.out.dir, "MCMC_MCC_contrasts.csv"), row.names = F, quote = F)
-write.csv(lm_KHAP.df$emmeans, paste0(stat.out.dir, "MCMC_MCC_emmeans.csv"), row.names = F, quote = F)
+write.csv(lm_KHAP.df$contrasts, paste0(stat.out.dir, "KHAP_MCC_contrasts.csv"), row.names = F, quote = F)
+write.csv(lm_KHAP.df$emmeans, paste0(stat.out.dir, "KHAP_MCC_emmeans.csv"), row.names = F, quote = F)
+
+## MAF
+
+MAF_imp = read.csv(paste0(container, "MAF/ConcordanceTables_MAF_Experiments_MCC_imputed_genotype.csv"), header = T)
+MAF_typ = read.csv(paste0(container, "MAF/ConcordanceTables_MAF_Experiments_MCC_typed_genotype.csv"), header = T)
+MAF_imp$version = "imputed"
+MAF_typ$version = "genotyped"
+#main_maf_df = rbind(MAF_imp, MAF_typ)
+main_maf_df = MAF_imp
+
+exp.dir = "MAF_Experiments"
+exp.var = c("MAF1%", "MAF0.5%", "MAF0.1%")
+main_maf_df$sub_experiment = factor(main_maf_df$sub_experiment, levels = exp.var)
+
+lm_MAF = lm(mcc ~ sub_experiment, data = main_maf_df)
+anova(lm_MAF)
+summary(lm_MAF)
+emmeans(lm_MAF, pairwise ~ sub_experiment)
+lm_MAF.df = summary(emmeans(lm_MAF, pairwise ~ sub_experiment))
+lm_MAF.df$emmeans
+lm_MAF.df$contrasts
+
+write.csv(lm_MAF.df$contrasts, paste0(stat.out.dir, "MAF_MCC_contrasts.csv"), row.names = F, quote = F)
+write.csv(lm_MAF.df$emmeans, paste0(stat.out.dir, "MAF_MCC_emmeans.csv"), row.names = F, quote = F)
