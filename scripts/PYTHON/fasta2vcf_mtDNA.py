@@ -9,6 +9,7 @@ import time
 from tqdm import *
 import pandas as pd
 import numpy as np
+import csv
 from collections import OrderedDict
 
 # Fill in the CHROM, POS, REF, ALT fields and calculate AC
@@ -53,9 +54,6 @@ def alt_alleles(sites_list, ref_fasta, chrom='MT', add_alt=False, verbose=False)
 # Fill in the GT fields
 def proc_snps(sites_list, df_site, labels, diploid=False, dip_symbol='/', verbose=True):
     ref_and_alts = [[r] + a for r,a in zip(df_site['REF'], df_site['ALT'])]
-
-    #preallocate numpy array allowing up to 2 digit diploid or 5 digit haploid
-    GT = np.zeros((len(sites_list), len(labels)), dtype='<U5')
     rl = sites_list.shape[0] #length of reference assembly
     if verbose:
         pbar = tqdm(initial=1, total=rl)
@@ -63,16 +61,18 @@ def proc_snps(sites_list, df_site, labels, diploid=False, dip_symbol='/', verbos
         ra = ref_and_alts[idx]
         ra = {x: y for x,y in zip(ra, range(len(ra)))}
         # Replace bases with index of alt allele (or "." if not an alt)
-        GT_ = [ra.get(samp, '.') for samp in sites_list[idx, :]]
-        if diploid: #double the haploid genotype if requested
-            GT_ = [str(x)+dip_symbol+str(x) for x in GT_]
-        GT[idx, :] = GT_ #save to array
+        sites_list[idx, :] = [ra.get(x, ord('.')) for x in sites_list[idx, :]]
         if verbose:
             pbar.update(1)
-
-    #Turn into DF and return
-    return pd.DataFrame(GT, index=range(1, rl + 1),
-                        columns=labels)
+    if diploid: #double the haploid genotype if requested
+        #preallocate numpy array allowing up to 2 digit diploid
+        GT = np.zeros((len(sites_list), len(labels)), dtype='<U5')
+        for idx in range(rl):
+           GT[idx, :] = [str(x)+dip_symbol+str(x) for x in sites_list[idx, :]]
+        #Turn into DF and return
+        return pd.DataFrame(GT, index=range(1, rl + 1), columns=labels)
+    else:
+        return pd.DataFrame(sites_list, index=range(1, rl + 1), columns=labels)
 
 def other_cols(args, df_site):
     INFO = [','.join([str(i) for i in AC]) for AC in df_site['ALT']]
@@ -188,7 +188,7 @@ def main():
     if verbose:
         print('METADATA WRITTEN TO FILE')
 
-    df_out.to_csv(outfile, sep='\t', quotechar='')
+    df_out.to_csv(outfile, sep='\t', quoting=csv.QUOTE_NONE)
     if verbose:
         print('DATA WRITTEN TO FILE')
 
