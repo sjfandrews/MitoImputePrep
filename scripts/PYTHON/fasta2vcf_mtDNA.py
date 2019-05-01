@@ -60,11 +60,10 @@ def proc_snps(sites_list, df_site, labels, diploid=False, dip_symbol='/', verbos
     if verbose:
         pbar = tqdm(initial=1, total=rl)
     for idx in range(rl):
-        site = list(sites_list[idx, :])
         ra = ref_and_alts[idx]
         ra = {x: y for x,y in zip(ra, range(len(ra)))}
         # Replace bases with index of alt allele (or "." if not an alt)
-        GT_ = [ra.get(samp, '.') for samp in site]
+        GT_ = [ra.get(samp, '.') for samp in sites_list[idx, :]]
         if diploid: #double the haploid genotype if requested
             GT_ = [str(x)+dip_symbol+str(x) for x in GT_]
         GT[idx, :] = GT_ #save to array
@@ -76,9 +75,11 @@ def proc_snps(sites_list, df_site, labels, diploid=False, dip_symbol='/', verbos
                         columns=labels)
 
 def other_cols(args, df_site):
-    INFO = [','.join([str(i) for i in AC]) for AC in df_site['n_alt']]
+    INFO = [','.join([str(i) for i in AC]) for AC in df_site['ALT']]
     df = df_site
     df['INFO'] = INFO
+    df['#CHROM'] = 'MT'
+    df['POS'] = list(range(1, df.shape[0] + 1))
     df['ID'] = ['MT_{}'.format(x) for x in df['POS']] if args.ID else '.'
     df['ALT'] = [','.join([chr(a) for a in x]) for x in df['ALT']]
     df['REF'] = [chr(x) for x in df['REF']]
@@ -165,6 +166,8 @@ def main():
         print('TRANSPOSING GENOTYPES')
     #numpy array with genotype rows and sample columns
     seqs_mat = np.array(seqs).reshape((len(labels), seqlength)).T
+    seqs = None #remove sequences bytearray
+
     if verbose:
         print('ASSIGNING ALTERNATE ALLELES')
     site_dict = alt_alleles(seqs_mat, ref_fasta, 'MT', args.add_alt, verbose)
@@ -174,10 +177,12 @@ def main():
         print('TRANSLATING GENOTYPES')
     df_snps = proc_snps(seqs_mat, df_site, labels,
                         args.diploid, dip_symbol, verbose)
+
     if verbose:
-        print('CONSTRUCTING OTHER COLUMNS')
-    df_site = other_cols(args, df_site)
-    df_out = pd.concat([df_site, df_snps], axis=1)
+        print('CONSTRUCTING OTHER SITE COLUMNS')
+    df_allcols = other_cols(args, df_site)
+
+    df_out = pd.concat([df_allcols, df_snps], axis=1)
 
     outfile.write(meta) # WRITE METADATA LINES TO FILE
     if verbose:
