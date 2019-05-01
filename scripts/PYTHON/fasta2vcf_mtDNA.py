@@ -23,10 +23,8 @@ def alt_alleles(sites_list, ref_fasta, chrom='MT', add_alt=False, verbose=False)
     alt_alleles = []
     allele_counts = []
 
-    if verbose:
-        pbar = tqdm(initial=1, total=rl)
-
-    for idx in range(rl):
+    rg = tqdm(range(rl)) if verbose else range(rl)
+    for idx in rg:
         alts = sites_list[idx, :]
         rmv = removeme | {ref_list[idx]}
         alts_set = list(set(np.unique(alts)) - rmv)
@@ -35,8 +33,6 @@ def alt_alleles(sites_list, ref_fasta, chrom='MT', add_alt=False, verbose=False)
             counts = sorted(counts, key=lambda t: t[1], reverse=True)
             alt_alleles.append([x[0] for x in counts])
             allele_counts.append([x[1] for x in counts])
-            if verbose:
-                pbar.update(1)
             continue
         elif add_alt:
             alt = [ord('C')] if ref_list[idx] == ord('A') else ord(['A'])
@@ -46,24 +42,18 @@ def alt_alleles(sites_list, ref_fasta, chrom='MT', add_alt=False, verbose=False)
             alt = [ord('.')]
         alt_alleles.append(alt)
         allele_counts.append([ord('.')])
-        if verbose:
-            pbar.update(1)
-    print(idx)
     return {'REF': list(ref_list),'ALT': alt_alleles, 'AC': allele_counts}
 
 # Fill in the GT fields
 def proc_snps(sites_list, df_site, labels, diploid=False, dip_symbol='/', verbose=True):
     ref_and_alts = [[r] + a for r,a in zip(df_site['REF'], df_site['ALT'])]
     rl = sites_list.shape[0] #length of reference assembly
-    if verbose:
-        pbar = tqdm(initial=1, total=rl)
-    for idx in range(rl):
+    rg = tqdm(range(rl)) if verbose else range(rl)
+    for idx in rg:
         ra = ref_and_alts[idx]
         ra = {x: y for x,y in zip(ra, range(len(ra)))}
         # Replace bases with index of alt allele (or "." if not an alt)
         sites_list[idx, :] = [ra.get(x, ord('.')) for x in sites_list[idx, :]]
-        if verbose:
-            pbar.update(1)
     if diploid: #double the haploid genotype if requested
         #preallocate numpy array allowing up to 2 digit diploid
         GT = np.zeros((len(sites_list), len(labels)), dtype='<U5')
@@ -75,7 +65,7 @@ def proc_snps(sites_list, df_site, labels, diploid=False, dip_symbol='/', verbos
         return pd.DataFrame(sites_list, index=range(1, rl + 1), columns=labels)
 
 def other_cols(args, df_site):
-    INFO = [','.join([str(i) for i in AC]) for AC in df_site['ALT']]
+    INFO = ['AC=' + ','.join([str(i) for i in AC]) for AC in df_site['ALT']]
     df = df_site
     df['INFO'] = INFO
     df['#CHROM'] = 'MT'
@@ -159,7 +149,8 @@ def main():
     meta = '''##fileformat=VCFv4.1
     ##contig=<ID=MT,length=16569>
     ##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
-    ##INFO=<ID=AC,Number=.,Type=Integer,Description="Alternate allele counts, comma delimited when multiple">'''
+    ##INFO=<ID=AC,Number=.,Type=Integer,Description="Alternate allele counts, comma delimited when multiple">
+    '''
 
     # PULL OUT INFORMATION ABOUT ALTERNATIVE ALLELES
     if verbose:
@@ -188,7 +179,7 @@ def main():
     if verbose:
         print('METADATA WRITTEN TO FILE')
 
-    df_out.to_csv(outfile, sep='\t', quoting=csv.QUOTE_NONE)
+    df_out.to_csv(outfile, sep='\t', quoting=csv.QUOTE_NONE, index=False)
     if verbose:
         print('DATA WRITTEN TO FILE')
 
