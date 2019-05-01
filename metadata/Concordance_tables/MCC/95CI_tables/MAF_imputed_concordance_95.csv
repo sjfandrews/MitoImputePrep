@@ -1,0 +1,4 @@
+MAF$sub_experiment,MAF$concordance.mean,MAF$concordance.lower,MAF$concordance.upper,MAF$concordance.df
+MAF0.1%,  0.9944307,  0.9940345,  0.9948269,100.0000000
+MAF0.5%,  0.9898537,  0.9889120,  0.9907955,100.0000000
+MAF1%,  0.9870010,  0.9856212,  0.9883809,100.0000000

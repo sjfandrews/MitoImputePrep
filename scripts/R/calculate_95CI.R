@@ -10,6 +10,7 @@ confidence.interval = function(data, interval = 0.95, na.rm = T) {
   l = m - e
   u = m + e
   return(c("mean" = m, "lower" = l, "upper" = u, "df" = round(n - 1, 0)))
+  # suggestion: use t-value for alpha
 }
 
 out.dir = "~/GitCode/MitoImputePrep/metadata/Concordance_tables/MCC/95CI_tables/"
@@ -44,13 +45,13 @@ write.csv(aggregate(MAF$mcc~MAF$sub_experiment, FUN=confidence.interval), paste0
 
 write.csv(aggregate(kHAP$info~kHAP$sub_experiment, FUN=confidence.interval), paste0(out.dir, "kHAP_imputed_info_95.csv"), row.names = F, quote = F)
 write.csv(aggregate(MCMC$info~MCMC$sub_experiment, FUN=confidence.interval), paste0(out.dir, "MCMC_imputed_info_95.csv"), row.names = F, quote = F)
-write.csv(aggregate(MAF$info~MAF$sub_experiment, FUN=confidence.interval), paste0(out.dir, "MCMC_imputed_info_95.csv"), row.names = F, quote = F)
+write.csv(aggregate(MAF$info~MAF$sub_experiment, FUN=confidence.interval), paste0(out.dir, "MAF_imputed_info_95.csv"), row.names = F, quote = F)
 
 write.csv(aggregate(kHAP$concordance~kHAP$sub_experiment, FUN=confidence.interval), paste0(out.dir, "kHAP_imputed_concordance_95.csv"), row.names = F, quote = F)
 write.csv(aggregate(MCMC$concordance~MCMC$sub_experiment, FUN=confidence.interval), paste0(out.dir, "MCMC_imputed_concordance_95.csv"), row.names = F, quote = F)
-write.csv(aggregate(MAF$concordance~MAF$sub_experiment, FUN=confidence.interval), paste0(out.dir, "MCMC_imputed_concordance_95.csv"), row.names = F, quote = F)
+write.csv(aggregate(MAF$concordance~MAF$sub_experiment, FUN=confidence.interval), paste0(out.dir, "MAF_imputed_concordance_95.csv"), row.names = F, quote = F)
 
-ADNI = read.csv("/Volumes/TimMcInerney/MitoImpute/data/ADNI_REDO/IMPUTED/ReferencePanel_v2/IMPUTE2/MitoImpute_ReferencePanel_v2_imputed_typed_MCC.csv", header = T)
+ADNI = read.csv("/Volumes/TimMcInerney/MitoImpute/data/ADNI_REDO/IMPUTED/ReferencePanel_v2/IMPUTE2/MitoImpute_ReferencePanel_v2_imputed_imputed_MCC.csv", header = T)
 confidence.interval(ADNI$mcc)
 confidence.interval(ADNI$info)
 confidence.interval(ADNI$concodance)
