@@ -65,8 +65,8 @@ def proc_snps(sites_list, df_site, labels, diploid=False, dip_symbol='/', verbos
         return pd.DataFrame(sites_list, index=range(1, rl + 1), columns=labels)
 
 def other_cols(args, df_site):
-    INFO = ['AC=' + ','.join([str(i) for i in AC]) for AC in df_site['ALT']]
-    df = df_site
+    df = df_site.copy()
+    INFO = ['AC=' + ','.join([str(i) for i in AC]) for AC in df['AC']]
     df['INFO'] = INFO
     df['#CHROM'] = 'MT'
     df['POS'] = list(range(1, df.shape[0] + 1))
@@ -171,9 +171,9 @@ def main():
 
     if verbose:
         print('CONSTRUCTING OTHER SITE COLUMNS')
-    df_allcols = other_cols(args, df_site)
+    df_startcols = other_cols(args, df_site)
 
-    df_out = pd.concat([df_allcols, df_snps], axis=1)
+    df_out = pd.concat([df_startcols, df_snps], axis=1)
 
     outfile.write(meta) # WRITE METADATA LINES TO FILE
     if verbose:
@@ -197,7 +197,6 @@ def main():
             print('*\tProcess completed in %s hours' % (round(((time_adj / 60) / 60), 2)))
         if time_adj >= 86400:
             print('*\tProcess completed in %s days\n' % (round((((time_adj / 60) / 60) / 24), 2)))
-    import pdb; pdb.set_trace()
 
 if __name__=="__main__":
     main()
