@@ -13,72 +13,75 @@ from collections import OrderedDict
 
 # Fill in the CHROM, POS, REF, ALT fields and calculate AC
 def alt_alleles(sites_list, ref_fasta, chrom='MT', add_alt=False, verbose=False):
-    def count_sort(ref, alts, add_alt):
-        alts_set = set(alts) - {'?', 'X', 'N', ref}
-        if alts_set:
-            counts = {k: alts.count(k) for k in alts_set}
-            counts = OrderedDict(sorted(counts.items(),
-                                        key=lambda t: t[1],
-                                        reverse=True))
-            return {'alts': list(counts.keys), 'AC': list(counts.values)}
-        else: # if the site is monomorphic
-            if add_alt:
-                alt = ['C'] if ref == 'A' else ['A']
-            else:
-                # If no alternative alleles found,
-                #  set alternative allele to missing
-                alt = ['.']
-            return {'alts': alt, 'AC': ['.']}
 
-    def update_df(df, pos, ref):
-        counts = count_sort(ref, alts, add_alt)
-        df.at[idx, 'POS'] = idx
-        df.at[idx, 'REF'] = ref
-        df.at[idx, 'ALT'] = counts.alts
-        df.at[idx, 'n_alt'] = counts.AC
-        return(df)
+    #reference assembly as np array of ascii codes
+    ref_list = np.array([ord(x) for x in ref_fasta], dtype=np.uint8)
+    rl = len(ref_fasta) #length of reference assembly
+    assert rl == sites_list.shape[0], "Ref length does not match seq length"
+    removeme = {ord(x) for x in ['?', 'X', 'N']}
+    alt_alleles = []
+    allele_counts = []
 
-    ref_list = list(ref_fasta) #reference assembly as char list
-    rl = len(ref_list) #length of reference assembly
-    assert rl == len(sites_list), "Ref length does not match seq length"
-    df = pd.DataFrame(columns=['#CHROM', 'POS', 'REF', 'ALT', 'n_alt'],
-                      index=list(range(1, rl + 1)))
-    idx = 0
     if verbose:
-        pbar = tqdm(initial=0, total=rl - 1)
-    for ref, alts in zip(ref_list, sites_list):
-        idx += 1
-        df = update_df(df, idx, ref, alts)
+        pbar = tqdm(initial=1, total=rl)
+
+    for idx in range(rl):
+        alts = sites_list[idx, :]
+        rmv = removeme | {ref_list[idx]}
+        alts_set = list(set(np.unique(alts)) - rmv)
+        if alts_set:
+            counts = [(k, list(alts).count(k)) for k in alts_set]
+            counts = sorted(counts, key=lambda t: t[1], reverse=True)
+            alt_alleles.append([x[0] for x in counts])
+            allele_counts.append([x[1] for x in counts])
+            if verbose:
+                pbar.update(1)
+            continue
+        elif add_alt:
+            alt = [ord('C')] if ref_list[idx] == ord('A') else ord(['A'])
+        else:
+            # If no alternative alleles found,
+            #  set alternative allele to missing
+            alt = [ord('.')]
+        alt_alleles.append(alt)
+        allele_counts.append([ord('.')])
         if verbose:
             pbar.update(1)
-    df['#CHROM'] = chrom
-    return df
+    print(idx)
+    return {'REF': list(ref_list),'ALT': alt_alleles, 'AC': allele_counts}
 
 # Fill in the GT fields
-def proc_snps(sites_list, df_site, labels, diploid=False, dip_symbol='/'):
+def proc_snps(sites_list, df_site, labels, diploid=False, dip_symbol='/', verbose=True):
     ref_and_alts = [[r] + a for r,a in zip(df_site['REF'], df_site['ALT'])]
 
     #preallocate numpy array allowing up to 2 digit diploid or 5 digit haploid
     GT = np.zeros((len(sites_list), len(labels)), dtype='<U5')
-
-    idx = 0
-    for site, ra in zip(ref_and_alts, sites_list):
+    rl = sites_list.shape[0] #length of reference assembly
+    if verbose:
+        pbar = tqdm(initial=1, total=rl)
+    for idx in range(rl):
+        site = list(sites_list[idx, :])
+        ra = ref_and_alts[idx]
+        ra = {x: y for x,y in zip(ra, range(len(ra)))}
         # Replace bases with index of alt allele (or "." if not an alt)
-        GT_ = [ra.index(samp) if samp in ra else '.' for samp in site]
+        GT_ = [ra.get(samp, '.') for samp in site]
         if diploid: #double the haploid genotype if requested
             GT_ = [str(x)+dip_symbol+str(x) for x in GT_]
         GT[idx, :] = GT_ #save to array
-        idx += 1
+        if verbose:
+            pbar.update(1)
 
     #Turn into DF and return
-    return pd.DataFrame(GT, index=range(1, len(labels) + 1), columns=labels)
+    return pd.DataFrame(GT, index=range(1, rl + 1),
+                        columns=labels)
 
 def other_cols(args, df_site):
     INFO = [','.join([str(i) for i in AC]) for AC in df_site['n_alt']]
     df = df_site
     df['INFO'] = INFO
     df['ID'] = ['MT_{}'.format(x) for x in df['POS']] if args.ID else '.'
-    df['ALT'] = [','.join(x) for x in df['ALT']
+    df['ALT'] = [','.join([chr(a) for a in x]) for x in df['ALT']]
+    df['REF'] = [chr(x) for x in df['REF']]
     df['QUAL'] = args.quality
     df['FILTER'] = args.filt
     df['FORMAT'] = 'GT'
@@ -114,18 +117,30 @@ def main():
 
     # READ IN THE FILES
 
+    ## Reference file
+    # look for a ">MT" in the reference fasta and read the next line as the ref
+    if verbose:
+        print('READ IN REFERENCE:\t\t{!s}'.format(args.ref_fasta.name))
+    lastline = ''
+    while lastline != '>MT':
+        lastline = args.ref_fasta.readline().strip()
+    ref_fasta = args.ref_fasta.readline().strip()
+    args.ref_fasta.close()
+
     ## Input file
     if verbose:
         print('READ IN INFILE:\t\t{!s}'.format(args.infile))
     labels = [] # CREATE AN EMPTY LIST TO STORE SAMPLE LABELS
-    seqs = [] # CREATE AN EMPTY LIST TO STORE SEQUENCES
+    seqs = bytearray(b'') # CREATE AN EMPTY BYTEARRAY TO STORE SEQUENCES
     with open(args.infile, 'r') as f:
         for line in f:
             line = line.strip() # STRIP WHITE SPACE
             if line.startswith('>'):
                 labels.append(line.strip('>')) # APPEND SAMPLE LABELS
             else:
-                seqs.append(line.strip()) # APPEND SEQUENCE INFORMATION
+                seqlength = len(ref_fasta)
+                assert len(line) == seqlength, 'Unaligned sequence'
+                seqs += line.strip().encode() # APPEND SEQUENCE INFORMATION
 
     ## Output file
     outfile = args.outfile
@@ -139,35 +154,28 @@ def main():
     else:
         outfile = open(outfile,'wt')
 
-    ## Reference file
-    # look for a ">MT" in the reference fasta and read the next line as the ref
-    if verbose:
-        print('READ IN REFERENCE:\t\t{!s}'.format(args.ref_fasta.name))
-    lastline = ''
-    while lastline != '>MT':
-        lastline = args.ref_fasta.readline().strip()
-    ref_fasta = args.ref_fasta.readline().strip()
-    args.ref_fasta.close()
-
     # CREATE THE METADATA AT THE BEGINNING OF THE VCF
     meta = '''##fileformat=VCFv4.1
     ##contig=<ID=MT,length=16569>
     ##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
     ##INFO=<ID=AC,Number=.,Type=Integer,Description="Alternate allele counts, comma delimited when multiple">'''
 
-    # ASSIGN REFERENCE ALLELES FROM THE ref_fasta TO DICTIONARY
-    if verbose:
-        print('ASSIGNING REFERENCE ALLELES')
-
     # PULL OUT INFORMATION ABOUT ALTERNATIVE ALLELES
+    if verbose:
+        print('TRANSPOSING GENOTYPES')
+    #numpy array with genotype rows and sample columns
+    seqs_mat = np.array(seqs).reshape((len(labels), seqlength)).T
+    if verbose:
+        print('ASSIGNING ALTERNATE ALLELES')
+    site_dict = alt_alleles(seqs_mat, ref_fasta, 'MT', args.add_alt, verbose)
+    df_site = pd.DataFrame(site_dict, index=range(1, seqlength + 1))
 
-    seqs_mat = np.array([list(x) for x in seqs])
-    sites_list = [list(i) for i in seqs_mat.T] #list of alleles for each site
-    samps_list = [list(i) for i in seqs_mat] #list of alleles for each sample
-
-    df_site = alt_alleles(sites_list, ref_fasta, chrom='MT',
-                          args.add_alt, verbose)
-    df_snps = proc_snps(sites_list, df_site, labels, args.diploid, dip_symbol)
+    if verbose:
+        print('TRANSLATING GENOTYPES')
+    df_snps = proc_snps(seqs_mat, df_site, labels,
+                        args.diploid, dip_symbol, verbose)
+    if verbose:
+        print('CONSTRUCTING OTHER COLUMNS')
     df_site = other_cols(args, df_site)
     df_out = pd.concat([df_site, df_snps], axis=1)
 
@@ -193,6 +201,7 @@ def main():
             print('*\tProcess completed in %s hours' % (round(((time_adj / 60) / 60), 2)))
         if time_adj >= 86400:
             print('*\tProcess completed in %s days\n' % (round((((time_adj / 60) / 60) / 24), 2)))
+    import pdb; pdb.set_trace()
 
 if __name__=="__main__":
     main()

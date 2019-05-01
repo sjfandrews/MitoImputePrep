@@ -25,14 +25,14 @@ rule ambiguous2missing:
         in_fasta = DATAIN + "/{Reference}.fasta"
     output: temp(DATAOUT + "/{Reference}_ambig2missing.fasta")
     shell:
-        'python {input.in_script} -i {input.in_fasta} -o {output.out} -v'
+        'python {input.in_script} -i {input.in_fasta} -o {output} -v'
 
 # 2. Identify samples with highQuality sequences
 rule LowQualitySequences:
     input:
         in_script = "scripts/R/removeLowQuality_cmdline.R",
         in_fasta = DATAOUT + "/{Reference}_ambig2missing.fasta"
-    output: DATAOUT + "/ReferencePanel_highQualitySequences.txt"
+    output: DATAOUT + "/{Reference}_highQualitySequences.txt"
     shell:
         'Rscript {input.in_script} {input.in_fasta} {output}'
 
@@ -48,8 +48,8 @@ rule fasta2vcf:
 
 # 3b. Pass the resulting VCF through BCFTOOLS to make sure it conforms to all standards and index it
 rule VcfCheck:
-    input: expand(DATAOUT + "/{Reference}_ambig2missing.vcf.gz", Reference=FILENAME),
-    output: temp(DATAOUT + "/Reference_panal.vcf.gz"),
+    input: DATAOUT + "/{Reference}_ambig2missing.vcf.gz"
+    output: temp(DATAOUT + "/{Reference}_Reference_panel.vcf.gz")
     shell:
         'bcftools view -Oz -o {output} {input}'
         'bcftools index {output}'
@@ -57,8 +57,8 @@ rule VcfCheck:
 ## 4. Remove low quality sequences from VCF
 rule RemoveLowQuality:
     input:
-        qual = DATAOUT + "/ReferencePanel_highQualitySequences.txt",
-        in_vcf = DATAOUT + "/Reference_panal.vcf.gz",
+        qual = expand(DATAOUT + "/{Reference}_highQualitySequences.txt", Reference=FILENAME),
+        in_vcf = expand(DATAOUT + "/{Reference}_Reference_panel.vcf.gz", Reference=FILENAME)
     output: temp(DATAOUT + "/ReferencePanel_highQual.vcf.gz"),
     shell:
         '''
