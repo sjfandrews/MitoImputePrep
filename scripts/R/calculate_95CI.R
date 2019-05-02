@@ -13,6 +13,26 @@ confidence.interval = function(data, interval = 0.95, na.rm = T) {
   # suggestion: use t-value for alpha
 }
 
+ModifiedCox <- function(data, interval = 0.95, na.rm = T){
+  if (na.rm == T) {
+    n = length(!is.na(data)[!is.na(data) == "TRUE"])
+  } else {
+    n = length(data)
+  }
+  y <- log(data)
+  y.m <- mean(y, na.rm = na.rm)
+  y.var <- var(y, na.rm = na.rm)
+  
+  my.t <- qt((1 - interval) / 2, df = n-1)
+  
+  my.mean <- mean(data, na.rm = na.rm)
+  upper <- y.m + y.var/2 + my.t*sqrt(y.var/n + y.var^2/(2*(n - 1)))
+  lower <- y.m + y.var/2 - my.t*sqrt(y.var/n + y.var^2/(2*(n - 1)))
+  
+  return(list(upper = exp(upper), mean = my.mean, lower = exp(lower)))
+  #return(c("mean" = my.mean, "lower" = exp(lower), "upper" = exp(upper), "df" = round(n - 1, 0)))
+}
+
 out.dir = "~/GitCode/MitoImputePrep/metadata/Concordance_tables/MCC/95CI_tables/"
 
 kHAP = read.csv("~/GitCode/MitoImputePrep/metadata/Concordance_tables/ConcordanceTables_kHAP_Combined.csv", header = T)
