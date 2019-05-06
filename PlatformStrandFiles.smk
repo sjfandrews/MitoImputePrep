@@ -3,49 +3,67 @@
 
 import os
 from snakemake.remote.HTTP import RemoteProvider as HTTPRemoteProvider
+import re
+import requests as rq
 
 shell.executable("/bin/bash")
 
-RWD = os.getcwd()
-HTTP = HTTPRemoteProvider()
+wrayner = {'src': rq.get('https://www.well.ox.ac.uk/~wrayner/strand/').text,
+           're': '(?<=href=").+?b37(?=-strand.zip)'}
+wrayner['noAffy'] = re.split('Affymetrix data files', wrayner['src'])[0]
+wrayner['platforms'] = re.findall(wrayner['re'], wrayner['noAffy'])
 
-with open('scripts/INFORMATION_LISTS/b37_strandfiles.txt', "r") as f:
-    platforms = [x.rstrip() for x in f]
+HTTP = HTTPRemoteProvider()
 
 rule all:
     input:
-        expand('data/platforms/{platforms}/{platforms}_MT_snps.txt', platforms=platforms),
+        expand('data/platforms/{platform}/{platform}_MT_snps.txt',
+               platform = wrayner['platforms']),
         'data/platforms/Nsnps_Mt_platforms.txt',
         'data/platforms/Mt_platforms.txt'
 
 
-
+'''
+Download, unzip and copy non-Affy strands from Will Rayner's website at Oxford.
+Download the zips, extract and copy the file ending in ".strand" to
+"platform.strand" in data/platforms/[platform name] from b37_strandfiles.txt
+'''
 rule StrandFiles:
     input:
-        temp(HTTP.remote("http://www.well.ox.ac.uk/~wrayner/strand/{platforms}-strand.zip", allow_redirects=True))
+        HTTP.remote("https://www.well.ox.ac.uk/~wrayner/strand/{platform}-strand.zip", allow_redirects=True)
     output:
-        'data/platforms/{platforms}/platform.strand'
+        'data/platforms/{platform}/platform.strand'
+    params:
+        directory = 'data/platforms/{platform}'
     shell:
-        "unzip {input} -d data/platforms/{wildcards.platforms} *.strand; "
-        "mv data/platforms/{wildcards.platforms}/*.strand data/platforms/{wildcards.platforms}/platform.strand"
+        "unzip {input} -d {params.directory} *.strand; "
+        "mv {params.directory}/*.strand {params.directory}/platform.strand"
 
+'''
+Generate files with the format {CHR}\t{POS} and no headers containing the MtSNPs
+for each platform.
+'''
 rule StrandFilesMT:
     input:
-        script = "scripts/R/StrandFiles_ExtractMTsnps.R",
-        strands = 'data/platforms/{platforms}/platform.strand'
+        script = 'scripts/R/StrandFiles_ExtractMTsnps.R',
+        strands = 'data/platforms/{platform}/platform.strand'
     output:
-        out = 'data/platforms/{platforms}/{platforms}_MT_snps.txt'
+        out = 'data/platforms/{platform}/{platform}_MT_snps.txt'
     shell:
         'Rscript {input.script} {input.strands} {output.out}'
 
+'''
+Summarize which platforms have MtSNPs and how many snps on each platform.
+'''
 rule strandSummary:
     input:
-        StrandFiles = expand('data/platforms/{platforms}/platform.strand', platforms=platforms),
+        StrandFiles = expand('data/platforms/{platform}/platform.strand',
+                             platform = wrayner['platforms']),
         script = "scripts/R/StrandFiles_ExtractMTSummary.R",
     output:
-        'data/platforms/Nsnps_Mt_platforms.txt',
-        'data/platforms/Mt_platforms.txt'
+        sum_nSNPS = 'data/platforms/Nsnps_Mt_platforms.txt',
+        sum_MTplats = 'data/platforms/Mt_platforms.txt'
     params:
-        rwd = RWD
+        directory = 'data/platforms'
     shell:
-        'Rscript {input.script} {params.rwd}'
+        'Rscript {input.script} {params.directory} {output.sum_nSNPS} {output.sum_MTplats}'
