@@ -24,6 +24,7 @@ def alt_alleles(sites_list, ref_fasta, chrom='MT', add_alt=False, verbose=False)
     allele_counts = []
 
     rg = tqdm(range(rl)) if verbose else range(rl)
+    dot_ = ord('.')
     for idx in rg:
         alts = sites_list[idx, :]
         rmv = removeme | {ref_list[idx]}
@@ -39,21 +40,35 @@ def alt_alleles(sites_list, ref_fasta, chrom='MT', add_alt=False, verbose=False)
         else:
             # If no alternative alleles found,
             #  set alternative allele to missing
-            alt = [ord('.')]
+            alt = [dot_]
         alt_alleles.append(alt)
-        allele_counts.append([ord('.')])
+        allele_counts.append([dot_])
     return {'REF': list(ref_list),'ALT': alt_alleles, 'AC': allele_counts}
 
 # Fill in the GT fields
 def proc_snps(sites_list, df_site, labels, diploid=False, dip_symbol='/', verbose=True):
+    # create a 128 item array, with the index representing ASCII codes for
+    # the alleles containing the descending AC order for replacement.
+    # All other positions contain the ASCII code for “.”, which represents
+    # “missing”. This is used for mapping the genotypes to their freq.
+    def make_map(x, miss=46): #46 represents "."
+        mp = miss*np.ones(128, dtype='u8')
+        mp[x] = list(range(len(x)))
+        return mp
+
+    # concatenate ref and alts for each site
     ref_and_alts = [[r] + a for r,a in zip(df_site['REF'], df_site['ALT'])]
+    # make dictionaries with the allele number for each site
+    # ra = [{x: y for x,y in zip(ra, range(len(ra)))} for ra in ref_and_alts]
+    ra = [make_map(x) for x in ref_and_alts]
     rl = sites_list.shape[0] #length of reference assembly
+    # allow progress bar
     rg = tqdm(range(rl)) if verbose else range(rl)
+    dot_ = ord('.') # precalculate number for dot
     for idx in rg:
-        ra = ref_and_alts[idx]
-        ra = {x: y for x,y in zip(ra, range(len(ra)))}
         # Replace bases with index of alt allele (or "." if not an alt)
-        sites_list[idx, :] = [ra.get(x, ord('.')) for x in sites_list[idx, :]]
+        # sites_list[idx, :] = [ra[idx].get(x, dot_) for x in sites_list[idx, :]]
+        sites_list[idx, :] = ra[idx][sites_list[idx, :]]
     if diploid: #double the haploid genotype if requested
         #preallocate numpy array allowing up to 2 digit diploid
         GT = np.zeros((len(sites_list), len(labels)), dtype='<U5')
@@ -117,6 +132,7 @@ def main():
         lastline = args.ref_fasta.readline().strip()
     ref_fasta = args.ref_fasta.readline().strip()
     args.ref_fasta.close()
+    seqlength = len(ref_fasta)
 
     ## Input file
     if verbose:
@@ -129,7 +145,6 @@ def main():
             if line.startswith('>'):
                 labels.append(line.strip('>')) # APPEND SAMPLE LABELS
             else:
-                seqlength = len(ref_fasta)
                 assert len(line) == seqlength, 'Unaligned sequence'
                 seqs += line.strip().encode() # APPEND SEQUENCE INFORMATION
 
@@ -147,10 +162,10 @@ def main():
 
     # CREATE THE METADATA AT THE BEGINNING OF THE VCF
     meta = '''##fileformat=VCFv4.1
-    ##contig=<ID=MT,length=16569>
-    ##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
-    ##INFO=<ID=AC,Number=.,Type=Integer,Description="Alternate allele counts, comma delimited when multiple">
-    '''
+##contig=<ID=MT,length=16569>
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+##INFO=<ID=AC,Number=.,Type=Integer,Description="Alternate allele counts, comma delimited when multiple">
+'''
 
     # PULL OUT INFORMATION ABOUT ALTERNATIVE ALLELES
     if verbose:
