@@ -9,8 +9,6 @@ import time
 from tqdm import *
 import pandas as pd
 import numpy as np
-import csv
-from collections import OrderedDict
 
 # Fill in the CHROM, POS, REF, ALT fields and calculate AC
 def alt_alleles(sites_list, ref_fasta, chrom='MT', add_alt=False, verbose=False):
@@ -46,7 +44,7 @@ def alt_alleles(sites_list, ref_fasta, chrom='MT', add_alt=False, verbose=False)
     return {'REF': list(ref_list),'ALT': alt_alleles, 'AC': allele_counts}
 
 # Fill in the GT fields
-def proc_snps(sites_list, df_site, labels, diploid=False, dip_symbol='/', verbose=True):
+def proc_snps(sites_list, df_site, verbose=True):
     # create a 128 item array, with the index representing ASCII codes for
     # the alleles containing the descending AC order for replacement.
     # All other positions contain the ASCII code for “.”, which represents
@@ -64,20 +62,11 @@ def proc_snps(sites_list, df_site, labels, diploid=False, dip_symbol='/', verbos
     rl = sites_list.shape[0] #length of reference assembly
     # allow progress bar
     rg = tqdm(range(rl)) if verbose else range(rl)
-    dot_ = ord('.') # precalculate number for dot
     for idx in rg:
         # Replace bases with index of alt allele (or "." if not an alt)
         # sites_list[idx, :] = [ra[idx].get(x, dot_) for x in sites_list[idx, :]]
         sites_list[idx, :] = ra[idx][sites_list[idx, :]]
-    if diploid: #double the haploid genotype if requested
-        #preallocate numpy array allowing up to 2 digit diploid
-        GT = np.zeros((len(sites_list), len(labels)), dtype='<U5')
-        for idx in range(rl):
-           GT[idx, :] = [str(x)+dip_symbol+str(x) for x in sites_list[idx, :]]
-        #Turn into DF and return
-        return pd.DataFrame(GT, index=range(1, rl + 1), columns=labels)
-    else:
-        return pd.DataFrame(sites_list, index=range(1, rl + 1), columns=labels)
+    return sites_list
 
 def other_cols(args, df_site):
     df = df_site.copy()
@@ -167,9 +156,7 @@ def main():
 ##INFO=<ID=AC,Number=.,Type=Integer,Description="Alternate allele counts, comma delimited when multiple">
 '''
 
-    # PULL OUT INFORMATION ABOUT ALTERNATIVE ALLELES
-    if verbose:
-        print('TRANSPOSING GENOTYPES')
+    # PULL OUT INFORMATION ABOUT ALTERNATIVE ALLELES AND TRANSPOSE
     #numpy array with genotype rows and sample columns
     seqs_mat = np.array(seqs).reshape((len(labels), seqlength)).T
     seqs = None #remove sequences bytearray
@@ -181,26 +168,56 @@ def main():
 
     if verbose:
         print('TRANSLATING GENOTYPES')
-    df_snps = proc_snps(seqs_mat, df_site, labels,
-                        args.diploid, dip_symbol, verbose)
+    snps_array = proc_snps(seqs_mat, df_site, verbose)
 
     if verbose:
-        print('CONSTRUCTING OTHER SITE COLUMNS')
-    df_startcols = other_cols(args, df_site)
-
-    df_out = pd.concat([df_startcols, df_snps], axis=1)
-
+        print('WRITING METADATA AND HEADER TO FILE')
     outfile.write(meta) # WRITE METADATA LINES TO FILE
-    if verbose:
-        print('METADATA WRITTEN TO FILE')
+    df_startcols = other_cols(args, df_site) # construct first columns
+    header = '\t'.join(df_startcols.columns.values.tolist() + labels)
+    print(header, file=outfile)
 
-    df_out.to_csv(outfile, sep='\t', quoting=csv.QUOTE_NONE, index=False)
     if verbose:
-        print('DATA WRITTEN TO FILE')
+        print('WRITING SITES TO FILE')
 
+    def format_site(genos, miss, diploid=args.diploid):
+        genos = genos.astype('U2')
+        genos[miss] = '.'
+        if diploid:
+            genos = [x + dip_symbol + x for x in genos]
+        return '\t'.join(genos)
+
+    sc = ['\t'.join(x) + '\t' for x in df_startcols.values.astype('U30')]
+    missings = snps_array == 46
+    if args.diploid:
+        geno_op = lambda x: '\t'.join([i + dip_symbol + i for i in x])
+    else:
+        geno_op = lambda x: '\t'.join(x)
+
+    def make_lines(snps_array, missings, sc, start, until):
+        genos = snps_array[start:until, :].astype('U2')
+        genos[missings[start:until, :]] = '.'
+        genos = map(geno_op, genos)
+        return [s+g+'\n' for s, g in zip(sc[start:until], genos)]
+
+    #import ipdb; ipdb.set_trace()
+    lsc = len(sc)
+    pbar = tqdm(total=lsc)
+    if not args.diploid:
+        start = 0
+        step = 200
+        until = step - 1
+        while start < lsc - 1:
+            wo = make_lines(snps_array, missings, sc, start, until)
+            outfile.writelines(wo)
+            if verbose:
+                pbar.update(until-start if until-start < step - 1 else step)
+            start += step
+            until = min(until + step, lsc)
+    pbar.close()
     outfile.close() # CLOSE OUTFILE
     if verbose:
-        print('FILE CLOSED\n')
+        print('DATA WRITTEN TO FILE')
 
     if verbose:
         time_adj = time.time() - start_time
