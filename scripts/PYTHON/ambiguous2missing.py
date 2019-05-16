@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 ## IMPORT NECESSARY PACKAGES
 import os
+import re
 import argparse
 import numpy
 from tqdm import *
@@ -11,12 +12,17 @@ def main():
     #START THE TIMER
     start_time = time.time()
     #DEFINE INPUT ARGUMENTS
-    parser=argparse.ArgumentParser(description='ambiguous2missing',formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser=argparse.ArgumentParser(description='ambiguous2missing',
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-    parser.add_argument('-i', '--infile', dest='infile', type=str, required=True, help='input fasta file (.fasta)')
-    parser.add_argument('-o', '--outfile', dest='outfile', type=str, required=False, help='output fasta file (.fasta)')
-    parser.add_argument('-g', '--gap2missing', dest='gap2missing', action="store_true", required=False, help='turn gaps to missing (N)')
-    parser.add_argument('-v', '--verbose', dest='verbose', action="store_true", required=False, help='turn on verbose mode')
+    parser.add_argument('-i', '--infile', type=str,
+                        required=True, help='input fasta file (.fasta)')
+    parser.add_argument('-o', '--outfile', type=str,
+                        required=False, help='output fasta file (.fasta)')
+    parser.add_argument('-g', '--gap2missing', action="store_true",
+                        required=False, help='turn gaps to missing (N)')
+    parser.add_argument('-v', '--verbose', action="store_true",
+                        required=False, help='turn on verbose mode')
 
     args = parser.parse_args()
 
@@ -33,70 +39,44 @@ def main():
 
     if verbose:
         print('\nFASTA FILE IN:\t\t{}'.format(infile))
-        print('FASTA FILE IN:\t\t{}\n'.format(outfile))
+        print('FASTA FILE OUT:\t\t{}\n'.format(outfile))
 
     #DISPLAY THE TIMER
     if verbose:
         start_display = 'Process started at ' + time.strftime("%d/%m/%Y") + " " + time.strftime("%H:%M:%S")
 
     #ASSIGN THE FASTA FILE TO AN OBJECT
-    aln = []
-    
-    tkr = 0
-    if verbose:
-        print("OPENING FASTA FILE")
+
     with open(infile, 'r') as fastaFile:
-        for line in fastaFile:
-            #print line,
-            aln.append(line)
-            tkr += 1
-            #if verbose and tkr % 1000:
-            #    print(tkr)
-    #print aln
+        if verbose:
+            print("OPENING FASTA FILE")
+            it_ = tqdm(fastaFile)
+        else:
+            it_ = fastaFile
+        aln = [x.strip() for x in it_]
 
     #REPLACE THE AMBIGUOUS CHARACTER STATES WITH N
-    ambigs = 'rmwskyvhdb'.upper() # These are the ambiguous character states, from R package 'ape'
+    ambigs = 'RMWSKYVHDBrmwskyvhdb' # These are the ambiguous character states, from R package 'ape'
     if gap2missing:
-        ambigs = ambigs + "-"
-    ambigs = list(ambigs)
+        ambigs += '-'
+    ambigs = re.compile('[{}]'.format(ambigs))
     missCount = [] # make an empty list to store the counts of missing data
 
     outfile = open(outfile, 'w') # open the outfile
     if verbose:
         print("WRITE TO FILE")
-        for line in tqdm(aln):
-            if line.startswith('>'):
-                #print line,
-                outfile.write(line)
-            else:
-                seq = list(line)
-                for nt in range(len(seq)):
-                    if seq[nt] in ambigs:
-                        seq[nt] = 'N'
-                    else:
-                        pass
-                line = ''.join(seq)
-                outfile.write(line)
-                #print line.count('N')
-                C = line.count('N')
-                missCount.append(C)
-    else:
-        for line in aln:
-            if line.startswith('>'):
-                #print line,
-                outfile.write(line)
-            else:
-                seq = list(line)
-                for nt in range(len(seq)):
-                    if seq[nt] in ambigs:
-                        seq[nt] = 'N'
-                    else:
-                        pass
-                line = ''.join(seq)
-                outfile.write(line)        
+        pbar = tqdm(total=len(aln))
+    for line in aln:
+        if not line.startswith('>'):
+            line = ambigs.sub('N', line) # replace ambiguous with "N"
+            missCount.append(line.count('N')) # count total missing
+        print(line, file=outfile)
+        if verbose:
+            pbar.update(1)
+    pbar.close()
     outfile.close()
-    #print numpy.percentile(missCount, 25)
     if verbose:
+        print('Missing Counts:')
         print('\nMin N\t\t=\t{!s}'.format(numpy.min(missCount)))
         print('Q25 N\t\t=\t{!s}'.format(numpy.percentile(missCount, 25)))
         print('Mean N\t\t=\t{!s}'.format(numpy.mean(missCount)))
@@ -120,39 +100,3 @@ def main():
 
 if __name__=="__main__":
     main()
-
-''' TEST PLESE IGNORE
-aln = '>T1\nACGT\n>T2\nACGM\n>T3\nAYMT'
-aln = aln.split()
-print aln
-
-#ambigs = ['Y', 'M']
-ambigs = 'rmwskyvhdb'.upper()
-ambigs = list(ambigs)
-
-#outfile = '/Users/u5015730/Desktop/testRMambig.fasta'
-#outfile = open(outfile, 'w')
-
-for line in aln:
-    if line.startswith('>'):
-        print line
-        #outfile.write(line + '\n')
-    else:
-        seq = list(line)
-        for nt in range(len(seq)):
-            if seq[nt] in ambigs:
-                seq[nt] = 'N'
-            else:
-                pass
-        line = ''.join(seq)
-        print line
-        #outfile.write(line + '\n')
-
-
-outfile.close()
-
-
-with open('/Users/u5015730/Desktop/testRMambig_orig.fasta', 'r') as F:
-    for line in F:
-        print line,
-'''

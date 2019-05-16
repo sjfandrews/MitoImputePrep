@@ -51,8 +51,9 @@ rule VcfCheck:
     input: DATAOUT + "/{Reference}_ambig2missing.vcf.gz"
     output: temp(DATAOUT + "/{Reference}_Reference_panel.vcf.gz")
     shell:
-        'bcftools view -Oz -o {output} {input}'
-        'bcftools index {output}'
+        '''
+bcftools view -Oz -o {output} {input}
+bcftools index {output}'''
 
 ## 4. Remove low quality sequences from VCF
 rule RemoveLowQuality:
@@ -66,33 +67,24 @@ bcftools view --force-samples -S {input.qual} -Oz -o {output} {input.in_vcf}
 bcftools index {output}
 '''
 
-## 5. Apply filtration criteria
+## 5. Apply filtration criteria:
+## min MAF of 0.01 and remove gaps
 rule SiteFiltration:
     input: DATAOUT + "/ReferencePanel_highQual.vcf.gz",
     output: DATAOUT + "/ReferencePanel.vcf.gz",
     shell:
         '''
 vt decompose {input} | bcftools +fill-tags | \
-  bcftools view -i \'ALT!="-" \' | \
-  bcftools view -q 0.01 -Q 0.99 -Oz -o {output}
-'bcftools index {output}')
+  bcftools view -i 'ALT!="-"' --min-af 0.01:minor -Oz -o {output}
+bcftools index {output}
 '''
 
-## 6a. Extract sample names from Reference Panel
-rule RefSampleNames:
-    input:
-        in_vcf = DATAOUT + "/ReferencePanel.vcf.gz",
-    output:
-        out_samples = DATAOUT + "/RefSampleList.txt",
-    shell:
-        'bcftools query -l {input.in_vcf} > {output.out_samples}'
-
-## 6b. Assign M sex label to reference Samples
+## 6. Assign M sex label to reference Samples
 rule RefSampleSex:
-    input: DATAOUT + "/RefSampleList.txt"
+    input: expand(DATAOUT + "/{Reference}_highQualitySequences.txt", Reference=FILENAME)
     output: DATAOUT + "/RefSampleList_sex.txt"
     shell:
-        '''awk -F "\t" '$2 = "M"' {input} {output}'''
+        '''awk -F "\t" '$2 = "M"' {input} > {output}'''
 
 ## 7. Convert to Oxford format
 rule Oxford:
@@ -109,7 +101,7 @@ rule Oxford:
 ## 8. Generate .ped and .map files
 rule Plink:
     input:
-        in_vcf = DATAOUT + "/ReferencePanel.vcf.gz",
+        in_vcf = DATAOUT + "/ReferencePanel.vcf.gz"
     output:
         expand(DATAOUT + "/ReferencePanel.{ext}", ext = ['ped', 'map'])
     params:
