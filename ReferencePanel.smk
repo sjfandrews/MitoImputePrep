@@ -7,6 +7,8 @@ DATAIN = config['DataIn']
 DATAOUT = config['DataOut']
 FILENAME = config['FileName']
 
+shell.executable("/bin/bash")
+
 BPLINK = ["bed", "bim", "fam"]
 
 rule all:

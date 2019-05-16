@@ -1,7 +1,7 @@
 '''Snakefile for MitoImpute Version 0.1'''
 # snakemake -s mtImpute.smk
 # snakemake -s mtImpute.smk --dag | dot -Tsvg > dag_mtImpute.svg
-# snakejob -s mtImpute.smk 
+# snakejob -s mtImpute.smk
 
 import os
 
@@ -21,6 +21,8 @@ OXFORD = ["gen", "sample"]
 RWD = os.getcwd()
 
 ## For running on cluster
+
+shell.executable("/bin/bash")
 shell.prefix('module load plink/1.90 impute2 R/3.4.3; ')
 
 rule all:
