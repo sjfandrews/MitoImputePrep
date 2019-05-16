@@ -91,12 +91,11 @@ rule Impute2:
         -iter {params.iter} -burnin {params.burnin} -k_hap {params.khap}'
 
 rule FixChromName:
-    input:
-        InFile = '{DataOut}/KHAP_{KHAP}/MCMC_{MCMC}/{sample}_imputed'
-    output:
-        OutFile = '{DataOut}/KHAP_{KHAP}/MCMC_{MCMC}/{sample}_imputed_ChromFixed'
-    shell:"""
-        awk '{{$1 = "26"; print}}' {input.InFile} > {output.OutFile}
+    input: '{DataOut}/KHAP_{KHAP}/MCMC_{MCMC}/{sample}_imputed'
+    output: '{DataOut}/KHAP_{KHAP}/MCMC_{MCMC}/{sample}_imputed_ChromFixed'
+    shell:
+        """
+        awk '{{$1 = "26"; print}}' {input} > {output}
     """
 
 rule oxford2bed:

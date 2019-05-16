@@ -6,6 +6,7 @@
 import os
 from snakemake.remote.FTP import RemoteProvider as FTPRemoteProvider
 
+shell.executable("/bin/bash")
 shell.prefix('module load plink/1.90 R/3.4.3 curl/7.61.0 vt bcftools impute2; ')
 
 #with open('data/platforms/Mt_platforms.txt', "r") as f:
@@ -44,8 +45,8 @@ TG_vcf = 'ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz'
 
 rule Get1kgMT_vcf:
     input:
-        vcf = FTP.remote(TG_releasedir + TG_vcf, keep_local=True),
-        tbi = FTP.remote(TG_releasedir + TG_vcf + '.tbi', keep_local=True)
+        vcf = FTP.remote(TG_releasedir + TG_vcf),
+        tbi = FTP.remote(TG_releasedir + TG_vcf + '.tbi')
     output:
         vcf = 'data/ThousandGenomes/' + TG_vcf,
         tbi = 'data/ThousandGenomes/' + TG_vcf + '.tbi'
@@ -61,38 +62,32 @@ rule NormaliseVcf:
         vcf = "DerivedData/ThousandGenomes/chrMT_1kg_norm_firstAlt.vcf.gz"
     shell:
         '''
-vt {input.vcf} | bcftools norm -f {input.fasta} | bcftools view -v snps | \
+vt decompose {input.vcf} | bcftools norm -f {input.fasta} | bcftools view -v snps | \
    bcftools norm -d all | bcftools +fill-tags -o {output.vcf} -Oz
 '''
 
 rule wgs_vcf2Plink:
-    input:
-        vcf = "DerivedData/ThousandGenomes/chrMT_1kg_norm_firstAlt.vcf.gz",
+    input: "DerivedData/ThousandGenomes/chrMT_1kg_norm_firstAlt.vcf.gz"
     output:
         expand("DerivedData/ThousandGenomes/chrMT_1kg_norm_firstAlt.{ext}", ext = ['ped', 'map'])
     params:
         out = "DerivedData/ThousandGenomes/chrMT_1kg_norm_firstAlt"
     shell:
-        'plink --vcf {input.vcf} --recode --double-id --keep-allele-order --out {params.out}'
+        'plink --vcf {input} --recode --double-id --keep-allele-order --out {params.out}'
 
 ## 6a. Extract sample names from Reference Panel
 rule SampleNames1kg:
-    input:
-        "DerivedData/ThousandGenomes/chrMT_1kg_norm_firstAlt.vcf.gz",
-    output:
-        "DerivedData/ThousandGenomes/SampleList1kg.txt",
+    input: "DerivedData/ThousandGenomes/chrMT_1kg_norm_firstAlt.vcf.gz"
+    output: "DerivedData/ThousandGenomes/SampleList1kg.txt"
     shell:
         'bcftools query -l {input} > {output}'
 
 ## 6b. Assign M sex label to  Samples
 rule SampleSex1kg:
-    input:
-        in_samples = "DerivedData/ThousandGenomes/SampleList1kg.txt",
-        in_script = "scripts/R/assign_sex_label.R"
-    output:
-        "DerivedData/ThousandGenomes/SampleList1kg_sex.txt",
+    input: "DerivedData/ThousandGenomes/SampleList1kg.txt"
+    output: "DerivedData/ThousandGenomes/SampleList1kg_sex.txt"
     shell:
-        'Rscript {input.in_script} {input.in_samples} {output}'
+        '''awk -F "\t" '$2 = "M"' {input} > {output}'''
 
 rule ExtractPlatformMTsnps:
     input:
