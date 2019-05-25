@@ -16,14 +16,14 @@ else
 fi
 
 # SPECIFY REFERENCE PANEL
-REFpanel="ReferencePanel_v5"
+REFpanel="ReferencePanel_v4"
 HAPLOGREP=~/GitCode/MitoImputePrep/haplogrep/2.1.19/haplogrep-2.1.19.jar
 mcmc=1
 burn=0
 
 # SET THE ORIGINAL VCF FILES
-WGS_VCF=${WK_DIR}MitoImpute/data/ADNI_REDO/WGS/VCF/adni_mito_genomes_180214_fixed.vcf.gz # Whole genome resequence (ADNI 3)
-TYP_VCF=${WK_DIR}MitoImpute/data/ADNI_REDO/GENOTYPED/VCF/mito_snps_rcrs_ed.vcf.gz # Genotyped data (ADNI 1)
+#WGS_VCF=${WK_DIR}MitoImpute/data/ADNI_REDO_noRESEQ/WGS/VCF/adni_mito_genomes_180214_fixed.vcf.gz # Whole genome resequence (ADNI 3)
+TYP_VCF=${WK_DIR}MitoImpute/data/ADNI_REDO_noRESEQ/GENOTYPED/VCF/mito_snps_rcrs_ed.vcf.gz # Genotyped data (ADNI 1)
 #IMP_VCF=${WK_DIR}
 
 echo
@@ -38,95 +38,95 @@ echo "IMPUTED VCF:		${IMP_VCF}"
 echo
 
 
-# SUBSET EACH VCF FILE SO THEY ONLY CONTAIN THE n=258 FOUND IN BOTH ADNI 1 and ADNI 3
+# SUBSET EACH VCF FILE SO THEY ONLY CONTAIN THE n=499 FOUND IN BOTH ADNI 1 and ADNI 3
 echo
-echo "SUBSET EACH VCF FILE SO THEY ONLY CONTAIN THE n=258 FOUND IN BOTH ADNI 1 and ADNI 3"
-TYP_n258=${WK_DIR}MitoImpute/data/ADNI_REDO/GENOTYPED/VCF/mito_snps_rcrs_ed_n258.vcf.gz
-WGS_n258=${WK_DIR}MitoImpute/data/ADNI_REDO/WGS/VCF/adni_mito_genomes_180214_fixed_n258.vcf.gz
+echo "SUBSET EACH VCF FILE SO THEY ONLY CONTAIN THE n=499 FOUND IN ONLY ADNI 1 and NOT ADNI 3"
+TYP_n499=${WK_DIR}MitoImpute/data/ADNI_REDO_noRESEQ/GENOTYPED/VCF/mito_snps_rcrs_ed_n499.vcf.gz
+#WGS_n499=${WK_DIR}MitoImpute/data/ADNI_REDO_noRESEQ/WGS/VCF/adni_mito_genomes_180214_fixed_n499.vcf.gz
 
-bcftools view -S ~/GitCode/MitoImputePrep/metadata/ADNI_samples_BOTH.txt ${TYP_VCF} | bcftools +fill-tags -Oz -o ${TYP_n258}
-bcftools index ${TYP_n258}
+bcftools view -S ~/GitCode/MitoImputePrep/metadata/ADNI_samples_noReSeq.txt ${TYP_VCF} | bcftools +fill-tags -Oz -o ${TYP_n499}
+bcftools index ${TYP_n499}
 
-bcftools view -S ~/GitCode/MitoImputePrep/metadata/ADNI_samples_BOTH_reseq.txt ${WGS_VCF} | bcftools +fill-tags -Oz -o ${WGS_n258}
-bcftools index ${WGS_n258}
+#bcftools view -S ~/GitCode/MitoImputePrep/metadata/ADNI_samples_BOTH_reseq.txt ${WGS_VCF} | bcftools +fill-tags -Oz -o ${WGS_n499}
+#bcftools index ${WGS_n499}
 
 # FILTER VCF TO CONTAIN ONLY SNVs 
 echo
 echo "FILTER VCF TO CONTAIN ONLY SNVs"
-TYP_n258_tmp=${WK_DIR}MitoImpute/data/ADNI_REDO/GENOTYPED/VCF/mito_snps_rcrs_ed_n258_tmp.vcf.gz
-WGS_n258_tmp=${WK_DIR}MitoImpute/data/ADNI_REDO/WGS/VCF/adni_mito_genomes_180214_fixed_n258_tmp.vcf.gz
+TYP_n499_tmp=${WK_DIR}MitoImpute/data/ADNI_REDO_noRESEQ/GENOTYPED/VCF/mito_snps_rcrs_ed_n499_tmp.vcf.gz
+#WGS_n499_tmp=${WK_DIR}MitoImpute/data/ADNI_REDO_noRESEQ/WGS/VCF/adni_mito_genomes_180214_fixed_n499_tmp.vcf.gz
 REF26=~/GitCode/MitoImputePrep/scripts/REFERENCE_ALNS/26/rCRS.fasta 
 REFMT=~/GitCode/MitoImputePrep/scripts/REFERENCE_ALNS/MT/rCRS.fasta 
 
-#bcftools annotate -x INFO,^FORMAT/GT ${WGS_n258} | bcftools norm --check-ref s -f ${REF26} -m - | bcftools view -V indels,mnps | bcftools +fill-tags -Oz -o ${WGS_n258_biallelic}
-#bcftools annotate -x INFO,^FORMAT/GT ${TYP_n258} | bcftools norm --check-ref s -f ${REFMT} -m - | bcftools view -V indels,mnps | bcftools +fill-tags -Oz -o ${TYP_n258_biallelic}
+#bcftools annotate -x INFO,^FORMAT/GT ${WGS_n499} | bcftools norm --check-ref s -f ${REF26} -m - | bcftools view -V indels,mnps | bcftools +fill-tags -Oz -o ${WGS_n499_biallelic}
+#bcftools annotate -x INFO,^FORMAT/GT ${TYP_n499} | bcftools norm --check-ref s -f ${REFMT} -m - | bcftools view -V indels,mnps | bcftools +fill-tags -Oz -o ${TYP_n499_biallelic}
 
-bcftools annotate -x INFO,^FORMAT/GT ${WGS_n258} | bcftools norm --check-ref s -f ${REF26} | bcftools view -V indels,mnps | bcftools norm -m + | bcftools +fill-tags -Oz -o ${WGS_n258_tmp}
-bcftools annotate -x INFO,^FORMAT/GT ${TYP_n258} | bcftools norm --check-ref s -f ${REFMT} | bcftools view -V indels,mnps | bcftools norm -m + | bcftools +fill-tags -Oz -o ${TYP_n258_tmp}
+#bcftools annotate -x INFO,^FORMAT/GT ${WGS_n499} | bcftools norm --check-ref s -f ${REF26} | bcftools view -V indels,mnps | bcftools norm -m + | bcftools +fill-tags -Oz -o ${WGS_n499_tmp}
+bcftools annotate -x INFO,^FORMAT/GT ${TYP_n499} | bcftools norm --check-ref s -f ${REFMT} | bcftools view -V indels,mnps | bcftools norm -m + | bcftools +fill-tags -Oz -o ${TYP_n499_tmp}
 
-bcftools index ${WGS_n258_tmp}
-bcftools index ${TYP_n258_tmp}
+#bcftools index ${WGS_n499_tmp}
+bcftools index ${TYP_n499_tmp}
 
 # DECOMPOSE VCF FILES AND SPLIT MULTIALLELIC RECORDS INTO BIALLELIC 
 echo
 echo "DECOMPOSE VCF FILES AND SPLIT MULTIALLELIC RECORDS INTO BIALLELIC"
 
-TYP_n258_biallelic=${WK_DIR}MitoImpute/data/ADNI_REDO/GENOTYPED/VCF/mito_snps_rcrs_ed_n258_biallelic.vcf.gz
-WGS_n258_biallelic=${WK_DIR}MitoImpute/data/ADNI_REDO/WGS/VCF/adni_mito_genomes_180214_fixed_n258_biallelic.vcf.gz
+TYP_n499_biallelic=${WK_DIR}MitoImpute/data/ADNI_REDO_noRESEQ/GENOTYPED/VCF/mito_snps_rcrs_ed_n499_biallelic.vcf.gz
+#WGS_n499_biallelic=${WK_DIR}MitoImpute/data/ADNI_REDO_noRESEQ/WGS/VCF/adni_mito_genomes_180214_fixed_n499_biallelic.vcf.gz
 
-vt decompose ${WGS_n258_tmp} | bcftools +fill-tags -Oz -o ${WGS_n258_biallelic}
-vt decompose ${TYP_n258_tmp} | bcftools +fill-tags -Oz -o ${TYP_n258_biallelic}
+#vt decompose ${WGS_n499_tmp} | bcftools +fill-tags -Oz -o ${WGS_n499_biallelic}
+vt decompose ${TYP_n499_tmp} | bcftools +fill-tags -Oz -o ${TYP_n499_biallelic}
 
-bcftools index ${WGS_n258_biallelic}
-bcftools index ${TYP_n258_biallelic}
+#bcftools index ${WGS_n499_biallelic}
+bcftools index ${TYP_n499_biallelic}
 
 # RELABEL WGS TO ADNI1 SAMPLE IDs
-samples_csv=~/GitCode/MitoImputePrep/metadata/ADNI_samples_BOTH.csv
-WGS_relab=${WK_DIR}MitoImpute/data/ADNI_REDO/WGS/VCF/adni_mito_genomes_180214_fixed_n258_biallelic_relabelled.vcf
+#samples_csv=~/GitCode/MitoImputePrep/metadata/ADNI_samples_BOTH.csv
+#WGS_relab=${WK_DIR}MitoImpute/data/ADNI_REDO_noRESEQ/WGS/VCF/adni_mito_genomes_180214_fixed_n499_biallelic_relabelled.vcf
 
-python ~/GitCode/MitoImputePrep/scripts/PYTHON/fix_vcf_names.py -i ${TYP_n258_biallelic} -o ${WGS_relab} -c ${samples_csv} -v
+#python ~/GitCode/MitoImputePrep/scripts/PYTHON/fix_vcf_names.py -i ${TYP_n499_biallelic} -o ${WGS_relab} -c ${samples_csv} -v
 # TIM YOU HAVE TO MAKE THIS COMMAND LINE >:(
 
 # GZIP USING BCFTOOLS TO MAKE SURE VCF CONFORMS TO STANDARDS
-bcftools view ${WGS_relab} -Oz -o ${WGS_relab}.gz
+#bcftools view ${WGS_relab} -Oz -o ${WGS_relab}.gz
 
 # EXTRACT SAMPLE IDS 
 echo 
 echo "EXTRACT SAMPLE IDS"
 
-WGS_SAMPLE=${WK_DIR}MitoImpute/data/ADNI_REDO/WGS/INFO/adni_mito_genomes_180214_fixed_n258_biallelic_relabelled_sampleID.txt
-WGS_SEX_SAMPLE=${WK_DIR}MitoImpute/data/ADNI_REDO/WGS/INFO/adni_mito_genomes_180214_fixed_n258_biallelic_relabelled_sampleID_sex.txt
-TYP_SAMPLE=${WK_DIR}MitoImpute/data/ADNI_REDO/GENOTYPED/INFO/mito_snps_rcrs_ed_n258_biallelic_sampleID.txt
-TYP_SEX_SAMPLE=${WK_DIR}MitoImpute/data/ADNI_REDO/GENOTYPED/INFO/mito_snps_rcrs_ed_n258_biallelic_sampleID_sex.txt
+#WGS_SAMPLE=${WK_DIR}MitoImpute/data/ADNI_REDO_noRESEQ/WGS/INFO/adni_mito_genomes_180214_fixed_n499_biallelic_relabelled_sampleID.txt
+#WGS_SEX_SAMPLE=${WK_DIR}MitoImpute/data/ADNI_REDO_noRESEQ/WGS/INFO/adni_mito_genomes_180214_fixed_n499_biallelic_relabelled_sampleID_sex.txt
+TYP_SAMPLE=${WK_DIR}MitoImpute/data/ADNI_REDO_noRESEQ/GENOTYPED/INFO/mito_snps_rcrs_ed_n499_biallelic_sampleID.txt
+TYP_SEX_SAMPLE=${WK_DIR}MitoImpute/data/ADNI_REDO_noRESEQ/GENOTYPED/INFO/mito_snps_rcrs_ed_n499_biallelic_sampleID_sex.txt
 
-bcftools query -l ${WGS_relab} > ${WGS_SAMPLE}
-Rscript ~/GitCode/MitoImputePrep/scripts/R/assign_sex_label.R ${WGS_SAMPLE} ${WGS_SEX_SAMPLE}
+#bcftools query -l ${WGS_relab} > ${WGS_SAMPLE}
+#Rscript ~/GitCode/MitoImputePrep/scripts/R/assign_sex_label.R ${WGS_SAMPLE} ${WGS_SEX_SAMPLE}
 
-bcftools query -l ${TYP_n258_biallelic} > ${TYP_SAMPLE}
+bcftools query -l ${TYP_n499_biallelic} > ${TYP_SAMPLE}
 Rscript ~/GitCode/MitoImputePrep/scripts/R/assign_sex_label.R ${TYP_SAMPLE} ${TYP_SEX_SAMPLE}
 
 # GENERATE PLINK FILES (PED AND MAP FILES!)
 echo
 echo "GENERATE PLINK FILES (PED AND MAP FILES!)"
-WGS_PLINK=${WK_DIR}MitoImpute/data/ADNI_REDO/WGS/PLINK/adni_mito_genomes_180214_fixed_n258_biallelic_relabelled
-TYP_PLINK=${WK_DIR}MitoImpute/data/ADNI_REDO/GENOTYPED/VCF/mito_snps_rcrs_ed_n258_biallelic
-plink1.9 --vcf ${WGS_relab} --recode --double-id --keep-allele-order --out ${WGS_PLINK}
-plink1.9 --vcf ${TYP_n258_biallelic} --recode --double-id --keep-allele-order --out ${TYP_PLINK}
+#WGS_PLINK=${WK_DIR}MitoImpute/data/ADNI_REDO_noRESEQ/WGS/PLINK/adni_mito_genomes_180214_fixed_n499_biallelic_relabelled
+TYP_PLINK=${WK_DIR}MitoImpute/data/ADNI_REDO_noRESEQ/GENOTYPED/VCF/mito_snps_rcrs_ed_n499_biallelic
+#plink1.9 --vcf ${WGS_relab} --recode --double-id --keep-allele-order --out ${WGS_PLINK}
+plink1.9 --vcf ${TYP_n499_biallelic} --recode --double-id --keep-allele-order --out ${TYP_PLINK}
 
 # GENERATE GEN FILES
 echo 
 echo "GENERATE GEN AND SAMPLE FILES"
-WGS_GEN_OUT=${WK_DIR}MitoImpute/data/ADNI_REDO/WGS/HAP_LEGEND_GEN/adni_mito_genomes_180214_fixed_n258_biallelic_relabelled
-TYP_GEN_OUT=${WK_DIR}MitoImpute/data/ADNI_REDO/GENOTYPED/HAP_LEGEND_GEN/mito_snps_rcrs_ed_n258_biallelic
+#WGS_GEN_OUT=${WK_DIR}MitoImpute/data/ADNI_REDO_noRESEQ/WGS/HAP_LEGEND_GEN/adni_mito_genomes_180214_fixed_n499_biallelic_relabelled
+TYP_GEN_OUT=${WK_DIR}MitoImpute/data/ADNI_REDO_noRESEQ/GENOTYPED/HAP_LEGEND_GEN/mito_snps_rcrs_ed_n499_biallelic
 
 
-bcftools convert --gensample ${WGS_GEN_OUT} ${WGS_relab} --sex ${WGS_SEX_SAMPLE}
-bcftools convert --gensample ${TYP_GEN_OUT} ${TYP_n258_biallelic} --sex ${TYP_SEX_SAMPLE}
+#bcftools convert --gensample ${WGS_GEN_OUT} ${WGS_relab} --sex ${WGS_SEX_SAMPLE}
+bcftools convert --gensample ${TYP_GEN_OUT} ${TYP_n499_biallelic} --sex ${TYP_SEX_SAMPLE}
 
 # FIX SEX ID COLUMN IN .samples FILE
 echo
 echo "FIXING SEX ID COLUMN IN .samples FILE"
-Rscript ~/GitCode/MitoImputePrep/scripts/R/FixSamplesFile_raijin.R ${WGS_GEN_OUT}.samples
+#Rscript ~/GitCode/MitoImputePrep/scripts/R/FixSamplesFile_raijin.R ${WGS_GEN_OUT}.samples
 Rscript ~/GitCode/MitoImputePrep/scripts/R/FixSamplesFile_raijin.R ${TYP_GEN_OUT}.samples
 
 # RUN IMPUTE2
@@ -135,7 +135,7 @@ hap=~/GitCode/MitoImputePrep/DerivedData/${REFpanel}/${REFpanel}.hap.gz
 leg=~/GitCode/MitoImputePrep/DerivedData/${REFpanel}/${REFpanel}.legend.gz
 gen=${TYP_GEN_OUT}.gen.gz
 sam=${TYP_GEN_OUT}.samples
-out_dir=${WK_DIR}MitoImpute/data/ADNI_REDO/IMPUTED/${REFpanel}/IMPUTE2/
+out_dir=${WK_DIR}MitoImpute/data/ADNI_REDO_noRESEQ/IMPUTED/${REFpanel}/IMPUTE2/
 impute2_out=${out_dir}MitoImpute_${REFpanel}_imputed
 
 if [ ! -d ${out_dir} ]
@@ -154,7 +154,7 @@ fi
 # FIX CHROMOSOME NAMES
 echo
 echo "FIXING CHROMOSOME NAMES"
-#impute2_out=${WK_DIR}MitoImpute/data/ADNI_REDO/IMPUTED/IMPUTE2/${REFpanel}/MitoImpute_ADNI_imputed
+#impute2_out=${WK_DIR}MitoImpute/data/ADNI_REDO_noRESEQ/IMPUTED/IMPUTE2/${REFpanel}/MitoImpute_ADNI_imputed
 impute2_out_fixed=${impute2_out}_ChromFixed
 awk '{{$1 = "26"; print}}' ${impute2_out} > ${impute2_out_fixed}
 
@@ -214,21 +214,21 @@ else
 fi
 
 ## CALCULATE Matthew's Correlation Coefficient
-WGS_VCF=${WGS_relab}.gz
-TYP_VCF=${TYP_n258_biallelic}
-#IMP_VCF=${impute2_out}.vcf
-IMP_INFO=${impute2_out}_info
-OUT_FILE=${impute2_out}
-
-if [ -f ${OUT_FILE}_imputed_MCC.csv ] & [ -f ${OUT_FILE}_typed_MCC.csv ]
-then
-	echo
-	echo "${OUT_FILE}_imputed_MCC.csv AND ${OUT_FILE}_typed_MCC.csv FOUND ... PIPELINE COMPLETED"
-else
-	echo
-	echo "${OUT_FILE}_imputed_MCC.csv AND ${OUT_FILE}_typed_MCC.csv NOT FOUND ... CALCULATING MCC GENOTYPE CONCORDANCE"
-	Rscript ~/GitCode/MitoImputePrep/scripts/R/MCC_Genotypes.R ${WGS_VCF} ${TYP_VCF} ${IMP_VCF} ${IMP_INFO} ${OUT_FILE}
-fi
+#WGS_VCF=${WGS_relab}.gz
+#TYP_VCF=${TYP_n499_biallelic}
+##IMP_VCF=${impute2_out}.vcf
+#IMP_INFO=${impute2_out}_info
+#OUT_FILE=${impute2_out}
+#
+#if [ -f ${OUT_FILE}_imputed_MCC.csv ] & [ -f ${OUT_FILE}_typed_MCC.csv ]
+#then
+#	echo
+#	echo "${OUT_FILE}_imputed_MCC.csv AND ${OUT_FILE}_typed_MCC.csv FOUND ... PIPELINE COMPLETED"
+#else
+#	echo
+#	echo "${OUT_FILE}_imputed_MCC.csv AND ${OUT_FILE}_typed_MCC.csv NOT FOUND ... CALCULATING MCC GENOTYPE CONCORDANCE"
+#	Rscript ~/GitCode/MitoImputePrep/scripts/R/MCC_Genotypes.R ${WGS_VCF} ${TYP_VCF} ${IMP_VCF} ${IMP_INFO} ${OUT_FILE}
+#fi
 
 #
 ## GENERATE GEN SAMPLE
