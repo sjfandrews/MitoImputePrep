@@ -16,7 +16,7 @@ else
 fi
 
 # SPECIFY REFERENCE PANEL
-REFpanel="ReferencePanel_v4"
+REFpanel="ReferencePanel_v6"
 HAPLOGREP=~/GitCode/MitoImputePrep/haplogrep/2.1.19/haplogrep-2.1.19.jar
 mcmc=1
 burn=0
