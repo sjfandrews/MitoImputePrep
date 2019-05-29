@@ -25,7 +25,7 @@ if (length(args) == 1) {
 }
 
 # Read in file paths of individule platform strand files
-fpath <- sprintf("%s/data/platforms", rwd)
+fpath <- sprintf("%s/data/platforms", indir)
 b37 <- list.dirs(path = fpath, full.names = T, recursive = F)
 
 ## for each strand file
@@ -37,8 +37,7 @@ b37 <- list.dirs(path = fpath, full.names = T, recursive = F)
 b37.ls <- function(x) {
   message(sprintf("IN PROGRESS: %s", x))
   fname <- sprintf("%s/platform.strand", x)
-  df <- read_tsv(fname, col_names = F, col_types = "ccnncc") %>%
-    rename(SNP = X1, chr = X2, pos = X3, match = X4, strand = X5)
+  df <- read_tsv(fname, col_names = c("chr"), col_types = "-c----")
   plat <- stringr::str_split_fixed(x, "platforms/", n = 2)[, 2]
   if ("MT" %in% df$chr) {
     out <- count(df, chr) %>%

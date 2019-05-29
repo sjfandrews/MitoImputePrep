@@ -14,16 +14,12 @@ strand.file <- args[1]
 out.file <- args[2]
 
 ## Extract MT snps from strand file
-#     Read in strand file
-#     Rename columns
+#     Read in strand file (only chrom and pos)
 #     Filter for MT in CHROM
-#     Select on CHROM and POS columns
 #     Arrange tibble by POS
 #     write out file
 message(sprintf("IN PROGRESS: %s", strand.file))
-read_tsv(strand.file, col_names = F, col_types = "ccnncc") %>%
-  rename(SNP = X1, CHROM = X2, POS = X3, match = X4, strand = X5) %>%
+read_tsv(strand.file, col_names = c("CHROM", "POS"), col_types = "-cn---") %>%
   filter(CHROM == "MT") %>%
-  select(CHROM, POS) %>%
   arrange(POS) %>%
   write_tsv(out.file, col_names = F)
