@@ -1,0 +1,7 @@
+./scripts/PYTHON/fasta2vcf_mtDNA.py
+./scripts/PYTHON/ambiguous2missing.py
+./scripts/R/mt_recombination_map.R
+./scripts/R/StrandFiles_ExtractMTsnps.R
+./scripts/R/import_snps.R
+./scripts/R/StrandFiles_ExtractMTSummary.R
+./scripts/R/removeLowQuality_cmdline.R
