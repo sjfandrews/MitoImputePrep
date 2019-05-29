@@ -58,12 +58,12 @@ rule NormaliseVcf:
     input:
         vcf = rules.Get1kgMT_vcf.output.vcf,
         fasta = "data/ReferencePanel/rCRS.fasta"
-    output:
-        vcf = "DerivedData/ThousandGenomes/chrMT_1kg_norm_firstAlt.vcf.gz"
+    output: "DerivedData/ThousandGenomes/chrMT_1kg_norm_firstAlt.vcf.gz"
     shell:
         '''
-vt decompose {input.vcf} | bcftools norm -f {input.fasta} | bcftools view -v snps | \
-   bcftools norm -d all | bcftools +fill-tags -o {output.vcf} -Oz
+vt decompose {input.vcf} | bcftools norm -f {input.fasta} | \
+   bcftools view -v snps | bcftools norm -d all | \
+   bcftools +fill-tags -o {output} -Oz
 '''
 
 rule wgs_vcf2Plink:
@@ -75,52 +75,46 @@ rule wgs_vcf2Plink:
     shell:
         'plink --vcf {input} --recode --double-id --keep-allele-order --out {params.out}'
 
-## 6a. Extract sample names from Reference Panel
+## 6. Extract sample names from Reference Panel and assign M sex label
 rule SampleNames1kg:
     input: "DerivedData/ThousandGenomes/chrMT_1kg_norm_firstAlt.vcf.gz"
-    output: "DerivedData/ThousandGenomes/SampleList1kg.txt"
-    shell:
-        'bcftools query -l {input} > {output}'
-
-## 6b. Assign M sex label to  Samples
-rule SampleSex1kg:
-    input: "DerivedData/ThousandGenomes/SampleList1kg.txt"
     output: "DerivedData/ThousandGenomes/SampleList1kg_sex.txt"
     shell:
-        '''awk -F "\t" '$2 = "M"' {input} > {output}'''
+        '''bcftools query -l {input} | awk -F "\t" '$2 = "M"' > {output}'''
 
 rule ExtractPlatformMTsnps:
     input:
         MTSnps = 'data/platforms/{MtPlatforms}/{MtPlatforms}_MT_snps.txt',
         vcf_1kg = "DerivedData/ThousandGenomes/chrMT_1kg_norm_firstAlt.vcf.gz"
     output:
-        vcf = "DerivedData/ThousandGenomes/{MtPlatforms}/chrMT_1kg_{MtPlatforms}.vcf.gz"
+        "DerivedData/ThousandGenomes/{MtPlatforms}/chrMT_1kg_{MtPlatforms}.vcf.gz"
     shell:
-        "bcftools view -R {input.MTSnps} {input.vcf_1kg} -Oz -o {output.vcf}; "
-        "bcftools index {output.vcf}"
+        "bcftools view -R {input.MTSnps} {input.vcf_1kg} -Oz -o {output}; "
+        "bcftools index {output}"
 
 rule vcf2gensample:
     input:
-        vcf = "DerivedData/ThousandGenomes/{MtPlatforms}/chrMT_1kg_{MtPlatforms}.vcf.gz",
-        sex = "DerivedData/ThousandGenomes/SampleList1kg_sex.txt",
-        script = "scripts/R/FixSamplesFile.R"
+        vcf = rules.ExtractPlatformMTsnps.output,
+        sex = rules.SampleNames1kg.output
     output:
         expand("DerivedData/ThousandGenomes/{{MtPlatforms}}/chrMT_1kg_{{MtPlatforms}}.{ext}", ext = ['gen.gz', 'samples']),
     params:
         out = "DerivedData/ThousandGenomes/{MtPlatforms}/chrMT_1kg_{MtPlatforms}"
     shell:
-        'bcftools convert --gensample {params.out} {input.vcf} --sex {input.sex}; '
-        'Rscript {input.script} {params.out}.samples'
+        '''
+bcftools convert --gensample {params.out} {input.vcf} --sex {input.sex}
+awk -v OFS=" " 'NR == 2 {{$4 = "D"}} $1 = $1' {params.out}.samples > \
+tmp && mv tmp {params.out}.samples
+'''
 
 rule vcf2Plink:
-    input:
-        vcf = "DerivedData/ThousandGenomes/{MtPlatforms}/chrMT_1kg_{MtPlatforms}.vcf.gz",
+    input: rules.ExtractPlatformMTsnps.output
     output:
         expand("DerivedData/ThousandGenomes/{{MtPlatforms}}/chrMT_1kg_{{MtPlatforms}}.{ext}", ext = ['ped', 'map'])
     params:
         out = "DerivedData/ThousandGenomes/{MtPlatforms}/chrMT_1kg_{MtPlatforms}"
     shell:
-        'plink --vcf {input.vcf} --recode --double-id --keep-allele-order --out {params.out}'
+        'plink --vcf {input} --recode --double-id --keep-allele-order --out {params.out}'
 
 rule Impute2:
     input:
@@ -146,11 +140,11 @@ rule Impute2:
 
 rule FixChromName:
     input:
-        InFile = 'DerivedData/ThousandGenomes/{MtPlatforms}/KHAP_{KHAP}/MCMC_{MCMC}/chrMT_1kg_{MtPlatforms}_imputed'
+        'DerivedData/ThousandGenomes/{MtPlatforms}/KHAP_{KHAP}/MCMC_{MCMC}/chrMT_1kg_{MtPlatforms}_imputed'
     output:
-        OutFile = 'DerivedData/ThousandGenomes/{MtPlatforms}/KHAP_{KHAP}/MCMC_{MCMC}/chrMT_1kg_{MtPlatforms}_imputed_ChromFixed'
+        'DerivedData/ThousandGenomes/{MtPlatforms}/KHAP_{KHAP}/MCMC_{MCMC}/chrMT_1kg_{MtPlatforms}_imputed_ChromFixed'
     shell:"""
-        awk '{{$1 = "26"; print}}' {input.InFile} > {output.OutFile}
+        awk '{{$1 = "26"; print}}' {input} > {output}
     """
 
 rule oxford2ped:
