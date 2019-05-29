@@ -52,6 +52,17 @@ for i in $(cat scripts.list); do
 	fi
   rm scripts.list.tmp
 done
+
+echo
+nbf="$(cat in_nonbash.scripts | wc -l | sed 's/ //g')"
+printf "There are $nbf scripts mentioned in non-BASH folder scripts.\n"
+
+bf="$(cat in_bash.scripts | wc -l | sed 's/ //g')"
+printf "There are $bf scripts mentioned in BASH folder scripts.\n"
+
+tl="$(cat in_no.scripts | wc -l | sed 's/ //g')"
+printf "There are $tl top-level scripts.\n"
+
 rm scripts.list
 rm scripts_nobash.list
 rm scripts_bash.list
