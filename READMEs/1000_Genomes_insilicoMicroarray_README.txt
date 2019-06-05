@@ -26,6 +26,7 @@ R:
 /MitoImputePrep/scripts/R/assign_sex_label.R 
 /MitoImputePrep/scripts/R/FixSamplesFile_raijin.R
 /MitoImputePrep/scripts/R/plink_sites_map.R
+/MitoImputePrep/scripts/R/MCC_Genotypes.R
 
 LISTS USED WITHIN:
 /MitoImputePrep/scripts/INFORMATION_LISTS/b37_platforms.txt
@@ -36,7 +37,7 @@ R v3.4.3
 bcftools v1.8
 plink v1.9
 impute2 v2.3.2
-vt
+vt v0.57721
 java/jdk v1.8.0_60
 HaploGrep v2.1.19
 
@@ -54,3 +55,25 @@ ne – the effective population size.
 The REFpanel option is set by the argument passed to the parent BASH script 
 The MtPlatforms option is what is being iteratively changed by the parent script.
 All other options remain constant and are set in the parent BASH script.
+
+/MitoImputePrep/scripts/PYTHON/pickFirstAlt.py
+ASK BRIAN OR RUSSELL
+
+/MitoImputePrep/scripts/PYTHON/vcf2fasta_rCRS.py
+[PROVIDE DETAILS]
+
+/MitoImputePrep/scripts/PYTHON/fasta2vcf_mtDNA.py
+[PROVIDE DETAILS]
+
+/MitoImputePrep/scripts/R/assign_sex_label.R 
+[PROVIDE DETAILS]
+
+/MitoImputePrep/scripts/R/FixSamplesFile_raijin.R
+[PROVIDE DETAILS]
+
+/MitoImputePrep/scripts/R/plink_sites_map.R
+[PROVIDE DETAILS]
+
+/MitoImputePrep/scripts/R/MCC_Genotypes.R
+[PROVIDE DETAILS]
+
