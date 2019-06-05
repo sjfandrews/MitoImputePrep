@@ -1,6 +1,9 @@
 BASH:
 /MitoImputePrep/scripts/BASH/DATA_PROCESSING/ThousandGenomes_Imputation/MassDeploy_ThousandGenomes_imputeFrom_RefPan.sh
 /MitoImputePrep/scripts/BASH/ThousandGenomes_imputeFrom_RefPan.sh
+/MitoImputePrep/scripts/BASH/DATA_PROCESSING/create_RefPans/make_RefPan_v2.sh # Minor allele frequency = 1.0%
+/MitoImputePrep/scripts/BASH/DATA_PROCESSING/create_RefPans/make_RefPan_v3.sh # Minor allele frequency = 0.5%
+/MitoImputePrep/scripts/BASH/DATA_PROCESSING/create_RefPans/make_RefPan_v4.sh # Minor allele frequency = 0.1%
 
 PYTHON:
 /MitoImputePrep/scripts/PYTHON/pickFirstAlt.py
