@@ -70,7 +70,7 @@ else
 	
 	bcftools norm -f ${ref_fasta} -m - ${orig_vcf} | bcftools view -V indels,mnps | bcftools norm -m + | bcftools +fill-tags -Oz -o ${norm_vcf}
 	vt decompose ${norm_vcf} | bcftools +fill-tags -Oz -o ${decom_vcf}
-	python ~/GitCode/MitoImputePrep/scripts/PYTHON/pickFirstAlt ${decom_vcf} | bcftools view -Oz -o ${vcf_1kg}
+	python ~/GitCode/MitoImputePrep/scripts/PYTHON/pickFirstAlt.py ${decom_vcf} | bcftools view -Oz -o ${vcf_1kg}
 	bcftools index ${vcf_1kg}
 	plink --vcf ${vcf_1kg} --recode --double-id --keep-allele-order --out ${plink_1kg}
 	bcftools query -l ${vcf_1kg} > ${samps_1kg}
