@@ -57,19 +57,42 @@ The MtPlatforms option is what is being iteratively changed by the parent script
 All other options remain constant and are set in the parent BASH script.
 
 /MitoImputePrep/scripts/PYTHON/pickFirstAlt.py
-ASK BRIAN OR RUSSELL
+[ASK BRIAN OR RUSSELL]
 
 /MitoImputePrep/scripts/PYTHON/vcf2fasta_rCRS.py
-[PROVIDE DETAILS]
+This script takes in a VCF file for mtDNA and converts it to a FASTA formatted multiple sequence alignment file.
+Sites are numbered according to the revised Cambridge Reference Sequence.
+There are four options: --vcf_file, --out_file, --include-rCRS, and --verbose
+--vcf_file is the input VCF file. VCF files can be haploid or diploid, but if they are diploid this programme will select the genotype on the left of / or |. So if any heteroplasmy if observed, this is not the script for you.
+--out_file is the output FASTA file. If no file is specified it will be output to the same location as the VCF file, albeit with .vcf / .vcf.gz replaced with .fasta
+--include-rCRS includes the revised Cambridge Reference sequence in the FASTA file.
+--verbose is verbose mode.
+What this script does in essence is duplicate the rCRS n times (n being the number of sequences in the VCF file).
+Then, for each sequence in the VCF file, for each site in the VCF file, if the genotype that sequence has at that site matches the reference allele, pass. If is the alternative allele, replace the reference nucleotide with the alternative nucleotide.
 
 /MitoImputePrep/scripts/PYTHON/fasta2vcf_mtDNA.py
-[PROVIDE DETAILS]
+This script takes FASTA formatted multiple sequence alignments of mtDNA and converts them to a VCF format.
+Reference alleles are set to the revised Cambridge Reference Sequence.
+There are 9 options.
+--infile is the input FASTA file. Preferably curated to the rCRS numbering system (s=16569)
+--outfile OUTFILE is the output VCF file. Includes all sites, even invariants. If no file is specified it will be output to the same location as the VCF file, albeit with .fasta replaced with .vcf
+--gap2missing turn gaps (-) to missing (N) character states.
+--diploid creates diploid VCF file instead of haploid (ie 0|0 instead of 0).
+--ID tags the ID column as MT<POS>.
+--quality tags for QUAL column (default: 999).
+--filt tags for FILTER column (default: PASS).
+--verbose turns on verbose mode.
+--add_alt forces the VCF to always have an alternative allele.
 
 /MitoImputePrep/scripts/R/assign_sex_label.R 
-[PROVIDE DETAILS]
+This script takes a .SAMPLES file and appends a column with "M" to denote male sex label.
+There are two user inputs required:
+ARG1 = input .samples file.
+ARG2 = output .samples file.
 
 /MitoImputePrep/scripts/R/FixSamplesFile_raijin.R
-[PROVIDE DETAILS]
+This script files the .samples file by changing the 4th element of the 1st row to a "D". This makes it compatible with IMPUTE2.
+ARG1 = inpute .samples file.
 
 /MitoImputePrep/scripts/R/plink_sites_map.R
 [PROVIDE DETAILS]
