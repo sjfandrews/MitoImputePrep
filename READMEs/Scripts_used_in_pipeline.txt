@@ -1,0 +1,14 @@
+BASH:
+/MitoImputePrep/scripts/BASH/DATA_PROCESSING/ThousandGenomes_Imputation/MassDeploy_ThousandGenomes_imputeFrom_RefPan.sh
+/MitoImputePrep/scripts/BASH/ThousandGenomes_imputeFrom_RefPan.sh
+
+PYTHON:
+/MitoImputePrep/scripts/PYTHON/pickFirstAlt.py
+/MitoImputePrep/scripts/PYTHON/vcf2fasta_rCRS.py
+/MitoImputePrep/scripts/PYTHON/fasta2vcf_mtDNA.py
+
+R:
+/MitoImputePrep/scripts/R/assign_sex_label.R 
+/MitoImputePrep/scripts/R/FixSamplesFile_raijin.R
+/MitoImputePrep/scripts/R/plink_sites_map.R
+/MitoImputePrep/scripts/R/MCC_Genotypes.R
