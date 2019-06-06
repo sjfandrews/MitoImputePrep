@@ -463,7 +463,7 @@ plot_dir = "/Users/TimMcInerney/Dropbox/University/2019/ASMR_June2019/MCC/"
 # KHAP
 khap_mcc_pub = ggplot(main_khap_df, aes(x = sub_experiment, y = mcc)) +
   #geom_violin(fill = "#feb600", na.rm = T, lwd = rel(1/2)) +
-  stat_boxplot(geom = "errorbar", na.rm = T) +
+  stat_boxplot(geom = "errorbar", na.rm = T, lwd = (3/4)) +
   geom_boxplot(notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428", lwd = rel(1/2), fatten = rel(2.5)) +
   #geom_jitter(position=position_jitter(0.25), aes(size = n.snps), na.rm = T, shape = 21, fill = NA, colour = "#802428", stroke = rel(0.5)) + #colour = "#f3e5b1"
   #theme_bw() +
@@ -495,7 +495,7 @@ ggsave(paste0(plot_dir, "ForPublication/HiMC_KHAP_GenotypeConcordance2.png"), pl
 
 maf_mcc_pub = ggplot(main_maf_df, aes(x = sub_experiment, y = mcc)) +
   #geom_violin(fill = "#feb600", na.rm = T, lwd = rel(1/2)) +
-  stat_boxplot(geom = "errorbar", na.rm = T, width = 0.25, lwd = 1.0) +
+  stat_boxplot(geom = "errorbar", na.rm = T, width = (1/4), lwd = (3/4)) +
   geom_boxplot(width = rel(0.25), notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428", lwd = rel(1/2), fatten = rel(2.5)) +
   #geom_jitter(position=position_jitter(0.25), aes(size = n.snps), na.rm = T, shape = 21, fill = NA, colour = "#802428", stroke = rel(0.5)) + #colour = "#f3e5b1"
   #theme_bw() +
