@@ -168,7 +168,7 @@ maf_tables_changed$label = factor(maf_tables_changed$label, levels = geno.var)
 maf_hg_changed = ggplot(maf_tables_changed, aes(x = sub_experiment, y = hg.conc, fill = label)) +
   #geom_violin(fill = "#feb600", na.rm = T, lwd = rel(1/2)) +
   #geom_boxplot(width = rel(0.25), notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428", lwd = rel(1/2), fatten = rel(2.5)) +
-  stat_boxplot(geom = "errorbar", na.rm = T) +
+  stat_boxplot(geom = "errorbar", na.rm = T, lwd = (3/4)) +
   geom_boxplot(notch = T, na.rm = T, lwd = rel(1/2), fatten = rel(2.5), outlier.colour = "#802428") +
   scale_y_continuous(breaks = c(0.0, 0.2, 0.4, 0.6, 0.8, 1.0),
                      limits = c(0, 1)) +
@@ -217,7 +217,7 @@ khap_tables_changed$label = factor(khap_tables_changed$label, levels = geno.var)
 khap_hg_changed = ggplot(khap_tables_changed, aes(x = sub_experiment, y = hg.conc, fill = label)) +
   #geom_violin(fill = "#feb600", na.rm = T, lwd = rel(1/2)) +
   #geom_boxplot(width = rel(0.25), notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428", lwd = rel(1/2), fatten = rel(2.5)) +
-  stat_boxplot(geom = "errorbar", na.rm = T) +
+  stat_boxplot(geom = "errorbar", na.rm = T, lwd = (3/4)) +
   geom_boxplot(notch = T, na.rm = T, lwd = rel(1/2), fatten = rel(2.5), outlier.colour = "#802428") +
   scale_y_continuous(breaks = c(0.0, 0.2, 0.4, 0.6, 0.8, 1.0),
                      limits = c(0, 1)) +
