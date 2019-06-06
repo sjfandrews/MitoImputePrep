@@ -457,3 +457,71 @@ regressionPlots = grid.arrange(arrangeGrob(mcmc_mcc_info_regression, khap_mcc_in
 ggsave(filename = paste0(container, "Plots/MCC_v_INFO_regression.png"), plot = regressionPlots, width = 297, height = 297, units = "mm", dpi = 300)
 ggsave(filename = paste0(container, "Plots/MCC_v_INFO_regression_tp.png"), bg = "transparent", plot = regressionPlots, width = 297, height = 297, units = "mm", dpi = 300)
 
+
+# FOR PUBLICATION
+plot_dir = "/Users/TimMcInerney/Dropbox/University/2019/ASMR_June2019/MCC/"
+# KHAP
+khap_mcc_pub = ggplot(main_khap_df, aes(x = sub_experiment, y = mcc)) +
+  #geom_violin(fill = "#feb600", na.rm = T, lwd = rel(1/2)) +
+  stat_boxplot(geom = "errorbar", na.rm = T) +
+  geom_boxplot(notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428", lwd = rel(1/2), fatten = rel(2.5)) +
+  #geom_jitter(position=position_jitter(0.25), aes(size = n.snps), na.rm = T, shape = 21, fill = NA, colour = "#802428", stroke = rel(0.5)) + #colour = "#f3e5b1"
+  #theme_bw() +
+  theme(axis.text.x = element_text(hjust = 1.0, vjust = 1.0, angle = 45, size = rel(1.0)),
+        axis.text.y = element_text(size = rel(1.25)),
+        axis.title.x = element_blank(),
+        axis.title.y = element_text(size = rel(1.25), vjust = rel(2.5)),
+        #plot.title = element_text(size = rel(1.0)),
+        plot.title = element_blank(),
+        legend.position = "top",
+        legend.text = element_text(size = rel(1.0)),
+        legend.background = element_rect(fill = "transparent",colour = NA),
+        panel.grid.major = element_line(colour = "black", size = rel(1/2)), 
+        panel.grid.minor = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.background = element_rect(fill = "transparent",colour = "black"),
+        plot.background = element_rect(fill = "transparent",colour = NA)) +
+  scale_y_continuous(breaks = seq(-1.0, 1.0, by = 0.2),
+                     limits = c(-1, 1)) +
+  labs(x = bquote('Number of reference haplotypes (k'[HAP]~')'),
+       #x = "Length of KHAP chain",
+       y = "Matthew's Correlation Coefficient",
+       title = "")
+khap_mcc_pub
+
+ggsave(paste0(plot_dir, "ForPublication/HiMC_KHAP_GenotypeConcordance2_tp.png"), plot = khap_mcc_pub, bg = "transparent", height = 210, width = 297, units = "mm", dpi = 300)
+ggsave(paste0(plot_dir, "ForPublication/HiMC_KHAP_GenotypeConcordance2.png"), plot = khap_mcc_pub, height = 210, width = 297, units = "mm", dpi = 300)
+
+# MAF
+
+maf_mcc_pub = ggplot(main_maf_df, aes(x = sub_experiment, y = mcc)) +
+  #geom_violin(fill = "#feb600", na.rm = T, lwd = rel(1/2)) +
+  stat_boxplot(geom = "errorbar", na.rm = T, width = 0.25, lwd = 1.0) +
+  geom_boxplot(width = rel(0.25), notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428", lwd = rel(1/2), fatten = rel(2.5)) +
+  #geom_jitter(position=position_jitter(0.25), aes(size = n.snps), na.rm = T, shape = 21, fill = NA, colour = "#802428", stroke = rel(0.5)) + #colour = "#f3e5b1"
+  #theme_bw() +
+  theme(axis.text.x = element_text(hjust = 1.0, vjust = 1.0, angle = 45, size = rel(1.0)),
+        axis.text.y = element_text(size = rel(1.25)),
+        axis.title.x = element_blank(),
+        axis.title.y = element_text(size = rel(1.25), vjust = rel(2.5)),
+        #plot.title = element_text(size = rel(1.0)),
+        plot.title = element_blank(),
+        legend.position = "top",
+        legend.text = element_text(size = rel(1.0)),
+        legend.background = element_rect(fill = "transparent",colour = NA),
+        panel.grid.major = element_line(colour = "black", size = rel(1/2)), 
+        panel.grid.minor = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.background = element_rect(fill = "transparent",colour = "black"),
+        plot.background = element_rect(fill = "transparent",colour = NA)) +
+  scale_y_continuous(breaks = seq(-1.0, 1.0, by = 0.2),
+                     limits = c(-1, 1)) +
+  labs(x = bquote('Number of reference haplotypes (k'[HAP]~')'),
+       #x = "Length of KHAP chain",
+       y = "Matthew's Correlation Coefficient",
+       title = "")
+maf_mcc_pub
+
+ggsave(paste0(plot_dir, "ForPublication/HiMC_MAF_GenotypeConcordance2_tp.png"), plot = maf_mcc_pub, bg = "transparent", height = 210, width = 297, units = "mm", dpi = 300)
+ggsave(paste0(plot_dir, "ForPublication/HiMC_MAF_GenotypeConcordance2.png"), plot = maf_mcc_pub, height = 210, width = 297, units = "mm", dpi = 300)
+
+#
+
