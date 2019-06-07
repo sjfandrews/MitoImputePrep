@@ -4,6 +4,7 @@ require(tidyr)
 require(emmeans)
 require(dplyr)
 require(scales)
+require(RColorBrewer)
 
 mcmc_tables = read.csv("~/GitCode/MitoImputePrep/metadata/Concordance_tables/HiMC_HaploGrep/combined/ConcordanceTables_MCMC_Experiments_HiMC_COMBINED.csv", header = T)
 maf_tables = read.csv("~/GitCode/MitoImputePrep/metadata/Concordance_tables/HiMC_HaploGrep/combined/ConcordanceTables_MAF_Experiments_HiMC_COMBINED.csv", header = T)
@@ -150,13 +151,16 @@ ggsave(paste0(plot_dir, "HiMC_MCMC_imputedMatch_boxplot.png"), width = 297, heig
 
 ## FOR PUBLICATION:
 # MAF
+MAF_imp = read.csv("/Volumes/TimMcInerney/MitoImpute/analyses/concordance/MCC/MAF/ConcordanceTables_MAF_Experiments_MCC_imputed_genotype.csv", header = T) # LOAD INFO FILE
 
 # Fix the data structure!
 maf_tmp_typ = maf_tables[,1:4]
+maf_tmp_typ$n_snps = MAF_imp$n.snps
 maf_tmp_typ$hg.conc = maf_tables$typed_match
 maf_tmp_typ$label = "Genotyped_only"
 
 maf_tmp_imp = maf_tables[,1:4]
+maf_tmp_imp$n_snps = MAF_imp$n.snps
 maf_tmp_imp$hg.conc = maf_tables$imputed_match
 maf_tmp_imp$label = "Genotyped_Imputed"
 
@@ -164,24 +168,27 @@ maf_tables_changed = rbind(maf_tmp_typ, maf_tmp_imp)
 
 geno.var = c("Genotyped_only", "Genotyped_Imputed")
 maf_tables_changed$label = factor(maf_tables_changed$label, levels = geno.var)
-
-maf_hg_changed = ggplot(maf_tables_changed, aes(x = sub_experiment, y = hg.conc, fill = label)) +
+pd = position_dodge(width = 1.5)
+maf_hg_changed = ggplot(maf_tables_changed, aes(y = hg.conc, fill = label)) +
   #geom_violin(fill = "#feb600", na.rm = T, lwd = rel(1/2)) +
   #geom_boxplot(width = rel(0.25), notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428", lwd = rel(1/2), fatten = rel(2.5)) +
-  stat_boxplot(geom = "errorbar", na.rm = T, lwd = (3/4)) +
-  geom_boxplot(notch = T, na.rm = T, lwd = rel(1/2), fatten = rel(2.5), outlier.colour = "#802428") +
+  stat_boxplot(geom = "errorbar", na.rm = T, lwd = (3/4), position=pd) +
+  geom_boxplot(width = rel(1.5), notch = T, na.rm = T, lwd = rel(1/2), fatten = rel(2.5), outlier.colour = "#802428", position=pd, outlier.size = 2) +
+  #geom_jitter(position=position_jitter(0.25), aes(size = n_snps, colour = label), na.rm = T, shape = 21, fill = NA, stroke = rel(0.5)) + #colour = "#f3e5b1"
   scale_y_continuous(breaks = c(0.0, 0.2, 0.4, 0.6, 0.8, 1.0),
                      limits = c(0, 1)) +
+  scale_x_discrete(breaks = NULL) +
   scale_fill_manual(values = c("#feb600", "#ea4e3c"),
                     name = "",
                     #name = expression(paste(italic("in silico"), " microarray")),
                     breaks = c("Genotyped_only", "Genotyped_Imputed"),
                     labels = c("Genotyped only", "Genotyped + Imputed")) +
+  scale_color_brewer(palette = "Dark2") +
   labs(x = "Minor allele frequency (MAF)",
        y = "Haplogroup concordance",
        title = expression(paste(bold("A."), " Genotyped mtSNVs only", "")),
-       fill = "BILL") +
-  theme(axis.text.x = element_text(hjust = 1.0, vjust = 1.0, angle = 45, size = rel(1.0)),
+       fill = "") +
+  theme(axis.text.x = element_blank(), #axis.text.x = element_text(hjust = 1.0, vjust = 1.0, angle = 45, size = rel(1.0)),
         axis.text.y = element_text(size = rel(1.25)),
         axis.title.x = element_blank(),
         axis.title.y = element_text(size = rel(1.25), vjust = rel(2.5)),
@@ -193,19 +200,24 @@ maf_hg_changed = ggplot(maf_tables_changed, aes(x = sub_experiment, y = hg.conc,
         panel.grid.major = element_line(colour = "black", size = rel(1/2)), 
         panel.grid.minor = element_line(colour = "black", linetype = 2, size = rel(1/2)),
         panel.background = element_rect(fill = "transparent",colour = "black"),
-        plot.background = element_rect(fill = "transparent",colour = NA))
+        plot.background = element_rect(fill = "transparent",colour = NA)) +
+  facet_wrap(~sub_experiment, nrow = 1)
+  #facet_grid(cols = vars(sub_experiment), space = "fixed")
 maf_hg_changed
-ggsave(paste0(plot_dir, "ForPublication/HiMC_MAF_HaplogroupConcordance2_tp.png"), plot = maf_hg_changed, bg = "transparent", height = 210, width = 297, units = "mm", dpi = 300)
-ggsave(paste0(plot_dir, "ForPublication/HiMC_MAF_HaplogroupConcordance2.png"), plot = maf_hg_changed, height = 210, width = 297, units = "mm", dpi = 300)
+ggsave(paste0(plot_dir, "ForPublication/HiMC_MAF_HaplogroupConcordance3_tp.png"), plot = maf_hg_changed, bg = "transparent", height = 210, width = 297, units = "mm", dpi = 300)
+ggsave(paste0(plot_dir, "ForPublication/HiMC_MAF_HaplogroupConcordance3.png"), plot = maf_hg_changed, height = 210, width = 297, units = "mm", dpi = 300)
 
 # KHAP
+KHAP_imp = read.csv("/Volumes/TimMcInerney/MitoImpute/analyses/concordance/MCC/KHAP/ConcordanceTables_KHAP_Experiments_MCC_imputed_genotype.csv", header = T) # LOAD INFO FILE
 
 # Fix the data structure!
 khap_tmp_typ = khap_tables[,1:4]
+khap_tmp_typ$n_snps = KHAP_imp$n.snps
 khap_tmp_typ$hg.conc = khap_tables$typed_match
 khap_tmp_typ$label = "Genotyped_only"
 
 khap_tmp_imp = khap_tables[,1:4]
+khap_tmp_imp$n_snps = KHAP_imp$n.snps
 khap_tmp_imp$hg.conc = khap_tables$imputed_match
 khap_tmp_imp$label = "Genotyped_Imputed"
 
@@ -214,23 +226,26 @@ khap_tables_changed = rbind(khap_tmp_typ, khap_tmp_imp)
 geno.var = c("Genotyped_only", "Genotyped_Imputed")
 khap_tables_changed$label = factor(khap_tables_changed$label, levels = geno.var)
 
-khap_hg_changed = ggplot(khap_tables_changed, aes(x = sub_experiment, y = hg.conc, fill = label)) +
+khap_hg_changed = ggplot(khap_tables_changed, aes(y = hg.conc, fill = label)) +
   #geom_violin(fill = "#feb600", na.rm = T, lwd = rel(1/2)) +
   #geom_boxplot(width = rel(0.25), notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428", lwd = rel(1/2), fatten = rel(2.5)) +
   stat_boxplot(geom = "errorbar", na.rm = T, lwd = (3/4)) +
-  geom_boxplot(notch = T, na.rm = T, lwd = rel(1/2), fatten = rel(2.5), outlier.colour = "#802428") +
+  geom_boxplot(notch = T, na.rm = T, lwd = rel(1/2), fatten = rel(2.5), outlier.colour = "#802428", outlier.size = 2) +
+  #geom_jitter(position=position_jitter(0.25), aes(size = n_snps, colour = label), na.rm = T, shape = 21, fill = NA, stroke = rel(0.5)) + #colour = "#f3e5b1"
   scale_y_continuous(breaks = c(0.0, 0.2, 0.4, 0.6, 0.8, 1.0),
                      limits = c(0, 1)) +
+  scale_x_continuous(breaks = NULL) +
   scale_fill_manual(values = c("#feb600", "#ea4e3c"),
                     name = "",
                     #name = expression(paste(italic("in silico"), " microarray")),
                     breaks = c("Genotyped_only", "Genotyped_Imputed"),
                     labels = c("Genotyped only", "Genotyped + Imputed")) +
+  scale_color_brewer(palette = "Dark2") +
   labs(x = "Minor allele frequency (MAF)",
        y = "Haplogroup concordance",
        title = expression(paste(bold("A."), " Genotyped mtSNVs only", "")),
-       fill = "BILL") +
-  theme(axis.text.x = element_text(hjust = 1.0, vjust = 1.0, angle = 45, size = rel(1.0)),
+       fill = "") +
+  theme(axis.text.x = element_blank(), #axis.text.x = element_text(hjust = 1.0, vjust = 1.0, angle = 45, size = rel(1.0)),
         axis.text.y = element_text(size = rel(1.25)),
         axis.title.x = element_blank(),
         axis.title.y = element_text(size = rel(1.25), vjust = rel(2.5)),
@@ -242,9 +257,10 @@ khap_hg_changed = ggplot(khap_tables_changed, aes(x = sub_experiment, y = hg.con
         panel.grid.major = element_line(colour = "black", size = rel(1/2)), 
         panel.grid.minor = element_line(colour = "black", linetype = 2, size = rel(1/2)),
         panel.background = element_rect(fill = "transparent",colour = "black"),
-        plot.background = element_rect(fill = "transparent",colour = NA))
+        plot.background = element_rect(fill = "transparent",colour = NA)) +
+  facet_grid(cols = vars(sub_experiment))
 khap_hg_changed
-ggsave(paste0(plot_dir, "ForPublication/HiMC_KHAP_HaplogroupConcordance2_tp.png"), plot = khap_hg_changed, bg = "transparent", height = 210, width = 297, units = "mm", dpi = 300)
-ggsave(paste0(plot_dir, "ForPublication/HiMC_KHAP_HaplogroupConcordance2.png"), plot = khap_hg_changed, height = 210, width = 297, units = "mm", dpi = 300)
+ggsave(paste0(plot_dir, "ForPublication/HiMC_KHAP_HaplogroupConcordance3_tp.png"), plot = khap_hg_changed, bg = "transparent", height = 210, width = 297, units = "mm", dpi = 300)
+ggsave(paste0(plot_dir, "ForPublication/HiMC_KHAP_HaplogroupConcordance3.png"), plot = khap_hg_changed, height = 210, width = 297, units = "mm", dpi = 300)
 
 

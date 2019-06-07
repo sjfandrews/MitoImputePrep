@@ -493,13 +493,24 @@ ggsave(paste0(plot_dir, "ForPublication/HiMC_KHAP_GenotypeConcordance2.png"), pl
 
 # MAF
 
-maf_mcc_pub = ggplot(main_maf_df, aes(x = sub_experiment, y = mcc)) +
+MAF_imp = read.csv(paste0(container, "MAF/ConcordanceTables_MAF_Experiments_MCC_imputed_genotype.csv"), header = T)
+MAF_typ = read.csv(paste0(container, "MAF/ConcordanceTables_MAF_Experiments_MCC_typed_genotype.csv"), header = T)
+MAF_imp$version = "imputed"
+MAF_typ$version = "genotyped"
+#main_maf_df = rbind(MAF_imp, MAF_typ)
+main_maf_df = MAF_imp
+
+exp.dir = "MAF_Experiments"
+exp.var = c("MAF1%", "MAF0.5%", "MAF0.1%")
+main_maf_df$sub_experiment = factor(main_maf_df$sub_experiment, levels = exp.var)
+
+maf_mcc_pub = ggplot(main_maf_df, aes(y = mcc)) +
   #geom_violin(fill = "#feb600", na.rm = T, lwd = rel(1/2)) +
   stat_boxplot(geom = "errorbar", na.rm = T, width = (1/4), lwd = (3/4)) +
-  geom_boxplot(width = rel(0.25), notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428", lwd = rel(1/2), fatten = rel(2.5)) +
+  geom_boxplot(notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428", lwd = rel(1/2), fatten = rel(2.5)) +
   #geom_jitter(position=position_jitter(0.25), aes(size = n.snps), na.rm = T, shape = 21, fill = NA, colour = "#802428", stroke = rel(0.5)) + #colour = "#f3e5b1"
   #theme_bw() +
-  theme(axis.text.x = element_text(hjust = 1.0, vjust = 1.0, angle = 45, size = rel(1.0)),
+  theme(axis.text.x = element_blank(), #axis.text.x = element_text(hjust = 1.0, vjust = 1.0, angle = 45, size = rel(1.0)),
         axis.text.y = element_text(size = rel(1.25)),
         axis.title.x = element_blank(),
         axis.title.y = element_text(size = rel(1.25), vjust = rel(2.5)),
@@ -514,14 +525,16 @@ maf_mcc_pub = ggplot(main_maf_df, aes(x = sub_experiment, y = mcc)) +
         plot.background = element_rect(fill = "transparent",colour = NA)) +
   scale_y_continuous(breaks = seq(-1.0, 1.0, by = 0.2),
                      limits = c(-1, 1)) +
+  scale_x_discrete(breaks = NULL) +
   labs(x = bquote('Number of reference haplotypes (k'[HAP]~')'),
        #x = "Length of KHAP chain",
        y = "Matthew's Correlation Coefficient",
-       title = "")
+       title = "") +
+  facet_wrap(~sub_experiment, nrow = 1)
 maf_mcc_pub
 
-ggsave(paste0(plot_dir, "ForPublication/HiMC_MAF_GenotypeConcordance2_tp.png"), plot = maf_mcc_pub, bg = "transparent", height = 210, width = 297, units = "mm", dpi = 300)
-ggsave(paste0(plot_dir, "ForPublication/HiMC_MAF_GenotypeConcordance2.png"), plot = maf_mcc_pub, height = 210, width = 297, units = "mm", dpi = 300)
+ggsave(paste0(plot_dir, "ForPublication/HiMC_MAF_GenotypeConcordance3_tp.png"), plot = maf_mcc_pub, bg = "transparent", height = 210, width = 297, units = "mm", dpi = 300)
+ggsave(paste0(plot_dir, "ForPublication/HiMC_MAF_GenotypeConcordance3.png"), plot = maf_mcc_pub, height = 210, width = 297, units = "mm", dpi = 300)
 
 #
 
