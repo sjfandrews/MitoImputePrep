@@ -461,13 +461,25 @@ ggsave(filename = paste0(container, "Plots/MCC_v_INFO_regression_tp.png"), bg = 
 # FOR PUBLICATION
 plot_dir = "/Users/TimMcInerney/Dropbox/University/2019/ASMR_June2019/MCC/"
 # KHAP
-khap_mcc_pub = ggplot(main_khap_df, aes(x = sub_experiment, y = mcc)) +
+
+KHAP_imp = read.csv(paste0(container, "KHAP/ConcordanceTables_KHAP_Experiments_MCC_imputed_genotype.csv"), header = T)
+KHAP_typ = read.csv(paste0(container, "KHAP/ConcordanceTables_KHAP_Experiments_MCC_typed_genotype.csv"), header = T)
+KHAP_imp$version = "imputed"
+KHAP_typ$version = "genotyped"
+#main_khap_df = rbind(KHAP_imp, KHAP_typ)
+main_khap_df = KHAP_imp
+
+exp.dir = "kHAP_Experiments"
+exp.var = c("kHAP100", "kHAP250", "kHAP500", "kHAP1000", "kHAP2500", "kHAP5000", "kHAP10000", "kHAP20000", "kHAP30000")
+main_khap_df$sub_experiment = factor(main_khap_df$sub_experiment, levels = exp.var)
+
+khap_mcc_pub = ggplot(main_khap_df, aes(y = mcc)) +
   #geom_violin(fill = "#feb600", na.rm = T, lwd = rel(1/2)) +
-  stat_boxplot(geom = "errorbar", na.rm = T, lwd = (3/4)) +
-  geom_boxplot(notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428", lwd = rel(1/2), fatten = rel(2.5)) +
+  stat_boxplot(geom = "errorbar", na.rm = T, width = (1/2), lwd = (3/4)) +
+  geom_boxplot(notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428", lwd = rel(1/2), fatten = rel(2.5), outlier.size = 2) +
   #geom_jitter(position=position_jitter(0.25), aes(size = n.snps), na.rm = T, shape = 21, fill = NA, colour = "#802428", stroke = rel(0.5)) + #colour = "#f3e5b1"
   #theme_bw() +
-  theme(axis.text.x = element_text(hjust = 1.0, vjust = 1.0, angle = 45, size = rel(1.0)),
+  theme(axis.text.x = element_blank(), #axis.text.x = element_text(hjust = 1.0, vjust = 1.0, angle = 45, size = rel(1.0)),
         axis.text.y = element_text(size = rel(1.25)),
         axis.title.x = element_blank(),
         axis.title.y = element_text(size = rel(1.25), vjust = rel(2.5)),
@@ -482,14 +494,16 @@ khap_mcc_pub = ggplot(main_khap_df, aes(x = sub_experiment, y = mcc)) +
         plot.background = element_rect(fill = "transparent",colour = NA)) +
   scale_y_continuous(breaks = seq(-1.0, 1.0, by = 0.2),
                      limits = c(-1, 1)) +
+  scale_x_discrete(breaks = NULL) +
   labs(x = bquote('Number of reference haplotypes (k'[HAP]~')'),
        #x = "Length of KHAP chain",
        y = "Matthew's Correlation Coefficient",
-       title = "")
+       title = "") +
+  facet_wrap(~sub_experiment, nrow = 1)
 khap_mcc_pub
 
-ggsave(paste0(plot_dir, "ForPublication/HiMC_KHAP_GenotypeConcordance2_tp.png"), plot = khap_mcc_pub, bg = "transparent", height = 210, width = 297, units = "mm", dpi = 300)
-ggsave(paste0(plot_dir, "ForPublication/HiMC_KHAP_GenotypeConcordance2.png"), plot = khap_mcc_pub, height = 210, width = 297, units = "mm", dpi = 300)
+ggsave(paste0(plot_dir, "ForPublication/HiMC_KHAP_GenotypeConcordance3_tp.png"), plot = khap_mcc_pub, bg = "transparent", height = 210, width = 297, units = "mm", dpi = 300)
+ggsave(paste0(plot_dir, "ForPublication/HiMC_KHAP_GenotypeConcordance3.png"), plot = khap_mcc_pub, height = 210, width = 297, units = "mm", dpi = 300)
 
 # MAF
 
@@ -506,8 +520,8 @@ main_maf_df$sub_experiment = factor(main_maf_df$sub_experiment, levels = exp.var
 
 maf_mcc_pub = ggplot(main_maf_df, aes(y = mcc)) +
   #geom_violin(fill = "#feb600", na.rm = T, lwd = rel(1/2)) +
-  stat_boxplot(geom = "errorbar", na.rm = T, width = (1/4), lwd = (3/4)) +
-  geom_boxplot(notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428", lwd = rel(1/2), fatten = rel(2.5)) +
+  stat_boxplot(geom = "errorbar", na.rm = T, width = (1/2), lwd = (3/4)) +
+  geom_boxplot(notch = T, fill = "#ea4e3c", na.rm = T, outlier.colour = "#802428", lwd = rel(1/2), fatten = rel(2.5), outlier.size = 2) +
   #geom_jitter(position=position_jitter(0.25), aes(size = n.snps), na.rm = T, shape = 21, fill = NA, colour = "#802428", stroke = rel(0.5)) + #colour = "#f3e5b1"
   #theme_bw() +
   theme(axis.text.x = element_blank(), #axis.text.x = element_text(hjust = 1.0, vjust = 1.0, angle = 45, size = rel(1.0)),
