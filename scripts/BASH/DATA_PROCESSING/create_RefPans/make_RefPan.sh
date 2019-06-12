@@ -22,7 +22,8 @@ then
 else
 	REFpanel=ReferencePanel_vX
 	echo
-	echo "MASTER ALIGNMENT NOT FOUND... YOU SHOULD KILL THE SCRIPT HERE"
+	echo "MASTER ALIGNMENT NOT FOUND... PLEASE CHECK YOUR FILE"
+	echo "KILLING THE SCRIPT HERE"
 	echo
 	exit 1
 fi
