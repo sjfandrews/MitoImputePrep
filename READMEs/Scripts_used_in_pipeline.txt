@@ -15,3 +15,14 @@ R:
 /MitoImputePrep/scripts/R/FixSamplesFile_raijin.R
 /MitoImputePrep/scripts/R/plink_sites_map.R
 /MitoImputePrep/scripts/R/MCC_Genotypes.R
+
+
+MODULES AND APPLICATIONS CALLED UPON BY DAUGHTER SCRIPTS:
+python v2.7.11
+R v3.4.3
+bcftools v1.8
+plink v1.9
+impute2 v2.3.2
+vt v0.57721
+java/jdk v1.8.0_60
+HaploGrep v2.1.19
