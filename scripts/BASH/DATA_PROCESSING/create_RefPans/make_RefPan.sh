@@ -41,7 +41,7 @@ echo ${WORKING_VERSION}
 
 #CURRENT=McInerney_Master_Alignment_July18_2018.fasta
 MT_DIR=/Volumes/TimMcInerney/MitoImpute/data/
-ALN=${MT_DIR}FASTA/masters/${CURRENT}
+ALN=${MT_DIR}FASTA/masters/${MASTER_ALN}
 ALN_DIR=`dirname $ALN`/
 ALN_BASE=`basename $ALN .fasta`
 
