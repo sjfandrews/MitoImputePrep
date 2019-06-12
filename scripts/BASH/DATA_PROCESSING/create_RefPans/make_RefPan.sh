@@ -33,7 +33,7 @@ MAF_IN=$2
 MAF_PC=`echo "${MAF_IN} * 100" | bc`
 MAF_PC=`printf "%1.2f\n" "${MAF_PC}"`
 echo
-echo "MINOR ALLELE FREQUENCY: ${MAF_IN} (${MAF_PC}% )"
+echo "MINOR ALLELE FREQUENCY: ${MAF_IN} ( ${MAF_PC}% )"
 echo
 
 WORKING_VERSION=${REFpanel}_${MAF_IN}
