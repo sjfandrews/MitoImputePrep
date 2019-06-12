@@ -9,11 +9,16 @@
 
 # SPECIFY CURRENT MASTER ALIGNMENT
 MASTER_ALN=$1 # INPUT THE CURRENT MASTER ALIGNMENT FOR THE REFERENCE PANEL
-MASTER_ALN=`basename $ALN`
+MASTER_ALN=`basename $MASTER_ALN`
+echo ${MASTER_ALN}
 
 if [ ${MASTER_ALN} == "McInerney_Master_Alignment_July18_2018.fasta" ]
 then
 	REFpanel=ReferencePanel_v1
+	echo
+	echo "MASTER ALIGNMENT VERSION 1 FOUND (18 JULY, 2018)"
+	echo ${MASTER_ALN}
+	echo
 else
 	REFpanel=ReferencePanel_vX
 	echo
@@ -23,8 +28,14 @@ fi
 
 # SPECIFY THE MINOR ALLELE FREQUENCY
 MAF_IN=$2
+MAF_PC=`echo "${MAF_IN} * 100" | bc`
+MAF_PC=`printf "%8.2f\n" "${MAF_PC}"`
+echo
+echo "MINOR ALLELE FREQUENCY: ${MAF_IN} (${MAF_PC}% )"
+echo
 
 WORKING_VERSION=${REFpanel}_${MAF_IN}
+echo ${WORKING_VERSION}
 
 #CURRENT=McInerney_Master_Alignment_July18_2018.fasta
 MT_DIR=/Volumes/TimMcInerney/MitoImpute/data/
