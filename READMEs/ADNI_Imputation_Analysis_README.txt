@@ -1,37 +1,30 @@
-Files used to create different versions of the reference panel for the MitoImpute pipeline.
-This script takes the reference panel fasta multiple sequence alignment file as input and produces a VCF file of the reference panel, as well as PLINK and OXFORD formats.
-This script:
-	- Converts the ambiguous characters to missing character states.
-	- Converts the fasta file to a VCF file.
-	- Performs QC by removing sequences we define to be low quality (missing character states > 7, including gaps as they would have been converted to missing).
-	- Filters to a Minor Allele Frequency specified in the script.
-	- Extracts sample IDs and adds a male sex label to them.
-	- Converts the reference panel VCF to PLINK, OXFORD, GEN, SAMPLE formats.
-	- Creates a recombination map (all sites r = 0, as no recombination as assumed).
-	- Copies the relevant files to the Git repository.
+Files used in the imputation pipeline for Alzheimer's Disease Neuroimaging Initiative datasets.
+This script takes one argument, which is the reference panel being used from which missing variants will be imputed.
 
 
-BASH file: /MitoImputePrep/scripts/BASH/DATA_PROCESSING/create_RefPans/make_RefPan.sh
-This file is the parent script.
+BASH files:
+	- /MitoImputePrep/scripts/BASH/DATA_PROCESSING/ADNI_imputation/Impute_ADNI_redo.sh
+	- /MitoImputePrep/scripts/BASH/DATA_PROCESSING/ADNI_imputation/Impute_ADNI_redo_noReSeq.sh
+	- /MitoImputePrep/scripts/BASH/DATA_PROCESSING/ADNI_imputation/Impute_ADNI_12GO.sh
+These file are the parent scripts. They all do the same thing, but for different data sets (see below).
 
 USAGE:
-$ /MitoImputePrep/scripts/BASH/DATA_PROCESSING/create_RefPans/make_RefPan.sh <PATH_TO_REFERENCE_PANEL_FASTA> <MINOR_ALLELE_FREQUENCY>
-Where <PATH_TO_REFERENCE_PANEL_FASTA> <Minor_Allele_Frequency> are variables. <PATH_TO_REFERENCE_PANEL_FASTA> is the path to the reference panel fasta files, and <MINOR_ALLELE_FREQUENCY> is the minor allele frequency it will be filtered to.
-If you include a path to a reference panel that doesn't exist (or contains typos, etc), it will default to the current reference panel.
-Minor allele frequency needs to be set between >0.0 and <1.0.
+$ /MitoImputePrep/scripts/BASH/DATA_PROCESSING/create_RefPans/Impute_ADNI_redo.sh <REFERENCE_PANEL_VERSION>
+Where <REFERENCE_PANEL_VERSION> is a variable.
+<REFERENCE_PANEL_VERSION> is reference panel version and the minor allele frequency (ie ReferencePanel_v1_0.01 where ReferencePanel_v1 is the reference panel is 0.01 is the minor allele frequency).
 
 SCRIPTS USED WITHIN:
 BASH:
 N/A
 
 PYTHON:
-/MitoImputePrep/scripts/PYTHON/ambiguous2missing.py
-/MitoImputePrep/scripts/PYTHON/fasta2vcf_mtDNA.py
+/MitoImputePrep/scripts/PYTHON/fix_vcf_names.py
 
 R:
-/MitoImputePrep/scripts/R/DATA_PROCESSING/removeLowQuality_cmdline.R
 /MitoImputePrep/scripts/R/DATA_PROCESSING/assign_sex_label.R
-/MitoImputePrep/scripts/R/DATA_PROCESSING/mt_recombination_map.R
+/MitoImputePrep/scripts/R/FixSamplesFile_raijin.R
+/MitoImputePrep/scripts/R/HiMC_haplogroup_assignment.R
+/MitoImputePrep/scripts/R/MCC_Genotypes.R
 
 LISTS USED WITHIN:
 N/A
@@ -51,18 +44,30 @@ DETAILS:
 <ARGUEMENTS>
 
 <PYTHON SCRIPTS>
-<WHAT THEY ARE CALLED, WHAT THEY DO>
-<ARGUEMENTS>
 
-/MitoImputePrep/scripts/PYTHON/ambiguous2missing.py
-/MitoImputePrep/scripts/PYTHON/fasta2vcf_mtDNA.py
+/MitoImputePrep/scripts/PYTHON/fix_vcf_names.py
+This file takes in a VCF file and fixes the names of the samples in the header.
+This is done so that the same ADNI1 and ADNI3 sample can be directly compared later.
+This script takes 3 arguments: --vcf_file, --out_file, --csv_file, --verbose.
+--vcf_file is the input VCF file.
+--out_file is the output VCF file with the sample names fixed.
+--csv_file is the csv file containing file names and comparisons.
+--verbose turns on verbose mode.
 
 <R SCRIPTS>
 <WHAT THEY ARE CALLED, WHAT THEY DO>
 <ARGUEMENTS>
 
-/MitoImputePrep/scripts/R/DATA_PROCESSING/removeLowQuality_cmdline.R
 /MitoImputePrep/scripts/R/DATA_PROCESSING/assign_sex_label.R
-/MitoImputePrep/scripts/R/DATA_PROCESSING/mt_recombination_map.R
+This script takes in a .sample file and adds a new column with an "M" sex label.
+This script takes one argument:
+ARG1 = The input .sample file.
+
+/MitoImputePrep/scripts/R/FixSamplesFile_raijin.R
+
+/MitoImputePrep/scripts/R/HiMC_haplogroup_assignment.R
+
+/MitoImputePrep/scripts/R/MCC_Genotypes.R
+
 
 #
