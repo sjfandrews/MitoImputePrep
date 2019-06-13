@@ -16,7 +16,8 @@ else
 fi
 
 # SPECIFY REFERENCE PANEL
-REFpanel="ReferencePanel_v6"
+#REFpanel="ReferencePanel_v6"
+REFpanel=$1
 HAPLOGREP=~/GitCode/MitoImputePrep/haplogrep/2.1.19/haplogrep-2.1.19.jar
 mcmc=1
 burn=0
@@ -103,7 +104,7 @@ TYP_SEX_SAMPLE=${WK_DIR}MitoImpute/data/ADNI_REDO_noRESEQ/GENOTYPED/INFO/mito_sn
 #Rscript ~/GitCode/MitoImputePrep/scripts/R/assign_sex_label.R ${WGS_SAMPLE} ${WGS_SEX_SAMPLE}
 
 bcftools query -l ${TYP_n499_biallelic} > ${TYP_SAMPLE}
-Rscript ~/GitCode/MitoImputePrep/scripts/R/assign_sex_label.R ${TYP_SAMPLE} ${TYP_SEX_SAMPLE}
+Rscript ~/GitCode/MitoImputePrep/scripts/R/DATA_PROCESSING/assign_sex_label.R ${TYP_SAMPLE} ${TYP_SEX_SAMPLE}
 
 # GENERATE PLINK FILES (PED AND MAP FILES!)
 echo
@@ -127,7 +128,7 @@ bcftools convert --gensample ${TYP_GEN_OUT} ${TYP_n499_biallelic} --sex ${TYP_SE
 echo
 echo "FIXING SEX ID COLUMN IN .samples FILE"
 #Rscript ~/GitCode/MitoImputePrep/scripts/R/FixSamplesFile_raijin.R ${WGS_GEN_OUT}.samples
-Rscript ~/GitCode/MitoImputePrep/scripts/R/FixSamplesFile_raijin.R ${TYP_GEN_OUT}.samples
+Rscript ~/GitCode/MitoImputePrep/scripts/R/DATA_PROCESSING/FixSamplesFile_raijin.R ${TYP_GEN_OUT}.samples
 
 # RUN IMPUTE2
 map=~/GitCode/MitoImputePrep/DerivedData/${REFpanel}/${REFpanel}_MtMap.txt
@@ -210,7 +211,7 @@ then
 else
 	echo
 	echo "${HiMC_FILE} NOT FOUND ... RECODING TO plink VCF FILE"
-	Rscript ~/GitCode/MitoImputePrep/scripts/R/HiMC_haplogroup_assignment.R ${PED_FILE} ${MAP_FILE} ${HiMC_FILE}  # assign haplogreps
+	Rscript ~/GitCode/MitoImputePrep/scripts/R/ANALYSIS/HiMC/HiMC_haplogroup_assignment.R ${PED_FILE} ${MAP_FILE} ${HiMC_FILE}  # assign haplogreps
 fi
 
 ## CALCULATE Matthew's Correlation Coefficient
