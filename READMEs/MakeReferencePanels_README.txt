@@ -8,24 +8,21 @@ This script:
 	- Extracts sample IDs and adds a male sex label to them.
 	- Converts the reference panel VCF to PLINK, OXFORD, GEN, SAMPLE formats.
 	- Creates a recombination map (all sites r = 0, as no recombination as assumed).
-	- 
-	-
+	- Copies the relevant files to the Git repository.
 
-Files used in the imputation pipeline for 1000 Genomes Project data (in silico microarrays)
-This script is used to iteratively submit one job per in silico microarray to the RAIJIN cluster at NCI (National Computational Infrastructure) in Canberra, Australia.
-This script takes one argument, which is the reference panel being used from which missing variants will be imputed.
 
-BASH file: /MitoImputePrep/scripts/BASH/DATA_PROCESSING/create_RefPans/make_RefPan_v${NUM}.sh (Where ${NUM} is the version)
+BASH file: /MitoImputePrep/scripts/BASH/DATA_PROCESSING/create_RefPans/make_RefPan.sh
 This file is the parent script.
 
 USAGE:
-<USEAGE>
-<DESCRIPTION>
-<OPTIONS>
+$ /MitoImputePrep/scripts/BASH/DATA_PROCESSING/create_RefPans/make_RefPan.sh <PATH_TO_REFERENCE_PANEL_FASTA> <MINOR_ALLELE_FREQUENCY>
+Where <PATH_TO_REFERENCE_PANEL_FASTA> <Minor_Allele_Frequency> are variables. <PATH_TO_REFERENCE_PANEL_FASTA> is the path to the reference panel fasta files, and <MINOR_ALLELE_FREQUENCY> is the minor allele frequency it will be filtered to.
+If you include a path to a reference panel that doesn't exist (or contains typos, etc), it will default to the current reference panel.
+Minor allele frequency needs to be set between >0.0 and <1.0.
 
 SCRIPTS USED WITHIN:
 BASH:
-<LIST OF BASH SCRIPTS>
+N/A
 
 PYTHON:
 <LIST OF PYTHON SCRIPTS>
