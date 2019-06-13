@@ -100,7 +100,7 @@ ARG1 = input .map file
 
 /MitoImputePrep/scripts/R/MCC_Genotypes.R
 This script calculates the Matthew's correlation coefficient for imputed + genotyped VCF file and the genotyped only file.
-It takes X arguments.
+It takes 5 arguments.
 ARG1 = The VCF file for the truthset (whole-molecule resequencing of the 1000 Genomes Phase 3 mtDNA data set.
 ARG2 = The VCF file for the genotyped only dataset.
 ARG3 = The VCF file for the genotyped + imputed dataset
