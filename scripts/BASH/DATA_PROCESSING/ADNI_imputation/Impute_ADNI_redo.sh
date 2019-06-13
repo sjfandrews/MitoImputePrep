@@ -16,7 +16,8 @@ else
 fi
 
 # SPECIFY REFERENCE PANEL
-REFpanel="ReferencePanel_v6"
+#REFpanel="ReferencePanel_v6"
+REFpanel=$1
 HAPLOGREP=~/GitCode/MitoImputePrep/haplogrep/2.1.19/haplogrep-2.1.19.jar
 mcmc=1
 burn=0
@@ -100,10 +101,10 @@ TYP_SAMPLE=${WK_DIR}MitoImpute/data/ADNI_REDO/GENOTYPED/INFO/mito_snps_rcrs_ed_n
 TYP_SEX_SAMPLE=${WK_DIR}MitoImpute/data/ADNI_REDO/GENOTYPED/INFO/mito_snps_rcrs_ed_n258_biallelic_sampleID_sex.txt
 
 bcftools query -l ${WGS_relab} > ${WGS_SAMPLE}
-Rscript ~/GitCode/MitoImputePrep/scripts/R/assign_sex_label.R ${WGS_SAMPLE} ${WGS_SEX_SAMPLE}
+Rscript ~/GitCode/MitoImputePrep/scripts/R/DATA_PROCESSING/assign_sex_label.R ${WGS_SAMPLE} ${WGS_SEX_SAMPLE}
 
 bcftools query -l ${TYP_n258_biallelic} > ${TYP_SAMPLE}
-Rscript ~/GitCode/MitoImputePrep/scripts/R/assign_sex_label.R ${TYP_SAMPLE} ${TYP_SEX_SAMPLE}
+Rscript ~/GitCode/MitoImputePrep/scripts/R/DATA_PROCESSING/assign_sex_label.R ${TYP_SAMPLE} ${TYP_SEX_SAMPLE}
 
 # GENERATE PLINK FILES (PED AND MAP FILES!)
 echo
@@ -126,8 +127,8 @@ bcftools convert --gensample ${TYP_GEN_OUT} ${TYP_n258_biallelic} --sex ${TYP_SE
 # FIX SEX ID COLUMN IN .samples FILE
 echo
 echo "FIXING SEX ID COLUMN IN .samples FILE"
-Rscript ~/GitCode/MitoImputePrep/scripts/R/FixSamplesFile_raijin.R ${WGS_GEN_OUT}.samples
-Rscript ~/GitCode/MitoImputePrep/scripts/R/FixSamplesFile_raijin.R ${TYP_GEN_OUT}.samples
+Rscript ~/GitCode/MitoImputePrep/scripts/R/DATA_PROCESSING/FixSamplesFile_raijin.R ${WGS_GEN_OUT}.samples
+Rscript ~/GitCode/MitoImputePrep/scripts/R/DATA_PROCESSING/FixSamplesFile_raijin.R ${TYP_GEN_OUT}.samples
 
 # RUN IMPUTE2
 map=~/GitCode/MitoImputePrep/DerivedData/${REFpanel}/${REFpanel}_MtMap.txt
@@ -210,7 +211,7 @@ then
 else
 	echo
 	echo "${HiMC_FILE} NOT FOUND ... RECODING TO plink VCF FILE"
-	Rscript ~/GitCode/MitoImputePrep/scripts/R/HiMC_haplogroup_assignment.R ${PED_FILE} ${MAP_FILE} ${HiMC_FILE}  # assign haplogreps
+	Rscript ~/GitCode/MitoImputePrep/scripts/R/ANALYSIS/HiMC/HiMC_haplogroup_assignment.R ${PED_FILE} ${MAP_FILE} ${HiMC_FILE}  # assign haplogreps
 fi
 
 ## CALCULATE Matthew's Correlation Coefficient
@@ -227,7 +228,7 @@ then
 else
 	echo
 	echo "${OUT_FILE}_imputed_MCC.csv AND ${OUT_FILE}_typed_MCC.csv NOT FOUND ... CALCULATING MCC GENOTYPE CONCORDANCE"
-	Rscript ~/GitCode/MitoImputePrep/scripts/R/MCC_Genotypes.R ${WGS_VCF} ${TYP_VCF} ${IMP_VCF} ${IMP_INFO} ${OUT_FILE}
+	Rscript ~/GitCode/MitoImputePrep/scripts/R/ANALYSIS/MCC/MCC_Genotypes.R ${WGS_VCF} ${TYP_VCF} ${IMP_VCF} ${IMP_INFO} ${OUT_FILE}
 fi
 
 #

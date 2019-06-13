@@ -22,7 +22,7 @@ def main():
       
     parser.add_argument('-i', '--vcf_file', dest='vcf_file', type=str, required=True, help='input vcf file')
     parser.add_argument('-o', '--out_file', dest='out_file', type=str, required=False, help='output vcf file')
-    parser.add_argument('-c', '--csv_file', dest='vcf_file', type=str, required=True, help='sample names file')
+    parser.add_argument('-c', '--csv_file', dest='csv_file', type=str, required=True, help='sample names file')
     parser.add_argument('-v', '--verbose', dest='verbose', action="store_true", required=False, help='turn on verbose mode')
       
     args=parser.parse_args()    
