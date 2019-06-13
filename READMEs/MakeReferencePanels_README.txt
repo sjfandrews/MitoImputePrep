@@ -25,16 +25,24 @@ BASH:
 N/A
 
 PYTHON:
-<LIST OF PYTHON SCRIPTS>
+/MitoImputePrep/scripts/PYTHON/ambiguous2missing.py
+/MitoImputePrep/scripts/PYTHON/fasta2vcf_mtDNA.py
 
 R:
-<LIST OF R SCRIPTS>
+/MitoImputePrep/scripts/R/DATA_PROCESSING/removeLowQuality_cmdline.R
+/MitoImputePrep/scripts/R/DATA_PROCESSING/assign_sex_label.R
+/MitoImputePrep/scripts/R/DATA_PROCESSING/mt_recombination_map.R
 
 LISTS USED WITHIN:
-<LISTS ITERATED OVER>
+N/A
 
 MODULES AND APPLICATIONS CALLED UPON BY DAUGHTER SCRIPTS:
-<MODULE | VERSION>
+python v2.7.11
+R v3.4.3
+bcftools v1.4.1
+bcftools v1.9
+plink v1.9
+vt v0.57721
 
 
 DETAILS:
@@ -46,8 +54,15 @@ DETAILS:
 <WHAT THEY ARE CALLED, WHAT THEY DO>
 <ARGUEMENTS>
 
+/MitoImputePrep/scripts/PYTHON/ambiguous2missing.py
+/MitoImputePrep/scripts/PYTHON/fasta2vcf_mtDNA.py
+
 <R SCRIPTS>
 <WHAT THEY ARE CALLED, WHAT THEY DO>
 <ARGUEMENTS>
+
+/MitoImputePrep/scripts/R/DATA_PROCESSING/removeLowQuality_cmdline.R
+/MitoImputePrep/scripts/R/DATA_PROCESSING/assign_sex_label.R
+/MitoImputePrep/scripts/R/DATA_PROCESSING/mt_recombination_map.R
 
 #
