@@ -38,5 +38,7 @@ This is conducted iteratively through all the experiments (KHAP, MAF, MCMC).
 Summary statistics are calculated and saved.
 
 /MitoImputePrep/scripts/R/Plotting/HiMC_1kGP_plots.R
-This script produced 
+This script produces box and whisker plots of the results of the HiMC experiments.
+
 /MitoImputePrep/scripts/R/Plotting/MCC_concordance_tables.R
+his script produces box and whisker plots of the results of the MCC experiments.
