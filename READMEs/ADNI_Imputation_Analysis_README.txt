@@ -55,8 +55,6 @@ This script takes 3 arguments: --vcf_file, --out_file, --csv_file, --verbose.
 --verbose turns on verbose mode.
 
 <R SCRIPTS>
-<WHAT THEY ARE CALLED, WHAT THEY DO>
-<ARGUEMENTS>
 
 /MitoImputePrep/scripts/R/DATA_PROCESSING/assign_sex_label.R
 This script takes in a .sample file and adds a new column with an "M" sex label.
@@ -64,10 +62,24 @@ This script takes one argument:
 ARG1 = The input .sample file.
 
 /MitoImputePrep/scripts/R/FixSamplesFile_raijin.R
+This script files the .samples file by changing the 4th element of the 1st row to a "D". This makes it compatible with IMPUTE2.
+ARG1 = inpute .samples file.
 
 /MitoImputePrep/scripts/R/HiMC_haplogroup_assignment.R
+This script takes in .ped and .map files from the imputed data set and assigns haplogroups according PhyloTree 17 via the HiMC package.
+This script takes 3 arguments:
+ARG1 = Input .ped file.
+ARG2 = Input .map file.
+ARG3 = Output .csv file.
 
 /MitoImputePrep/scripts/R/MCC_Genotypes.R
+This script calculates the Matthew's correlation coefficient for imputed + genotyped VCF file and the genotyped only file.
+It takes 5 arguments.
+ARG1 = The VCF file for the truthset (whole-molecule resequencing of the 1000 Genomes Phase 3 mtDNA data set.
+ARG2 = The VCF file for the genotyped only dataset.
+ARG3 = The VCF file for the genotyped + imputed dataset
+ARG4 = The INFO file that resulted from the IMPUTE2 process.
+ARG5 = The output file.
 
 
 #
