@@ -17,6 +17,9 @@ Following on from the check_haplogroup_concordance.R script, this script calcula
 Summary statistics are then calculated.
 Each individual experiment is saved, then all are combined into one big data table.
 Plots are able to be produced from this script, however the HiMC_1kGP_plots described later produce the most up to date plots.
+This also script performs statistical tests on the MCC datasets.
+It performs linear mixed model evaluations using ANOVA estimated marginal means.
+The results from these evaluations are then output.
 
 /MitoImputePrep/scripts/R/ANALYSIS/HiMC/concordance_tables_ADNI.R
 Similar to check_haplogroup_concordance.R, this script assigns haplogroups for the ADNI imputed dataset.
@@ -24,10 +27,16 @@ The samples from the Whole Genome re-Sequenced ADNI3 dataset have their haplogro
 The samples from the genotyped-only ADNI1 dataset have their haplogroups assigned.
 Haplogroup (and macrohaplogroup) assignment is then compared and the concordance calculated.
 
-/MitoImputePrep/scripts/R/ANALYSIS/MCC/Cleanup_concordance_tables_MCC.R
-This script is similar in function to Cleanup_concordance_tables_HiMC.R, however it performs Matthew's correlation coefficient calculations instead of 
-
 /MitoImputePrep/scripts/R/ANALYSIS/MCC/MCC_emmeans.R
+This script performs statistical tests on the MCC datasets.
+It performs linear mixed model evaluations using ANOVA estimated marginal means.
+The results from these evaluations are then output.
+
+/MitoImputePrep/scripts/R/ANALYSIS/MCC/Cleanup_concordance_tables_MCC.R
+This script is similar in function to Cleanup_concordance_tables_HiMC.R, however it performs Matthew's correlation coefficient calculations instead of haplogroup concordance.
+This is conducted iteratively through all the experiments (KHAP, MAF, MCMC).
+Summary statistics are calculated and saved.
 
 /MitoImputePrep/scripts/R/Plotting/HiMC_1kGP_plots.R
+This script produced 
 /MitoImputePrep/scripts/R/Plotting/MCC_concordance_tables.R
