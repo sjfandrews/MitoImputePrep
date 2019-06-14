@@ -22,6 +22,14 @@ R:
 /MitoImputePrep/scripts/R/ANALYSIS/MCC/MCC_Genotypes.R
 /MitoImputePrep/scripts/R/DATA_PROCESSING/removeLowQuality_cmdline.R
 /MitoImputePrep/scripts/R/DATA_PROCESSING/mt_recombination_map.R
+/MitoImputePrep/scripts/R/ANALYSIS/calculate_95CI.R
+/MitoImputePrep/scripts/R/ANALYSIS/HiMC/check_haplogroup_concordance.R
+/MitoImputePrep/scripts/R/ANALYSIS/HiMC/Cleanup_concordance_tables_HiMC.R
+/MitoImputePrep/scripts/R/ANALYSIS/HiMC/concordance_tables_ADNI.R
+/MitoImputePrep/scripts/R/ANALYSIS/MCC/MCC_emmeans.R
+/MitoImputePrep/scripts/R/ANALYSIS/MCC/Cleanup_concordance_tables_MCC.R
+/MitoImputePrep/scripts/R/Plotting/HiMC_1kGP_plots.R
+/MitoImputePrep/scripts/R/Plotting/MCC_concordance_tables.R
 
 
 MODULES AND APPLICATIONS CALLED UPON BY DAUGHTER SCRIPTS:
