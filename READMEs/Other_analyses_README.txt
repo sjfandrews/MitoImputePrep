@@ -16,10 +16,10 @@ For L haplogroups, the haplogroup is truncated to the first subclade (ie L3).
 Following on from the check_haplogroup_concordance.R script, this script calculates haplogroup and macrohaplogroup concordance.
 Summary statistics are then calculated.
 Each individual experiment is saved, then all are combined into one big data table.
-Plots are able to be produced from this script, however the HiMC_1kGP_plots described later produce the most up to date plots.
+Plots are able to be produced from this script, however the HiMC_1kGP_plots.R described later produce the most up to date plots.
 This also script performs statistical tests on the MCC datasets.
 It performs linear mixed model evaluations using ANOVA estimated marginal means.
-The results from these evaluations are then output.
+The results from these evaluations are then output to CSV format.
 
 /MitoImputePrep/scripts/R/ANALYSIS/HiMC/concordance_tables_ADNI.R
 Similar to check_haplogroup_concordance.R, this script assigns haplogroups for the ADNI imputed dataset.
@@ -30,7 +30,7 @@ Haplogroup (and macrohaplogroup) assignment is then compared and the concordance
 /MitoImputePrep/scripts/R/ANALYSIS/MCC/MCC_emmeans.R
 This script performs statistical tests on the MCC datasets.
 It performs linear mixed model evaluations using ANOVA estimated marginal means.
-The results from these evaluations are then output.
+The results from these evaluations are then output to CSV format.
 
 /MitoImputePrep/scripts/R/ANALYSIS/MCC/Cleanup_concordance_tables_MCC.R
 This script is similar in function to Cleanup_concordance_tables_HiMC.R, however it performs Matthew's correlation coefficient calculations instead of haplogroup concordance.

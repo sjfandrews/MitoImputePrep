@@ -3,9 +3,9 @@ This script takes one argument, which is the reference panel being used from whi
 
 
 BASH files:
-	- /MitoImputePrep/scripts/BASH/DATA_PROCESSING/ADNI_imputation/Impute_ADNI_redo.sh
-	- /MitoImputePrep/scripts/BASH/DATA_PROCESSING/ADNI_imputation/Impute_ADNI_redo_noReSeq.sh
-	- /MitoImputePrep/scripts/BASH/DATA_PROCESSING/ADNI_imputation/Impute_ADNI_12GO.sh
+	- /MitoImputePrep/scripts/BASH/DATA_PROCESSING/ADNI_imputation/Impute_ADNI_redo.sh # For the 258 genotyped samples that appear in both ADNI1 and ADNI3
+	- /MitoImputePrep/scripts/BASH/DATA_PROCESSING/ADNI_imputation/Impute_ADNI_redo_noReSeq.sh # For the 499 genotyped samples that appear only in ADNI1
+	- /MitoImputePrep/scripts/BASH/DATA_PROCESSING/ADNI_imputation/Impute_ADNI_12GO.sh # For the 1199 samples that appear in ADNI GO
 These file are the parent scripts. They all do the same thing, but for different data sets (see below).
 
 USAGE:
@@ -47,8 +47,8 @@ DETAILS:
 
 /MitoImputePrep/scripts/PYTHON/fix_vcf_names.py
 This file takes in a VCF file and fixes the names of the samples in the header.
-This is done so that the same ADNI1 and ADNI3 sample can be directly compared later.
-This script takes 3 arguments: --vcf_file, --out_file, --csv_file, --verbose.
+This is done so that the same ADNI1 and ADNI3 samples can be directly and easily compared later.
+This script takes 4 arguments: --vcf_file, --out_file, --csv_file, --verbose.
 --vcf_file is the input VCF file.
 --out_file is the output VCF file with the sample names fixed.
 --csv_file is the csv file containing file names and comparisons.
