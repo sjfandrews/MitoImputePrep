@@ -158,27 +158,27 @@ This section provides details on that initial pipeline. Henceforth, this shall b
 *	[Impute_ADNI_12GO.sh](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/BASH/DATA_PROCESSING/ADNI_imputation/Impute_ADNI_12GO.sh) # Imputation for the n=1199 samples found in ADNI GO.
 
 #### PYTHON:
-*	[](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/PYTHON/pickFirstAlt.py`
-*	[](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/PYTHON/vcf2fasta_rCRS.py`
-*	[](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/PYTHON/fasta2vcf_mtDNA.py`
-*	[](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/PYTHON/ambiguous2missing.py`
+*	[pickFirstAlt.py](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/PYTHON/pickFirstAlt.py)
+*	[vcf2fasta_rCRS.py](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/PYTHON/vcf2fasta_rCRS.py)
+*	[fasta2vcf_mtDNA.py](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/PYTHON/fasta2vcf_mtDNA.py)
+*	[ambiguous2missing.py](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/PYTHON/ambiguous2missing.py)
 
 #### R:
-*	[](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/DATA_PROCESSING/plink_sites_map.R`
-*	[](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/DATA_PROCESSING/assign_sex_label.R`
-*	[](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/DATA_PROCESSING/FixSamplesFile_raijin.R`
-*	[](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/ANALYSIS/HiMC/HiMC_haplogroup_assignment.R`
-*	[](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/ANALYSIS/MCC/MCC_Genotypes.R`
-*	[](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/DATA_PROCESSING/removeLowQuality_cmdline.R`
-*	[](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/DATA_PROCESSING/mt_recombination_map.R`
-*	[](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/ANALYSIS/calculate_95CI.R`
-*	[](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/ANALYSIS/HiMC/check_haplogroup_concordance.R`
-*	[](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/ANALYSIS/HiMC/Cleanup_concordance_tables_HiMC.R`
-*	[](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/ANALYSIS/HiMC/concordance_tables_ADNI.R`
-*	[](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/ANALYSIS/MCC/MCC_emmeans.R`
-*	[](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/ANALYSIS/MCC/Cleanup_concordance_tables_MCC.R`
-*	[](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/Plotting/HiMC_1kGP_plots.R`
-*	[](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/Plotting/MCC_concordance_tables.R`
+*	[plink_sites_map.R](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/DATA_PROCESSING/plink_sites_map.R)
+*	[assign_sex_label.R](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/DATA_PROCESSING/assign_sex_label.R)
+*	[FixSamplesFile_raijin.R](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/DATA_PROCESSING/FixSamplesFile_raijin.R)
+*	[HiMC_haplogroup_assignment.R](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/ANALYSIS/HiMC/HiMC_haplogroup_assignment.R)
+*	[MCC_Genotypes.R](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/ANALYSIS/MCC/MCC_Genotypes.R)
+*	[removeLowQuality_cmdline.R](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/DATA_PROCESSING/removeLowQuality_cmdline.R)
+*	[mt_recombination_map.R](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/DATA_PROCESSING/mt_recombination_map.R)
+*	[calculate_95CI.R](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/ANALYSIS/calculate_95CI.R)
+*	[check_haplogroup_concordance.R](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/ANALYSIS/HiMC/check_haplogroup_concordance.R)
+*	[Cleanup_concordance_tables_HiMC.R](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/ANALYSIS/HiMC/Cleanup_concordance_tables_HiMC.R)
+*	[concordance_tables_ADNI.R](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/ANALYSIS/HiMC/concordance_tables_ADNI.R)
+*	[MCC_emmeans.R](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/ANALYSIS/MCC/MCC_emmeans.R)
+*	[Cleanup_concordance_tables_MCC.R](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/ANALYSIS/MCC/Cleanup_concordance_tables_MCC.R)
+*	[HiMC_1kGP_plots.R](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/Plotting/HiMC_1kGP_plots.R)
+*	[MCC_concordance_tables.R](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/Plotting/MCC_concordance_tables.R)
 
 
 #### MODULES AND APPLICATIONS CALLED UPON BY DAUGHTER SCRIPTS:
@@ -206,7 +206,7 @@ This script:
 *	Copies the relevant files to the Git repository.
 
 
-BASH file: [](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/BASH/DATA_PROCESSING/create_RefPans/make_RefPan.sh`
+BASH file: [](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/BASH/DATA_PROCESSING/create_RefPans/make_RefPan.sh)
 This file is the parent script.
 
 USAGE:
@@ -221,13 +221,13 @@ Minor allele frequency needs to be set between >0.0 and <1.0.
 *	N/A
 
 ##### PYTHON:
-* 	[](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/PYTHON/ambiguous2missing.py`
-* 	[](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/PYTHON/fasta2vcf_mtDNA.py`
+* 	[ambiguous2missing.py](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/PYTHON/ambiguous2missing.py)
+* 	[fasta2vcf_mtDNA.py](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/PYTHON/fasta2vcf_mtDNA.py)
 
 ##### R:
-*	[](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/DATA_PROCESSING/removeLowQuality_cmdline.R`
-*	[](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/DATA_PROCESSING/assign_sex_label.R`
-*	[](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/DATA_PROCESSING/mt_recombination_map.R`
+*	[](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/DATA_PROCESSING/removeLowQuality_cmdline.R)
+*	[](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/DATA_PROCESSING/assign_sex_label.R)
+*	[](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/DATA_PROCESSING/mt_recombination_map.R)
 
 ##### LISTS USED WITHIN:
 *	N/A
@@ -247,7 +247,7 @@ Minor allele frequency needs to be set between >0.0 and <1.0.
 
 ##### PYTHON SCRIPTS
 
-[](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/PYTHON/ambiguous2missing.py`
+[ambiguous2missing.py](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/PYTHON/ambiguous2missing.py)
 This script takes in a FASTA formatted multiple sequence alignment file and converts ambiguous character states to missing character states ("N").
 One option allows for gap character states ("-") also be converted to missing character states.
 There are four options:
@@ -256,7 +256,7 @@ There are four options:
 *	`--gap2missing` turns on the mode whereby gap character states ("-") will be converted to missing character states.
 *	`--verbose` is verbose mode.
 
-[](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/PYTHON/fasta2vcf_mtDNA.py`
+[fasta2vcf_mtDNA.py](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/PYTHON/fasta2vcf_mtDNA.py)
 This script takes FASTA formatted multiple sequence alignments of mtDNA and converts them to a VCF format.
 Reference alleles are set to the revised Cambridge Reference Sequence.
 There are 9 options.
@@ -272,7 +272,7 @@ There are 9 options.
 
 ##### R SCRIPTS
 
-[](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/DATA_PROCESSING/removeLowQuality_cmdline.R`
+[removeLowQuality_cmdline.R](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/DATA_PROCESSING/removeLowQuality_cmdline.R)
 This script takes in a FASTA formatted multiple sequence alignment file and removes sequences according to user specified quality control criteria.
 This QC is on the basis of the number of allowed missing character states and the number of ambiguous character states.
 This script takes four arguments:
@@ -281,12 +281,12 @@ This script takes four arguments:
 *	`ARG3` = The maximum number of missing character states allowed.
 *	`ARG4` = The maximum number of gap character states allowed.
 
-[](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/DATA_PROCESSING/assign_sex_label.R`
+[assign_sex_label.R](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/DATA_PROCESSING/assign_sex_label.R)
 This script takes in a .sample file and adds a new column with an "M" sex label.
 This script takes one argument:
 *	`ARG1` = The input .sample file.
 
-[](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/DATA_PROCESSING/mt_recombination_map.R`
+[mt_recombination_map.R](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/DATA_PROCESSING/mt_recombination_map.R)
 This file takes in a VCF file and produces a recombination map for mitochondrial DNA.
 Because we assume no recombination, the recombination rate for all sites is r = 0.
 This file takes three arguments:
@@ -299,7 +299,7 @@ Files used in the imputation pipeline for 1000 Genomes Project data (in silico m
 This script is used to iteratively submit one job per in silico microarray to the RAIJIN cluster at NCI (National Computational Infrastructure) in Canberra, Australia.
 This script takes one argument, which is the reference panel being used from which missing variants will be imputed.
 
-BASH file: [](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/BASH/DATA_PROCESSING/ThousandGenomes_Imputation/MassDeploy_ThousandGenomes_imputeFrom_RefPan.sh`
+BASH file: [MassDeploy_ThousandGenomes_imputeFrom_RefPan.sh](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/BASH/DATA_PROCESSING/ThousandGenomes_Imputation/MassDeploy_ThousandGenomes_imputeFrom_RefPan.sh)
 This file is the parent script.
 
 USAGE:
@@ -314,23 +314,23 @@ You may modify the MCMC, BURNIN, and KHAP settings as required for your particul
 
 SCRIPTS USED WITHIN:
 BASH:
-*	[https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/BASH/DATA_PROCESSING/ThousandGenomes_Imputation/MassDeploy_ThousandGenomes_imputeFrom_RefPan.sh](MassDeploy_ThousandGenomes_imputeFrom_RefPan.sh)
-*	[](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/BASH/ThousandGenomes_imputeFrom_RefPan.sh`
+*	[MassDeploy_ThousandGenomes_imputeFrom_RefPan.sh](MassDeploy_ThousandGenomes_imputeFrom_RefPan.sh)
+*	[ThousandGenomes_imputeFrom_RefPan.sh](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/BASH/ThousandGenomes_imputeFrom_RefPan.sh)
 
 PYTHON:
-*	[](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/PYTHON/pickFirstAlt.py`
-*	[](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/PYTHON/vcf2fasta_rCRS.py`
-*	[](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/PYTHON/fasta2vcf_mtDNA.py`
+*	[pickFirstAlt.py](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/PYTHON/pickFirstAlt.py)
+*	[vcf2fasta_rCRS.py](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/PYTHON/vcf2fasta_rCRS.py)
+*	[fasta2vcf_mtDNA.py](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/PYTHON/fasta2vcf_mtDNA.py)
 
 
 R:
-*	[](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/assign_sex_label.R`
-*	[](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/FixSamplesFile_raijin.R`
-*	[](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/plink_sites_map.R`
-*	[](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/MCC_Genotypes.R`
+*	[assign_sex_label.R](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/assign_sex_label.R)
+*	[FixSamplesFile_raijin.R](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/FixSamplesFile_raijin.R)
+*	[plink_sites_map.R](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/plink_sites_map.R)
+*	[MCC_Genotypes.R](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/MCC_Genotypes.R)
 
 LISTS USED WITHIN:
-*	[](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/INFORMATION_LISTS/b37_platforms.txt
+*	[b37_platforms.txt](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/INFORMATION_LISTS/b37_platforms.txt
 
 MODULES AND APPLICATIONS CALLED UPON BY DAUGHTER SCRIPTS:
 *	python v2.7.11
@@ -344,7 +344,7 @@ MODULES AND APPLICATIONS CALLED UPON BY DAUGHTER SCRIPTS:
 
 
 DETAILS:
-[](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/BASH/ThousandGenomes_imputeFrom_RefPan.sh`
+[ThousandGenomes_imputeFrom_RefPan.sh](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/BASH/ThousandGenomes_imputeFrom_RefPan.sh)
 This script is used to submit jobs to the RAIJIN cluster.
 Using the qsub command, it takes 6 arguments:
 *	`REFpanel` – the reference panel from which missing variants will be imputed.
@@ -357,10 +357,10 @@ The REFpanel option is set by the argument passed to the parent BASH script.
 The MtPlatforms option is what is being iteratively changed by the parent script.
 All other options remain constant and are set in the parent BASH script.
 
-[](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/PYTHON/pickFirstAlt.py`
+[pickFirstAlt.py](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/PYTHON/pickFirstAlt.py)
 [ASK BRIAN OR RUSSELL]
 
-[](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/PYTHON/vcf2fasta_rCRS.py`
+[vcf2fasta_rCRS.py](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/PYTHON/vcf2fasta_rCRS.py)
 This script takes in a VCF file for mtDNA and converts it to a FASTA formatted multiple sequence alignment file.
 Sites are numbered according to the revised Cambridge Reference Sequence.
 There are four options: --vcf_file, --out_file, --include-rCRS, and --verbose
@@ -371,7 +371,7 @@ There are four options: --vcf_file, --out_file, --include-rCRS, and --verbose
 What this script does in essence is duplicate the rCRS n times (n being the number of sequences in the VCF file).
 Then, for each sequence in the VCF file, for each site in the VCF file, if the genotype that sequence has at that site matches the reference allele, pass. If is the alternative allele, replace the reference nucleotide with the alternative nucleotide.
 
-[](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/PYTHON/fasta2vcf_mtDNA.py`
+[fasta2vcf_mtDNA.py](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/PYTHON/fasta2vcf_mtDNA.py)
 This script takes FASTA formatted multiple sequence alignments of mtDNA and converts them to a VCF format.
 Reference alleles are set to the revised Cambridge Reference Sequence.
 There are 9 options.
@@ -385,21 +385,21 @@ There are 9 options.
 *	`--verbose` turns on verbose mode.
 *	`--add_alt` forces the VCF to always have an alternative allele.
 
-[](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/assign_sex_label.R `
+[assign_sex_label.R](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/assign_sex_label.R)
 This script takes a .SAMPLES file and appends a column with "M" to denote male sex label.
 There are two user inputs required:
 *	`ARG1` = input .samples file.
 *	`ARG2` = output .samples file.
 
-[](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/FixSamplesFile_raijin.R`
+[FixSamplesFile_raijin.R](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/FixSamplesFile_raijin.R)
 This script files the .samples file by changing the 4th element of the 1st row to a "D". This makes it compatible with IMPUTE2.
 *	`ARG1` = inpute .samples file.
 
-[](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/plink_sites_map.R`
+[plink_sites_map.R](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/plink_sites_map.R)
 This script fixes the site map .map file generated by plink. It creates a new first column with "MT" at all sites.
 *	`ARG1` = input .map file
 
-[](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/MCC_Genotypes.R`
+[MCC_Genotypes.R](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/MCC_Genotypes.R)
 This script calculates the Matthew's correlation coefficient for imputed + genotyped VCF file and the genotyped only file.
 It takes 5 arguments.
 *	`ARG1` = The VCF file for the truthset (whole-molecule resequencing of the 1000 Genomes Phase 3 mtDNA data set.
