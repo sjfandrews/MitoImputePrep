@@ -225,11 +225,9 @@ Minor allele frequency needs to be set between >0.0 and <1.0.
 * 	`/MitoImputePrep/scripts/PYTHON/fasta2vcf_mtDNA.py`
 
 ##### R:
-```
-*	/MitoImputePrep/scripts/R/DATA_PROCESSING/removeLowQuality_cmdline.R
-*	/MitoImputePrep/scripts/R/DATA_PROCESSING/assign_sex_label.R
-*	/MitoImputePrep/scripts/R/DATA_PROCESSING/mt_recombination_map.R
-```
+*	`/MitoImputePrep/scripts/R/DATA_PROCESSING/removeLowQuality_cmdline.R`
+*	`/MitoImputePrep/scripts/R/DATA_PROCESSING/assign_sex_label.R`
+*	`/MitoImputePrep/scripts/R/DATA_PROCESSING/mt_recombination_map.R`
 
 ##### LISTS USED WITHIN:
 *	N/A
@@ -253,24 +251,24 @@ Minor allele frequency needs to be set between >0.0 and <1.0.
 This script takes in a FASTA formatted multiple sequence alignment file and converts ambiguous character states to missing character states ("N").
 One option allows for gap character states ("-") also be converted to missing character states.
 There are four options:
-`--infile` is the input FASTA file.
-`--outfile` is the output FASTA file.
-`--gap2missing` turns on the mode whereby gap character states ("-") will be converted to missing character states.
-`--verbose` is verbose mode.
+*	`--infile` is the input FASTA file.
+*	`--outfile` is the output FASTA file.
+*	`--gap2missing` turns on the mode whereby gap character states ("-") will be converted to missing character states.
+*	`--verbose` is verbose mode.
 
 `/MitoImputePrep/scripts/PYTHON/fasta2vcf_mtDNA.py`
 This script takes FASTA formatted multiple sequence alignments of mtDNA and converts them to a VCF format.
 Reference alleles are set to the revised Cambridge Reference Sequence.
 There are 9 options.
-`--infile` is the input FASTA file. Preferably curated to the rCRS numbering system (s=16569)
-`--outfile` OUTFILE is the output VCF file. Includes all sites, even invariants. If no file is specified it will be output to the same location as the VCF file, albeit with .fasta replaced with .vcf
-`--gap2missing` turn gaps (-) to missing (N) character states.
-`--diploid` creates diploid VCF file instead of haploid (ie 0|0 instead of 0).
-`--ID` tags the ID column as MT<POS>.
-`--quality` tags for QUAL column (default: 999).
-`--filt` tags for FILTER column (default: PASS).
-`--verbose` turns on verbose mode.
-`--add_alt` forces the VCF to always have an alternative allele.
+*	`--infile` is the input FASTA file. Preferably curated to the rCRS numbering system (s=16569)
+*	`--outfile` OUTFILE is the output VCF file. Includes all sites, even invariants. If no file is specified it will be output to the same location as the VCF file, albeit with .fasta replaced with .vcf
+*	`--gap2missing` turn gaps (-) to missing (N) character states.
+*	`--diploid` creates diploid VCF file instead of haploid (ie 0|0 instead of 0).
+*	`--ID` tags the ID column as MT<POS>.
+*	`--quality` tags for QUAL column (default: 999).
+*	`--filt` tags for FILTER column (default: PASS).
+*	`--verbose` turns on verbose mode.
+*	`--add_alt` forces the VCF to always have an alternative allele.
 
 ##### R SCRIPTS
 
@@ -278,23 +276,23 @@ There are 9 options.
 This script takes in a FASTA formatted multiple sequence alignment file and removes sequences according to user specified quality control criteria.
 This QC is on the basis of the number of allowed missing character states and the number of ambiguous character states.
 This script takes four arguments:
-`ARG1` = The input FASTA file.
-`ARG2` = The output text file containing only high quality sequences.
-`ARG3` = The maximum number of missing character states allowed.
-`ARG4` = The maximum number of gap character states allowed.
+*	`ARG1` = The input FASTA file.
+*	`ARG2` = The output text file containing only high quality sequences.
+*	`ARG3` = The maximum number of missing character states allowed.
+*	`ARG4` = The maximum number of gap character states allowed.
 
 `/MitoImputePrep/scripts/R/DATA_PROCESSING/assign_sex_label.R`
 This script takes in a .sample file and adds a new column with an "M" sex label.
 This script takes one argument:
-`ARG1` = The input .sample file.
+*	`ARG1` = The input .sample file.
 
 `/MitoImputePrep/scripts/R/DATA_PROCESSING/mt_recombination_map.R`
 This file takes in a VCF file and produces a recombination map for mitochondrial DNA.
 Because we assume no recombination, the recombination rate for all sites is r = 0.
 This file takes three arguments:
-`ARG1` = The input VCF file.
-`ARG2` = The output recombination map map file.
-`ARG3` = The output strand file.
+*	`ARG1` = The input VCF file.
+*	`ARG2` = The output recombination map map file.
+*	`ARG3` = The output strand file.
 
 ### Imputation of missing variants on in silico microarrays (1,000 Genomes Project phase 3 data)
 Files used in the imputation pipeline for 1000 Genomes Project data (in silico microarrays)
@@ -310,33 +308,28 @@ $ sh /MitoImputePrep/scripts/BASH/DATA_PROCESSING/ThousandGenomes_Imputation/Mas
 ```
 Where `REFERENCE_PANEL` is a variable. You need to note the reference panel that will be used (exactly as it is in the reference panel file in XXX).
 You may modify the MCMC, BURNIN, and KHAP settings as required for your particular analyses. However, these are set to these defaults for the 'recommended settings':
-`MCMC = 1`
-`BURNIN = 0`
-`KHAP = 500`
+*	`MCMC = 1`
+*	`BURNIN = 0`
+*	`KHAP = 500`
 
 SCRIPTS USED WITHIN:
 BASH:
-```
-/MitoImputePrep/scripts/BASH/ThousandGenomes_imputeFrom_RefPan.sh
-```
+*	`/MitoImputePrep/scripts/BASH/ThousandGenomes_imputeFrom_RefPan.sh`
 
 PYTHON:
-```
-/MitoImputePrep/scripts/PYTHON/pickFirstAlt.py
-/MitoImputePrep/scripts/PYTHON/vcf2fasta_rCRS.py
-/MitoImputePrep/scripts/PYTHON/fasta2vcf_mtDNA.py
-```
+*	`/MitoImputePrep/scripts/PYTHON/pickFirstAlt.py`
+*	`/MitoImputePrep/scripts/PYTHON/vcf2fasta_rCRS.py`
+*	`/MitoImputePrep/scripts/PYTHON/fasta2vcf_mtDNA.py`
+
 
 R:
-```
-/MitoImputePrep/scripts/R/assign_sex_label.R
-/MitoImputePrep/scripts/R/FixSamplesFile_raijin.R
-/MitoImputePrep/scripts/R/plink_sites_map.R
-/MitoImputePrep/scripts/R/MCC_Genotypes.R
-```
+*	`/MitoImputePrep/scripts/R/assign_sex_label.R`
+*	`/MitoImputePrep/scripts/R/FixSamplesFile_raijin.R`
+*	`/MitoImputePrep/scripts/R/plink_sites_map.R`
+*	`/MitoImputePrep/scripts/R/MCC_Genotypes.R`
 
 LISTS USED WITHIN:
-`/MitoImputePrep/scripts/INFORMATION_LISTS/b37_platforms.txt`
+*	`/MitoImputePrep/scripts/INFORMATION_LISTS/b37_platforms.txt
 
 MODULES AND APPLICATIONS CALLED UPON BY DAUGHTER SCRIPTS:
 *	python v2.7.11
