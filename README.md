@@ -225,9 +225,11 @@ Minor allele frequency needs to be set between >0.0 and <1.0.
 * 	`/MitoImputePrep/scripts/PYTHON/fasta2vcf_mtDNA.py`
 
 ##### R:
-*	`/MitoImputePrep/scripts/R/DATA_PROCESSING/removeLowQuality_cmdline.R`
-*	`/MitoImputePrep/scripts/R/DATA_PROCESSING/assign_sex_label.R`
-*	`/MitoImputePrep/scripts/R/DATA_PROCESSING/mt_recombination_map.R`
+```
+*	/MitoImputePrep/scripts/R/DATA_PROCESSING/removeLowQuality_cmdline.R
+*	/MitoImputePrep/scripts/R/DATA_PROCESSING/assign_sex_label.R
+*	/MitoImputePrep/scripts/R/DATA_PROCESSING/mt_recombination_map.R
+```
 
 ##### LISTS USED WITHIN:
 *	N/A
@@ -314,18 +316,24 @@ You may modify the MCMC, BURNIN, and KHAP settings as required for your particul
 
 SCRIPTS USED WITHIN:
 BASH:
-`/MitoImputePrep/scripts/BASH/ThousandGenomes_imputeFrom_RefPan.sh`
+```
+/MitoImputePrep/scripts/BASH/ThousandGenomes_imputeFrom_RefPan.sh
+```
 
 PYTHON:
-`/MitoImputePrep/scripts/PYTHON/pickFirstAlt.py`
-`/MitoImputePrep/scripts/PYTHON/vcf2fasta_rCRS.py`
-`/MitoImputePrep/scripts/PYTHON/fasta2vcf_mtDNA.py`
+```
+/MitoImputePrep/scripts/PYTHON/pickFirstAlt.py
+/MitoImputePrep/scripts/PYTHON/vcf2fasta_rCRS.py
+/MitoImputePrep/scripts/PYTHON/fasta2vcf_mtDNA.py
+```
 
 R:
-`/MitoImputePrep/scripts/R/assign_sex_label.R`
-`/MitoImputePrep/scripts/R/FixSamplesFile_raijin.R`
-`/MitoImputePrep/scripts/R/plink_sites_map.R`
-`/MitoImputePrep/scripts/R/MCC_Genotypes.R`
+```
+/MitoImputePrep/scripts/R/assign_sex_label.R
+/MitoImputePrep/scripts/R/FixSamplesFile_raijin.R
+/MitoImputePrep/scripts/R/plink_sites_map.R
+/MitoImputePrep/scripts/R/MCC_Genotypes.R
+```
 
 LISTS USED WITHIN:
 `/MitoImputePrep/scripts/INFORMATION_LISTS/b37_platforms.txt`
