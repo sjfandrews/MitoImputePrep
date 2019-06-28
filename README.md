@@ -225,9 +225,9 @@ Minor allele frequency needs to be set between >0.0 and <1.0.
 * 	[fasta2vcf_mtDNA.py](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/PYTHON/fasta2vcf_mtDNA.py)
 
 ##### R:
-*	[](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/DATA_PROCESSING/removeLowQuality_cmdline.R)
-*	[](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/DATA_PROCESSING/assign_sex_label.R)
-*	[](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/DATA_PROCESSING/mt_recombination_map.R)
+*	[removeLowQuality_cmdline.R](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/DATA_PROCESSING/removeLowQuality_cmdline.R)
+*	[assign_sex_label.R](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/DATA_PROCESSING/assign_sex_label.R)
+*	[mt_recombination_map.R](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/DATA_PROCESSING/mt_recombination_map.R)
 
 ##### LISTS USED WITHIN:
 *	N/A
