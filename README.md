@@ -146,52 +146,6 @@ Before the SnakeMake pipeline was constructed, the pipeline was written in bash 
 This was also done to test how the pipeline performs in terms of imputation accuracy.
 This section provides details on that initial pipeline. Henceforth, this shall be referred to as the test pipeline.
 
-### All scripts used in test pipeline
-#### BASH:
-*	[MassDeploy_ThousandGenomes_imputeFrom_RefPan.sh](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/BASH/DATA_PROCESSING/ThousandGenomes_Imputation/MassDeploy_ThousandGenomes_imputeFrom_RefPan.sh)
-*	[ThousandGenomes_imputeFrom_RefPan.sh](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/BASH/ThousandGenomes_imputeFrom_RefPan.sh)
-*	[make_RefPan_v2.sh](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/BASH/DATA_PROCESSING/create_RefPans/make_RefPan_v2.sh) # Minor allele frequency = 1.0%
-*	[make_RefPan_v3.sh](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/BASH/DATA_PROCESSING/create_RefPans/make_RefPan_v3.sh) # Minor allele frequency = 0.5%
-*	[make_RefPan_v4.sh](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/BASH/DATA_PROCESSING/create_RefPans/make_RefPan_v4.sh) # Minor allele frequency = 0.1%
-*	[Impute_ADNI_redo.sh](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/BASH/DATA_PROCESSING/ADNI_imputation/Impute_ADNI_redo.sh) # Imputation for the n=258 samples found in both ADNI1 and ADNI3.
-*	[Impute_ADNI_redo_noReSeq.sh](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/BASH/DATA_PROCESSING/ADNI_imputation/Impute_ADNI_redo_noReSeq.sh) # Imputation for the n=499 samples found in ADNI1 only.
-*	[Impute_ADNI_12GO.sh](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/BASH/DATA_PROCESSING/ADNI_imputation/Impute_ADNI_12GO.sh) # Imputation for the n=1199 samples found in ADNI GO.
-
-#### PYTHON:
-*	[pickFirstAlt.py](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/PYTHON/pickFirstAlt.py)
-*	[vcf2fasta_rCRS.py](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/PYTHON/vcf2fasta_rCRS.py)
-*	[fasta2vcf_mtDNA.py](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/PYTHON/fasta2vcf_mtDNA.py)
-*	[ambiguous2missing.py](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/PYTHON/ambiguous2missing.py)
-
-#### R:
-*	[plink_sites_map.R](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/DATA_PROCESSING/plink_sites_map.R)
-*	[assign_sex_label.R](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/DATA_PROCESSING/assign_sex_label.R)
-*	[FixSamplesFile_raijin.R](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/DATA_PROCESSING/FixSamplesFile_raijin.R)
-*	[HiMC_haplogroup_assignment.R](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/ANALYSIS/HiMC/HiMC_haplogroup_assignment.R)
-*	[MCC_Genotypes.R](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/ANALYSIS/MCC/MCC_Genotypes.R)
-*	[removeLowQuality_cmdline.R](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/DATA_PROCESSING/removeLowQuality_cmdline.R)
-*	[mt_recombination_map.R](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/DATA_PROCESSING/mt_recombination_map.R)
-*	[calculate_95CI.R](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/ANALYSIS/calculate_95CI.R)
-*	[check_haplogroup_concordance.R](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/ANALYSIS/HiMC/check_haplogroup_concordance.R)
-*	[Cleanup_concordance_tables_HiMC.R](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/ANALYSIS/HiMC/Cleanup_concordance_tables_HiMC.R)
-*	[concordance_tables_ADNI.R](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/ANALYSIS/HiMC/concordance_tables_ADNI.R)
-*	[MCC_emmeans.R](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/ANALYSIS/MCC/MCC_emmeans.R)
-*	[Cleanup_concordance_tables_MCC.R](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/ANALYSIS/MCC/Cleanup_concordance_tables_MCC.R)
-*	[HiMC_1kGP_plots.R](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/Plotting/HiMC_1kGP_plots.R)
-*	[MCC_concordance_tables.R](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/Plotting/MCC_concordance_tables.R)
-
-
-#### MODULES AND APPLICATIONS CALLED UPON BY DAUGHTER SCRIPTS:
-*	python v2.7.11
-*	R v3.4.3
-*	bcftools v1.8
-*	bcftools v1.4.1
-*	plink v1.9
-*	impute2 v2.3.2
-*	vt v0.57721
-*	java/jdk v1.8.0_60
-*	HaploGrep v2.1.19
-
 ### Creation of the Reference Panel
 Files used to create different versions of the reference panel for the MitoImpute pipeline.
 This script takes the reference panel fasta multiple sequence alignment file as input and produces a VCF file of the reference panel, as well as PLINK and OXFORD formats.
