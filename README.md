@@ -330,7 +330,7 @@ R:
 *	[MCC_Genotypes.R](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/R/MCC_Genotypes.R)
 
 LISTS USED WITHIN:
-*	[b37_platforms.txt](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/INFORMATION_LISTS/b37_platforms.txt
+*	[b37_platforms.txt](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/INFORMATION_LISTS/b37_platforms.txt)
 
 MODULES AND APPLICATIONS CALLED UPON BY DAUGHTER SCRIPTS:
 *	python v2.7.11
