@@ -160,11 +160,11 @@ This script:
 *	Copies the relevant files to the Git repository.
 
 
-BASH file: [](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/BASH/DATA_PROCESSING/create_RefPans/make_RefPan.sh)
+BASH file: [make_RefPan.sh](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/BASH/DATA_PROCESSING/create_RefPans/make_RefPan.sh)
 This file is the parent script.
 
 USAGE:
-`$ /[](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/BASH/DATA_PROCESSING/create_RefPans/make_RefPan.sh <PATH_TO_REFERENCE_PANEL_FASTA> <MINOR_ALLELE_FREQUENCY>`
+`$ make_RefPan.sh <PATH_TO_REFERENCE_PANEL_FASTA> <MINOR_ALLELE_FREQUENCY>`
 Where `<PATH_TO_REFERENCE_PANEL_FASTA>` and `<Minor_Allele_Frequency>` are variables.
 `<PATH_TO_REFERENCE_PANEL_FASTA>` is the path to the reference panel fasta files, and `<MINOR_ALLELE_FREQUENCY>` is the minor allele frequency it will be filtered to.
 If you include a path to a reference panel that doesn't exist (or contains typos, etc), it will default to the current reference panel.
@@ -258,7 +258,7 @@ This file is the parent script.
 
 USAGE:
 ```
-$ sh /[](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/BASH/DATA_PROCESSING/ThousandGenomes_Imputation/MassDeploy_ThousandGenomes_imputeFrom_RefPan.sh <REFERENCE_PANEL>
+$ sh MassDeploy_ThousandGenomes_imputeFrom_RefPan.sh <REFERENCE_PANEL>
 ```
 Where `REFERENCE_PANEL` is a variable. You need to note the reference panel that will be used (exactly as it is in the reference panel file in XXX).
 You may modify the MCMC, BURNIN, and KHAP settings as required for your particular analyses. However, these are set to these defaults for the 'recommended settings':
