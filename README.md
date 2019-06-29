@@ -164,7 +164,9 @@ BASH file: [make_RefPan.sh](https://github.com/sjfandrews/MitoImputePrep/blob/ma
 This file is the parent script.
 
 USAGE:
-`$ make_RefPan.sh <PATH_TO_REFERENCE_PANEL_FASTA> <MINOR_ALLELE_FREQUENCY>`
+```
+$ make_RefPan.sh <PATH_TO_REFERENCE_PANEL_FASTA> <MINOR_ALLELE_FREQUENCY>
+```
 Where `<PATH_TO_REFERENCE_PANEL_FASTA>` and `<Minor_Allele_Frequency>` are variables.
 `<PATH_TO_REFERENCE_PANEL_FASTA>` is the path to the reference panel fasta files, and `<MINOR_ALLELE_FREQUENCY>` is the minor allele frequency it will be filtered to.
 If you include a path to a reference panel that doesn't exist (or contains typos, etc), it will default to the current reference panel.
@@ -374,7 +376,9 @@ BASH files:
 These file are the parent scripts. They all do the same thing, but for different data sets (see below).
 
 USAGE:
-$ [Impute_ADNI_redo.sh](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/BASH/DATA_PROCESSING/create_RefPans/Impute_ADNI_redo.sh) <REFERENCE_PANEL_VERSION>
+```
+$ Impute_ADNI_redo.sh <REFERENCE_PANEL_VERSION>
+```
 Where <REFERENCE_PANEL_VERSION> is a variable.
 <REFERENCE_PANEL_VERSION> is reference panel version and the minor allele frequency (ie ReferencePanel_v1_0.01 where ReferencePanel_v1 is the reference panel is 0.01 is the minor allele frequency).
 
