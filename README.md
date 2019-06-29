@@ -319,7 +319,7 @@ All other options remain constant and are set in the parent BASH script.
 [vcf2fasta_rCRS.py](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/PYTHON/vcf2fasta_rCRS.py)
 This script takes in a VCF file for mtDNA and converts it to a FASTA formatted multiple sequence alignment file.
 Sites are numbered according to the revised Cambridge Reference Sequence.
-There are four options: --vcf_file, --out_file, --include-rCRS, and --verbose
+There are four options:
 *	`--vcf_file` is the input VCF file. VCF files can be haploid or diploid, but if they are diploid this programme will select the genotype on the left of / or |. So if any heteroplasmy if observed, this is not the script for you.
 *	`--out_file` is the output FASTA file. If no file is specified it will be output to the same location as the VCF file, albeit with .vcf / .vcf.gz replaced with .fasta
 *	`--include-rCRS` includes the revised Cambridge Reference sequence in the FASTA file.
@@ -417,7 +417,7 @@ DETAILS:
 [fix_vcf_names.py](https://github.com/sjfandrews/MitoImputePrep/blob/master/scripts/PYTHON/fix_vcf_names.py)
 This file takes in a VCF file and fixes the names of the samples in the header.
 This is done so that the same ADNI1 and ADNI3 samples can be directly and easily compared later.
-This script takes 4 arguments: --vcf_file, --out_file, --csv_file, --verbose.
+This script takes 4 arguments:
 *	`--vcf_file` is the input VCF file.
 *	`--out_file` is the output VCF file with the sample names fixed.
 *	`--csv_file` is the csv file containing file names and comparisons.
