@@ -15,7 +15,7 @@ names(seq_list) = c("seqID")
 seq_list$Country = NA
 
 for (i in 1:nrow(seq_list)) {
-  if (i %% 1000 == 0) {
+  if (i %% 100 == 0) {
     message(paste0(i , "  /  ", nrow(seq_list))) 
   }
   tmp_seq = as.character(seq_list$seqID[i])
