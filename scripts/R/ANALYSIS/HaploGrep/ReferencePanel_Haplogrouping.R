@@ -2,6 +2,7 @@ library(dplyr)
 
 haplogrep_file = "/Volumes/TimMcInerney/MitoImpute/data/VCF/McInerney_Master_Alignment_July18_2018_ambigANDgap2missing_tagFilled_filt_noInvar.txt"
 haplogrep_csv = "/Volumes/TimMcInerney/MitoImpute/data/VCF/McInerney_Master_Alignment_July18_2018_ambigANDgap2missing_tagFilled_filt_noInvar.csv"
+haplogroup_table_csv = "/Volumes/TimMcInerney/MitoImpute/data/VCF/McInerney_Master_Alignment_July18_2018_ambigANDgap2missing_tagFilled_filt_noInvar_freTable.csv"
 
 haplogroups = read.table(haplogrep_file, header = T, sep = "\t")
 
@@ -18,6 +19,7 @@ write.csv(fixed_haplogroups, haplogrep_csv, quote = F, row.names = F)
 
 full_haplogrep_file = "/Volumes/TimMcInerney/MitoImpute/data/VCF/McInerney_Master_Alignment_July18_2018_ambigANDgap2missing_tagFilled_noInvar_HaploGrep.txt"
 full_haplogrep_csv = "/Volumes/TimMcInerney/MitoImpute/data/VCF/McInerney_Master_Alignment_July18_2018_ambigANDgap2missing_tagFilled_noInvar_HaploGrep.csv"
+haplogroup_table_csv = "/Volumes/TimMcInerney/MitoImpute/data/VCF/McInerney_Master_Alignment_July18_2018_ambigANDgap2missing_tagFilled_noInvar_HaploGrep_freqTable.csv"
 
 full_haplogroups = read.table(full_haplogrep_file, header = T, sep = "\t")
 full_nonAFR = subset(full_haplogroups, substr(full_haplogroups$Haplogroup, 1, 1) != "L")
@@ -40,3 +42,12 @@ table(full_fixed_haplogroups$Macrohaplogroup)
 # DIFFERENCE HAPLOGROUP TABLE
 (table(full_fixed_haplogroups$Macrohaplogroup) - table(fixed_haplogroups$Macrohaplogroup)) / sum(table(full_fixed_haplogroups$Macrohaplogroup) - table(fixed_haplogroups$Macrohaplogroup)) * 100
 nrow(full_fixed_haplogroups) - nrow(fixed_haplogroups)
+
+freqTable = as.data.frame(table(fixed_haplogroups$Macrohaplogroup))
+freqTable$Freq2 = as.data.frame(table(full_fixed_haplogroups$Macrohaplogroup))[,2]
+freqTable$Diff = as.data.frame((table(full_fixed_haplogroups$Macrohaplogroup) - table(fixed_haplogroups$Macrohaplogroup)))[,2]
+freqTable$DiffPC = as.data.frame((table(full_fixed_haplogroups$Macrohaplogroup) - table(fixed_haplogroups$Macrohaplogroup)) / sum(table(full_fixed_haplogroups$Macrohaplogroup) - table(fixed_haplogroups$Macrohaplogroup)))[,2]
+names(freqTable) = c("Haplogroup", "FullRefPanel", "FiltRefPanel", "Diff", "DiffPC")
+freqTable
+
+write.csv(freqTable, haplogroup_table_csv, quote = F, row.names = F)
