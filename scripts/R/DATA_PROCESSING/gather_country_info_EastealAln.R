@@ -1,7 +1,7 @@
 require(rentrez)
 require(tidyverse)
 
-outFile = "~/GitCode/MitoImputePrep/metadata/seq_country_list.csv"
+outFile = "~/GitCode/MitoImputePrep/metadata/seq_country_list_EastealAln.csv"
 
 #x = entrez_search("nuccore", term="EF184582.1")
 #y = entrez_fetch("nuccore", id = x$ids, rettype = "native")
@@ -13,9 +13,9 @@ outFile = "~/GitCode/MitoImputePrep/metadata/seq_country_list.csv"
 #z[m[1]+1] %>%
 #  str_remove(., 'name \"') %>%
 #  str_remove(., '\"')
-#
-#countries = c()
-seq_list = read.table("~/GitCode/MitoImputePrep/metadata/seq_country_test.txt", header = F)
+
+countries = c()
+seq_list = read.table("~/GitCode/MitoImputePrep/metadata/seq_country_test_EastealAln.txt", header = F)
 names(seq_list) = c("seqID")
 seq_list$Country = NA
 seq_list$Checked = F
@@ -51,7 +51,7 @@ for (i in 1:nrow(seq_list)) {
   if (i %% 100 == 0) {
     write.csv(seq_list, outFile, row.names = F, quote = F)
   }
-
+  
 }
 
 message(paste0("LAST i  =  ", i))
