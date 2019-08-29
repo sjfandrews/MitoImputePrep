@@ -25,7 +25,7 @@ if (file.exists(outFile) == T) {
 }
 
 for (i in 1:nrow(seq_list)) { #nrow(seq_list)
-  if (i %% 100 == 0) {
+  if (i %% 10 == 0) {
     message(paste0(i , "  /  ", nrow(seq_list))) 
   }
   
@@ -50,7 +50,7 @@ for (i in 1:nrow(seq_list)) { #nrow(seq_list)
     seq_list$Checked[i] = T
   }
   
-  if (i %% 100 == 0) {
+  if (i %% 10 == 0) {
     write.csv(seq_list, outFile, row.names = F, quote = F)
   }
   
