@@ -15,7 +15,7 @@ outFile = "~/GitCode/MitoImputePrep/metadata/seq_country_list.csv"
 #  str_remove(., '\"')
 #
 #countries = c()
-seq_list1 = read.table("~/GitCode/MitoImputePrep/metadata/seq_country_test.txt", header = F)
+seq_list = read.table("~/GitCode/MitoImputePrep/metadata/seq_country_test.txt", header = F)
 names(seq_list) = c("seqID")
 seq_list$Country = NA
 seq_list$Checked = F
