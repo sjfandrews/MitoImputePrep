@@ -68,3 +68,4 @@ for (j in 1:nrow(seq_list)) {
 }
 
 write.csv(seq_list, outFile, row.names = F, quote = F)
+
