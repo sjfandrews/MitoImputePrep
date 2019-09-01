@@ -58,12 +58,12 @@ for (i in 1:nrow(seq_list)) { #nrow(seq_list)
 
 message(paste0("LAST i  =  ", i))
 
-for (i in 1:nrow(seq_list)) {
-  if (i %% 500 == 0) {
-    message(paste0(i , "  /  ", nrow(seq_list))) 
+for (j in 1:nrow(seq_list)) {
+  if (j %% 500 == 0) {
+    message(paste0(j , "  /  ", nrow(seq_list))) 
   }
-  if (seq_list$Checked[i] == T) {
-    seq_list$Country[i] = str_replace(seq_list$Country[i], pattern = ",", replacement = ";")
+  if (seq_list$Checked[j] == T) {
+    seq_list$Country[j] = str_replace(seq_list$Country[j], pattern = ",", replacement = ";")
   }
 }
 
