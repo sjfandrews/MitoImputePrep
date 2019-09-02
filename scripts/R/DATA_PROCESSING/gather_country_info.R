@@ -3,7 +3,7 @@ require(tidyverse)
 
 outFile = "~/GitCode/MitoImputePrep/metadata/seq_country_list.csv"
 
-checkPoint = 10
+checkPoint = 100
 
 #x = entrez_search("nuccore", term="EF184582.1")
 #y = entrez_fetch("nuccore", id = x$ids, rettype = "native")
