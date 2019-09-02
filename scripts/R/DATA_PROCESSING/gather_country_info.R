@@ -3,6 +3,8 @@ require(tidyverse)
 
 outFile = "~/GitCode/MitoImputePrep/metadata/seq_country_list.csv"
 
+checkPoint = 10
+
 #x = entrez_search("nuccore", term="EF184582.1")
 #y = entrez_fetch("nuccore", id = x$ids, rettype = "native")
 #z = str_split(y, "\n")
@@ -25,7 +27,7 @@ if (file.exists(outFile) == T) {
 }
 
 for (i in 1:nrow(seq_list)) { #nrow(seq_list)
-  if (i %% 10 == 0) {
+  if (i %% checkPoint == 0) {
     message(paste0(i , "  /  ", nrow(seq_list))) 
   }
   
@@ -50,7 +52,7 @@ for (i in 1:nrow(seq_list)) { #nrow(seq_list)
     seq_list$Checked[i] = T
   }
   
-  if (i %% 10 == 0) {
+  if (i %% checkPoint == 0) {
     write.csv(seq_list, outFile, row.names = F, quote = F)
   }
   
