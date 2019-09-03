@@ -1,7 +1,10 @@
 require(rentrez)
 require(tidyverse)
+library(countrycode)
 
 outFile = "~/GitCode/MitoImputePrep/metadata/seq_country_list_EastealAln.csv"
+
+checkPoint = 100
 
 #x = entrez_search("nuccore", term="EF184582.1")
 #y = entrez_fetch("nuccore", id = x$ids, rettype = "native")
@@ -13,8 +16,8 @@ outFile = "~/GitCode/MitoImputePrep/metadata/seq_country_list_EastealAln.csv"
 #z[m[1]+1] %>%
 #  str_remove(., 'name \"') %>%
 #  str_remove(., '\"')
-
-countries = c()
+#
+#countries = c()
 seq_list = read.table("~/GitCode/MitoImputePrep/metadata/seq_country_test_EastealAln.txt", header = F)
 names(seq_list) = c("seqID")
 seq_list$Country = NA
@@ -25,7 +28,7 @@ if (file.exists(outFile) == T) {
 }
 
 for (i in 1:nrow(seq_list)) { #nrow(seq_list)
-  if (i %% 100 == 0) {
+  if (i %% checkPoint == 0) {
     message(paste0(i , "  /  ", nrow(seq_list))) 
   }
   
@@ -50,7 +53,7 @@ for (i in 1:nrow(seq_list)) { #nrow(seq_list)
     seq_list$Checked[i] = T
   }
   
-  if (i %% 100 == 0) {
+  if (i %% checkPoint == 0) {
     write.csv(seq_list, outFile, row.names = F, quote = F)
   }
   
@@ -58,13 +61,20 @@ for (i in 1:nrow(seq_list)) { #nrow(seq_list)
 
 message(paste0("LAST i  =  ", i))
 
-for (j in 1:nrow(seq_list)) {
-  if (j %% 500 == 0) {
-    message(paste0(i , "  /  ", nrow(seq_list))) 
-  }
-  if (seq_list$Checked[i] == T) {
-    seq_list$Country[i] = str_replace(seq_list$Country[j], pattern = ",", replacement = ";")
-  }
-}
+seq_list$Country_short = gsub("\\:.*","", seq_list$Country)
+seq_list$Continent = countrycode(sourcevar = seq_list$Country_short, origin = "country.name", destination = "continent")
+
+region_table = as.data.frame(table(seq_list$Country))
+country_table = as.data.frame(table(seq_list$Country_short))
+continent_table = as.data.frame(table(seq_list$Continent))
+
+#for (j in 1:nrow(seq_list)) {
+#  if (j %% 500 == 0) {
+#    message(paste0(i , "  /  ", nrow(seq_list))) 
+#  }
+#  if (seq_list$Checked[i] == T) {
+#    seq_list$Country[i] = str_replace(seq_list$Country[j], pattern = ",", replacement = ";")
+#  }
+#}
 
 write.csv(seq_list, outFile, row.names = F, quote = F)

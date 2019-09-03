@@ -1,5 +1,6 @@
 require(rentrez)
 require(tidyverse)
+library(countrycode)
 
 outFile = "~/GitCode/MitoImputePrep/metadata/seq_country_list.csv"
 
@@ -60,14 +61,21 @@ for (i in 1:nrow(seq_list)) { #nrow(seq_list)
 
 message(paste0("LAST i  =  ", i))
 
-for (j in 1:nrow(seq_list)) {
-  if (j %% 500 == 0) {
-    message(paste0(j , "  /  ", nrow(seq_list))) 
-  }
-  if (seq_list$Checked[j] == T) {
-    seq_list$Country[j] = str_replace(seq_list$Country[j], pattern = ",", replacement = ";")
-  }
-}
+seq_list$Country_short = gsub("\\:.*","", seq_list$Country)
+seq_list$Continent = countrycode(sourcevar = seq_list$Country_short, origin = "country.name", destination = "continent")
+
+region_table = as.data.frame(table(seq_list$Country))
+country_table = as.data.frame(table(seq_list$Country_short))
+continent_table = as.data.frame(table(seq_list$Continent))
+
+#for (j in 1:nrow(seq_list)) {
+#  if (j %% 500 == 0) {
+#    message(paste0(j , "  /  ", nrow(seq_list))) 
+#  }
+#  if (seq_list$Checked[j] == T) {
+#    seq_list$Country[j] = str_replace(seq_list$Country[j], pattern = ",", replacement = ";")
+#  }
+#}
 
 write.csv(seq_list, outFile, row.names = F, quote = F)
 
