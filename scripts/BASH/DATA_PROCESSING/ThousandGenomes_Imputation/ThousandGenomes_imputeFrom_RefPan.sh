@@ -73,7 +73,7 @@ else
 	bcftools index ${vcf_1kg}
 	plink --vcf ${vcf_1kg} --recode --double-id --keep-allele-order --out ${plink_1kg}
 	bcftools query -l ${vcf_1kg} > ${samps_1kg}
-	Rscript ~/GitCode/MitoImputePrep/scripts/R/assign_sex_label.R ${samps_1kg} ${sex_1kg}
+	Rscript ~/GitCode/MitoImputePrep/scripts/R/DATA_PROCESSING/assign_sex_label.R ${samps_1kg} ${sex_1kg}
 	
 	#if [ ! -f ${diploid_vcf}.vcf.gz ]
 	if [ ! -f ~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/chrMT_1kg_diploid.vcf.gz ]
@@ -132,7 +132,7 @@ out=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_
 
 #bcftools convert --haplegendsample ${out} --haploid2diploid ${vcf} --sex ${sex}
 bcftools convert --gensample ${out} ${vcf} --sex ${sex}
-Rscript ~/GitCode/MitoImputePrep/scripts/R/FixSamplesFile_raijin.R ${out}.samples
+Rscript ~/GitCode/MitoImputePrep/scripts/R/DATA_PROCESSING/FixSamplesFile_raijin.R ${out}.samples
 
 # GENERATE PLINK FILES
 echo
@@ -155,7 +155,7 @@ diploid_vcf=${geno_ext}_diploid
 bcftools annotate --set-id '.' ${vcf} | bcftools norm --check-ref s -f ${ref_fasta_plink} -m +any | bcftools view -Oz -o ${norm_vcf} # Normalise: remove SNP IDs, reformat to rCRS, join biallelic repeated sites into multiallelic sites, then output to gzip
 bcftools index ${norm_vcf} # index normalised vcf
 bcftools query -f '%POS\n' ${norm_vcf} > ${vcf_pos} # extract genomic positions
-Rscript ~/GitCode/MitoImputePrep/scripts/R/plink_sites_map.R ${vcf_pos} # add a column with the MT label
+Rscript ~/GitCode/MitoImputePrep/scripts/R/DATA_PROCESSING/plink_sites_map.R ${vcf_pos} # add a column with the MT label
 perl -pi -e 'chomp if eof' ${vcf_pos} # remove the last leading line
 python ~/GitCode/MitoImputePrep/scripts/PYTHON/vcf2fasta_rCRS.py -i ${norm_vcf} -o ${geno_fasta} # convert to a fasta file
 #python ~/GitCode/MitoImputePrep/scripts/PYTHON/fasta2vcf_mtDNA.py -i ${imp_fasta} -o ${fixed_vcf} -g -d # convert back to a vcf
@@ -271,7 +271,7 @@ then
 	bcftools annotate --set-id '.' ${imp_vcf} | bcftools norm --check-ref s -f ${ref_fasta_plink} -m +any | bcftools view -Oz -o ${norm_imp_vcf} # Normalise: remove SNP IDs, reformat to rCRS, join biallelic repeated sites into multiallelic sites, then output to gzip
 	bcftools index ${norm_imp_vcf} # index normalised vcf
 	bcftools query -f '%POS\n' ${norm_imp_vcf} > ${vcf_pos} # extract genomic positions
-	Rscript ~/GitCode/MitoImputePrep/scripts/R/plink_sites_map.R ${vcf_pos} # add a column with the MT label
+	Rscript ~/GitCode/MitoImputePrep/scripts/R/DATA_PROCESSING/plink_sites_map.R ${vcf_pos} # add a column with the MT label
 	perl -pi -e 'chomp if eof' ${vcf_pos} # remove the last leading line
 	python ~/GitCode/MitoImputePrep/scripts/PYTHON/vcf2fasta_rCRS.py -i ${norm_imp_vcf} -o ${imp_fasta} # convert to a fasta file
 	#python ~/GitCode/MitoImputePrep/scripts/PYTHON/fasta2vcf_mtDNA.py -i ${imp_fasta} -o ${fixed_vcf} -g -d # convert back to a vcf
@@ -331,11 +331,11 @@ then
 	echo
 	echo "${OUT_FILE}_imputed_MCC.csv AND ${OUT_FILE}_typed_MCC.csv FOUND ... PIPELINE COMPLETED"
 	echo "ACTUALLY ... DO IT ANYWAY (DOUBLE CHECKING, REMOVE THIS LATER)"
-	Rscript ~/GitCode/MitoImputePrep/scripts/R/MCC_Genotypes.R ${WGS_VCF} ${TYP_VCF_DECOMPOSED} ${IMP_VCF} ${IMP_INFO} ${OUT_FILE}
+	Rscript ~/GitCode/MitoImputePrep/scripts/R/ANALYSIS/MCC/MCC_Genotypes.R ${WGS_VCF} ${TYP_VCF_DECOMPOSED} ${IMP_VCF} ${IMP_INFO} ${OUT_FILE}
 else
 	echo
 	echo "${OUT_FILE}_imputed_MCC.csv AND ${OUT_FILE}_typed_MCC.csv NOT FOUND ... CALCULATING MCC GENOTYPE CONCORDANCE"
-	Rscript ~/GitCode/MitoImputePrep/scripts/R/MCC_Genotypes.R ${WGS_VCF} ${TYP_VCF_DECOMPOSED} ${IMP_VCF} ${IMP_INFO} ${OUT_FILE}
+	Rscript ~/GitCode/MitoImputePrep/scripts/R/ANALYSIS/MCC/MCC_Genotypes.R ${WGS_VCF} ${TYP_VCF_DECOMPOSED} ${IMP_VCF} ${IMP_INFO} ${OUT_FILE}
 fi
 
 
