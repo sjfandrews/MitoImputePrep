@@ -1,10 +1,9 @@
 #!/bin/bash
-#PBS -P gw26
-#PBS -q biodev
-#PBS -l walltime=00:30:00
+#PBS -P te53
+#PBS -q express
+#PBS -l walltime=04:00:00
 #PBS -l mem=18GB
 #PBS -l ncpus=1
-#PBS -N impute_SNPchip_1kGP
 #PBS -m e
 #PBS -M u5015730@anu.edu.au
 #PBS -j oe
