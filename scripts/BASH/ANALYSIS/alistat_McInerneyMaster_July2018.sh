@@ -17,14 +17,19 @@ module load AliStat
 
 # SET VARIABLES
 FASTA=/g/data1a/te53/MitoImpute/data/FASTA/masters/McInerney_Master_Alignment_July18_2018.fasta
-OUT_DIR=/g/data1a/te53/MitoImpute/AliStat/test_aln/
+OUT_DIR=/g/data1a/te53/MitoImpute/analyses/AliStat/`basename ${FASTA} .fasta`
 OUT_FILE=${OUT_DIR}`basename ${FASTA} .fasta`
+
+if [ ! -d ${OUT_DIR} ]
+then
+	mkdir -p ${OUT_DIR}
+fi
 
 alistat \
 	${FASTA} 1 \
 	-o ${OUT_FILE} \
-	-i \
-	#-d
+	#-i \
+	-d
 
 
 # END !
