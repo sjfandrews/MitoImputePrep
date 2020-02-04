@@ -1,8 +1,8 @@
 #!/bin/bash
 #PBS -P gw26
 #PBS -q biodev
-#PBS -l walltime=48:00:00
-#PBS -l mem=8GB
+#PBS -l walltime=168:00:00
+#PBS -l mem=12GB
 #PBS -l ncpus=1
 #PBS -m e
 #PBS -M u5015730@anu.edu.au
@@ -20,5 +20,11 @@ FASTA=/g/data1a/te53/MitoImpute/data/FASTA/masters/McInerney_Master_Alignment_Ju
 OUT_DIR=/g/data1a/te53/MitoImpute/AliStat/test_aln/
 OUT_FILE=${OUT_DIR}`basename ${FASTA} .fasta`
 
-alistat ${FASTA} 1 -o ${OUT_FILE} -i -d
+alistat \
+	${FASTA} 1 \
+	-o ${OUT_FILE} \
+	-i \
+	#-d
+
+
 # END !
