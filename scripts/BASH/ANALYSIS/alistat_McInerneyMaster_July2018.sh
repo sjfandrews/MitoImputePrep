@@ -7,7 +7,7 @@
 #PBS -m e
 #PBS -M u5015730@anu.edu.au
 #PBS -j oe
-#PBS -o /g/data1a/te53/haploco/logs/
+#PBS -o /g/data1a/te53/MitoImpute/logs/
 #PBS -l storage=scratch/te53+gdata/te53
 #PBS -N AliStat_McInerneyMaster_July2018
 
