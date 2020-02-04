@@ -20,5 +20,5 @@ FASTA=/g/data1a/te53/MitoImpute/data/FASTA/masters/hsapiensCRS7k.fasta
 OUT_DIR=/g/data1a/te53/MitoImpute/AliStat/test_aln/
 OUT_FILE=${OUT_DIR}`basename ${FASTA} .fasta`
 
-alistat ${FASTA} 1 -o ${OUT_FILE} -i -d
+alistat ${FASTA} 1 -o ${OUT_FILE} -i #-d
 # END !
