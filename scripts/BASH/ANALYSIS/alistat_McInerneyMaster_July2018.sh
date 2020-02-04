@@ -28,7 +28,6 @@ fi
 alistat \
 	${FASTA} 1 \
 	-o ${OUT_FILE} \
-	#-i \
 	-d
 
 
