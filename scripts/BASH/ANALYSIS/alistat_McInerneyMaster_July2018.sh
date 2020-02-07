@@ -2,7 +2,7 @@
 #PBS -P gw26
 #PBS -q biodev
 #PBS -l walltime=168:00:00
-#PBS -l mem=12GB
+#PBS -l mem=36GB
 #PBS -l ncpus=1
 #PBS -m e
 #PBS -M u5015730@anu.edu.au
