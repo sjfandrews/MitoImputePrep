@@ -1,4 +1,5 @@
 library(tidyverse)
+library(countrycode)
 
 f = "~/GitCode/MitoImputePrep/metadata/seq_country_list.csv"
 
@@ -20,3 +21,7 @@ as_tibble(continent_table)
 
 
 table(is.na(seq_list$Region))
+
+write.csv(region_table, "~/GitCode/MitoImputePrep/metadata/country_information/region_table.csv", quote = F, row.names = F)
+write.csv(country_table, "~/GitCode/MitoImputePrep/metadata/country_information/country_table.csv", quote = F, row.names = F)
+write.csv(continent_table, "~/GitCode/MitoImputePrep/metadata/country_information/continent_table.csv", quote = F, row.names = F)
