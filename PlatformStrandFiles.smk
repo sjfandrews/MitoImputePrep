@@ -29,7 +29,7 @@ rule StrandFiles:
 
 rule StrandFilesMT:
     input:
-        script = "scripts/R/StrandFiles_ExtractMTsnps.R",
+        script = "scripts/R/DATA_PROCESSING/StrandFiles_ExtractMTsnps.R",
         strands = 'data/platforms/{platforms}/platform.strand'
     output:
         out = 'data/platforms/{platforms}/{platforms}_MT_snps.txt'
@@ -39,7 +39,7 @@ rule StrandFilesMT:
 rule strandSummary:
     input:
         StrandFiles = expand('data/platforms/{platforms}/platform.strand', platforms=platforms),
-        script = "scripts/R/StrandFiles_ExtractMTSummary.R",
+        script = "scripts/R/DATA_PROCESSING/StrandFiles_ExtractMTSummary.R",
     output:
         'data/platforms/Nsnps_Mt_platforms.txt',
         'data/platforms/Mt_platforms.txt'
