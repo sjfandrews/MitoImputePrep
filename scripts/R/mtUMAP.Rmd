@@ -1,0 +1,364 @@
+---
+title: "mtUMAP"
+author: "Shea Andrews"
+date: "6/3/2020"
+output:
+  html_document:
+    df_print: paged
+    toc: true
+    number_sections: true
+    toc_depth: 3
+    toc_float:
+      collapsed: false
+      smooth_scroll: false
+editor_options: 
+  chunk_output_type: console
+  
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+
+library(tidyverse)
+# library(umapr)
+# library(umap)
+library(FactoMineR)
+library(factoextra)
+library(plotly)
+library(HiMC)
+library(pals)
+`%nin%` = Negate(`%in%`)
+
+## Reading in MAP/PED files
+generate_snp_data_fixed <- function (map_file, ped_file) 
+{
+  map <- read.csv(map_file, sep = "\t", header = FALSE, stringsAsFactors = FALSE)
+  header_row <- c("Family", "Individual", "Father", "Mother", 
+                  "Sex", "Phenotype")
+  snps = map[, 4]
+  new_header = c(header_row, snps)
+  ped <- read.csv(ped_file, sep = " ", header = FALSE, stringsAsFactors = FALSE, colClasses = 'character')
+  range1 = seq(1, 6, by = 1)
+  snp_data = data.frame(seq(1, nrow(ped), by = 1))
+  for (i in range1) {
+    snp_data[, i] = ped[, i]
+  }
+  range2 = seq(7, ncol(ped), by = 2)
+  for (i in range2) {
+    index = ((i - 7)/2) + 1
+    snp_data[, index + 6] = paste(ped[, i], ped[, i + 1])
+  }
+  names(snp_data) <- new_header
+  return(snp_data)
+}
+
+
+```
+
+## Dimensionality Reduction 
+
+**PCA**: an orthogonal linear transformation which projects the genotype data into the new reduced dimensional space such that the greater variance comes in an order
+
+**UMAP**: a novel non-linear dimensionality reduction technique based on Riemannian geometry and algebraic topology to model and preserve the high-dimensional topology of data points in the lowdimensional space
+
+**PCA–UMAP**: an application of UMAP for principal components of genotype data to be computationally more advantageous and statistically less noisy
+
++ Diaz-Papkovich, A., et al. (2019). UMAP reveals cryptic population structure and phenotype heterogeneity in large genomic cohorts. [PLOS Genetics  15(11), e1008432](https://dx.doi.org/10.1371/journal.pgen.1008432)
++ Sakaue, S., et al. (2020). Dimensionality reduction reveals fine-scale structure in the Japanese population with consequences for polygenic risk prediction. [Nature Communications  11(1), 1569](https://dx.doi.org/10.1038/s41467-020-15194-z)
++ Karczewski, K., et al. (2020). The mutational constraint spectrum quantified from variation in 141,456 humans. [Nature  581(7809), 434-443](https://dx.doi.org/10.1038/s41586-020-2308-7)
+
+
+## mtReference Panel 
+
++ Read in map/ped files 
++ assign mitochondrial haplogroups using Hi-Mc
++ Convert alleles to 0/1 coding 
+
+```{r mtreference-wrangle, cache=T}
+## Haplogroup assignments 
+dat <- generate_snp_data_fixed("/Users/sheaandrews/GitCode/MitoImpute/ReferencePanel/ReferencePanel.map",
+                               "/Users/sheaandrews/GitCode/MitoImpute/ReferencePanel/ReferencePanel.ped")
+
+data(nodes)
+classifications.raw <- HiMC::getClassifications(dat)
+classifications <- as_tibble(classifications.raw[-nrow(classifications.raw),]) #remove Mitochondria_Information row 
+
+ped <- dat
+colnames(ped) <- c("Family", "Individual", "Father", "Mother", 
+                   "Sex", "Phenotype", paste0('mt', colnames(ped[, 7:ncol(ped)])))
+ped <- as_tibble(ped) %>%
+  na_if(., "0 0") %>% 
+  mutate_at(vars(starts_with("mt")), as_factor) %>% 
+  mutate_at(vars(starts_with("mt")), as.numeric) %>% 
+  left_join(classifications) %>% 
+  mutate(macro = ifelse(str_detect(haplogroup, "^L"),
+                        substr(haplogroup, start = 1, stop = 2),
+                        substr(haplogroup, start = 1, stop = 1))) %>% 
+  select(Family, Individual, Father, Mother, Sex, Phenotype, haplogroup, macro, everything())
+
+```
+
+### PCA analysis
+
+Run PCA analysis of mtReference Panel 
+
++ extract results for individules
++ plot 2D and 3D results
+
+```{r pca}
+## PCA 
+res.pca <- ped %>% 
+  select(starts_with("mt")) %>% 
+  PCA(., scale.unit = T, ncp = 10, graph = FALSE)
+
+ind.pca <- get_pca_ind(res.pca)$coord %>% 
+  as_tibble() %>%
+  bind_cols(select(ped, Individual, haplogroup, macro)) %>% 
+  select(Individual, haplogroup, macro, everything()) %>% 
+  filter(macro %nin% c("u")) %>% 
+  filter(!is.na(macro))
+
+## Count number of mthg 
+ind.pca %>% count(macro) %>% print(n = Inf)
+```
+
+
+```{r plot-2d-pca}
+
+ggplot(ind.pca, aes(x = Dim.1, y = Dim.2, colour = macro)) + geom_point() + theme_bw()
+
+```
+
+
+
+```{r plot-3d-pca}
+plot_ly(ind.pca, x = ~Dim.2, y = ~Dim.1, z = ~Dim.3, color = ~macro, type = 'scatter3d', mode = 'markers', marker = list(size = 3), 
+        hoverinfo = 'text', text = ~paste('</br> ID: ', Individual, 
+                                          '</br> Haplogroup: ', macro,
+                                          '</br> PC1: ', round(Dim.1, 2),
+                                          '</br> PC2: ', round(Dim.2, 2),
+                                          '</br> PC3: ', round(Dim.3, 2)))
+
+```
+
+
+#### Removing african hg (L0, L1, L2, L3)
+
+```{r oa-pca}
+## PCA 
+oa.pca <- ped %>% 
+  filter(macro %nin% c("L0", "L1", "L2", "L3")) %>% 
+  select(starts_with("mt")) %>% 
+  PCA(., scale.unit = T, ncp = 10, graph = FALSE)
+
+oa.ind.pca <- get_pca_ind(oa.pca)$coord %>% 
+  as_tibble() %>%
+  bind_cols(select(filter(ped, macro %nin% c("L0", "L1", "L2", "L3")), Individual, haplogroup, macro)) %>% 
+  select(Individual, haplogroup, macro, everything()) %>% 
+  filter(macro %nin% c("u")) %>% 
+  filter(!is.na(macro))
+
+```
+
+```{r 0a-plot-2d-pca}
+
+ggplot(oa.ind.pca, aes(x = Dim.1, y = Dim.2, colour = macro)) + geom_point() + theme_bw() + 
+    scale_color_manual(values = cols25())
+
+```
+
+```{r oa-plot-3d-pca}
+plot_ly(oa.ind.pca, x = ~Dim.2, y = ~Dim.1, z = ~Dim.3, color = ~macro, 
+        type = 'scatter3d', mode = 'markers', marker = list(size = 3), 
+        hoverinfo = 'text', text = ~paste('</br> ID: ', Individual, 
+                                          '</br> Haplogroup: ', macro,
+                                          '</br> PC1: ', round(Dim.1, 2),
+                                          '</br> PC2: ', round(Dim.2, 2),
+                                          '</br> PC3: ', round(Dim.3, 2)))
+
+```
+
+
+## Thousand Genomes 
+
+### Data Wrangling
+```{r 1kg-wrangle, cache=T}
+## Haplogroup assignments 
+dat_1kg <- generate_snp_data_fixed(
+  "/Users/sheaandrews/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/chrMT_1kg_norm_decomposed_firstAlt.map",
+  "/Users/sheaandrews/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/chrMT_1kg_norm_decomposed_firstAlt.ped")
+info_1kg <- read_tsv("/Users/sheaandrews/GitCode/MitoImputePrep/data/ThousandGenomes/20130606_g1k.ped", guess_max = 10000) %>% 
+  select(Individual = `Individual ID`, Family_ID = `Family ID`, Father = `Paternal ID`, Mother = `Maternal ID`, Population, Gender)
+
+data(nodes)
+classifications_1kg.raw <- HiMC::getClassifications(dat_1kg)
+classifications_1kg <- as_tibble(classifications_1kg.raw[-nrow(classifications_1kg.raw),]) #remove Mitochondria_Information row 
+
+ped_1kg <- dat_1kg
+colnames(ped_1kg) <- c("Family", "Individual", "Father", "Mother", 
+                   "Sex", "Phenotype", paste0('mt', colnames(ped_1kg[, 7:ncol(ped_1kg)])))
+ped_1kg <- as_tibble(ped_1kg) %>%
+  na_if(., "0 0") %>% 
+  mutate_at(vars(starts_with("mt")), as_factor) %>% 
+  mutate_at(vars(starts_with("mt")), as.numeric) %>% 
+  left_join(classifications_1kg) %>% 
+  mutate(macro = ifelse(str_detect(haplogroup, "^L"),
+                        substr(haplogroup, start = 1, stop = 2),
+                        substr(haplogroup, start = 1, stop = 1))) %>% 
+  select(-Family, -Sex, -Father, -Mother) %>%
+  left_join(info_1kg, by = "Individual") %>%
+  select(Family = Family_ID, Individual, Father, Mother, Sex = Gender, Phenotype, 
+         pop = Population, haplogroup, macro, full_path, everything()) %>% 
+  filter(macro %nin% c("u")) %>% 
+  filter(!is.na(macro)) # %>% 
+  # group_by(Family) %>% 
+  # slice(1) %>% 
+  # ungroup()
+#  filter(macro %nin% c("L0", "L1", "L2", "L3"))
+
+miss_gt <- ped_1kg %>%
+  select(everything()) %>%  # replace to your needs
+  summarise_all( ~ sum(is.na(.))) %>% 
+  t() %>% 
+  as_tibble(rownames = "var") %>% 
+  filter(V1 > 0) %>% pull(var)
+```
+
+```{r tabs, eval=FALSE}
+
+count(ped_1kg, pop) %>% print(n = Inf)
+count(ped_1kg, macro) %>% print(n = Inf)
+count(ped_1kg, haplogroup) %>% print(n = Inf)
+
+```
+
+
+### PCA 
+
+```{r 1kg-pca}
+
+## PCA 
+res.pca_1kg <- ped_1kg %>% 
+  select(starts_with("mt")) %>% 
+  select(-all_of(miss_gt)) %>%
+#  mutate_all(., .funs = function(x){ifelse(is.na(x), round(mean(x, na.rm = TRUE)), x)}) %>%
+  PCA(., scale.unit = F, ncp = 10, graph = FALSE)
+
+ind.pca_1kg <- get_pca_ind(res.pca_1kg)$coord %>% 
+  as_tibble() %>%
+  bind_cols(select(ped_1kg, Individual, haplogroup, macro, pop)) %>% 
+  select(Individual, haplogroup, macro, everything()) 
+
+```
+
+
+```{r 1kg-plot-2d-pca}
+
+ggplot(ind.pca_1kg, aes(x = Dim.1, y = Dim.2, colour = macro)) + 
+  geom_point() + 
+  scale_color_manual(values = cols25()) + 
+  theme_bw() + theme(legend.position = "bottom")
+
+```
+
+```{r}
+eig.val_1kg <- get_eigenvalue(res.pca_1kg)
+fviz_eig(res.pca_1kg, addlabels = TRUE, ylim = c(0, 50))
+
+```
+
+
+```{r 1kg-plot-3d-pca}
+plot_ly(ind.pca_1kg, x = ~Dim.2, y = ~Dim.1, z = ~Dim.3, color = ~macro, colors = cols25(), 
+        type = 'scatter3d', mode = 'markers', marker = list(size = 3), 
+        hoverinfo = 'text', text = ~paste('</br> ID: ', Individual, 
+                                          '</br> Haplogroup: ', macro,
+                                          '</br> PC1: ', round(Dim.1, 2),
+                                          '</br> PC2: ', round(Dim.2, 2),
+                                          '</br> PC3: ', round(Dim.3, 2)))
+
+```
+
+### UMAP 
+
+```{r}
+## UMAP 
+embedding_mt_2d <- ped_1kg %>% 
+  select(starts_with("mt")) %>% 
+  select(-all_of(miss_gt)) %>%
+#  mutate_all(., .funs = function(x){ifelse(is.na(x), round(mean(x, na.rm = TRUE)), x)}) %>%
+  umapr::umap(., min_dist = 0.5, n_neighbor = 30, n_components = 2) %>% 
+  as.tibble() %>%
+  bind_cols(select(ped_1kg, Individual, haplogroup, macro)) 
+
+embedding_mt_3d <- ped_1kg %>% 
+  select(starts_with("mt")) %>% 
+  select(-all_of(miss_gt)) %>%
+#  mutate_all(., .funs = function(x){ifelse(is.na(x), round(mean(x, na.rm = TRUE)), x)}) %>%
+  umapr::umap(., min_dist = 0.5, n_neighbor = 30, n_components = 3) %>% 
+  as.tibble() %>%
+  bind_cols(select(ped_1kg, Individual, haplogroup, macro)) 
+
+## PCA+UMAP
+embedding_pca_2d <- select(ind.pca_1kg, starts_with("Dim")) %>% 
+  umapr::umap(., min_dist = 0.5, n_neighbor = 30, n_components = 2) %>% 
+  as.tibble() %>%
+  bind_cols(select(ped_1kg, Individual, haplogroup, macro)) 
+
+embedding_pca_3d <- select(ind.pca_1kg, starts_with("Dim")) %>%
+  umapr::umap(., min_dist = 0.5, n_neighbor = 30, n_components = 3) %>% 
+  as.tibble() %>%
+  bind_cols(select(ped_1kg, Individual, haplogroup, macro)) 
+
+```
+
+```{r}
+ggpubr::ggarrange(
+  ggplot(embedding_mt_2d, aes(x = UMAP1, y = UMAP2, color = macro)) + 
+    geom_point() + scale_color_manual(values = cols25()) +  theme_bw() + labs(title = "UMAP"),
+  ggplot(embedding_pca_2d, aes(x = UMAP1, y = UMAP2, color = macro)) + 
+    geom_point() + scale_color_manual(values = cols25()) +  theme_bw() + labs(title = "PCA+UMAP"), 
+  common.legend = TRUE, legend = "bottom"
+)
+
+```
+
+```{r}
+plot_ly(embedding_mt_3d, x = ~UMAP2, y = ~UMAP1, z = ~UMAP3, color = ~macro, colors = cols25(),
+        type = 'scatter3d', mode = 'markers', marker = list(size = 3),
+        hoverinfo = 'text', text = ~paste('</br> ID: ', Individual, 
+                                          '</br> Macro: ', macro,
+                                          '</br> Haplogroup: ', haplogroup,
+                                          '</br> PC1: ', round(UMAP1, 2),
+                                          '</br> PC2: ', round(UMAP2, 2),
+                                          '</br> PC3: ', round(UMAP3, 2))) %>%  
+        layout(title="UMAP")
+
+plot_ly(embedding_pca_3d, x = ~UMAP2, y = ~UMAP1, z = ~UMAP3, color = ~macro, colors = cols25(), 
+        type = 'scatter3d', mode = 'markers', marker = list(size = 3), 
+        hoverinfo = 'text', text = ~paste('</br> ID: ', Individual, 
+                                          '</br> Macro: ', macro,
+                                          '</br> Haplogroup: ', haplogroup,
+                                          '</br> PC1: ', round(UMAP1, 2),
+                                          '</br> PC2: ', round(UMAP2, 2),
+                                          '</br> PC3: ', round(UMAP3, 2))) %>%  
+        layout(title="PCA+UMAP")
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
