@@ -94,7 +94,9 @@ ped <- as_tibble(ped) %>%
   mutate(macro = ifelse(str_detect(haplogroup, "^L"),
                         substr(haplogroup, start = 1, stop = 2),
                         substr(haplogroup, start = 1, stop = 1))) %>% 
-  select(Family, Individual, Father, Mother, Sex, Phenotype, haplogroup, macro, everything())
+  select(Family, Individual, Father, Mother, Sex, Phenotype, haplogroup, macro, everything()) %>% 
+  filter(macro %nin% c("u")) %>% 
+  filter(!is.na(macro))
 
 ```
 
@@ -109,19 +111,18 @@ Run PCA analysis of mtReference Panel
 ## PCA 
 res.pca <- ped %>% 
   select(starts_with("mt")) %>% 
-  PCA(., scale.unit = T, ncp = 10, graph = FALSE)
+  PCA(., scale.unit = F, ncp = 10, graph = FALSE)
 
 ind.pca <- get_pca_ind(res.pca)$coord %>% 
   as_tibble() %>%
   bind_cols(select(ped, Individual, haplogroup, macro)) %>% 
-  select(Individual, haplogroup, macro, everything()) %>% 
-  filter(macro %nin% c("u")) %>% 
-  filter(!is.na(macro))
-
-## Count number of mthg 
-ind.pca %>% count(macro) %>% print(n = Inf)
+  select(Individual, haplogroup, macro, everything()) 
 ```
 
+```{r}
+eig.val <- get_eigenvalue(res.pca)
+fviz_eig(res.pca, addlabels = TRUE, ylim = c(0, 50))
+```
 
 ```{r plot-2d-pca}
 
@@ -138,6 +139,31 @@ plot_ly(ind.pca, x = ~Dim.2, y = ~Dim.1, z = ~Dim.3, color = ~macro, type = 'sca
                                           '</br> PC1: ', round(Dim.1, 2),
                                           '</br> PC2: ', round(Dim.2, 2),
                                           '</br> PC3: ', round(Dim.3, 2)))
+
+```
+
+### UMAP 
+
+```{r}
+embedding_mtref_2d <- select(ind.pca, starts_with("Dim")) %>% 
+  umapr::umap(., min_dist = 0.5, n_neighbor = 1000, n_components = 2)  %>% as.tibble() %>%
+  bind_cols(select(ped, Individual, haplogroup, macro)) 
+
+ggplot(embedding_mtref_2d, aes(x = UMAP1, y = UMAP2, color = macro)) + 
+  geom_point() + 
+  scale_color_manual(values = cols25()) +
+  theme_bw()
+
+embedding_mtref_3d <- select(ind.pca, starts_with("Dim")) %>% 
+  umapr::umap(., min_dist = 0.5, n_neighbor = 1000, n_components = 3)  %>% as.tibble() %>%
+  bind_cols(select(ped, Individual, haplogroup, macro)) 
+
+plot_ly(embedding_mtref_3d, x = ~UMAP2, y = ~UMAP1, z = ~UMAP3, color = ~macro, colors = cols25(), type = 'scatter3d', mode = 'markers', marker = list(size = 3), 
+        hoverinfo = 'text', text = ~paste('</br> ID: ', Individual, 
+                                          '</br> Haplogroup: ', macro,
+                                          '</br> PC1: ', round(UMAP1, 2),
+                                          '</br> PC2: ', round(UMAP2, 2),
+                                          '</br> PC3: ', round(UMAP3, 2)))
 
 ```
 
