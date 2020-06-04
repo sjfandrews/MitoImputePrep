@@ -79,7 +79,7 @@ ped$Region          = country_info$Region
 ped = ped %>%
   select(Family, Individual, Father, Mother, Sex, Phenotype, haplogroup, macro, geographic_data, Continent, Country, Region, everything())
 
-
+#write.table(ped, "~/GitCode/MitoImputePrep/DerivedData/ReferencePanel_v1_0.01/ReferencePanel_v1_highQual_MAF0.01_filtered_countryInfo.ped", row.names = F, quote = F, sep = "\t")
 
 ## PCA 
 res.pca <- ped %>% 
