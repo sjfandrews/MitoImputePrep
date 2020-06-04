@@ -40,8 +40,8 @@ generate_snp_data_fixed <- function (map_file, ped_file) {
 
 ## Haplogroup assignments 
 
-in_map_file = "~/GitCode/MitoImputePrep/DerivedData/ReferencePanel_v1_0.01/ReferencePanel_v1_highQual_MAF0.01_filtered.map"
-in_ped_file = "~/GitCode/MitoImputePrep/DerivedData/ReferencePanel_v1_0.01/ReferencePanel_v1_highQual_MAF0.01_filtered.ped"
+in_map_file = "~//Desktop/SANDBOX/MitoImpute/UMAP/data/ReferencePanel_v1_highQual_MAF0.01_filtered.map"
+in_ped_file = "~//Desktop/SANDBOX/MitoImpute/UMAP/data/ReferencePanel_v1_highQual_MAF0.01_filtered.ped"
 
 country_info_file = "~/GitCode/MitoImputePrep/metadata/seq_country_list.csv"
 country_info = read_csv(country_info_file)
