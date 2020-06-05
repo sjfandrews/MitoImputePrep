@@ -27,6 +27,7 @@ library(factoextra)
 library(plotly)
 library(HiMC)
 library(pals)
+library(glue)
 `%nin%` = Negate(`%in%`)
 
 ## Reading in MAP/PED files
@@ -57,16 +58,36 @@ generate_snp_data_fixed <- function (map_file, ped_file)
 
 ## Dimensionality Reduction 
 
+### PCA 
 **PCA**: an orthogonal linear transformation which projects the genotype data into the new reduced dimensional space such that the greater variance comes in an order
 
+### UMAP 
 **UMAP**: a novel non-linear dimensionality reduction technique based on Riemannian geometry and algebraic topology to model and preserve the high-dimensional topology of data points in the lowdimensional space
 
 **PCA–UMAP**: an application of UMAP for principal components of genotype data to be computationally more advantageous and statistically less noisy
 
+UMAP has several hyperparameters that can have a signficant impact on the resulting embedding. 
+
++ `n_neighbors`: The size of local neighborhood (in terms of number of neighboring sample points) used for manifold approximation. Larger values result in more global views of the manifold, while smaller values result in more local data being preserved. In general values should be in the range 2 to 100 (default = 15).
+  - Using few neighbours to build a manifold emphasizes closer relatedness, with related samples clustered togeather.
++ `min_dist`: The effective minimum distance between embedded points. Smaller values will result in a more clustered/clumped embedding where nearby points on the manifold are drawn closer together, while larger values will result on a more even dispersal of points. The value should be set relative to the “spread“ value. (default = 0.1) 
++ `n_components`: The dimension of the space to embed into (defaults = 2)
++ `metric`: The metric to use to compute distances in high dimensional space (default = euclidean)
++ `n pca`: For genetic ancestry the number of PCs used in the data input. Adding more components results in progressively finer clusters until approximately 20 populations appear using 15 components; adding further components converges to results similar to using the entire genotype data
+
+### References 
+
+#### Papers 
 + Diaz-Papkovich, A., et al. (2019). UMAP reveals cryptic population structure and phenotype heterogeneity in large genomic cohorts. [PLOS Genetics  15(11), e1008432](https://dx.doi.org/10.1371/journal.pgen.1008432)
 + Sakaue, S., et al. (2020). Dimensionality reduction reveals fine-scale structure in the Japanese population with consequences for polygenic risk prediction. [Nature Communications  11(1), 1569](https://dx.doi.org/10.1038/s41467-020-15194-z)
 + Karczewski, K., et al. (2020). The mutational constraint spectrum quantified from variation in 141,456 humans. [Nature  581(7809), 434-443](https://dx.doi.org/10.1038/s41586-020-2308-7)
++ Yamamoto, K.,et al. (2020). Genetic and phenotypic landscape of the mitochondrial genome in the Japanese population Communications Biology  3(1), 104. https://dx.doi.org/10.1038/s42003-020-0812-9
 
+#### Documentation 
++ [umapr](https://github.com/ropenscilabs/umapr): wraps the Python implementation of UMAP to make the algorithm accessible from within R
++ [umap](https://github.com/tkonopka/umap): R package that provides an interface to the UMAP algorithm, including a translation of the original algorithm into R with minimal dependencies
++ [uwot](https://github.com/jlmelville/uwot): R package implementing the UMAP dimensionality reduction method that also implements the supervised and metric (out-of-sample) learning extensions to the basic method.
++ [umap](https://umap-learn.readthedocs.io/en/latest/reproducibility.html): Read the docs for the python implementation
 
 ## mtReference Panel 
 
@@ -75,6 +96,10 @@ generate_snp_data_fixed <- function (map_file, ped_file)
 + Convert alleles to 0/1 coding 
 
 ```{r mtreference-wrangle, cache=T}
+## Provenence 
+country <- read_tsv("/Users/sheaandrews/GitCode/MitoImputePrep/DerivedData/ReferencePanel_v6/ReferencePanel_v1_highQual_MAF0.01_filtered_countryInfo.ped") %>% 
+  select(Family, Individual, geographic_data, Continent, Country, Region)
+
 ## Haplogroup assignments 
 dat <- generate_snp_data_fixed("/Users/sheaandrews/GitCode/MitoImpute/ReferencePanel/ReferencePanel.map",
                                "/Users/sheaandrews/GitCode/MitoImpute/ReferencePanel/ReferencePanel.ped")
@@ -91,13 +116,20 @@ ped <- as_tibble(ped) %>%
   mutate_at(vars(starts_with("mt")), as_factor) %>% 
   mutate_at(vars(starts_with("mt")), as.numeric) %>% 
   left_join(classifications) %>% 
+  left_join(country) %>% 
   mutate(macro = ifelse(str_detect(haplogroup, "^L"),
                         substr(haplogroup, start = 1, stop = 2),
-                        substr(haplogroup, start = 1, stop = 1))) %>% 
-  select(Family, Individual, Father, Mother, Sex, Phenotype, haplogroup, macro, everything()) %>% 
+                        substr(haplogroup, start = 1, stop = 1)), 
+         Continent = replace_na(Continent, "Unknown")) %>% 
+  select(Family, Individual, Father, Mother, Sex, Phenotype, haplogroup, macro, 
+         geographic_data, Continent, Country, Region, everything()) %>% 
   filter(macro %nin% c("u")) %>% 
   filter(!is.na(macro))
 
+```
+
+```{r, eval=FALSE}
+count(ped, Continent)
 ```
 
 ### PCA analysis
@@ -115,8 +147,8 @@ res.pca <- ped %>%
 
 ind.pca <- get_pca_ind(res.pca)$coord %>% 
   as_tibble() %>%
-  bind_cols(select(ped, Individual, haplogroup, macro)) %>% 
-  select(Individual, haplogroup, macro, everything()) 
+  bind_cols(select(ped, Individual, haplogroup, macro, Continent)) %>% 
+  select(Individual, haplogroup, macro, Continent, everything()) 
 ```
 
 ```{r}
@@ -126,14 +158,30 @@ fviz_eig(res.pca, addlabels = TRUE, ylim = c(0, 50))
 
 ```{r plot-2d-pca}
 
-ggplot(ind.pca, aes(x = Dim.1, y = Dim.2, colour = macro)) + geom_point() + theme_bw()
+ggplot(ind.pca, aes(x = Dim.1, y = Dim.2, colour = macro)) + 
+  scale_color_manual(values = cols25()) + 
+  geom_point() + theme_bw()
 
+ggplot() + 
+  geom_point(data = filter(ind.pca, Continent == "Unknown"), aes(x = Dim.1, y = Dim.2, colour = Continent)) + 
+  geom_point(data = filter(ind.pca, Continent != "Unknown"), aes(x = Dim.1, y = Dim.2, colour = Continent)) + 
+  scale_color_manual(values = cols25()) + 
+  theme_bw()
 ```
 
 
 
 ```{r plot-3d-pca}
-plot_ly(ind.pca, x = ~Dim.2, y = ~Dim.1, z = ~Dim.3, color = ~macro, type = 'scatter3d', mode = 'markers', marker = list(size = 3), 
+plot_ly(ind.pca, x = ~Dim.2, y = ~Dim.1, z = ~Dim.3, color = ~macro, colors = cols25(),
+        type = 'scatter3d', mode = 'markers', marker = list(size = 3), 
+        hoverinfo = 'text', text = ~paste('</br> ID: ', Individual, 
+                                          '</br> Haplogroup: ', macro,
+                                          '</br> PC1: ', round(Dim.1, 2),
+                                          '</br> PC2: ', round(Dim.2, 2),
+                                          '</br> PC3: ', round(Dim.3, 2)))
+
+plot_ly(ind.pca, x = ~Dim.2, y = ~Dim.1, z = ~Dim.3, color = ~Continent, colors = cols25(),
+        type = 'scatter3d', mode = 'markers', marker = list(size = 3), 
         hoverinfo = 'text', text = ~paste('</br> ID: ', Individual, 
                                           '</br> Haplogroup: ', macro,
                                           '</br> PC1: ', round(Dim.1, 2),
@@ -147,18 +195,33 @@ plot_ly(ind.pca, x = ~Dim.2, y = ~Dim.1, z = ~Dim.3, color = ~macro, type = 'sca
 ```{r}
 embedding_mtref_2d <- select(ind.pca, starts_with("Dim")) %>% 
   umapr::umap(., min_dist = 0.5, n_neighbor = 1000, n_components = 2)  %>% as.tibble() %>%
-  bind_cols(select(ped, Individual, haplogroup, macro)) 
+  bind_cols(select(ped, Individual, haplogroup, macro, Continent)) 
 
-ggplot(embedding_mtref_2d, aes(x = UMAP1, y = UMAP2, color = macro)) + 
+ggpubr::ggarrange(
+  ggplot(embedding_mtref_2d, aes(x = UMAP1, y = UMAP2, color = macro)) + 
   geom_point() + 
   scale_color_manual(values = cols25()) +
+  theme_bw(),
+
+ggplot() + 
+  geom_point(data = filter(embedding_mtref_2d, Continent == "Unknown"), aes(x = UMAP1, y = UMAP2, colour = Continent)) + 
+  geom_point(data = filter(embedding_mtref_2d, Continent != "Unknown"), aes(x = UMAP1, y = UMAP2, colour = Continent)) + 
+  scale_color_manual(values = cols25()) +
   theme_bw()
+)
 
 embedding_mtref_3d <- select(ind.pca, starts_with("Dim")) %>% 
   umapr::umap(., min_dist = 0.5, n_neighbor = 1000, n_components = 3)  %>% as.tibble() %>%
-  bind_cols(select(ped, Individual, haplogroup, macro)) 
+  bind_cols(select(ped, Individual, haplogroup, macro, Continent)) 
 
 plot_ly(embedding_mtref_3d, x = ~UMAP2, y = ~UMAP1, z = ~UMAP3, color = ~macro, colors = cols25(), type = 'scatter3d', mode = 'markers', marker = list(size = 3), 
+        hoverinfo = 'text', text = ~paste('</br> ID: ', Individual, 
+                                          '</br> Haplogroup: ', macro,
+                                          '</br> PC1: ', round(UMAP1, 2),
+                                          '</br> PC2: ', round(UMAP2, 2),
+                                          '</br> PC3: ', round(UMAP3, 2)))
+
+plot_ly(filter(embedding_mtref_3d, Continent != "Unknown"), x = ~UMAP2, y = ~UMAP1, z = ~UMAP3, color = ~Continent, colors = cols25(), type = 'scatter3d', mode = 'markers', marker = list(size = 3), 
         hoverinfo = 'text', text = ~paste('</br> ID: ', Individual, 
                                           '</br> Haplogroup: ', macro,
                                           '</br> PC1: ', round(UMAP1, 2),
@@ -214,7 +277,35 @@ dat_1kg <- generate_snp_data_fixed(
   "/Users/sheaandrews/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/chrMT_1kg_norm_decomposed_firstAlt.map",
   "/Users/sheaandrews/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/chrMT_1kg_norm_decomposed_firstAlt.ped")
 info_1kg <- read_tsv("/Users/sheaandrews/GitCode/MitoImputePrep/data/ThousandGenomes/20130606_g1k.ped", guess_max = 10000) %>% 
-  select(Individual = `Individual ID`, Family_ID = `Family ID`, Father = `Paternal ID`, Mother = `Maternal ID`, Population, Gender)
+  select(Individual = `Individual ID`, Family_ID = `Family ID`, Father = `Paternal ID`, Mother = `Maternal ID`, Population, Gender) %>% 
+  mutate(cont = case_when(
+    Population == "ESN" ~ "AFR",
+    Population == "GWD" ~ "AFR",
+    Population == "LWK" ~ "AFR",
+    Population == "MSL" ~ "AFR",
+    Population == "YRI" ~ "AFR",
+    Population == "JPT" ~ "EAS",
+    Population == "CHB" ~ "EAS",
+    Population == "CDX" ~ "EAS",
+    Population == "CHS" ~ "EAS",
+    Population == "KHV" ~ "EAS",
+    Population == "CEU" ~ "EUR",
+    Population == "FIN" ~ "EUR",
+    Population == "GBR" ~ "EUR",
+    Population == "IBS" ~ "EUR",
+    Population == "TSI" ~ "EUR",
+    Population == "BEB" ~ "IND",
+    Population == "GIH" ~ "IND",
+    Population == "ITU" ~ "IND",
+    Population == "PJL" ~ "IND",
+    Population == "STU" ~ "IND",
+    Population == "ACB" ~ "AMR",
+    Population == "ASW" ~ "AMR",
+    Population == "CLM" ~ "AMR",
+    Population == "MXL" ~ "AMR",
+    Population == "PEL" ~ "AMR",
+    Population == "PUR" ~ "AMR",
+  ))
 
 data(nodes)
 classifications_1kg.raw <- HiMC::getClassifications(dat_1kg)
@@ -253,11 +344,11 @@ miss_gt <- ped_1kg %>%
 ```{r tabs, eval=FALSE}
 
 count(ped_1kg, pop) %>% print(n = Inf)
+count(ped_1kg, cont) %>% print(n = Inf)
 count(ped_1kg, macro) %>% print(n = Inf)
 count(ped_1kg, haplogroup) %>% print(n = Inf)
 
 ```
-
 
 ### PCA 
 
@@ -272,7 +363,7 @@ res.pca_1kg <- ped_1kg %>%
 
 ind.pca_1kg <- get_pca_ind(res.pca_1kg)$coord %>% 
   as_tibble() %>%
-  bind_cols(select(ped_1kg, Individual, haplogroup, macro, pop)) %>% 
+  bind_cols(select(ped_1kg, Individual, haplogroup, macro, pop, cont)) %>% 
   select(Individual, haplogroup, macro, everything()) 
 
 ```
@@ -281,6 +372,11 @@ ind.pca_1kg <- get_pca_ind(res.pca_1kg)$coord %>%
 ```{r 1kg-plot-2d-pca}
 
 ggplot(ind.pca_1kg, aes(x = Dim.1, y = Dim.2, colour = macro)) + 
+  geom_point() + 
+  scale_color_manual(values = cols25()) + 
+  theme_bw() + theme(legend.position = "bottom")
+
+ggplot(ind.pca_1kg, aes(x = Dim.1, y = Dim.2, colour = cont)) + 
   geom_point() + 
   scale_color_manual(values = cols25()) + 
   theme_bw() + theme(legend.position = "bottom")
@@ -303,6 +399,14 @@ plot_ly(ind.pca_1kg, x = ~Dim.2, y = ~Dim.1, z = ~Dim.3, color = ~macro, colors 
                                           '</br> PC2: ', round(Dim.2, 2),
                                           '</br> PC3: ', round(Dim.3, 2)))
 
+plot_ly(ind.pca_1kg, x = ~Dim.2, y = ~Dim.1, z = ~Dim.3, color = ~cont, colors = cols25(), 
+        type = 'scatter3d', mode = 'markers', marker = list(size = 3), 
+        hoverinfo = 'text', text = ~paste('</br> ID: ', Individual, 
+                                          '</br> Haplogroup: ', macro,
+                                          '</br> PC1: ', round(Dim.1, 2),
+                                          '</br> PC2: ', round(Dim.2, 2),
+                                          '</br> PC3: ', round(Dim.3, 2)))
+
 ```
 
 ### UMAP 
@@ -313,28 +417,28 @@ embedding_mt_2d <- ped_1kg %>%
   select(starts_with("mt")) %>% 
   select(-all_of(miss_gt)) %>%
 #  mutate_all(., .funs = function(x){ifelse(is.na(x), round(mean(x, na.rm = TRUE)), x)}) %>%
-  umapr::umap(., min_dist = 0.5, n_neighbor = 30, n_components = 2) %>% 
+  umapr::umap(., min_dist = 0.5, n_neighbor = 50, n_components = 2) %>% 
   as.tibble() %>%
-  bind_cols(select(ped_1kg, Individual, haplogroup, macro)) 
+  bind_cols(select(ped_1kg, Individual, haplogroup, macro, pop, cont)) 
 
 embedding_mt_3d <- ped_1kg %>% 
   select(starts_with("mt")) %>% 
   select(-all_of(miss_gt)) %>%
 #  mutate_all(., .funs = function(x){ifelse(is.na(x), round(mean(x, na.rm = TRUE)), x)}) %>%
-  umapr::umap(., min_dist = 0.5, n_neighbor = 30, n_components = 3) %>% 
+  umapr::umap(., min_dist = 0.5, n_neighbor = 50, n_components = 3) %>% 
   as.tibble() %>%
-  bind_cols(select(ped_1kg, Individual, haplogroup, macro)) 
+  bind_cols(select(ped_1kg, Individual, haplogroup, macro, pop, cont)) 
 
 ## PCA+UMAP
 embedding_pca_2d <- select(ind.pca_1kg, starts_with("Dim")) %>% 
-  umapr::umap(., min_dist = 0.5, n_neighbor = 30, n_components = 2) %>% 
+  umapr::umap(., min_dist = 0.5, n_neighbor = 50, n_components = 2) %>% 
   as.tibble() %>%
-  bind_cols(select(ped_1kg, Individual, haplogroup, macro)) 
+  bind_cols(select(ped_1kg, Individual, haplogroup, macro, pop, cont)) 
 
 embedding_pca_3d <- select(ind.pca_1kg, starts_with("Dim")) %>%
-  umapr::umap(., min_dist = 0.5, n_neighbor = 30, n_components = 3) %>% 
+  umapr::umap(., min_dist = 0.5, spread = 1, n_neighbor = 50, n_components = 3) %>% 
   as.tibble() %>%
-  bind_cols(select(ped_1kg, Individual, haplogroup, macro)) 
+  bind_cols(select(ped_1kg, Individual, haplogroup, macro, pop, cont)) 
 
 ```
 
@@ -346,6 +450,14 @@ ggpubr::ggarrange(
     geom_point() + scale_color_manual(values = cols25()) +  theme_bw() + labs(title = "PCA+UMAP"), 
   common.legend = TRUE, legend = "bottom"
 )
+
+ggpubr::ggarrange(
+  ggplot(embedding_pca_2d, aes(x = UMAP1, y = UMAP2, color = cont)) + 
+    geom_point() + scale_color_manual(values = cols25()) +  theme_bw() + labs(title = "PCA+UMAP: Continent"),
+  ggplot(embedding_pca_2d, aes(x = UMAP1, y = UMAP2, color = macro)) + 
+    geom_point() + scale_color_manual(values = cols25()) +  theme_bw() + labs(title = "PCA+UMAP: mtHg")
+)
+
 
 ```
 
@@ -365,6 +477,20 @@ plot_ly(embedding_pca_3d, x = ~UMAP2, y = ~UMAP1, z = ~UMAP3, color = ~macro, co
         hoverinfo = 'text', text = ~paste('</br> ID: ', Individual, 
                                           '</br> Macro: ', macro,
                                           '</br> Haplogroup: ', haplogroup,
+                                          '</br> Pop: ', pop,
+                                          '</br> Continent: ', cont,
+                                          '</br> PC1: ', round(UMAP1, 2),
+                                          '</br> PC2: ', round(UMAP2, 2),
+                                          '</br> PC3: ', round(UMAP3, 2))) %>%  
+        layout(title="PCA+UMAP")
+
+plot_ly(embedding_pca_3d, x = ~UMAP2, y = ~UMAP1, z = ~UMAP3, color = ~cont, colors = cols25(), 
+        type = 'scatter3d', mode = 'markers', marker = list(size = 3), 
+        hoverinfo = 'text', text = ~paste('</br> ID: ', Individual, 
+                                          '</br> Macro: ', macro,
+                                          '</br> Haplogroup: ', haplogroup,
+                                          '</br> Pop: ', pop,
+                                          '</br> Continent: ', cont,
                                           '</br> PC1: ', round(UMAP1, 2),
                                           '</br> PC2: ', round(UMAP2, 2),
                                           '</br> PC3: ', round(UMAP3, 2))) %>%  
@@ -373,6 +499,82 @@ plot_ly(embedding_pca_3d, x = ~UMAP2, y = ~UMAP1, z = ~UMAP3, color = ~macro, co
 
 ```
 
+#### Hypurr-ameters 
+
+```{r hyperparameters, cache=TRUE}
+### UMAP Function 
+umap_helper <- function(data, pcs, min_dist, n_neighbor, n_components){
+  pb$tick()$print() ## Progress bar
+  out <- select(data, Dim.1:glue("Dim.", pcs)) %>% 
+    umapr::umap(., min_dist = min_dist, spread = 1, n_neighbor = n_neighbor, n_components = n_components) %>% 
+    as.tibble() %>%
+    bind_cols(select(data, Individual, haplogroup, macro, pop, cont)) 
+  out
+}
+
+### Hyper-parameters to iterative over 
+umap_param <- tibble(pcs = 2:3, 
+                     min_dist = rep(0.5, length(pcs)), 
+                     n_neighbor = rep(50, length(pcs)), 
+                     n_components = rep(2,3, length(pcs))
+)
+
+umap_param <- expand_grid(
+  pcs = 2:10, 
+  n_components = 2, 
+  min_dist = c(0.1, 0.25, 0.5, 0.75, 0.99), 
+  n_neighbor = c(15, 25, 50, 75, 100)
+)
+
+pb <- progress_estimated(nrow(umap_param)) ## initiate Progress bar
+hp_1kg_embedding <- umap_param %>% 
+  rowwise() %>% 
+  mutate(res = list(umap_helper(ind.pca_1kg, pcs = pcs, min_dist = min_dist, 
+                                n_neighbor = n_neighbor, n_components = n_components)))
+```
+
+
+```{r}
+hp_1kg_embedding_plots <- hp_1kg_embedding %>% 
+  mutate(plots = list(
+    ggplot(res, aes(x = UMAP1, y = UMAP2, color = macro)) +
+      geom_point() + scale_color_manual(values = cols25()) + theme_bw()
+    ))
+
+## PC Plots (n_components == 2, min_dist == 0.5, n_neighbor == 50)
+ggpubr::ggarrange(plotlist =  filter(hp_1kg_embedding_plots, 
+                                     pcs %in% c(2:10), 
+                                     n_components == 2, 
+                                     min_dist == 0.1, 
+                                     n_neighbor == 15)  %>% pull(plots), 
+                  legend = "bottom", 
+                  common.legend = TRUE, 
+                  labels = glue("PCs: {npc}", npc = 2:10))
+
+## n_neigbor (pcs == 10, n_components == 2, min_dist == 0.5)
+ggpubr::ggarrange(plotlist =  filter(hp_1kg_embedding_plots, 
+                                     pcs == 10, 
+                                     n_components == 2, 
+                                     min_dist == 0.1, 
+                                     n_neighbor %in% c(10, 25, 50, 75, 100)) %>% 
+                    pull(plots), 
+                  legend = "bottom", 
+                  common.legend = TRUE, 
+                  labels = glue("NN: {npc}", npc = c(10, 25, 50, 75, 100)))
+
+## m_dist (pcs == 10, n_components == 2, n_neighbor == 50)
+ggpubr::ggarrange(plotlist = filter(hp_1kg_embedding_plots, 
+                                    pcs == 10, 
+                                     n_components == 2, 
+                                     min_dist %in% c(0.1, 0.25, 0.5, 0.75, 0.99), 
+                                     n_neighbor == 15) %>% 
+                    pull(plots), 
+                  legend = "bottom", 
+                  common.legend = TRUE, 
+                  labels = glue("MD: {npc}", npc = c(0.1, 0.25, 0.5, 0.75, 0.99)))
+
+
+```
 
 
 
