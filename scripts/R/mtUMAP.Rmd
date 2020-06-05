@@ -71,6 +71,7 @@ UMAP has several hyperparameters that can have a signficant impact on the result
 + `n_neighbors`: The size of local neighborhood (in terms of number of neighboring sample points) used for manifold approximation. Larger values result in more global views of the manifold, while smaller values result in more local data being preserved. In general values should be in the range 2 to 100 (default = 15).
   - Using few neighbours to build a manifold emphasizes closer relatedness, with related samples clustered togeather.
 + `min_dist`: The effective minimum distance between embedded points. Smaller values will result in a more clustered/clumped embedding where nearby points on the manifold are drawn closer together, while larger values will result on a more even dispersal of points. The value should be set relative to the “spread“ value. (default = 0.1) 
+  - spread can therefore be used to control the inter-cluster distances to some extent, where as min_dist controls the size of the clusters.
 + `n_components`: The dimension of the space to embed into (defaults = 2)
 + `metric`: The metric to use to compute distances in high dimensional space (default = euclidean)
 + `n pca`: For genetic ancestry the number of PCs used in the data input. Adding more components results in progressively finer clusters until approximately 20 populations appear using 15 components; adding further components converges to results similar to using the entire genotype data
