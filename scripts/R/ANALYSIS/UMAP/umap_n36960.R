@@ -1,10 +1,12 @@
-library(umapr)
+#library(umapr)
 library(FactoMineR)
 library(factoextra)
+library(uwot)
 library(plotly)
 library(HiMC)
 library(tidyverse)
 library(countrycode)
+library(pals)
 
 # A4 = 297 x 210
 # PowerPoint widescreen = 252 x 116
@@ -40,8 +42,8 @@ generate_snp_data_fixed <- function (map_file, ped_file) {
 
 ## Haplogroup assignments 
 
-in_map_file = "~//Desktop/SANDBOX/MitoImpute/UMAP/data/ReferencePanel_v1_highQual_MAF0.01_filtered.map"
-in_ped_file = "~//Desktop/SANDBOX/MitoImpute/UMAP/data/ReferencePanel_v1_highQual_MAF0.01_filtered.ped"
+in_map_file = "~/Desktop/SANDBOX/MitoImpute/UMAP/data/ReferencePanel_v1_highQual_MAF0.01_filtered.map"
+in_ped_file = "~/Desktop/SANDBOX/MitoImpute/UMAP/data/ReferencePanel_v1_highQual_MAF0.01_filtered.ped"
 
 country_info_file = "~/GitCode/MitoImputePrep/metadata/seq_country_list.csv"
 country_info = read_csv(country_info_file)
@@ -98,6 +100,7 @@ ggplot(ind.pca, aes(x = Dim.1, y = Dim.2, colour = macro)) +
        colour = "Haplogroup") +
   guides(colour = guide_legend(title.position="top",
                                title.hjust = 0.5)) +
+  scale_colour_manual(values = cols25()) +
   theme(axis.text.x = element_text(angle = 0, size = rel(1.5)),
         axis.text.y = element_text(size = rel(1.5)),
         axis.title.x = element_text(size = rel(1.5)),
@@ -123,13 +126,44 @@ ind.pca %>%
   select(starts_with("Dim")) %>%
   write_tsv("~/Desktop/SANDBOX/MitoImpute/UMAP/pcs.txt")
 
-embedding <- umap(as.matrix(ind.pca[, 1:10]), min_dist = 0.5, n_neighbor = 30, n_components = 3)
+embedding = umap(as.matrix(ind.pca[, 1:10]), n_neighbors = 50, learning_rate = 0.5, init = "random")
+names(embedding) = c("UMAP1", "UMAP2")
+embedding2 <- embedding %>% as_tibble() %>%
+  bind_cols(select(ped, Individual, haplogroup, macro, geographic_data, Continent, Country, Region)) 
+
+
+embedding <- umap(as.matrix(ind.pca[, 1:10]), min_dist = 0.5, n_neighbor = 30, n_components = 2)
 embedding2 <- embedding %>% as.tibble() %>%
-  bind_cols(select(ped, Individual, haplogroup, macro)) 
+  bind_cols(select(ped, Individual, haplogroup, macro, geographic_data, Continent, Country, Region))
+names(embedding2) = c("UMAP1", "UMAP2", names(embedding2[3:length(names(embedding2))]))
 
-ggplot(embedding2, aes(x = UMAP1, y = UMAP2, color = macro)) + geom_point() + theme_bw()
-
-
+ggplot(embedding2, aes(x = UMAP1, y = UMAP2, colour = macro)) +
+  geom_point() +
+  labs(x = "UMAP1",
+       y = "UMAP2",
+       colour = "Haplogroup") +
+  guides(colour = guide_legend(title.position="top",
+                               title.hjust = 0.5)) +
+  scale_colour_manual(values = cols25()) +
+  theme(axis.text.x = element_text(angle = 0, size = rel(1.5)),
+        axis.text.y = element_text(size = rel(1.5)),
+        axis.title.x = element_text(size = rel(1.5)),
+        axis.title.y = element_text(size = rel(1.5)),
+        legend.text = element_text(size = rel(1.0)),
+        legend.title = element_text(size = rel(1.25)),
+        legend.position= "top",
+        plot.title = element_blank(),
+        strip.text.x = element_text(size = rel(5/5)),
+        strip.text.y = element_text(size = rel(7/5)),
+        panel.grid.major.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.minor.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.major.y = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.minor.y = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.background = element_rect(fill = "transparent", colour = "black"),
+        strip.background = element_rect(fill = "transparent", colour = NA),
+        legend.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA))
+ggsave(paste0(plot_dir, "umap.png"), width = wd, height = ht, units = "mm", dpi = DPI)
 
 
 
