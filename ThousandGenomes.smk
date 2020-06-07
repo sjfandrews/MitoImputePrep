@@ -49,15 +49,15 @@ rule Get1kgMT_vcf:
     input:
         vcf = FTP.remote("http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz", keep_local=True),
         tbi = FTP.remote("http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz.tbi", keep_local=True)
-        info = FTP.remote("http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/working/20130606_sample_info/20130606_sample_info.xlsx", keep_local=True)
+        ped = FTP.remote("http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/working/20130606_sample_info/20130606_g1k.ped", keep_local=True)
     output:
         vcf = "data/ThousandGenomes/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz",
         tbi = "data/ThousandGenomes/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz.tbi"
-        info = "data/ThousandGenomes/20130606_sample_info.xlsx"
+        ped = "data/ThousandGenomes/20130606_g1k.ped"
     shell:
         "mv {input.vcf} {output.vcf}; "
         "mv {input.tbi} {output.tbi}; "
-        "mv {input.info} {output.info}"
+        "mv {input.ped} {output.ped}"
 
 rule NormaliseVcf:
     input:

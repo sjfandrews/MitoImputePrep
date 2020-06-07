@@ -80,15 +80,126 @@ UMAP has several hyperparameters that can have a signficant impact on the result
 
 #### Papers 
 + Diaz-Papkovich, A., et al. (2019). UMAP reveals cryptic population structure and phenotype heterogeneity in large genomic cohorts. [PLOS Genetics  15(11), e1008432](https://dx.doi.org/10.1371/journal.pgen.1008432)
-+ Sakaue, S., et al. (2020). Dimensionality reduction reveals fine-scale structure in the Japanese population with consequences for polygenic risk prediction. [Nature Communications  11(1), 1569](https://dx.doi.org/10.1038/s41467-020-15194-z)
+  - data = 1kg, UKBB, HRS; metric = Eucledian, PCs = 10; n_neigbours = 15, min_dist = 0.5
+  - Parameter Tuning
+    * PCs: 2 - 15  
+    * min_dist:  0.001 - 0.5 
+    * n_neigbours: 5 - 50
 + Karczewski, K., et al. (2020). The mutational constraint spectrum quantified from variation in 141,456 humans. [Nature  581(7809), 434-443](https://dx.doi.org/10.1038/s41586-020-2308-7)
-+ Yamamoto, K.,et al. (2020). Genetic and phenotypic landscape of the mitochondrial genome in the Japanese population Communications Biology  3(1), 104. https://dx.doi.org/10.1038/s42003-020-0812-9
-
+  - data = gnomAD; PCs = 7; min_dist = 0.5; n_neigbours = 30
++ Sakaue, S., et al. (2020). Dimensionality reduction reveals fine-scale structure in the Japanese population with consequences for polygenic risk prediction. [Nature Communications  11(1), 1569](https://dx.doi.org/10.1038/s41467-020-15194-z)
+  - data = Japanse Biobank; PCs = 50; min_dist = 0.1; n_neigbours = 15; 
++ Yamamoto, K.,et al. (2020). Genetic and phenotypic landscape of the mitochondrial genome in the Japanese population. [Communications Biology  3(1), 104](https://dx.doi.org/10.1038/s42003-020-0812-9)
+  - data = Japanese pop; PCs = 20; n_neighbors = 100; min_dist = 0.99
+  
 #### Documentation 
 + [umapr](https://github.com/ropenscilabs/umapr): wraps the Python implementation of UMAP to make the algorithm accessible from within R
 + [umap](https://github.com/tkonopka/umap): R package that provides an interface to the UMAP algorithm, including a translation of the original algorithm into R with minimal dependencies
+  - [Uniform Manifold Approximation and Projection in R](https://cran.r-project.org/web/packages/umap/vignettes/umap.html) 
 + [uwot](https://github.com/jlmelville/uwot): R package implementing the UMAP dimensionality reduction method that also implements the supervised and metric (out-of-sample) learning extensions to the basic method.
 + [umap](https://umap-learn.readthedocs.io/en/latest/reproducibility.html): Read the docs for the python implementation
+
+```{r default_param}
+param_umapr <- tribble(
+  ~parameter, ~umapr,
+  "include_input",  "TRUE", 
+  "n_neighbors",  "15",
+  "n_components",  "2", 
+  "metric",  "euclidean", 
+  "n_epochs",  "NULL",
+  "learning_rate",  "1", 
+  "alpha",  "1", 
+  "init",  "spectral", 
+  "spread",  "1",
+  "min_dist",  "0.1", 
+  "set_op_mix_ratio",  "1", 
+  "local_connectivity",  "1",
+  "repulsion_strength",  "1", 
+  "bandwidth",  "1", 
+  "gamma",  "1",
+  "negative_sample_rate",  "5", 
+  "transform_queue_size",  "4", 
+  "a",  "NULL",
+  "b",  "NULL", 
+  "random_state",  "NULL",
+  "metric_kwds",  "dict()",
+  "angular_rp_forest",  "FALSE", 
+  "target_n_neighbors",  "-1",
+  "target_metric",  "categorical",
+  "target_metric_kwds",  "dict()",
+  "target_weight",  "0.5", 
+  "transform_seed",  "42")
+
+
+param_umap <- tribble(
+  ~parameter, ~umap,
+  "n_neighbors",  "15",
+  "n_components",  "2",
+  "metric",  "euclidean",
+  "n_epochs",  "200",
+  "input",  "data",
+  "init",  "spectral",
+  "min_dist",  "0.1",
+  "set_op_mix_ratio",  "1",
+  "local_connectivity",  "1",
+  "bandwidth",  "1",
+  "alpha",  "1",
+  "gamma",  "1",
+  "negative_sample_rate",  "5",
+  "a",  "NULL",
+  "b",  "NULL",
+  "spread",  "1",
+  "random_state",  "NULL",
+  "transform_state",  "NULL",
+  "knn_repeats",  "1"
+
+)
+
+param_uwot <- tribble(
+  ~parameter, ~uwot,
+  "n_neighbors", "15",
+  "n_components", "2",
+  "metric", "euclidean",
+  "n_epochs", "NULL",
+  "learning_rate", "1",
+  "scale", "FALSE",
+  "init", "spectral",
+  "init_sdev", "NULL",
+  "spread", "1",
+  "min_dist", "0.01",
+  "set_op_mix_ratio", "1",
+  "local_connectivity", "1",
+  "bandwidth", "1",
+  "repulsion_strength", "1",
+  "negative_sample_rate", "5",
+  "a", "NULL",
+  "b", "NULL",
+  "nn_method", "NULL",
+  "n_trees", "50",
+  "search_k", "2 * n_neighbors * n_trees",
+  "approx_pow", "FALSE",
+  "y", "NULL",
+  "target_n_neighbors", "n_neighbors",
+  "target_metric", "euclidean",
+  "target_weight", "0.5",
+  "pca", "NULL",
+  "pca_center", "TRUE",
+  "pcg_rand", "TRUE",
+  "fast_sgd", "FALSE",
+  "ret_model", "FALSE",
+  "ret_nn", "FALSE",
+  "ret_extra", "c()",
+  "n_threads", "NULL",
+  "n_sgd_threads", "0",
+  "grain_size", "1"
+)
+
+param_umapr %>% left_join(param_umap) %>% left_join(param_uwot) %>% 
+  knitr::kable() %>%
+  kableExtra::kable_styling()
+
+```
+
 
 ## mtReference Panel 
 
@@ -109,10 +220,13 @@ data(nodes)
 classifications.raw <- HiMC::getClassifications(dat)
 classifications <- as_tibble(classifications.raw[-nrow(classifications.raw),]) #remove Mitochondria_Information row 
 
-ped <- dat
-colnames(ped) <- c("Family", "Individual", "Father", "Mother", 
-                   "Sex", "Phenotype", paste0('mt', colnames(ped[, 7:ncol(ped)])))
-ped <- as_tibble(ped) %>%
+ped <- dat %>% 
+  magrittr::set_colnames(
+    c("Family", "Individual", "Father", "Mother", "Sex", "Phenotype", 
+      paste0('mt', colnames(magrittr::extract(., 7:ncol(.))))
+      )
+    ) %>% 
+  as_tibble() %>%
   na_if(., "0 0") %>% 
   mutate_at(vars(starts_with("mt")), as_factor) %>% 
   mutate_at(vars(starts_with("mt")), as.numeric) %>% 
@@ -140,7 +254,7 @@ Run PCA analysis of mtReference Panel
 + extract results for individules
 + plot 2D and 3D results
 
-```{r pca}
+```{r mtref-pca}
 ## PCA 
 res.pca <- ped %>% 
   select(starts_with("mt")) %>% 
@@ -157,7 +271,7 @@ eig.val <- get_eigenvalue(res.pca)
 fviz_eig(res.pca, addlabels = TRUE, ylim = c(0, 50))
 ```
 
-```{r plot-2d-pca}
+```{r mtref-plot-2d-pca}
 
 ggplot(ind.pca, aes(x = Dim.1, y = Dim.2, colour = macro)) + 
   scale_color_manual(values = cols25()) + 
@@ -172,7 +286,7 @@ ggplot() +
 
 
 
-```{r plot-3d-pca}
+```{r mtref-pca-plot-3d}
 plot_ly(ind.pca, x = ~Dim.2, y = ~Dim.1, z = ~Dim.3, color = ~macro, colors = cols25(),
         type = 'scatter3d', mode = 'markers', marker = list(size = 3), 
         hoverinfo = 'text', text = ~paste('</br> ID: ', Individual, 
@@ -193,9 +307,9 @@ plot_ly(ind.pca, x = ~Dim.2, y = ~Dim.1, z = ~Dim.3, color = ~Continent, colors 
 
 ### UMAP 
 
-```{r}
+```{r mtref-umap}
 embedding_mtref_2d <- select(ind.pca, starts_with("Dim")) %>% 
-  umapr::umap(., min_dist = 0.5, n_neighbor = 1000, n_components = 2)  %>% as.tibble() %>%
+  umapr::umap(., min_dist = 0.5, n_neighbor = 100, n_components = 2)  %>% as.tibble() %>%
   bind_cols(select(ped, Individual, haplogroup, macro, Continent)) 
 
 ggpubr::ggarrange(
@@ -212,7 +326,7 @@ ggplot() +
 )
 
 embedding_mtref_3d <- select(ind.pca, starts_with("Dim")) %>% 
-  umapr::umap(., min_dist = 0.5, n_neighbor = 1000, n_components = 3)  %>% as.tibble() %>%
+  umapr::umap(., min_dist = 0.5, n_neighbor = 100, n_components = 3)  %>% as.tibble() %>%
   bind_cols(select(ped, Individual, haplogroup, macro, Continent)) 
 
 plot_ly(embedding_mtref_3d, x = ~UMAP2, y = ~UMAP1, z = ~UMAP3, color = ~macro, colors = cols25(), type = 'scatter3d', mode = 'markers', marker = list(size = 3), 
@@ -232,39 +346,52 @@ plot_ly(filter(embedding_mtref_3d, Continent != "Unknown"), x = ~UMAP2, y = ~UMA
 ```
 
 
-#### Removing african hg (L0, L1, L2, L3)
+```{r, mtref}
+min_dist = 0.5
+n_neighbor = 100
+n_components = 2
+n_epochs = 2000
+init = "random"
 
-```{r oa-pca}
-## PCA 
-oa.pca <- ped %>% 
-  filter(macro %nin% c("L0", "L1", "L2", "L3")) %>% 
-  select(starts_with("mt")) %>% 
-  PCA(., scale.unit = T, ncp = 10, graph = FALSE)
+mtref_umapr_tab <- select(ind.pca, starts_with("Dim")) %>% 
+  umapr::umap(., min_dist = min_dist, n_neighbor = n_neighbor, n_components = n_components, n_epochs = NULL, init = init) %>%
+  as.tibble() %>%
+  bind_cols(select(ped, Individual, haplogroup, macro, Continent))
 
-oa.ind.pca <- get_pca_ind(oa.pca)$coord %>% 
-  as_tibble() %>%
-  bind_cols(select(filter(ped, macro %nin% c("L0", "L1", "L2", "L3")), Individual, haplogroup, macro)) %>% 
-  select(Individual, haplogroup, macro, everything()) %>% 
-  filter(macro %nin% c("u")) %>% 
-  filter(!is.na(macro))
+p1 <- ggplot(mtref_umapr_tab, aes(x = UMAP1, y = UMAP2, color = macro)) + 
+  geom_point() + 
+    scale_color_manual(values = cols25()) +
+    theme_bw() + 
+  labs(title = "UMAPR")
 
-```
+mtref_umap_res <- select(ind.pca, starts_with("Dim")) %>% 
+  umap::umap(., min_dist = min_dist, n_neighbor = n_neighbor, n_components = n_components, n_epochs = n_epochs, init = init)  
 
-```{r 0a-plot-2d-pca}
+mtref_umap_tab <- embedding_mtref_umap_res %>% magrittr::use_series(layout) %>% 
+  as.tibble() %>%
+  bind_cols(select(ped, Individual, haplogroup, macro, Continent)) 
 
-ggplot(oa.ind.pca, aes(x = Dim.1, y = Dim.2, colour = macro)) + geom_point() + theme_bw() + 
-    scale_color_manual(values = cols25())
+p2 <- ggplot(mtref_umap_tab, aes(x = V1, y = V2, color = macro)) + 
+  geom_point() + 
+    scale_color_manual(values = cols25()) +
+    theme_bw() + 
+  labs(title = "UMAP")
 
-```
+mtref_uwot_tab <- select(ind.pca, starts_with("Dim")) %>% 
+  uwot::umap(., min_dist = min_dist, n_neighbor = n_neighbor, n_components = n_components, n_epochs = n_epochs, init = init) %>% 
+  as.tibble() %>%
+  bind_cols(select(ped, Individual, haplogroup, macro, Continent))
 
-```{r oa-plot-3d-pca}
-plot_ly(oa.ind.pca, x = ~Dim.2, y = ~Dim.1, z = ~Dim.3, color = ~macro, 
-        type = 'scatter3d', mode = 'markers', marker = list(size = 3), 
-        hoverinfo = 'text', text = ~paste('</br> ID: ', Individual, 
-                                          '</br> Haplogroup: ', macro,
-                                          '</br> PC1: ', round(Dim.1, 2),
-                                          '</br> PC2: ', round(Dim.2, 2),
-                                          '</br> PC3: ', round(Dim.3, 2)))
+p3 <- ggplot(mtref_uwot_tab, aes(x = V1, y = V2, color = macro)) + 
+  geom_point() + 
+    scale_color_manual(values = cols25()) +
+    theme_bw() + 
+  labs(title = "UWOT")
+
+ggpubr::ggarrange(
+  p1, p2, p3,  ncol = 3, legend = "bottom", common.legend = TRUE
+)
+
 
 ```
 
@@ -312,10 +439,13 @@ data(nodes)
 classifications_1kg.raw <- HiMC::getClassifications(dat_1kg)
 classifications_1kg <- as_tibble(classifications_1kg.raw[-nrow(classifications_1kg.raw),]) #remove Mitochondria_Information row 
 
-ped_1kg <- dat_1kg
-colnames(ped_1kg) <- c("Family", "Individual", "Father", "Mother", 
-                   "Sex", "Phenotype", paste0('mt', colnames(ped_1kg[, 7:ncol(ped_1kg)])))
-ped_1kg <- as_tibble(ped_1kg) %>%
+ped_1kg <- dat_1kg %>% 
+  magrittr::set_colnames(
+    c("Family", "Individual", "Father", "Mother", "Sex", "Phenotype", 
+      paste0('mt', colnames(magrittr::extract(., 7:ncol(.))))
+      )
+    ) %>% 
+  as_tibble() %>%
   na_if(., "0 0") %>% 
   mutate_at(vars(starts_with("mt")), as_factor) %>% 
   mutate_at(vars(starts_with("mt")), as.numeric) %>% 
@@ -369,6 +499,12 @@ ind.pca_1kg <- get_pca_ind(res.pca_1kg)$coord %>%
 
 ```
 
+```{r 1kg-plot-scree}
+eig.val_1kg <- get_eigenvalue(res.pca_1kg)
+fviz_eig(res.pca_1kg, addlabels = TRUE, ylim = c(0, 50))
+
+```
+
 
 ```{r 1kg-plot-2d-pca}
 
@@ -383,13 +519,6 @@ ggplot(ind.pca_1kg, aes(x = Dim.1, y = Dim.2, colour = cont)) +
   theme_bw() + theme(legend.position = "bottom")
 
 ```
-
-```{r}
-eig.val_1kg <- get_eigenvalue(res.pca_1kg)
-fviz_eig(res.pca_1kg, addlabels = TRUE, ylim = c(0, 50))
-
-```
-
 
 ```{r 1kg-plot-3d-pca}
 plot_ly(ind.pca_1kg, x = ~Dim.2, y = ~Dim.1, z = ~Dim.3, color = ~macro, colors = cols25(), 
@@ -412,7 +541,7 @@ plot_ly(ind.pca_1kg, x = ~Dim.2, y = ~Dim.1, z = ~Dim.3, color = ~cont, colors =
 
 ### UMAP 
 
-```{r}
+```{r 1kg-umap}
 ## UMAP 
 embedding_mt_2d <- ped_1kg %>% 
   select(starts_with("mt")) %>% 
@@ -443,7 +572,7 @@ embedding_pca_3d <- select(ind.pca_1kg, starts_with("Dim")) %>%
 
 ```
 
-```{r}
+```{r 1kg-umap-plot-2d}
 ggpubr::ggarrange(
   ggplot(embedding_mt_2d, aes(x = UMAP1, y = UMAP2, color = macro)) + 
     geom_point() + scale_color_manual(values = cols25()) +  theme_bw() + labs(title = "UMAP"),
@@ -462,7 +591,7 @@ ggpubr::ggarrange(
 
 ```
 
-```{r}
+```{r 1kg-umap-plot-3d}
 plot_ly(embedding_mt_3d, x = ~UMAP2, y = ~UMAP1, z = ~UMAP3, color = ~macro, colors = cols25(),
         type = 'scatter3d', mode = 'markers', marker = list(size = 3),
         hoverinfo = 'text', text = ~paste('</br> ID: ', Individual, 
@@ -578,6 +707,169 @@ ggpubr::ggarrange(plotlist = filter(hp_1kg_embedding_plots,
 ```
 
 
+## Projection 
+
+```{r}
+umap_pca_2d <- select(ind.pca_1kg, starts_with("Dim")) %>% 
+  umap::umap(., min_dist = 0.5, n_neighbor = 50, n_components = 2) %>% 
+  magrittr::extract2(1) %>%
+  as.tibble() %>% 
+  rename(UMAP1 = V1, UMAP2 = V2) %>%
+  bind_cols(ind.pca_1kg) %>%
+  select(Individual, haplogroup, macro, pop, cont, starts_with("Dim"), starts_with("UMAP"))
+
+ggpubr::ggarrange(
+  ggplot(embedding_pca_2d, aes(x = UMAP1, y = UMAP2, color = macro)) + 
+    geom_point() + scale_color_manual(values = cols25()) +  theme_bw() + labs(title = "umapr::umap"),
+  ggplot(umap_pca_2d, aes(x = UMAP1, y = UMAP2, color = macro)) + 
+    geom_point() + scale_color_manual(values = cols25()) +  theme_bw() + labs(title = "umap::umap")
+)
+
+ped_joint <- bind_rows(
+  ped %>%
+    mutate(data = "mtRef") %>%
+    select(Individual, haplogroup, macro, data, starts_with("mt")), 
+  
+  ped_1kg %>%
+    mutate(data = "tkg") %>%
+    select(Individual, haplogroup, macro, data, starts_with("mt"))
+) %>% 
+  arrange(data, Individual)
+
+
+miss_gt_joint <- ped_joint %>%
+  select(starts_with("mt")) %>%  # replace to your needs
+  summarise_all( ~ sum(is.na(.))) %>% 
+  t() %>% 
+  as_tibble(rownames = "var") %>% 
+  filter(V1 > 1000) %>% pull(var)
+
+## PCA 
+ped_joint_df <- ped_joint %>% 
+  select(-all_of(miss_gt_joint)) %>% 
+  split(.$haplogroup) %>%
+  map(., ~mutate_all(., .funs = function(x){ifelse(is.na(x), round(mean(x, na.rm = TRUE)), x)})) %>%
+  bind_rows() %>% 
+  arrange(data, Individual) %>%
+  split(.$data) %>% 
+  map(., select, starts_with("mt")) 
+
+res.pca_joint <- ped_joint_df %>%
+  map(~PCA(., scale.unit = F, ncp = 10, graph = FALSE))
+
+test <- predict(magrittr::extract2(res.pca_joint, "tkg"), magrittr::extract2(ped_joint_df, "mtRef")) %>% 
+  magrittr::use_series(coord) %>% 
+  as_tibble() %>% 
+  bind_cols(select(filter(ped_joint, data == "mtRef"), Individual, haplogroup, macro, data)) %>% 
+  mutate(data = "mtRef_pred") %>% 
+  select(Individual, data, haplogroup, macro, everything()) 
+    
+ind.pca_joint <- res.pca_joint %>% 
+  map(get_pca_ind) %>% 
+  map(magrittr::use_series, coord) %>% 
+  map(as_tibble) %>%
+  bind_rows() %>%
+  bind_cols(select(ped_joint, Individual, haplogroup, macro, data)) %>% 
+  select(Individual, data, haplogroup, macro, everything()) %>% 
+  bind_rows(test) %>% 
+  split(.$data)
+
+test2 <- bind_rows(test, ind.pca_1kg)
+
+ggplot(test2, aes(x = Dim.1, y = Dim.2, colour = macro)) + geom_point() + facet_grid(. ~ data) + 
+  scale_color_manual(values = cols25())
+
+
+custom.config = umap::umap.defaults
+custom.config$random_state = 333
+custom.config$transform_state = 333
+custom.config$n_neighbor = 50
+custom.config$min_dist = 0.99
+custom.config$spread = 2
+  
+## 1KG UMAP
+tkg.umap_res = ind.pca_joint %>% 
+ magrittr::use_series(tkg) %>% 
+ # select(starts_with("Dim")) %>%
+ select(Dim.1:Dim.3) %>%
+  umap::umap(., custom.config)
+
+tkg.umap_res_tab <- tkg.umap_res %>% 
+  magrittr::use_series(layout) %>% 
+  as_tibble() %>% 
+  bind_cols(magrittr::use_series(ind.pca_joint, tkg)) %>% 
+  select(Individual, data, haplogroup, macro, UMAP1 = V1, UMAP2 = V2, everything())
+
+p1 <- ggplot(tkg.umap_res_tab, aes(x = UMAP1, y = UMAP2, colour = macro)) + geom_point() + facet_grid(. ~ data) + 
+  scale_color_manual(values = cols25())
+p1 
+
+## Projection of mtRef
+mtRef_pred.umap_res = predict(tkg.umap_res, 
+                           magrittr::use_series(ind.pca_joint, mtRef_pred) %>% 
+                             # select(starts_with("Dim"))
+                             select(Dim.1:Dim.3)
+                           ) %>% 
+  as_tibble()  %>% 
+  bind_cols(magrittr::use_series(ind.pca_joint, mtRef_pred)) %>% 
+  select(Individual, data, haplogroup, macro, UMAP1 = V1, UMAP2 = V2, everything()) 
+
+p3 <- ggplot(mtRef_pred.umap_res, aes(x = UMAP1, y = UMAP2, colour = macro)) + geom_point() + facet_grid(. ~ data) + 
+  scale_color_manual(values = cols25())
+p3
+
+ggplot() + 
+  geom_point(data = mtRef_pred.umap_res, aes(x = UMAP1, y = UMAP2)) + 
+  geom_point(data = tkg.umap_res_tab, aes(x = UMAP1, y = UMAP2, color = macro)) + 
+  scale_color_manual(values = cols25())
+
+## mtRef UMAP
+mtRef.umap_res = ind.pca_joint %>% 
+ magrittr::use_series(mtRef) %>% 
+  select(starts_with("Dim")) %>%
+  umap::umap(.)
+
+mtRef.umap_res_tab <- mtRef.umap_res %>% 
+  magrittr::use_series(layout) %>% 
+  as_tibble() %>% 
+  bind_cols(magrittr::use_series(ind.pca_joint, mtRef)) %>% 
+  select(Individual, data, haplogroup, macro, UMAP1 = V1, UMAP2 = V2, everything())
+
+p2 <- ggplot(mtRef.umap_res_tab, aes(x = UMAP1, y = UMAP2, colour = macro)) + geom_point() + facet_grid(. ~ data) + 
+  scale_color_manual(values = cols25())
+
+
+ggpubr::ggarrange(
+  p2, p3, p1,  ncol = 3, legend = "bottom", common.legend = TRUE
+)
+
+
+
+```
+
+
+```{r}
+iris.data = iris[, grep("Sepal|Petal", colnames(iris))]
+iris.umap_res = umap::umap(iris.data)
+iris.umap_df <- bind_cols(as_tibble(iris), as_tibble(iris.umap$layout))
+
+ggplot(iris.umap_df, aes(x = V1, y = V2, color = Species)) + geom_point()
+
+
+iris.wnoise = iris.data + matrix(rnorm(150*40, 0, 0.1), ncol=4)
+colnames(iris.wnoise) = colnames(iris.data)
+head(iris.wnoise, 3)
+
+iris.wnoise.umap = predict(iris.umap, iris.wnoise)
+iris.wnoise_umap_df <- bind_cols(as_tibble(iris.wnoise), as_tibble(iris.wnoise.umap)) %>% 
+  mutate(Species = "predicted")
+
+
+
+ggplot(bind_rows(iris.umap_df, iris.wnoise_umap_df), aes(x = V1, y = V2, color = Species)) + geom_point()
+
+
+```
 
 
 
