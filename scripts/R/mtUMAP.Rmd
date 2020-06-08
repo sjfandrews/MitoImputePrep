@@ -99,7 +99,7 @@ UMAP has several hyperparameters that can have a signficant impact on the result
 + [uwot](https://github.com/jlmelville/uwot): R package implementing the UMAP dimensionality reduction method that also implements the supervised and metric (out-of-sample) learning extensions to the basic method.
 + [umap](https://umap-learn.readthedocs.io/en/latest/reproducibility.html): Read the docs for the python implementation
 
-```{r default_param}
+```{r default_param, echo=FALSE}
 param_umapr <- tribble(
   ~parameter, ~umapr,
   "include_input",  "TRUE", 
@@ -247,9 +247,10 @@ ped <- dat %>%
   filter(macro %nin% c("u")) %>% 
   filter(!is.na(macro))
 
+# write_tsv(ped, "/Users/sheaandrews/GitCode/MitoImputePrep/data/test/mtref_mtped.txt")
 ```
 
-```{r, eval=FALSE}
+```{r, eval=FALSE, echo=FALSE}
 count(ped, Continent)
 ```
 
@@ -379,7 +380,31 @@ plot_ly(filter(embedding_mtref_3d, Continent != "Unknown"), x = ~UMAP2, y = ~UMA
 
 ```
 
+Use tricolore to color individules by where they fall on the first three PCs from the PCA analysis in UMAP
 
+```{r mtref-tricolore-umap}
+## tricolore 
+# color-code the data set and generate a color-key
+embedding_mtref_tri <- embedding_mtref_2d %>% 
+  left_join(select(ind.pca, Individual, starts_with("Dim"))) %>% 
+  # add constant to make all values to postive for tricolore
+  mutate(Dim.1 = Dim.1 + (min(Dim.1) * -1), 
+         Dim.2 = Dim.2 + (min(Dim.2) * -1), 
+         Dim.3 = Dim.3 + (min(Dim.3) * -1),) 
+
+tri_map <- tricolore::Tricolore(embedding_mtref_tri, p1 = 'Dim.1', p2 = 'Dim.2', p3 = 'Dim.3', breaks = 10) 
+
+embedding_mtref_tri <- mutate(embedding_mtref_tri, rgb = tri_map %>% magrittr::use_series(rgb))
+
+ggplot(embedding_mtref_tri, aes(x = UMAP1, y = UMAP2, color = rgb)) + 
+  geom_point() +  theme_bw() + 
+  theme(legend.position = "none") + 
+  labs(title = "PCA+UMAP: Ternery")
+
+tri_map$key
+```
+
+## Comparison of UMAP packages 
 ```{r, mtref}
 min_dist = 0.5
 n_neighbor = 100
@@ -648,14 +673,8 @@ ggpubr::ggarrange(
     geom_point() + scale_color_manual(values = cols25()) +  theme_bw() + labs(title = "PCA+UMAP: mtSuperCluster")
 
 )
-
-## tricolore 
-# color-code the data set and generate a color-key
-# tric <- Tricolore(embedding_pca_2d, p1 = 'Dim.1', p2 = 'Dim.2', p3 = 'Dim.3')
-# embedding_pca_2d %>% 
-  
-
 ```
+
 
 ```{r 1kg-umap-plot-3d}
 plot_ly(embedding_mt_3d, x = ~UMAP2, y = ~UMAP1, z = ~UMAP3, color = ~macro, colors = cols25(),
