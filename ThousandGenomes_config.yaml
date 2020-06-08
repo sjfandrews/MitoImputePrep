@@ -1,0 +1,3 @@
+REFDATA: "example/ReferencePanel"
+MCMC: [1.0, 5.1, 10.3, 20.6, 30.10] #[iteration_n1.burnin_n1, iteration_n2.burnin_n2, ...]
+KHAP: [100, 250, 500, 1000, 2500, 5000, 10000, 20000, 30000]

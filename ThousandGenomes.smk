@@ -4,15 +4,17 @@
 import os
 from snakemake.remote.FTP import RemoteProvider as FTPRemoteProvider
 
-#with open('data/platforms/Mt_platforms.txt', "r") as f:
-#    MtPlatforms = [x.rstrip() for x in f]
-MtPlatforms = ['GSA-24v1-0_A2-b37', 'Human610-Quadv1_B-b37', 'NeuroX_15036164_A-b37']
+shell.prefix('module load plink/1.90 R/3.4.3 curl/7.61.0 vt bcftools impute2; ')
 
-REFDATA = "example/ReferencePanel"
-#REFDATA = "DerivedData/ReferencePanel"
+with open('data/platforms/Mt_platforms.txt', "r") as f:
+    MtPlatforms = [x.rstrip() for x in f]
+#MtPlatforms = ['GSA-24v1-0_A2-b37', 'Human610-Quadv1_B-b37', 'NeuroX_15036164_A-b37']
+
+#REFDATA = "example/ReferencePanel"
+REFDATA = "DerivedData/ReferencePanel"
 
 ## Parameters for IMPUTE2
-configfile: 'mtImpute_config.yaml'
+configfile: 'ThousandGenomes_config.yaml'
 config['MCMC'] = [str(x) for x in config['MCMC']]
 MCMC = [x.split(".") for x in config['MCMC']]
 MCMC = {k: {'iter': v[0], 'burnin': v[1]} for k,v in zip(config['MCMC'], MCMC)}
