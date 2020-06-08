@@ -1,6 +1,6 @@
 '''Snakefile for Hyperparameter gridsearch in UMAP'''
 
-shell.prefix('module load R/3.5.3; ')
+# shell.prefix('module load R/3.5.3; ')
 
 # COHORT = 'mtref'
 # PCS = [2,3,4,5,6,7,8,9,10],
