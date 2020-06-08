@@ -1,0 +1,2 @@
+array,MCMC,imputed,mean.info,SNP.Ref.Only,SNP.Ref.Samp,SNP.Samp.Only,TOTAL,Retained.After.Filt,Typed.hg.Conc,Imputed.hg.Conc,Typed.Mhg.Conc,Imputed.Mhg.Conc
+ADNI,1,TRUE,0.619573033707865,310,102,33,445,330,0.341085271317829,0.918604651162791,0.372093023255814,0.949612403100775

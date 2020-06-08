@@ -1,6 +1,8 @@
 '''Snakefile for Cleaning Thousand Genomes'''
 # snakemake -s ThousandGenomes.smk
 # snakemake -s ThousandGenomes.smk --dag | dot -Tsvg > dag_ThousandGenomes.svg
+# snakejob -s ThousandGenomes.smk -j 8000 --max-jobs-per-second 1 --keep-going
+
 import os
 from snakemake.remote.FTP import RemoteProvider as FTPRemoteProvider
 
@@ -47,17 +49,20 @@ rule Get1kgMT_vcf:
     input:
         vcf = FTP.remote("http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz", keep_local=True),
         tbi = FTP.remote("http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz.tbi", keep_local=True)
+        ped = FTP.remote("http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/working/20130606_sample_info/20130606_g1k.ped", keep_local=True)
     output:
         vcf = "data/ThousandGenomes/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz",
         tbi = "data/ThousandGenomes/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz.tbi"
+        ped = "data/ThousandGenomes/20130606_g1k.ped"
     shell:
         "mv {input.vcf} {output.vcf}; "
-        "mv {input.tbi} {output.tbi}"
+        "mv {input.tbi} {output.tbi}; "
+        "mv {input.ped} {output.ped}"
 
 rule NormaliseVcf:
     input:
         vcf = "data/ThousandGenomes/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz",
-        fasta = "data/ReferencePanel/rCRS.fasta"
+        fasta = "scripts/REFERENCE_ALNS/MT/rCRS.fasta"
     output:
         vcf = "DerivedData/ThousandGenomes/chrMT_1kg_norm.vcf.gz"
     shell:
@@ -77,7 +82,7 @@ rule pickFirstAlt:
     output:
         vcf = "DerivedData/ThousandGenomes/chrMT_1kg_norm_decomposed_firstAlt.vcf.gz"
     shell:
-        "./scripts/PYTHON/pickFirstAlt {input.vcf} | bgzip > {output.vcf}; "
+        "./scripts/PYTHON/pickFirstAlt.py {input.vcf} | bgzip > {output.vcf}; "
         "bcftools index {output.vcf}"
 
 rule wgs_vcf2Plink:
@@ -103,7 +108,7 @@ rule SampleNames1kg:
 rule SampleSex1kg:
     input:
         in_samples = "DerivedData/ThousandGenomes/SampleList1kg.txt",
-        in_script = "scripts/R/assign_sex_label.R"
+        in_script = "scripts/R/DATA_PROCESSING/assign_sex_label.R"
     output:
         "DerivedData/ThousandGenomes/SampleList1kg_sex.txt",
     shell:
@@ -123,7 +128,7 @@ rule vcf2gensample:
     input:
         vcf = "DerivedData/ThousandGenomes/{MtPlatforms}/chrMT_1kg_{MtPlatforms}.vcf.gz",
         sex = "DerivedData/ThousandGenomes/SampleList1kg_sex.txt",
-        script = "scripts/R/FixSamplesFile.R"
+        script = "scripts/R/DATA_PROCESSING/FixSamplesFile.R"
     output:
         expand("DerivedData/ThousandGenomes/{{MtPlatforms}}/chrMT_1kg_{{MtPlatforms}}.{ext}", ext = ['gen.gz', 'samples']),
     params:
@@ -199,7 +204,7 @@ rule oxford2vcf:
 
 rule Imputation_QC_Report:
     input:
-        script = 'scripts/R/MT_imputation_QC.Rmd',
+        script = 'scripts/R/QUALITY_CONTROL/MT_imputation_QC.Rmd',
         wgs_map = 'DerivedData/ThousandGenomes/chrMT_1kg_norm_decomposed_firstAlt.map',
         wgs_ped = 'DerivedData/ThousandGenomes/chrMT_1kg_norm_decomposed_firstAlt.ped',
         wgs_vcf = 'DerivedData/ThousandGenomes/chrMT_1kg_norm_decomposed_firstAlt.vcf.gz',

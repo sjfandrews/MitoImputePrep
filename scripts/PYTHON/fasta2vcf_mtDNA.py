@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 
 ## IMPORT NECESSARY PACKAGES
 import gzip
@@ -18,14 +18,30 @@ def main():
 
     parser.add_argument('-i', '--infile', dest='infile', type=str, required=True, help='input fasta file (.fasta)')
     parser.add_argument('-o', '--outfile', dest='outfile', type=str, required=False, help='output VCF file (.vcf or .vcf.gz)')
+    parser.add_argument('-g', '--gap2missing', dest='gap2missing', action="store_true", required=False, help='turn gaps to missing (N)')
+    parser.add_argument('-d', '--diploid', dest='diploid', action="store_true", required=False, help='create diploid VCF file')
+    
+    parser.add_argument('-id', '--ID', dest='ID', action="store_true", required=False, help='tag the ID column as MT<POS>')
+    parser.add_argument('-q', '--quality', dest='quality', type=str, required=False, default="999", help='tag for QUAL column')
+    parser.add_argument('-f', '--filt', dest='filt', type=str, required=False, default="PASS", help='tag for FILTER column')
     #parser.add_argument('-c', '--chromosome', dest='chromosome', type=str, default='MT', required=False, help='specify the chromosome')
     parser.add_argument('-v', '--verbose', dest='verbose', action="store_true", required=False, help='turn on verbose mode')
+    
+    parser.add_argument('-a', '--add_alt', dest='add_alt', action="store_true", required=False, help='always have an alternative allele')
 
     args = parser.parse_args()
 
     infile = args.infile
     outfile = args.outfile
+    gap2missing = args.gap2missing
+    ID = args.ID
+    quality = args.quality
+    filt = args.filt
+    diploid = args.diploid
     verbose = args.verbose
+    add_alt = args.add_alt
+    
+    dip_symbol = "/"
 
     # The revised Cambridge Reference Sequence:
     # Andrews et al. (1999) Reanalysis and revision of the Cambridge reference sequence for human mitochondrial DNA. Nature Genetics 23(2): 147-147.
@@ -104,9 +120,17 @@ def main():
             else:
                 pass
             if len(tmp_set) == 0:
-                # If no alternative alleles found, set alternative allele to missing
-                alt_sites[str(site + 1)] = '.'
-                alt_order[str(site + 1)] = '.'
+                if add_alt:
+                    if ref_sites[str(site + 1)] == "A":
+                        alt_sites[str(site + 1)] = "C"
+                        alt_order[str(site + 1)] = "C"
+                    else:
+                        alt_sites[str(site + 1)] = "A"
+                        alt_order[str(site + 1)] = "A"                        
+                else:
+                    # If no alternative alleles found, set alternative allele to missing
+                    alt_sites[str(site + 1)] = '.'
+                    alt_order[str(site + 1)] = '.'
             else:
                 # Otherwise
                 alt_sites[str(site + 1)] = tmp_set # ADD SET OF ALLELES TO DICTIONARY
@@ -144,9 +168,17 @@ def main():
             else:
                 pass
             if len(tmp_set) == 0:
-                # If no alternative alleles found, set alternative allele to missing
-                alt_sites[str(site + 1)] = '.'
-                alt_order[str(site + 1)] = '.'
+                if add_alt:
+                    if ref_sites[str(site + 1)] == "A":
+                        alt_sites[str(site + 1)] = "C"
+                        alt_order[str(site + 1)] = "C"
+                    else:
+                        alt_sites[str(site + 1)] = "A"
+                        alt_order[str(site + 1)] = "A" 
+                else:
+                    # If no alternative alleles found, set alternative allele to missing
+                    alt_sites[str(site + 1)] = '.'
+                    alt_order[str(site + 1)] = '.'
             else:
                 # Otherwise
                 alt_sites[str(site + 1)] = tmp_set # ADD SET OF ALLELES TO DICTIONARY
@@ -174,12 +206,17 @@ def main():
             # SITE INFORMATION COLUMNS FIRST
             tmp_list = ['MT'] # CHROM column
             tmp_list.append(str(site + 1)) # POS column
-            tmp_list.append('.') # ID column
+            if ID:
+                tmp_list.append("MT_" + str(site + 1))
+            else:
+                tmp_list.append('.') # ID column
             tmp_list.append(ref_sites[str(site + 1)]) # REF column
             #tmp_list.append(','.join(alt_sites[str(site + 1)])) # ALT column
             tmp_list.append(alt_order[str(site + 1)]) # ALT column
-            tmp_list.append('.') # QUAL column
-            tmp_list.append('.') # FILTER column
+            tmp_list.append(quality) # QUAL column
+            #tmp_list.append('.') # QUAL column
+            tmp_list.append(filt) # FILTER column
+            #tmp_list.append('.') # FILTER column
             tmp_list.append('.') # INFO column
             tmp_list.append('GT') # FORMAT column
 
@@ -187,43 +224,119 @@ def main():
             for sample in range(len(labels)):
                 # Has this many if statements to accomodate every IUPAC ambiguity code
                 if seqs[sample][site] == 'N':
-                    tmp_list.append('.')
+                    if diploid:
+                        tmp_list.append("." + dip_symbol + ".")
+                    else:
+                        tmp_list.append(".")
+                    #tmp_list.append(".")
                 elif seqs[sample][site] == ref_sites[str(site + 1)]:
-                    tmp_list.append('0')
+                    if diploid:
+                        tmp_list.append("0" + dip_symbol + "0")
+                    else:
+                        tmp_list.append("0")                    
+                    #tmp_list.append('0')
                 elif seqs[sample][site] == alt_order[str(site + 1)].split(',')[0]:
-                    tmp_list.append('1')
+                    if diploid:
+                        tmp_list.append("1" + dip_symbol + "1")
+                    else:
+                        tmp_list.append("1")                     
+                    #tmp_list.append('1')
                 elif seqs[sample][site] == alt_order[str(site + 1)].split(',')[1]:
-                    tmp_list.append('2')
+                    if diploid:
+                        tmp_list.append("2" + dip_symbol + "2")
+                    else:
+                        tmp_list.append("2")                     
+                    #tmp_list.append('2')
                 elif seqs[sample][site] == alt_order[str(site + 1)].split(',')[2]:
-                    tmp_list.append('3')
+                    if diploid:
+                        tmp_list.append("3" + dip_symbol + "3")
+                    else:
+                        tmp_list.append("3")                     
+                    #tmp_list.append('3')
                 elif seqs[sample][site] == alt_order[str(site + 1)].split(',')[3]:
-                    tmp_list.append('4')
+                    if diploid:
+                        tmp_list.append("4" + dip_symbol + "4")
+                    else:
+                        tmp_list.append("4")                     
+                    #tmp_list.append('4')
                 elif seqs[sample][site] == alt_order[str(site + 1)].split(',')[4]:
-                    tmp_list.append('5')
+                    if diploid:
+                        tmp_list.append("5" + dip_symbol + "5")
+                    else:
+                        tmp_list.append("5")                     
+                    #tmp_list.append('5')
                 elif seqs[sample][site] == alt_order[str(site + 1)].split(',')[5]:
-                    tmp_list.append('6')
+                    if diploid:
+                        tmp_list.append("6" + dip_symbol + "6")
+                    else:
+                        tmp_list.append("6")                     
+                    #tmp_list.append('6')
                 elif seqs[sample][site] == alt_order[str(site + 1)].split(',')[6]:
-                    tmp_list.append('7')
+                    if diploid:
+                        tmp_list.append("7" + dip_symbol + "7")
+                    else:
+                        tmp_list.append("7")                     
+                    #tmp_list.append('7')
                 elif seqs[sample][site] == alt_order[str(site + 1)].split(',')[7]:
-                    tmp_list.append('8')
+                    if diploid:
+                        tmp_list.append("8" + dip_symbol + "8")
+                    else:
+                        tmp_list.append("8")                     
+                    #tmp_list.append('8')
                 elif seqs[sample][site] == alt_order[str(site + 1)].split(',')[8]:
-                    tmp_list.append('9')
+                    if diploid:
+                        tmp_list.append("9" + dip_symbol + "9")
+                    else:
+                        tmp_list.append("9")                     
+                    #tmp_list.append('9')
                 elif seqs[sample][site] == alt_order[str(site + 1)].split(',')[9]:
-                    tmp_list.append('10')
+                    if diploid:
+                        tmp_list.append("10" + dip_symbol + "10")
+                    else:
+                        tmp_list.append("10")                     
+                    #tmp_list.append('10')
                 elif seqs[sample][site] == alt_order[str(site + 1)].split(',')[10]:
-                    tmp_list.append('11')
+                    if diploid:
+                        tmp_list.append("11" + dip_symbol + "11")
+                    else:
+                        tmp_list.append("11")                    
+                    #tmp_list.append('11')
                 elif seqs[sample][site] == alt_order[str(site + 1)].split(',')[11]:
-                    tmp_list.append('12')
+                    if diploid:
+                        tmp_list.append("12" + dip_symbol + "12")
+                    else:
+                        tmp_list.append("12")                     
+                    #tmp_list.append('12')
                 elif seqs[sample][site] == alt_order[str(site + 1)].split(',')[12]:
-                    tmp_list.append('13')
+                    if diploid:
+                        tmp_list.append("13" + dip_symbol + "13")
+                    else:
+                        tmp_list.append("13")                     
+                    #tmp_list.append('13')
                 elif seqs[sample][site] == alt_order[str(site + 1)].split(',')[13]:
-                    tmp_list.append('14')
+                    if diploid:
+                        tmp_list.append("14" + dip_symbol + "14")
+                    else:
+                        tmp_list.append("14")                     
+                    #tmp_list.append('14')
                 elif seqs[sample][site] == alt_order[str(site + 1)].split(',')[14]:
-                    tmp_list.append('15')
+                    if diploid:
+                        tmp_list.append("15" + dip_symbol + "15")
+                    else:
+                        tmp_list.append("15")                     
+                    #tmp_list.append('15')
                 elif seqs[sample][site] == alt_order[str(site + 1)].split(',')[15]:
-                    tmp_list.append('14')
+                    if diploid:
+                        tmp_list.append("16" + dip_symbol + "16")
+                    else:
+                        tmp_list.append("16")                     
+                    #tmp_list.append('16')
                 else:
-                    tmp_list.append('.')
+                    if diploid:
+                        tmp_list.append("." + dip_symbol + ".")
+                    else:
+                        tmp_list.append(".")                     
+                    #tmp_list.append('.')
 
             tmp_list = '\t'.join(tmp_list) # JOIN ALL COLUMNS TOGETHER WITH A TAB-DELIMITER
             outfile.write(tmp_list + '\n') # WRITE LINE TO FILE
