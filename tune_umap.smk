@@ -37,4 +37,4 @@ rule collate_outputs:
     output:
         outfile = "data/test/{cohort}_umap_tune.rds.gz"
     script:
-        'scripts/R/umap_collate.R'
+        'scripts/R/UMAP/umap_collate.R'
