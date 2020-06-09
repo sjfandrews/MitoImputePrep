@@ -1,18 +1,18 @@
 '''Snakefile for Hyperparameter gridsearch in UMAP'''
 
-# shell.prefix('module load R/3.5.3; ')
-
-# COHORT = 'mtref'
-# PCS = [2,3,4,5,6,7,8,9,10],
-# N_COMPONENTS = [2,3]
-# MIN_DIST = [0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99]
-# N_NEIGHBOR = c(15, 25, 50, 75, 100)
+shell.prefix('module load R/3.6.2; ')
 
 COHORT = 'mtref'
-PCS = [2,10]
+PCS = [2,3,4,5,6,7,8,9,10]
 N_COMPONENTS = [2]
-MIN_DIST = [0.5]
-N_NEIGHBOR = [15]
+MIN_DIST = [0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99]
+N_NEIGHBOR = [15, 25, 50, 75, 100]
+
+# COHORT = 'mtref'
+# PCS = [2,10]
+# N_COMPONENTS = [2]
+# MIN_DIST = [0.5]
+# N_NEIGHBOR = [15]
 
 rule all:
     input:
