@@ -455,6 +455,63 @@ ggpubr::ggarrange(
 ```
 
 
+## Hypurr-ameters 
+
+```{r mtref-hyperparameters, cache=FALSE}
+mtref_tuna <- read_rds("/Users/sheaandrews/Dropbox/Public/mtref_umap_tune.rds.gz") %>% 
+  ungroup() %>% 
+  rowwise() %>% 
+  mutate(plots = list(
+    ggplot(data, aes(x = UMAP1, y = UMAP2, color = macro)) +
+      geom_point(size = 0.5) +
+      scale_color_manual(values = cols25()) + 
+      theme_bw()
+    ))
+
+```
+
+
+```{r mtref-hyperparameters-plots}
+
+mtref_tuna %>% filter(pcs == 10, min_dist == 0.99, n_neighbor == 100) %>% pull(plots)
+
+
+## PC Plots (n_components == 2, min_dist == 0.5, n_neighbor == 50)
+ggpubr::ggarrange(plotlist =  filter(mtref_tuna, 
+                                     pcs %in% c(2:10), 
+                                     n_components == 2, 
+                                     min_dist == 0.1, 
+                                     n_neighbor == 15) %>% pull(plots), 
+                  legend = "bottom", 
+                  common.legend = TRUE, 
+                  labels = glue("PCs: {npc}", npc = 2:10))
+
+## n_neigbor (pcs == 10, n_components == 2, min_dist == 0.1)
+ggpubr::ggarrange(plotlist =  filter(mtref_tuna, 
+                                     pcs == 10, 
+                                     n_components == 2, 
+                                     min_dist == 0.1, 
+                                     n_neighbor %in% c(10, 25, 50, 75, 100)) %>% 
+                    pull(plots), 
+                  legend = "bottom", 
+                  common.legend = TRUE, 
+                  labels = glue("NN: {npc}", npc = c(10, 25, 50, 75, 100)))
+
+## m_dist (pcs == 10, n_components == 2, n_neighbor == 50)
+ggpubr::ggarrange(plotlist = filter(mtref_tuna, 
+                                    pcs == 10, 
+                                     n_components == 2, 
+                                     min_dist %in% c(0.1, 0.25, 0.5, 0.75, 0.99), 
+                                     n_neighbor == 15) %>% 
+                    pull(plots), 
+                  legend = "bottom", 
+                  common.legend = TRUE, 
+                  labels = glue("MD: {npc}", npc = c(0.1, 0.25, 0.5, 0.75, 0.99)))
+
+
+```
+
+
 ## Thousand Genomes 
 
 ### Data Wrangling
