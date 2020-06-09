@@ -16,7 +16,7 @@ N_NEIGHBOR = [15, 25, 50, 75, 100]
 
 rule all:
     input:
-        expand("data/test/{cohort}umap_tune.rds.gz", cohort=COHORT)
+        expand("data/test/{cohort}_umap_tune.rds.gz", cohort=COHORT)
 
 rule umap:
     input:

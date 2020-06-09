@@ -1,4 +1,4 @@
-#! /usr/bin/Rscript
+
 
 library(FactoMineR)
 library(factoextra)
@@ -6,6 +6,8 @@ library(uwot)
 library(tidyverse)
 library(magrittr)
 library(glue)
+
+sessionInfo()
 
 infile = snakemake@input[["infile"]]
 outfile = snakemake@output[["outfile"]]
@@ -25,11 +27,12 @@ res.pca <- ped %>%
   select(starts_with("mt")) %>% 
   PCA(., scale.unit = F, ncp = 10, graph = FALSE) 
 
+name_pcs <- as.character(glue("Dim.{npc}", npc = 1:pcs))
 tab.pca <- res.pca %>% 
   get_pca_ind(res.pca) %>% 
   use_series(coord) %>% 
   as_tibble() %>% 
-  select(., all_of(glue("Dim.{npc}", npc = 1:pcs)))
+  select(., name_pcs)
 
 message("\n uwot mate \n")
 
