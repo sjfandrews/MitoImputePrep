@@ -2,7 +2,7 @@ library(tidyverse)
 
 outfile = snakemake@output[["outfile"]]
 
-umap_files <- list.files(path = "data/test/hyperparameters/", pattern = "umpap_*", full.names = TRUE)
+umap_files <- list.files(path = "DerivedData/ReferencePanel_v6/hyperparameters/", pattern = "umap_*", full.names = TRUE)
 
 umap_tabs <- umap_files %>%
   map(., read_tsv) %>%

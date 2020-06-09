@@ -16,13 +16,13 @@ N_NEIGHBOR = [15, 25, 50, 75, 100]
 
 rule all:
     input:
-        expand("data/test/{cohort}_umap_tune.rds.gz", cohort=COHORT)
+        expand("DerivedData/ReferencePanel_v6/{cohort}_umap_tune.rds.gz", cohort=COHORT)
 
 rule umap:
     input:
         infile = 'data/test/mtref_mtped.txt'
     output:
-        outfile = 'data/test/hyperparameters/umpap_{cohort}_{pcs}pcs_{n_components}components_{min_dist}distance_{n_neighbor}neigbor.txt'
+        outfile = 'DerivedData/ReferencePanel_v6/hyperparameters/umap_{cohort}_{pcs}pcs_{n_components}components_{min_dist}distance_{n_neighbor}neigbor.txt'
     params:
         pcs = '{pcs}',
         n_components = '{n_components}',
@@ -33,8 +33,8 @@ rule umap:
 
 rule collate_outputs:
     input:
-        expand('data/test/hyperparameters/umpap_{cohort}_{pcs}pcs_{n_components}components_{min_dist}distance_{n_neighbor}neigbor.txt', cohort=COHORT, pcs=PCS, n_components=N_COMPONENTS, min_dist=MIN_DIST, n_neighbor=N_NEIGHBOR)
+        expand('DerivedData/ReferencePanel_v6/hyperparameters/umap_{cohort}_{pcs}pcs_{n_components}components_{min_dist}distance_{n_neighbor}neigbor.txt', cohort=COHORT, pcs=PCS, n_components=N_COMPONENTS, min_dist=MIN_DIST, n_neighbor=N_NEIGHBOR)
     output:
-        outfile = "data/test/{cohort}_umap_tune.rds.gz"
+        outfile = "DerivedData/ReferencePanel_v6/{cohort}_umap_tune.rds.gz"
     script:
         'scripts/R/UMAP/umap_collate.R'
