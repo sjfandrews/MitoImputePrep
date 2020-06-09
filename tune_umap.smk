@@ -16,7 +16,7 @@ N_NEIGHBOR = [15, 25, 50, 75, 100]
 
 rule all:
     input:
-        expand('data/test/hyperparameters/umpap_{cohort}_{pcs}pcs_{n_components}components_{min_dist}distance_{n_neighbor}neigbor.txt', cohort=COHORT, pcs=PCS, n_components=N_COMPONENTS, min_dist=MIN_DIST, n_neighbor=N_NEIGHBOR)
+        expand("data/test/{cohort}umap_tune.rds.gz", cohort=COHORT)
 
 rule umap:
     input:
@@ -30,3 +30,11 @@ rule umap:
         n_neighbor = '{n_neighbor}'
     script:
         'scripts/R/umap_tune.R'
+
+rule collate_outputs:
+    input:
+        expand('data/test/hyperparameters/umpap_{cohort}_{pcs}pcs_{n_components}components_{min_dist}distance_{n_neighbor}neigbor.txt', cohort=COHORT, pcs=PCS, n_components=N_COMPONENTS, min_dist=MIN_DIST, n_neighbor=N_NEIGHBOR)
+    output:
+        outfile = "data/test/{cohort}_umap_tune.rds.gz"
+    script:
+        'scripts/R/umap_collate.R'
