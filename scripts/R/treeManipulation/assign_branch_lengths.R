@@ -12,7 +12,8 @@ message("===========================")
 #fasta_file = "~/Desktop/SANDBOX/mtvertebrates/Ursus_arctos.9644.MT.muscle.refined.fa"
 #tree_file = "~/Desktop/SANDBOX/mtvertebrates/Ursus_arctos.9644.MT.muscle.refined_MPboot.treefile"
 
-out_tree = paste0(sub(".treefile", "", tree_file), "_branchLengths.treefile")
+out_tree1 = paste0(sub(".treefile", "", tree_file), "_branchLengths.treefile")
+out_tree2 = paste0(sub(".treefile", "", tree_file), "_branchLengths_mprooted.treefile")
 
 fasta = read.phyDat(fasta_file, format = "fasta", type = "DNA")
 tree = read.tree(tree_file)
@@ -31,5 +32,10 @@ new.tree = acctran(tree, fasta)
 new.tree = di2multi(new.tree)
 #new.tree = midpoint(new.tree) # DONT MIDPOINT ROOT!
 
-message(paste0("WRITING TREE TO:  ", out_tree))
-write.tree(phy = new.tree, file = out_tree)
+message(paste0("WRITING UNROOTED TREE TO:  ", out_tree1))
+write.tree(phy = new.tree, file = out_tree1)
+
+new.tree = midpoint(new.tree)
+
+message(paste0("WRITING MID-POINT ROOTED TREE TO:  ", out_tree2))
+write.tree(phy = new.tree, file = out_tree2)
