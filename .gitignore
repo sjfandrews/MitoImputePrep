@@ -12,3 +12,4 @@ metadata/Concordance_tables/HiMC_HaploGrep/plots/*
 scripts/R/UMAP/mtUMAP_cache/*
 *rds.gz
 DerivedData/ReferencePanel_v6/McInerney_Master_Alignment_July18_2018_ambigANDgap2missing.fasta
+src/*
