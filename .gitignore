@@ -9,3 +9,5 @@ example/imputed/*
 .Rhistory
 Rplots.pdf
 metadata/Concordance_tables/HiMC_HaploGrep/plots/*
+scripts/R/UMAP/mtUMAP_cache/*
+*rds.gz
