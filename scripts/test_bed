@@ -1,0 +1,47 @@
+
+
+bsub -J "mpboot_mtref" -P acc_load -q premium -n 16 -R span[hosts=1] -R rusage[mem=2000] -W 24:00 -L /bin/bash \
+-o mpboot_mtref2.stdout -eo mpboot_mtref2.stderr \
+"/sc/arion/projects/LOAD/shea/bin/MitoImputePrep/data/test/mpboot -s ReferencePanel_v1_highQual_MAF0.01_filtered.fasta -st DNA -pre ReferencePanel_v1_highQual_MAF0.01_filtered_mpboot -bb 1000"
+
+
+bsub -J "mpboot_mtref" -P acc_load -q premium -n 16 -R span[hosts=1] -R rusage[mem=2000] -W 144:00 -L /bin/bash \
+-o mpboot_mtref.stdout -eo mpboot_mtref.stderr \
+"/sc/arion/projects/LOAD/shea/bin/MitoImputePrep/data/test/mpboot -s ReferencePanel_v1_highQual_MAF0.01_filtered.fasta -st DNA -pre ReferencePanel_v1_highQual_MAF0.01_filtered_mpboot -bb 1000"
+
+
+bsub -J "iqtree_mtref" -P acc_load -q premium -n 16 -R span[hosts=1] -R rusage[mem=4000] -W 144:00 -L /bin/bash \
+-o iqtree_mtref.stdout -eo iqtree_mtref.stderr \
+"/sc/arion/projects/LOAD/shea/bin/MitoImputePrep/data/test/iqtree -s ReferencePanel_v1_highQual_MAF0.01_filtered.fasta -pre ReferencePanel_v1_highQual_MAF0.01_filtered_iqtree -mset HKY -mrate I+G4,I+G8,I+G12 -nt 16"
+
+
+/sc/arion/projects/LOAD/shea/bin/MitoImputePrep/data/test/mpboot -s ReferencePanel_v1_highQual_MAF0.01_filtered.fasta -st DNA -pre ReferencePanel_v1_highQual_MAF0.01_filtered_mpboot2 -bb 1000
+
+
+scp /Users/sheaandrews/GitCode/MitoImputePrep/data/test/mtref_mtped.txt andres12@chimera.hpc.mssm.edu:/sc/arion/projects/LOAD/shea/bin/MitoImputePrep/data/test/mtref_mtped.txt
+
+scp andres12@chimera.hpc.mssm.edu:/sc/arion/projects/LOAD/shea/bin/MitoImputePrep/DerivedData/ReferencePanel_v6/mtref_umap_tune.rds.gz /Users/shea/Downloads/
+
+bsub -J "mpboot_tkg" -P acc_load -q premium -n 16 -R span[hosts=1] -R rusage[mem=2000] -W 144:00 -L /bin/bash \
+-o mpboot_tkg.stdout -eo mpboot_tkg.stderr \
+"/sc/arion/projects/LOAD/shea/bin/MitoImputePrep/data/test/mpboot -s 1kGP_P3_ALL_chrMT_n2503.fasta -st DNA -pre 1kGP_P3_ALL_chrMT_n2503_mpboot -bb 1000"
+
+
+bsub -J "iqtree_tkg" -P acc_load -q premium -n 16 -R span[hosts=1] -R rusage[mem=4000] -W 144:00 -L /bin/bash \
+-o iqtree_tkg.stdout -eo iqtree_tkg.stderr \
+"/sc/arion/projects/LOAD/shea/bin/MitoImputePrep/data/test/iqtree -s 1kGP_P3_ALL_chrMT_n2503.fasta -pre 1kGP_P3_ALL_chrMT_n2503_iqtree -mset HKY -mrate I+G4,I+G8,I+G12 -nt 16"
+
+
+
+scp andres12@chimera.hpc.mssm.edu:/sc/arion/projects/LOAD/shea/bin/MitoImputePrep/DerivedData/ReferencePanel_v6/ReferencePanel_v6_highQual_filtered_haplogrep.txt /Users/sheaandrews/GitCode/MitoImputePrep/DerivedData/ReferencePanel_v6
+
+
+scp data/test/1kGP_P3_ALL_chrMT_n2503.fasta DerivedData/ThousandGenomes/1kGP_P3_ALL_chrMT_n2503.fasta
+
+/sc/arion/projects/LOAD/shea/bin/phy-mer-master/Phy-Mer.py /sc/arion/projects/LOAD/shea/bin/phy-mer-master/PhyloTree_b16_k12.txt /sc/arion/projects/LOAD/shea/bin/MitoImputePrep/DerivedData/ThousandGenomes/1kGP_P3_ALL_chrMT_n2503.fasta >
+
+java -jar src/haplogrep-2.1.25.jar --in DerivedData/ThousandGenomes/chrMT_1kg_norm_decomposed_firstAlt.vcf.gz --format vcf --out DerivedData/ThousandGenomes/chrMT_1kg_norm_decomposed_firstAlt_haplogrep.txt
+java -jar src/haplogrep-2.1.25.jar --in /sc/arion/projects/LOAD/shea/bin/MitoImpute/ReferencePanel/ReferencePanel.vcf.gz --format vcf --out /sc/arion/projects/LOAD/shea/bin/MitoImpute/ReferencePanel/ReferencePanel_haplogroups.txt
+
+/sc/arion/projects/LOAD/shea/bin/phy-mer-master/Phy-Mer.py --print-ranking --verbose \
+--min-DoC=10 /sc/arion/projects/LOAD/shea/bin/phy-mer-master/PhyloTree_b16_k12.txt alignments/McInerney_Master_Alignment_July18_2018.fasta > ReferencePanel/ReferencePanel_phymer.txt
