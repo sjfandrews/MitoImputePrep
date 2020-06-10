@@ -473,7 +473,7 @@ ggpubr::ggarrange(
 ## Hypurr-ameters 
 
 ```{r mtref-hyperparameters, cache=FALSE}
-mtref_tuna <- read_rds("/Users/sheaandrews/Dropbox/Public/mtref_umap_tune.rds.gz") %>% 
+mtref_tuna <- read_rds("/Users/sheaandrews/GitCode/MitoImputePrep/DerivedData/ReferencePanel_v6/mtref_umap_tune.rds.gz") %>% 
   ungroup() %>% 
   rowwise() %>% 
   mutate(plots = list(
@@ -489,6 +489,12 @@ mtref_tuna <- read_rds("/Users/sheaandrews/Dropbox/Public/mtref_umap_tune.rds.gz
 ```{r mtref-hyperparameters-plots}
 
 mtref_tuna %>% filter(pcs == 10, min_dist == 0.99, n_neighbor == 100) %>% pull(plots)
+mtref_tuna %>% filter(pcs == 10, min_dist == 0.99, n_neighbor == 100) %>% 
+  pull(data) %>% magrittr::extract2(1) %>%
+    ggplot(., aes(x = UMAP1, y = UMAP2, color = macro)) +
+      geom_point(size = 1) +
+      scale_color_manual(values = plc) + 
+      theme_bw()
 
 
 ## PC Plots (n_components == 2, min_dist == 0.5, n_neighbor == 50)
