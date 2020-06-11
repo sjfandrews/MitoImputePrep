@@ -17,15 +17,16 @@ editor_options:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
-
+knitr::opts_chunk$set(echo = FALSE, eval = FALSE, warning = FALSE, message = FALSE)
+library(treeio)
+library(ggtree)
 library(tidyverse)
 # library(umapr)
 # library(umap)
 library(FactoMineR)
 library(factoextra)
 library(plotly)
-library(HiMC)
+# library(HiMC)
 library(pals)
 library(glue)
 `%nin%` = Negate(`%in%`)
@@ -54,16 +55,17 @@ generate_snp_data_fixed <- function (map_file, ped_file)
 }
 
 ## pals::polychrome 
-plc <- pals::polychrome() %>% as.character() %>% .[3:36]
-
+plc <- pals::polychrome() %>% .[3:36] %>% as.character() 
+plc_df <- tibble(plc_colour = pals::polychrome() %>% .[3:36] %>% names(), 
+                 plc_values = pals::polychrome() %>% .[3:36] %>% as.character())
 ```
 
-## Dimensionality Reduction 
+# Dimensionality Reduction 
 
-### PCA 
+## PCA 
 **PCA**: an orthogonal linear transformation which projects the genotype data into the new reduced dimensional space such that the greater variance comes in an order
 
-### UMAP 
+## UMAP 
 **UMAP**: a novel non-linear dimensionality reduction technique based on Riemannian geometry and algebraic topology to model and preserve the high-dimensional topology of data points in the lowdimensional space
 
 **PCA–UMAP**: an application of UMAP for principal components of genotype data to be computationally more advantageous and statistically less noisy
@@ -77,10 +79,11 @@ UMAP has several hyperparameters that can have a signficant impact on the result
 + `n_components`: The dimension of the space to embed into (defaults = 2)
 + `metric`: The metric to use to compute distances in high dimensional space (default = euclidean)
 + `n pca`: For genetic ancestry the number of PCs used in the data input. Adding more components results in progressively finer clusters until approximately 20 populations appear using 15 components; adding further components converges to results similar to using the entire genotype data
++ `init`: Type of initialization for the coordinates (default = spectral). If connected components are present, may need to either use a PCA based initialization or increase value of n_neighbors. for mtRef, values below 600 result in pca.
 
-### References 
+## References 
 
-#### Papers 
+### Papers 
 + Diaz-Papkovich, A., et al. (2019). UMAP reveals cryptic population structure and phenotype heterogeneity in large genomic cohorts. [PLOS Genetics  15(11), e1008432](https://dx.doi.org/10.1371/journal.pgen.1008432)
   - data = 1kg, UKBB, HRS; metric = Eucledian, PCs = 10; n_neigbours = 15, min_dist = 0.5
   - Parameter Tuning
@@ -94,7 +97,7 @@ UMAP has several hyperparameters that can have a signficant impact on the result
 + Yamamoto, K.,et al. (2020). Genetic and phenotypic landscape of the mitochondrial genome in the Japanese population. [Communications Biology  3(1), 104](https://dx.doi.org/10.1038/s42003-020-0812-9)
   - data = Japanese pop; PCs = 20; n_neighbors = 100; min_dist = 0.99
   
-#### Documentation 
+### Documentation 
 + [umapr](https://github.com/ropenscilabs/umapr): wraps the Python implementation of UMAP to make the algorithm accessible from within R
 + [umap](https://github.com/tkonopka/umap): R package that provides an interface to the UMAP algorithm, including a translation of the original algorithm into R with minimal dependencies
   - [Uniform Manifold Approximation and Projection in R](https://cran.r-project.org/web/packages/umap/vignettes/umap.html) 
@@ -203,16 +206,30 @@ param_umapr %>% left_join(param_umap) %>% left_join(param_uwot) %>%
 ```
 
 
+# Data Wrangling 
+
++ Import PLINK files, haplogroup assignments and contry of provenence.  
+  - Haplogroups were assigned using haplogrep2
+  - Convert alleles coding to 0/1  
++ Remove duplicated sequences 
+
 ## mtReference Panel 
 
-+ Read in map/ped files 
-+ assign mitochondrial haplogroups using Hi-Mc
-+ Convert alleles to 0/1 coding 
+```{r mtreference-wrangle, cache=T, echo = TRUE, eval = TRUE}
 
-```{r mtreference-wrangle, cache=T}
+mtref_ped <- generate_snp_data_fixed("/Users/sheaandrews/GitCode/MitoImpute/ReferencePanel/ReferencePanel.map",
+                               "/Users/sheaandrews/GitCode/MitoImpute/ReferencePanel/ReferencePanel.ped") %>% 
+  magrittr::set_colnames(
+    c("Family", "Individual", "Father", "Mother", "Sex", "Phenotype", 
+      paste0('mt', colnames(magrittr::extract(., 7:ncol(.))))
+      )
+    ) %>% 
+  as_tibble() %>%
+  na_if(., "0 0") %>% 
+  mutate_at(vars(starts_with("mt")), as_factor) %>% 
+  mutate_at(vars(starts_with("mt")), as.numeric) %>% 
+  mutate(Sex = as.numeric(Sex))
 
-dat <- generate_snp_data_fixed("/Users/sheaandrews/GitCode/MitoImpute/ReferencePanel/ReferencePanel.map",
-                               "/Users/sheaandrews/GitCode/MitoImpute/ReferencePanel/ReferencePanel.ped")
 # Hi-MC haplogroup classification 
 # data(nodes)
 # classifications.raw <- HiMC::getClassifications(dat)
@@ -234,17 +251,113 @@ country <- read_tsv("/Users/sheaandrews/GitCode/MitoImputePrep/DerivedData/Refer
 
 mtref_hg <- read_tsv("/Users/sheaandrews/GitCode/MitoImpute/ReferencePanel/ReferencePanel_haplogroups.txt") %>% 
   rename(haplogroup = Haplogroup) %>% 
-  mutate(macro = ifelse(str_detect(haplogroup, "^L"),
+  mutate(macro = ifelse(str_detect(haplogroup, "^L|^HV"),
                         substr(haplogroup, start = 1, stop = 2),
                         substr(haplogroup, start = 1, stop = 1)), 
          supclu = case_when(
             macro %in% c("L0", "L1", "L2", "L3", "L4") ~ "L",
             macro %in% c("Q", "G", "E", "D", "C", "Z", "M") ~ "M",
             macro %in% c("A", "S", "O", "Y", "I", "W", "X", "N") ~ "N",
-            macro %in% c("R", "P", "B", "F", "J", "T", "U", "K", "H", "V") ~ "R"
+            macro %in% c("R", "P", "B", "F", "J", "T", "U", "K", "H", "HV", "V") ~ "R"
   ))
-  
-ped <- dat %>% 
+
+## Merge Datasets   
+mtref <- mtref_ped %>%
+  distinct(., across(contains("mt")), .keep_all = TRUE) %>%
+#  left_join(classifications) %>% 
+  left_join(mtref_hg, by = c("Individual" = "SampleID")) %>% 
+  left_join(country) %>% 
+  select(Family, Individual, Father, Mother, Sex, Phenotype, haplogroup, macro, supclu, Quality,
+         geographic_data, Continent, Country, Region, everything()) %>% 
+  select(-mt189, -mt189.1, -mt302, -mt308, -mt309, -mt310, -mt316) %>%
+  filter(!is.na(macro)) 
+
+## Estimate Missingness, pull variants with greater the 5% missingness 
+miss_mtref <- mtref %>%
+  select(starts_with("mt")) %>%  # replace to your needs
+  summarise_all( ~ sum(is.na(.))) %>% 
+  t() %>% 
+  as_tibble(rownames = "var") %>% 
+  arrange(-V1) %>% 
+  mutate(prop = V1 / nrow(mtref)) %>% 
+  filter(prop > 0.05) %>% 
+  pull(var)
+
+## Mean Imputation of missing variants with macro haplogroups
+mtref <- mtref %>% 
+  select(-all_of(miss_mtref)) %>% 
+  split(.$macro) %>%
+  map(., ~mutate_at(., vars(matches("mt")), .funs = function(x){ifelse(is.na(x), round(mean(x, na.rm = TRUE)), x)})) %>%
+  bind_rows() %>% 
+  arrange(Individual) 
+
+# write_tsv(mtref_ped, "/Users/sheaandrews/GitCode/MitoImputePrep/DerivedData/ReferencePanel_v6/mtref_mtped.txt")
+```
+
+## Thousand Genomes
+```{r 1kg-wrangle, cache=T, echo = TRUE, eval = TRUE}
+## Haplogroup assignments 
+tkg_ped <- generate_snp_data_fixed(
+  "/Users/sheaandrews/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/chrMT_1kg_norm_decomposed_firstAlt.map",
+  "/Users/sheaandrews/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/chrMT_1kg_norm_decomposed_firstAlt.ped")
+
+info_1kg <- read_tsv("/Users/sheaandrews/GitCode/MitoImputePrep/data/ThousandGenomes/20130606_g1k.ped", guess_max = 10000) %>% 
+  select(Individual = `Individual ID`, Family_ID = `Family ID`, Father = `Paternal ID`, Mother = `Maternal ID`, Population, Gender) %>% 
+  mutate(cont = case_when(
+    Population == "ESN" ~ "AFR",
+    Population == "GWD" ~ "AFR",
+    Population == "LWK" ~ "AFR",
+    Population == "MSL" ~ "AFR",
+    Population == "YRI" ~ "AFR",
+    Population == "JPT" ~ "EAS",
+    Population == "CHB" ~ "EAS",
+    Population == "CDX" ~ "EAS",
+    Population == "CHS" ~ "EAS",
+    Population == "KHV" ~ "EAS",
+    Population == "CEU" ~ "EUR",
+    Population == "FIN" ~ "EUR",
+    Population == "GBR" ~ "EUR",
+    Population == "IBS" ~ "EUR",
+    Population == "TSI" ~ "EUR",
+    Population == "BEB" ~ "IND",
+    Population == "GIH" ~ "IND",
+    Population == "ITU" ~ "IND",
+    Population == "PJL" ~ "IND",
+    Population == "STU" ~ "IND",
+    Population == "ACB" ~ "AMR",
+    Population == "ASW" ~ "AMR",
+    Population == "CLM" ~ "AMR",
+    Population == "MXL" ~ "AMR",
+    Population == "PEL" ~ "AMR",
+    Population == "PUR" ~ "AMR",
+  ))
+
+# data(nodes)
+# classifications_1kg.raw <- HiMC::getClassifications(dat_1kg)
+# classifications_1kg <- as_tibble(classifications_1kg.raw[-nrow(classifications_1kg.raw),])  %>%
+#   mutate(macro = ifelse(str_detect(haplogroup, "^L"),
+#                         substr(haplogroup, start = 1, stop = 2),
+#                         substr(haplogroup, start = 1, stop = 1)),
+#          supclu = case_when(
+#             macro %in% c("L0", "L1", "L2", "L3", "L4") ~ "L",
+#             macro %in% c("Q", "G", "E", "D", "C", "Z", "M") ~ "M",
+#             macro %in% c("A", "S", "O", "Y", "I", "W", "X", "N") ~ "N",
+#             macro %in% c("R", "P", "B", "F", "J", "T", "U", "K", "H", "V") ~ "R"
+#   ))
+
+tkg_hg <- read_tsv("/Users/sheaandrews/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/chrMT_1kg_norm_decomposed_firstAlt_haplogrep.txt") %>% 
+  rename(haplogroup = Haplogroup) %>% 
+  mutate(macro = ifelse(str_detect(haplogroup, "^L|^HV"),
+                        substr(haplogroup, start = 1, stop = 2),
+                        substr(haplogroup, start = 1, stop = 1)), 
+         supclu = case_when(
+            macro %in% c("L0", "L1", "L2", "L3", "L4", "L5") ~ "L",
+            macro %in% c("Q", "G", "E", "D", "C", "Z", "M") ~ "M",
+            macro %in% c("A", "S", "O", "Y", "I", "W", "X", "N") ~ "N",
+            macro %in% c("R", "P", "B", "F", "J", "T", "U", "K", "H", "HV", "V") ~ "R"
+  ))
+
+tkg <- tkg_ped %>% 
   magrittr::set_colnames(
     c("Family", "Individual", "Father", "Mother", "Sex", "Phenotype", 
       paste0('mt', colnames(magrittr::extract(., 7:ncol(.))))
@@ -254,66 +367,474 @@ ped <- dat %>%
   na_if(., "0 0") %>% 
   mutate_at(vars(starts_with("mt")), as_factor) %>% 
   mutate_at(vars(starts_with("mt")), as.numeric) %>% 
-#  left_join(classifications) %>% 
-  left_join(mtref_hg, by = c("Individual" = "SampleID")) %>% 
-  left_join(country) %>% 
-  select(Family, Individual, Father, Mother, Sex, Phenotype, haplogroup, macro, supclu, Quality,
-         geographic_data, Continent, Country, Region, everything()) %>% 
-  filter(!is.na(macro))
+  # left_join(classifications_1kg) %>% 
+  left_join(tkg_hg, by = c("Individual" = "SampleID")) %>% 
+  select(-Family, -Sex, -Father, -Mother) %>%
+  left_join(info_1kg, by = "Individual") %>%
+  select(Family = Family_ID, Individual, Father, Mother, Sex = Gender, Phenotype, 
+         pop = Population, haplogroup, macro, supclu, everything()) %>% 
+  filter(macro %nin% c("u")) %>% 
+#  select(-mt302, -mt309, -mt310, -mt316, -mt318, -mt319) %>%
+  filter(!is.na(macro)) 
 
-# write_tsv(ped, "/Users/sheaandrews/GitCode/MitoImputePrep/data/test/mtref_mtped.txt")
+# Select Genotypes with no missing data 
+miss_1kg <- tkg %>%
+  select(everything()) %>%  # replace to your needs
+  summarise_all( ~ sum(is.na(.))) %>% 
+  t() %>% 
+  as_tibble(rownames = "var") %>% 
+  filter(V1 > 0) %>% 
+  mutate(prop = V1 / nrow(tkg_ped)) %>% 
+  arrange(-prop) %>%
+  filter(prop > 0.05) %>%
+  pull(var)
+
+tkg <- tkg %>% 
+  select(-all_of(miss_1kg)) %>% 
+  split(.$macro) %>%
+  map(., ~mutate_at(., vars(matches("mt")), .funs = function(x){ifelse(is.na(x), round(mean(x, na.rm = TRUE)), x)})) %>%
+  bind_rows() %>% 
+  arrange(Individual)
+
+# write_tsv(tkg_ped, "/Users/sheaandrews/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/tkg_mtped.txt")
 ```
 
-```{r, eval=FALSE, echo=FALSE}
-count(ped, Continent)
+## Joint Datasets 
+
+Harmonize mtRef and Thousand Genomes to ensure both datasets are utlizing the same SNPs 
+
+```{r join-datasets, echo = TRUE, eval = TRUE}
+ped_joint <- bind_rows(
+  mtref %>%
+    select(intersect( colnames(mtref),  colnames(tkg))) %>%
+    mutate(dataset = "mtRef"), 
+  
+  tkg %>%
+    select(intersect( colnames(mtref),  colnames(tkg))) %>%
+    mutate(dataset = "tkg") 
+) %>% 
+  select(Individual, dataset, haplogroup, macro, supclu, Quality, starts_with("mt")) %>%
+  arrange(dataset, Individual)
+
 ```
 
-### PCA analysis
+## Descriptive statistics 
 
-Run PCA analysis of mtReference Panel 
+```{r tabs, eval=TRUE, echo=TRUE}
 
-+ extract results for individules
-+ plot 2D and 3D results
+# count(tkg, cont) %>% print(n = Inf)
+# count(tkg, haplogroup) %>% print(n = Inf)
 
-```{r mtref-pca}
+ped_joint %>% group_by(dataset) %>% 
+  count(., supclu) %>% mutate(prop = n / sum(n)) %>% 
+  ungroup() %>% 
+  pivot_wider(names_from = dataset, values_from = c(n, prop))
+
+joint_hg <- ped_joint %>% group_by(dataset) %>% 
+  count(., macro) %>% mutate(prop = n / sum(n)) %>% 
+  ungroup() %>% 
+  pivot_wider(names_from = dataset, values_from = c(n, prop)) %>% 
+  arrange(macro) %>%
+  mutate(macro = factor(macro, levels = macro)) %>%
+  bind_cols(plc_df %>% slice(1:29)) %>%
+  print(n = Inf)
+ 
+mtref <- mtref %>% 
+  mutate(macro = factor(macro, levels = joint_hg$macro)) 
+tkg <- tkg %>% 
+  mutate(macro = factor(macro, levels = joint_hg$macro))
+ped_joint <- ped_joint %>% 
+  mutate(macro = factor(macro, levels = joint_hg$macro))
+```
+
+## Phylogenetic Trees 
+
+```{r tkg-tree, echo = TRUE, eval = TRUE}
+## Read in Tree data
+tkg_grp <- tkg %>%  add_row(Individual = "NC_012920", macro = "H", .before = 1) %>%
+  split(.$macro) %>% map(., pull, Individual) %>% compact()
+tkg_newick <- read.newick("~/Downloads/1kGP_P3_ALL_chrMT_n2503_mpboot_branchLengths_mprooted.treefile")
+
+tkg_tree_dat <- as.phylo(tkg_newick) %>%
+  as_tibble(.) %>% 
+  left_join(select(tkg, Individual, pop, haplogroup, macro, supclu), by = c("label" = "Individual")) %>% 
+  mutate(macro = as.character(macro)) %>%
+  groupOTU(., tkg_grp, "group") %>% 
+  mutate(#group = na_if(group, "0"), 
+         group = as.character(group), 
+         group = ifelse(group == "0", "L0", group),
+         group = factor(group, levels = joint_hg$macro)
+         )
+
+tkg_tree <- as.treedata(tkg_tree_dat)
+```
+
+
+# Dimensionality Reduction
+
+## mtRef
+
+Linear dimensioanlity reduction using Principal Compoent Anlaysis to visualize the clustering of mtHg
+
+```{r mtref-pca, echo = TRUE, eval = TRUE}
 ## PCA 
-res.pca <- ped %>% 
+mtref_pca_res <- mtref %>% 
   select(starts_with("mt")) %>% 
   PCA(., scale.unit = F, ncp = 10, graph = FALSE)
 
-ind.pca <- get_pca_ind(res.pca) %>% 
+mtref_pca_tab <- get_pca_ind(mtref_pca_res) %>% 
   magrittr::use_series(coord) %>% 
-  as_tibble() %>%
-  bind_cols(select(ped, Individual, haplogroup, macro, supclu, Continent)) %>% 
-  select(Individual, haplogroup, macro, Continent, supclu, everything()) 
+  as_tibble() 
 ```
 
-```{r}
-eig.val <- get_eigenvalue(res.pca)
-fviz_eig(res.pca, addlabels = TRUE, ylim = c(0, 50))
+```{r, echo = TRUE, eval = TRUE}
+eig.val <- get_eigenvalue(mtref_pca_res)
+fviz_eig(mtref_pca_res, addlabels = TRUE, ylim = c(0, 50))
 ```
 
-```{r mtref-plot-2d-pca}
+Use tricolore to color individules by where they fall on the first three PCs from the PCA analysis
 
-ggplot(ind.pca, aes(x = Dim.1, y = Dim.2, colour = macro)) + 
+```{r mtref-tricolore-umap, echo = TRUE, eval = TRUE}
+## tricolore 
+# color-code the data set and generate a color-key
+mtref_tri_map <- mtref_pca_tab %>% 
+  # add constant to make all values to postive for tricolore
+  mutate(Dim.1 = Dim.1 + (min(Dim.1) * -1), 
+         Dim.2 = Dim.2 + (min(Dim.2) * -1), 
+         Dim.3 = Dim.3 + (min(Dim.3) * -1)) %>% 
+  tricolore::Tricolore(., p1 = 'Dim.1', p2 = 'Dim.2', p3 = 'Dim.3', breaks = 10) 
+ 
+```
+
+Non-linear dimensioanlity reduction using UMAP to visualize the clustering of mtHg
+
+```{r, echo = TRUE, eval = TRUE}
+set.seed(333)
+mtref_umap_res <- mtref_pca_tab %>% 
+ # select(., starts_with("Dim")) %>%
+ select(., Dim.1:Dim.3) %>%
+  uwot::umap(., min_dist = 0.99, spread = 0.5, n_neighbor = 50, n_components = 2, init = "spectral", 
+             verbose = TRUE, ret_model = TRUE) 
+
+mtref_umap_tab <- mtref_umap_res %>% 
+  magrittr::use_series(embedding) %>% 
+  as_tibble() %>% 
+  magrittr::set_colnames(str_replace(colnames(magrittr::extract(.)), "V", "UMAP"))
+
+```
+
+
+```{r mtref-merge, echo = TRUE, eval = TRUE}
+## Merge PCA, UMAP
+
+mtref_dr <- mtref %>% 
+  select(., Individual, haplogroup, macro, supclu, Continent) %>% 
+  left_join(select(joint_hg, macro, plc_colour, plc_values), by = "macro") %>%
+  mutate(., rgb = mtref_tri_map %>% magrittr::use_series(rgb)) %>%
+  bind_cols(mtref_pca_tab) %>%
+  bind_cols(mtref_umap_tab) 
+
+```
+
+### Plots
+
+```{r mtref-plots, echo = TRUE, eval = TRUE}
+
+mtref_pca2d_plot <- ggplot(mtref_dr, aes(x = Dim.1, y = Dim.2, colour = macro)) + 
   scale_color_manual(values = plc) + 
-  geom_point() + theme_bw()
+  geom_point(size = 0.5) + 
+  labs(x = "PC 1", y = "PC 2") +
+  guides(colour = guide_legend(override.aes = list(size=10))) + 
+  theme_bw()
 
-ggplot(ind.pca, aes(x = Dim.1, y = Dim.2, colour = supclu)) + 
+mtref_pca3d_plot <- function(){
+  par(
+    mar = c(0, 0, 0, 0),
+    mgp = c(0, 0, 0)
+    )
+  with(mtref_dr, 
+  scatterplot3d::scatterplot3d(
+    x = Dim.1, y = Dim.2, z = Dim.3,
+    xlab = "PC 1", ylab = "PC 2", zlab = "PC 3",
+    color = plc_values,
+    pch = 16, cex.symbols=0.5, grid = FALSE, tick.marks = FALSE, box = TRUE,
+    angle = 45, 
+    asp = 1
+    )
+)  
+}
+
+mtref_umap_plot <- ggplot(mtref_dr, aes(x = UMAP1, y = UMAP2, colour = macro)) + 
+  scale_color_manual(values = plc) + 
+  geom_point(size = 0.5) + 
+  guides(colour = guide_legend(override.aes = list(size=2))) +
+  theme_bw()
+
+cowplot::plot_grid(mtref_pca3d_plot, mtref_umap_plot)
+
+```
+
+## Thousand Genomes
+
+Linear dimensioanlity reduction using Principal Compoent Anlaysis to visualize the clustering of mtHg
+
+```{r tkg-pca, echo = TRUE, eval = TRUE}
+## PCA 
+tkg_pca_res <- tkg %>% 
+  select(starts_with("mt")) %>% 
+  PCA(., scale.unit = F, ncp = 10, graph = FALSE)
+
+tkg_pca_tab <- get_pca_ind(tkg_pca_res) %>% 
+  magrittr::use_series(coord) %>% 
+  as_tibble() 
+```
+
+```{r, echo = TRUE, eval = TRUE}
+eig.val <- get_eigenvalue(tkg_pca_res)
+fviz_eig(tkg_pca_res, addlabels = TRUE, ylim = c(0, 50))
+```
+
+Use tricolore to color individules by where they fall on the first three PCs from the PCA analysis
+
+```{r tkg-tricolore-umap, echo = TRUE, eval = TRUE}
+## tricolore 
+# color-code the data set and generate a color-key
+tkg_tri_map <- tkg_pca_tab %>% 
+  # add constant to make all values to postive for tricolore
+  mutate(Dim.1 = Dim.1 + (min(Dim.1) * -1), 
+         Dim.2 = Dim.2 + (min(Dim.2) * -1), 
+         Dim.3 = Dim.3 + (min(Dim.3) * -1)) %>% 
+  tricolore::Tricolore(., p1 = 'Dim.1', p2 = 'Dim.2', p3 = 'Dim.3', breaks = 10) 
+
+```
+
+Non-linear dimensioanlity reduction using UMAP to visualize the clustering of mtHg
+
+```{r tkg-umap, echo = TRUE, eval = TRUE}
+set.seed(333)
+tkg_umap_res <- tkg_pca_tab %>% 
+ # select(., starts_with("Dim")) %>%
+ select(., Dim.1:Dim.3) %>%
+  uwot::umap(., min_dist = 0.99, spread = 0.5, n_neighbor = 50, n_components = 2, init = "spectral", 
+             verbose = TRUE, ret_model = TRUE) 
+
+tkg_umap_tab <- tkg_umap_res %>% 
+  magrittr::use_series(embedding) %>% 
+  as_tibble() %>% 
+  magrittr::set_colnames(str_replace(colnames(magrittr::extract(.)), "V", "UMAP"))
+
+```
+
+
+```{r tkg-merge, echo = TRUE, eval = TRUE}
+## Merge PCA, UMAP
+
+tkg_dr <- tkg %>% 
+  select(., Individual, haplogroup, macro, supclu, pop) %>% 
+  left_join(select(joint_hg, macro, plc_colour, plc_values), by = "macro") %>%
+  mutate(., rgb = tkg_tri_map %>% magrittr::use_series(rgb)) %>%
+  bind_cols(tkg_pca_tab) %>%
+  bind_cols(tkg_umap_tab) 
+
+```
+
+### Plots
+
+```{r tkg-plots, echo = TRUE, eval = TRUE}
+
+tkg_pca2d_plot <- ggplot(tkg_dr, aes(x = Dim.1, y = Dim.2, colour = macro)) + 
+  scale_color_manual(values = plc) + 
+  geom_point(size = 0.5) + 
+  labs(x = "PC 1", y = "PC 2") +
+  guides(colour = guide_legend(override.aes = list(size=2))) + 
+  theme_bw()
+
+tkg_pca3d_plot <- function(){
+  par(
+    mar = c(0, 0, 0, 0),
+    mgp = c(0, 0, 0)
+    )
+  with(tkg_dr, 
+  scatterplot3d::scatterplot3d(
+    x = Dim.1, y = Dim.2, z = Dim.3,
+    xlab = "PC 1", ylab = "PC 2", zlab = "PC 3",
+    color = plc_values,
+    pch = 16, cex.symbols=0.5, grid = FALSE, tick.marks = FALSE, box = TRUE,
+    angle = 145, 
+    asp = 1
+    )
+)  
+}
+cowplot::ggdraw(tkg_pca3d_plot)
+
+tkg_umap_plot <- ggplot(tkg_dr, aes(x = UMAP1, y = UMAP2, colour = macro)) + 
+  scale_color_manual(values = plc) + 
+  geom_point(size = 0.5) + 
+  guides(colour = guide_legend(override.aes = list(size=2))) +
+  theme_bw()
+
+cowplot::plot_grid(tkg_pca3d_plot, tkg_umap_plot)
+
+```
+
+```{r, echo = TRUE, eval = TRUE}
+# tree plot 
+tkg_tree_plot <- ggtree(tkg_tree, layout="circular", branch.length = 'branch.length', aes(color = group)) + theme_tree2() + scale_color_manual(values = plc, drop = FALSE) + 
+  theme(axis.text = element_blank(), 
+        axis.line=element_blank())
+
+tkg_tree_plot
+```
+
+## Projection 
+
+```{r proj-pca, echo = TRUE, eval = TRUE}
+## mtRef PCA 
+mtRef_train_pca_res <- ped_joint %>%
+  split(.$dataset) %>%
+  map(~select(., starts_with("mt"))) %>% 
+  map(~PCA(., scale.unit = F, ncp = 10, graph = FALSE))
+
+mtRef_train_pca_tab <- magrittr::extract2(mtRef_train_pca_res, "mtRef") %>%
+  get_pca_ind() %>%
+  magrittr::use_series(coord) %>% 
+  as_tibble() 
+  
+## 1kg Predicted PCA     
+tkg_test_pca_res <- predict(magrittr::extract2(mtRef_train_pca_res, "mtRef"), 
+                            filter(ped_joint, dataset == "tkg") %>% select(., starts_with("mt"))
+                            )  
+tkg_test_pca_tab <- tkg_test_pca_res %>%
+  magrittr::use_series(coord) %>% 
+  as_tibble() 
+```
+
+```{r proj-umap, echo = TRUE, eval = TRUE}
+# UMAP 
+## mtRef
+set.seed(333)
+mtRef_train_umap_res = mtRef_train_pca_tab %>% 
+   # select(., starts_with("Dim")) %>%
+  select(., Dim.1:Dim.3) %>%
+  uwot::umap(., min_dist = 0.99, spread = 0.5, n_neighbor = 50, n_components = 2, init = "spectral", 
+             verbose = TRUE, ret_model = TRUE)
+
+mtRef_train_umap_tab <- mtRef_train_umap_res %>% 
+  magrittr::use_series(embedding) %>% 
+  as_tibble() %>% 
+  magrittr::set_colnames(str_replace(colnames(magrittr::extract(.)), "V", "UMAP"))
+
+## 1kg Predicted UMAP 
+tkg_test_umap_res <- tkg_test_pca_tab %>% 
+# select(., starts_with("Dim")) %>%
+  select(., Dim.1:Dim.3) %>%
+  uwot::umap_transform(., mtRef_train_umap_res, verbose = TRUE)
+
+tkg_test_umap_tab <- tkg_test_umap_res %>% 
+  as_tibble() %>% 
+  magrittr::set_colnames(str_replace(colnames(magrittr::extract(.)), "V", "UMAP"))
+```
+
+```{r proj-join, echo = TRUE, eval = TRUE}
+
+mtref_train <- ped_joint %>% 
+  filter(., dataset == "mtRef") %>% 
+  select(., Individual, haplogroup, macro, supclu) %>% 
+  left_join(select(joint_hg, macro, plc_colour, plc_values), by = "macro") %>%
+  bind_cols(mtRef_train_pca_tab) %>%
+  bind_cols(mtRef_train_umap_tab) %>% 
+  mutate(dataset = "mtRef")
+
+tkg_test <- ped_joint %>% 
+  filter(., dataset == "tkg") %>% 
+  select(., Individual, haplogroup, macro, supclu) %>% 
+  left_join(select(joint_hg, macro, plc_colour, plc_values), by = "macro") %>%
+  bind_cols(tkg_test_pca_tab) %>%
+  bind_cols(tkg_test_umap_tab) %>% 
+  mutate(dataset = "tkg")
+ 
+pred <- bind_rows(mtref_train, tkg_test)
+
+```
+
+```{r proj-plots, echo = TRUE, eval = TRUE}
+
+mtref_train_pca2d_plot <- ggplot(mtref_train, aes(x = Dim.1, y = Dim.2, colour = macro)) + 
+  scale_color_manual(values = plc) + 
+  geom_point(size = 0.5) + 
+  labs(x = "PC 1", y = "PC 2") +
+  guides(colour = guide_legend(override.aes = list(size=1))) + 
+  theme_bw()
+
+mtref_train_pca3d_plot <- function(){
+  par(
+    mar = c(0, 0, 0, 0),
+    mgp = c(0, 0, 0)
+    )
+  with(mtref_train, 
+  scatterplot3d::scatterplot3d(
+    x = Dim.1, y = Dim.2, z = Dim.3,
+    xlab = "PC 1", ylab = "PC 2", zlab = "PC 3",
+    color = plc_values,
+    pch = 16, cex.symbols=0.5, grid = FALSE, tick.marks = FALSE, box = TRUE,
+    angle = 45, 
+    asp = 1
+    )
+)  
+}
+
+mtref_train_umap_plot <- ggplot(mtref_train, aes(x = UMAP1, y = UMAP2, colour = macro)) + 
+  scale_color_manual(values = joint_hg$plc_values, drop = FALSE) + 
+  geom_point(size = 0.5) + 
+  guides(colour = guide_legend(override.aes = list(size=2))) +
+  theme_bw()
+
+tkg_test_umap_plot <- ggplot() + 
+  geom_point(data = mtref_train, aes(x = UMAP1, y = UMAP2), size = 0.5, colour = "#E4E1E3") + 
+  geom_point(data = tkg_test, aes(x = UMAP1, y = UMAP2, colour = macro), size = 1) + 
+  scale_color_manual(values = joint_hg$plc_values, drop = FALSE) +
+  guides(colour = guide_legend(override.aes = list(size=2))) +
+  theme_bw()
+
+
+```
+
+## Draft Plot 
+```{r, echo = TRUE, eval = TRUE}
+
+prow <- cowplot::plot_grid(
+  mtref_pca3d_plot,
+  mtref_train_umap_plot + theme(legend.position="none"),
+  tkg_tree_plot + theme(legend.position="none"),
+  tkg_test_umap_plot + theme(legend.position="none")
+                   )
+
+legend_b <- cowplot::get_legend(
+  mtref_train_umap_plot + theme(legend.box.margin = margin(0, 0, 0, 12))
+)
+
+cowplot::plot_grid(prow, legend_b,rel_widths = c(3, .4))
+```
+
+
+
+# Other
+```{r mtref-plot-other}
+## Other plots 
+ggplot(mtref_pca_tab, aes(x = Dim.1, y = Dim.2, colour = supclu)) + 
   scale_color_manual(values = plc) + 
   geom_point() + theme_bw()
 
 ggplot() + 
-  geom_point(data = filter(ind.pca, Continent == "Unknown"), aes(x = Dim.1, y = Dim.2, colour = Continent)) + 
-  geom_point(data = filter(ind.pca, Continent != "Unknown"), aes(x = Dim.1, y = Dim.2, colour = Continent)) + 
+  geom_point(data = filter(mtref_pca_tab, Continent == "Unknown"), aes(x = Dim.1, y = Dim.2, colour = Continent)) + 
+  geom_point(data = filter(mtref_pca_tab, Continent != "Unknown"), aes(x = Dim.1, y = Dim.2, colour = Continent)) + 
   scale_color_manual(values = plc) + 
   theme_bw()
 ```
 
 
-
 ```{r mtref-pca-plot-3d}
-plot_ly(ind.pca, x = ~Dim.2, y = ~Dim.1, z = ~Dim.3, color = ~macro, colors = plc,
+plot_ly(mtref_pca_tab, x = ~Dim.2, y = ~Dim.1, z = ~Dim.3, color = ~macro, colors = plc_df$plc_values,
         type = 'scatter3d', mode = 'markers', marker = list(size = 3), 
         hoverinfo = 'text', text = ~paste('</br> ID: ', Individual, 
                                           '</br> Haplogroup: ', macro,
@@ -321,7 +842,7 @@ plot_ly(ind.pca, x = ~Dim.2, y = ~Dim.1, z = ~Dim.3, color = ~macro, colors = pl
                                           '</br> PC2: ', round(Dim.2, 2),
                                           '</br> PC3: ', round(Dim.3, 2)))
 
-plot_ly(ind.pca, x = ~Dim.2, y = ~Dim.1, z = ~Dim.3, color = ~supclu, colors = plc,
+plot_ly(mtref_pca_tab, x = ~Dim.2, y = ~Dim.1, z = ~Dim.3, color = ~supclu, colors = plc,
         type = 'scatter3d', mode = 'markers', marker = list(size = 3), 
         hoverinfo = 'text', text = ~paste('</br> ID: ', Individual, 
                                           '</br> Haplogroup: ', macro,
@@ -329,7 +850,7 @@ plot_ly(ind.pca, x = ~Dim.2, y = ~Dim.1, z = ~Dim.3, color = ~supclu, colors = p
                                           '</br> PC2: ', round(Dim.2, 2),
                                           '</br> PC3: ', round(Dim.3, 2)))
 
-plot_ly(ind.pca, x = ~Dim.2, y = ~Dim.1, z = ~Dim.3, color = ~Continent, colors = plc,
+plot_ly(mtref_pca_tab, x = ~Dim.2, y = ~Dim.1, z = ~Dim.3, color = ~Continent, colors = plc,
         type = 'scatter3d', mode = 'markers', marker = list(size = 3), 
         hoverinfo = 'text', text = ~paste('</br> ID: ', Individual, 
                                           '</br> Haplogroup: ', macro,
@@ -341,11 +862,29 @@ plot_ly(ind.pca, x = ~Dim.2, y = ~Dim.1, z = ~Dim.3, color = ~Continent, colors 
 
 ### UMAP 
 
+```{r}
+embedding_mtref_2d_ags <- mtref_pca_tab %>% 
+#  select(., starts_with("Dim")) %>% 
+  select(., Dim.1:Dim.3) %>% 
+  uwot::umap(., min_dist = 0.99, spread = 0.4, n_neighbor = 100, n_components = 3, init = "spectral", verbose = TRUE) %>% 
+  as.tibble() %>%
+  bind_cols(select(mtref, Individual, haplogroup, macro, supclu, Continent)) %>%
+  rename(UMAP1 = V1, UMAP2 = V2, UMAP3 = V3) 
+
+plot_ly(embedding_mtref_2d_ags, x = ~UMAP2, y = ~UMAP1, z = ~UMAP3, color = ~supclu, colors = plc, type = 'scatter3d', mode = 'markers', marker = list(size = 3), 
+        hoverinfo = 'text', text = ~paste('</br> ID: ', Individual, 
+                                          '</br> Haplogroup: ', macro,
+                                          '</br> PC1: ', round(UMAP1, 2),
+                                          '</br> PC2: ', round(UMAP2, 2),
+                                          '</br> PC3: ', round(UMAP3, 2)))
+
+```
+
 ```{r mtref-umap}
-embedding_mtref_2d <- select(ind.pca, starts_with("Dim")) %>% 
+embedding_mtref_2d <- select(mtref_pca_tab, starts_with("Dim")) %>% 
   uwot::umap(., min_dist = 0.5, n_neighbor = 100, n_components = 2) %>% 
   as.tibble() %>%
-  bind_cols(select(ped, Individual, haplogroup, macro, supclu, Continent)) %>%
+  bind_cols(select(mtref, Individual, haplogroup, macro, supclu, Continent)) %>%
   rename(UMAP1 = V1, UMAP2 = V2) 
   
 
@@ -367,9 +906,9 @@ ggplot() +
   theme_bw()
 )
 
-embedding_mtref_3d <- select(ind.pca, starts_with("Dim")) %>% 
+embedding_mtref_3d <- select(mtref_pca_tab, starts_with("Dim")) %>% 
   uwot::umap(., min_dist = 0.5, n_neighbor = 100, n_components = 3)  %>% as.tibble() %>%
-  bind_cols(select(ped, Individual, haplogroup, macro, supclu, Continent)) %>%
+  bind_cols(select(mtref, Individual, haplogroup, macro, supclu, Continent)) %>%
   rename(UMAP1 = V1, UMAP2 = V2, UMAP3 = V3)
 
 plot_ly(embedding_mtref_3d, x = ~UMAP2, y = ~UMAP1, z = ~UMAP3, color = ~macro, colors = plc, type = 'scatter3d', mode = 'markers', marker = list(size = 3), 
@@ -395,29 +934,6 @@ plot_ly(filter(embedding_mtref_3d, Continent != "Unknown"), x = ~UMAP2, y = ~UMA
 
 ```
 
-Use tricolore to color individules by where they fall on the first three PCs from the PCA analysis in UMAP
-
-```{r mtref-tricolore-umap}
-## tricolore 
-# color-code the data set and generate a color-key
-embedding_mtref_tri <- embedding_mtref_2d %>% 
-  left_join(select(ind.pca, Individual, starts_with("Dim"))) %>% 
-  # add constant to make all values to postive for tricolore
-  mutate(Dim.1 = Dim.1 + (min(Dim.1) * -1), 
-         Dim.2 = Dim.2 + (min(Dim.2) * -1), 
-         Dim.3 = Dim.3 + (min(Dim.3) * -1),) 
-
-tri_map <- tricolore::Tricolore(embedding_mtref_tri, p1 = 'Dim.1', p2 = 'Dim.2', p3 = 'Dim.3', breaks = 10) 
-
-embedding_mtref_tri <- mutate(embedding_mtref_tri, rgb = tri_map %>% magrittr::use_series(rgb))
-
-ggplot(embedding_mtref_tri, aes(x = UMAP1, y = UMAP2, color = rgb)) + 
-  geom_point() +  theme_bw() + 
-  theme(legend.position = "none") + 
-  labs(title = "PCA+UMAP: Ternery")
-
-tri_map$key
-```
 
 ## Comparison of UMAP packages 
 ```{r, mtref}
@@ -427,10 +943,10 @@ n_components = 2
 n_epochs = 200
 init = "random"
 
-mtref_umapr_tab <- select(ind.pca, starts_with("Dim")) %>% 
+mtref_umapr_tab <- select(mtref_pca_tab, starts_with("Dim")) %>% 
   umapr::umap(., min_dist = min_dist, n_neighbor = n_neighbor, n_components = n_components, n_epochs = NULL, init = init) %>%
   as.tibble() %>%
-  bind_cols(select(ped, Individual, haplogroup, macro, Continent))
+  bind_cols(select(mtref, Individual, haplogroup, macro, Continent))
 
 p1 <- ggplot(mtref_umapr_tab, aes(x = UMAP1, y = UMAP2, color = macro)) + 
   geom_point() + 
@@ -438,12 +954,12 @@ p1 <- ggplot(mtref_umapr_tab, aes(x = UMAP1, y = UMAP2, color = macro)) +
     theme_bw() + 
   labs(title = "UMAPR")
 
-mtref_umap_res <- select(ind.pca, starts_with("Dim")) %>% 
+mtref_umap_res <- select(mtref_pca_tab, starts_with("Dim")) %>% 
   umap::umap(., min_dist = min_dist, n_neighbor = n_neighbor, n_components = n_components, n_epochs = n_epochs, init = init)  
 
 mtref_umap_tab <- mtref_umap_res %>% magrittr::use_series(layout) %>% 
   as.tibble() %>%
-  bind_cols(select(ped, Individual, haplogroup, macro, Continent)) 
+  bind_cols(select(mtref, Individual, haplogroup, macro, Continent)) 
 
 p2 <- ggplot(mtref_umap_tab, aes(x = V1, y = V2, color = macro)) + 
   geom_point() + 
@@ -451,10 +967,10 @@ p2 <- ggplot(mtref_umap_tab, aes(x = V1, y = V2, color = macro)) +
     theme_bw() + 
   labs(title = "UMAP")
 
-mtref_uwot_tab <- select(ind.pca, starts_with("Dim")) %>% 
+mtref_uwot_tab <- select(mtref_pca_tab, starts_with("Dim")) %>% 
   uwot::umap(., min_dist = min_dist, n_neighbor = n_neighbor, n_components = n_components, n_epochs = n_epochs, init = init) %>% 
   as.tibble() %>%
-  bind_cols(select(ped, Individual, haplogroup, macro, Continent))
+  bind_cols(select(mtref, Individual, haplogroup, macro, Continent))
 
 p3 <- ggplot(mtref_uwot_tab, aes(x = V1, y = V2, color = macro)) + 
   geom_point() + 
@@ -535,124 +1051,21 @@ ggpubr::ggarrange(plotlist = filter(mtref_tuna,
 
 ## Thousand Genomes 
 
-### Data Wrangling
-```{r 1kg-wrangle, cache=T}
-## Haplogroup assignments 
-dat_1kg <- generate_snp_data_fixed(
-  "/Users/sheaandrews/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/chrMT_1kg_norm_decomposed_firstAlt.map",
-  "/Users/sheaandrews/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/chrMT_1kg_norm_decomposed_firstAlt.ped")
-
-info_1kg <- read_tsv("/Users/sheaandrews/GitCode/MitoImputePrep/data/ThousandGenomes/20130606_g1k.ped", guess_max = 10000) %>% 
-  select(Individual = `Individual ID`, Family_ID = `Family ID`, Father = `Paternal ID`, Mother = `Maternal ID`, Population, Gender) %>% 
-  mutate(cont = case_when(
-    Population == "ESN" ~ "AFR",
-    Population == "GWD" ~ "AFR",
-    Population == "LWK" ~ "AFR",
-    Population == "MSL" ~ "AFR",
-    Population == "YRI" ~ "AFR",
-    Population == "JPT" ~ "EAS",
-    Population == "CHB" ~ "EAS",
-    Population == "CDX" ~ "EAS",
-    Population == "CHS" ~ "EAS",
-    Population == "KHV" ~ "EAS",
-    Population == "CEU" ~ "EUR",
-    Population == "FIN" ~ "EUR",
-    Population == "GBR" ~ "EUR",
-    Population == "IBS" ~ "EUR",
-    Population == "TSI" ~ "EUR",
-    Population == "BEB" ~ "IND",
-    Population == "GIH" ~ "IND",
-    Population == "ITU" ~ "IND",
-    Population == "PJL" ~ "IND",
-    Population == "STU" ~ "IND",
-    Population == "ACB" ~ "AMR",
-    Population == "ASW" ~ "AMR",
-    Population == "CLM" ~ "AMR",
-    Population == "MXL" ~ "AMR",
-    Population == "PEL" ~ "AMR",
-    Population == "PUR" ~ "AMR",
-  ))
-
-# data(nodes)
-# classifications_1kg.raw <- HiMC::getClassifications(dat_1kg)
-# classifications_1kg <- as_tibble(classifications_1kg.raw[-nrow(classifications_1kg.raw),])  %>%
-#   mutate(macro = ifelse(str_detect(haplogroup, "^L"),
-#                         substr(haplogroup, start = 1, stop = 2),
-#                         substr(haplogroup, start = 1, stop = 1)),
-#          supclu = case_when(
-#             macro %in% c("L0", "L1", "L2", "L3", "L4") ~ "L",
-#             macro %in% c("Q", "G", "E", "D", "C", "Z", "M") ~ "M",
-#             macro %in% c("A", "S", "O", "Y", "I", "W", "X", "N") ~ "N",
-#             macro %in% c("R", "P", "B", "F", "J", "T", "U", "K", "H", "V") ~ "R"
-#   ))
-
-tkg_hg <- read_tsv("/Users/sheaandrews/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/chrMT_1kg_norm_decomposed_firstAlt_haplogrep.txt") %>% 
-  rename(haplogroup = Haplogroup) %>% 
-  mutate(macro = ifelse(str_detect(haplogroup, "^L"),
-                        substr(haplogroup, start = 1, stop = 2),
-                        substr(haplogroup, start = 1, stop = 1)), 
-         supclu = case_when(
-            macro %in% c("L0", "L1", "L2", "L3", "L4", "L5") ~ "L",
-            macro %in% c("Q", "G", "E", "D", "C", "Z", "M") ~ "M",
-            macro %in% c("A", "S", "O", "Y", "I", "W", "X", "N") ~ "N",
-            macro %in% c("R", "P", "B", "F", "J", "T", "U", "K", "H", "V") ~ "R"
-  ))
-
-ped_1kg <- dat_1kg %>% 
-  magrittr::set_colnames(
-    c("Family", "Individual", "Father", "Mother", "Sex", "Phenotype", 
-      paste0('mt', colnames(magrittr::extract(., 7:ncol(.))))
-      )
-    ) %>% 
-  as_tibble() %>%
-  na_if(., "0 0") %>% 
-  mutate_at(vars(starts_with("mt")), as_factor) %>% 
-  mutate_at(vars(starts_with("mt")), as.numeric) %>% 
-  # left_join(classifications_1kg) %>% 
-  left_join(tkg_hg, by = c("Individual" = "SampleID")) %>% 
-  select(-Family, -Sex, -Father, -Mother) %>%
-  left_join(info_1kg, by = "Individual") %>%
-  select(Family = Family_ID, Individual, Father, Mother, Sex = Gender, Phenotype, 
-         pop = Population, haplogroup, macro, supclu, everything()) %>% 
-  filter(macro %nin% c("u")) %>% 
-  filter(!is.na(macro)) # %>% 
-  # group_by(Family) %>% 
-  # slice(1) %>% 
-  # ungroup()
-#  filter(macro %nin% c("L0", "L1", "L2", "L3"))
-
-miss_gt <- ped_1kg %>%
-  select(everything()) %>%  # replace to your needs
-  summarise_all( ~ sum(is.na(.))) %>% 
-  t() %>% 
-  as_tibble(rownames = "var") %>% 
-  filter(V1 > 0) %>% pull(var)
-```
-
-```{r tabs, eval=FALSE}
-
-count(ped_1kg, pop) %>% print(n = Inf)
-count(ped_1kg, cont) %>% print(n = Inf)
-count(ped_1kg, supclu) %>% print(n = Inf)
-count(ped_1kg, macro) %>% print(n = Inf)
-count(ped_1kg, haplogroup) %>% print(n = Inf)
-
-```
 
 ### PCA 
 
 ```{r 1kg-pca}
 
 ## PCA 
-res.pca_1kg <- ped_1kg %>% 
+res.pca_1kg <- tkg_ped %>% 
   select(starts_with("mt")) %>% 
   select(-all_of(miss_gt)) %>%
 #  mutate_all(., .funs = function(x){ifelse(is.na(x), round(mean(x, na.rm = TRUE)), x)}) %>%
   PCA(., scale.unit = F, ncp = 10, graph = FALSE)
 
-ind.pca_1kg <- get_pca_ind(res.pca_1kg)$coord %>% 
+mtref_pca_tab_1kg <- get_pca_ind(res.pca_1kg)$coord %>% 
   as_tibble() %>%
-  bind_cols(select(ped_1kg, Individual, haplogroup, macro, supclu, pop, cont)) %>% 
+  bind_cols(select(tkg_ped, Individual, haplogroup, macro, supclu, pop, cont)) %>% 
   select(Individual, haplogroup, macro, supclu, everything()) 
 
 ```
@@ -666,17 +1079,17 @@ fviz_eig(res.pca_1kg, addlabels = TRUE, ylim = c(0, 50))
 
 ```{r 1kg-plot-2d-pca}
 
-ggplot(ind.pca_1kg, aes(x = Dim.1, y = Dim.2, colour = macro)) + 
+ggplot(mtref_pca_tab_1kg, aes(x = Dim.1, y = Dim.2, colour = macro)) + 
   geom_point() + 
   scale_color_manual(values = plc) + 
   theme_bw() + theme(legend.position = "bottom")
 
-ggplot(ind.pca_1kg, aes(x = Dim.1, y = Dim.2, colour = supclu)) + 
+ggplot(mtref_pca_tab_1kg, aes(x = Dim.1, y = Dim.2, colour = supclu)) + 
   geom_point() + 
   scale_color_manual(values = plc) + 
   theme_bw() + theme(legend.position = "bottom")
 
-ggplot(ind.pca_1kg, aes(x = Dim.1, y = Dim.2, colour = cont)) + 
+ggplot(mtref_pca_tab_1kg, aes(x = Dim.1, y = Dim.2, colour = cont)) + 
   geom_point() + 
   scale_color_manual(values = plc) + 
   theme_bw() + theme(legend.position = "bottom")
@@ -684,7 +1097,7 @@ ggplot(ind.pca_1kg, aes(x = Dim.1, y = Dim.2, colour = cont)) +
 ```
 
 ```{r 1kg-plot-3d-pca}
-plot_ly(ind.pca_1kg, x = ~Dim.2, y = ~Dim.1, z = ~Dim.3, color = ~macro, colors = plc, 
+plot_ly(tkg_dr, x = ~Dim.2, y = ~Dim.1, z = ~Dim.3, color = ~macro, colors = plc, 
         type = 'scatter3d', mode = 'markers', marker = list(size = 3), 
         hoverinfo = 'text', text = ~paste('</br> ID: ', Individual, 
                                            '</br> Macro: ', macro,
@@ -693,7 +1106,7 @@ plot_ly(ind.pca_1kg, x = ~Dim.2, y = ~Dim.1, z = ~Dim.3, color = ~macro, colors 
                                           '</br> PC2: ', round(Dim.2, 2),
                                           '</br> PC3: ', round(Dim.3, 2)))
 
-plot_ly(ind.pca_1kg, x = ~Dim.2, y = ~Dim.1, z = ~Dim.3, color = ~supclu, colors = plc, 
+plot_ly(mtref_pca_tab_1kg, x = ~Dim.2, y = ~Dim.1, z = ~Dim.3, color = ~supclu, colors = plc, 
         type = 'scatter3d', mode = 'markers', marker = list(size = 3), 
         hoverinfo = 'text', text = ~paste('</br> ID: ', Individual, 
                                           '</br> Macro: ', macro,
@@ -702,7 +1115,7 @@ plot_ly(ind.pca_1kg, x = ~Dim.2, y = ~Dim.1, z = ~Dim.3, color = ~supclu, colors
                                           '</br> PC2: ', round(Dim.2, 2),
                                           '</br> PC3: ', round(Dim.3, 2)))
 
-plot_ly(ind.pca_1kg, x = ~Dim.2, y = ~Dim.1, z = ~Dim.3, color = ~cont, colors = plc, 
+plot_ly(mtref_pca_tab_1kg, x = ~Dim.2, y = ~Dim.1, z = ~Dim.3, color = ~cont, colors = plc, 
         type = 'scatter3d', mode = 'markers', marker = list(size = 3), 
         hoverinfo = 'text', text = ~paste('</br> ID: ', Individual, 
                                           '</br> Macro: ', macro,
@@ -717,35 +1130,35 @@ plot_ly(ind.pca_1kg, x = ~Dim.2, y = ~Dim.1, z = ~Dim.3, color = ~cont, colors =
 
 ```{r 1kg-umap}
 ## UMAP 
-embedding_mt_2d <- ped_1kg %>% 
+embedding_mt_2d <- tkg_ped %>% 
   select(starts_with("mt")) %>% 
   select(-all_of(miss_gt)) %>%
 #  mutate_all(., .funs = function(x){ifelse(is.na(x), round(mean(x, na.rm = TRUE)), x)}) %>%
   uwot::umap(., min_dist = 0.5, n_neighbor = 50, n_components = 2, verbose = TRUE) %>% 
   as.tibble() %>%
-  bind_cols(select(ped_1kg, Individual, haplogroup, macro, supclu, pop, cont)) %>%
+  bind_cols(select(tkg_ped, Individual, haplogroup, macro, supclu, pop, cont)) %>%
   rename(UMAP1 = V1, UMAP2 = V2)
 
-embedding_mt_3d <- ped_1kg %>% 
+embedding_mt_3d <- tkg_ped %>% 
   select(starts_with("mt")) %>% 
   select(-all_of(miss_gt)) %>%
 #  mutate_all(., .funs = function(x){ifelse(is.na(x), round(mean(x, na.rm = TRUE)), x)}) %>%
   uwot::umap(., min_dist = 0.5, n_neighbor = 50, n_components = 3) %>% 
   as.tibble() %>%
-  bind_cols(select(ped_1kg, Individual, haplogroup, macro, supclu, pop, cont)) %>%
+  bind_cols(select(tkg_ped, Individual, haplogroup, macro, supclu, pop, cont)) %>%
   rename(UMAP1 = V1, UMAP2 = V2, UMAP3 = V3)
 
 ## PCA+UMAP
-embedding_pca_2d <- select(ind.pca_1kg, starts_with("Dim")) %>% 
+embedding_pca_2d <- select(mtref_pca_tab_1kg, starts_with("Dim")) %>% 
   uwot::umap(., min_dist = 0.5, n_neighbor = 50, n_components = 2, verbose = TRUE, init = "spectral") %>% 
   as.tibble() %>%
-  bind_cols(select(ped_1kg, Individual, haplogroup, macro, supclu, pop, cont)) %>%
+  bind_cols(select(tkg_ped, Individual, haplogroup, macro, supclu, pop, cont)) %>%
   rename(UMAP1 = V1, UMAP2 = V2)
 
-embedding_pca_3d <- select(ind.pca_1kg, starts_with("Dim")) %>%
+embedding_pca_3d <- select(mtref_pca_tab_1kg, starts_with("Dim")) %>%
   uwot::umap(., min_dist = 0.5, spread = 1, n_neighbor = 50, n_components = 3) %>% 
   as.tibble() %>%
-  bind_cols(select(ped_1kg, Individual, haplogroup, macro, supclu, pop, cont)) %>%
+  bind_cols(select(tkg_ped, Individual, haplogroup, macro, supclu, pop, cont)) %>%
   rename(UMAP1 = V1, UMAP2 = V2, UMAP3 = V3)
 
 ```
@@ -851,7 +1264,7 @@ umap_param <- expand_grid(
 pb <- progress_estimated(nrow(umap_param)) ## initiate Progress bar
 hp_1kg_embedding <- umap_param %>% 
   rowwise() %>% 
-  mutate(res = list(umap_helper(ind.pca_1kg, pcs = pcs, min_dist = min_dist, 
+  mutate(res = list(umap_helper(mtref_pca_tab_1kg, pcs = pcs, min_dist = min_dist, 
                                 n_neighbor = n_neighbor, n_components = n_components)))
 ```
 
@@ -898,186 +1311,6 @@ ggpubr::ggarrange(plotlist = filter(hp_1kg_embedding_plots,
 
 ```
 
-
-## Projection 
-
-```{r}
-umap_pca_2d <- select(ind.pca_1kg, starts_with("Dim")) %>% 
-  uwot::umap(., min_dist = 0.5, n_neighbor = 50, n_components = 2) %>% 
-  as.tibble() %>% 
-  rename(UMAP1 = V1, UMAP2 = V2) %>%
-  bind_cols(ind.pca_1kg) %>%
-  select(Individual, haplogroup, macro, supclu, pop, cont, starts_with("Dim"), starts_with("UMAP"))
-
-ggpubr::ggarrange(
-  ggplot(embedding_pca_2d, aes(x = UMAP1, y = UMAP2, color = macro)) + 
-    geom_point() + scale_color_manual(values = plc) +  theme_bw() + labs(title = "umapr::umap"),
-  ggplot(umap_pca_2d, aes(x = UMAP1, y = UMAP2, color = macro)) + 
-    geom_point() + scale_color_manual(values = plc) +  theme_bw() + labs(title = "uwot::umap")
-)
-
-ped_joint <- bind_rows(
-  ped %>%
-    mutate(data = "mtRef") %>%
-    select(Individual, haplogroup, macro, supclu, data, starts_with("mt")), 
-  
-  ped_1kg %>%
-    mutate(data = "tkg") %>%
-    select(Individual, haplogroup, macro, supclu, data, starts_with("mt"))
-) %>% 
-  arrange(data, Individual)
-
-
-miss_gt_joint <- ped_joint %>%
-  select(starts_with("mt")) %>%  # replace to your needs
-  summarise_all( ~ sum(is.na(.))) %>% 
-  t() %>% 
-  as_tibble(rownames = "var") %>% 
-  filter(V1 > 1000) %>% pull(var)
-
-## Join DF
-ped_joint_df <- ped_joint %>% 
-  select(-all_of(miss_gt_joint)) %>% 
-  split(.$haplogroup) %>%
-  map(., ~mutate_all(., .funs = function(x){ifelse(is.na(x), round(mean(x, na.rm = TRUE)), x)})) %>%
-  bind_rows() %>% 
-  arrange(data, Individual) %>%
-  split(.$data) %>% 
-  map(., select, starts_with("mt")) 
-
-```
-
-```{r}
-## PCA 
-res.pca_joint <- ped_joint_df %>%
-  map(~PCA(., scale.unit = F, ncp = 10, graph = FALSE))
-
-## mtRef Predicted PCA 
-res.pca_mtref_pred <- predict(magrittr::extract2(res.pca_joint, "tkg"), magrittr::extract2(ped_joint_df, "mtRef")) %>% 
-  magrittr::use_series(coord) %>% 
-  as_tibble() %>% 
-  bind_cols(select(filter(ped_joint, data == "mtRef"), Individual, haplogroup, macro, supclu, data)) %>% 
-  mutate(data = "mtRef_pred") %>% 
-  select(Individual, data, haplogroup, macro, supclu, everything()) 
-
-## 1kg Predicted PCA     
-res.pca_tkg_pred <- predict(magrittr::extract2(res.pca_joint, "mtRef"), magrittr::extract2(ped_joint_df, "tkg")) %>% 
-  magrittr::use_series(coord) %>% 
-  as_tibble() %>% 
-  bind_cols(select(filter(ped_joint, data == "tkg"), Individual, haplogroup, macro, supclu, data)) %>% 
-  mutate(data = "tkg_pred") %>% 
-  select(Individual, data, haplogroup, macro, supclu, everything()) 
-
-## Join observed and predicted dataframes
-ind.pca_joint <- res.pca_joint %>% 
-  map(get_pca_ind) %>% 
-  map(magrittr::use_series, coord) %>% 
-  map(as_tibble) %>%
-  bind_rows() %>%
-  bind_cols(select(ped_joint, Individual, haplogroup, macro, supclu, data)) %>% 
-  select(Individual, data, haplogroup, macro, supclu, everything()) %>% 
-  bind_rows(res.pca_mtref_pred) %>% # mtRef Predicted
-  bind_rows(res.pca_tkg_pred) %>% # tkg Predicted
-  split(.$data)
-
-ggpubr::ggarrange(
-  ind.pca_joint %>% 
-    bind_rows() %>%
-    ggplot(., aes(x = Dim.1, y = Dim.2, colour = macro)) + geom_point() + facet_grid(. ~ data) + 
-    scale_color_manual(values = plc),  
-
-  ind.pca_joint %>% 
-    bind_rows() %>%
-    ggplot(., aes(x = Dim.1, y = Dim.2, colour = supclu)) + geom_point() + facet_grid(. ~ data) + 
-    scale_color_manual(values = plc)
-)
-```
-
-
-```{r}
-# UMAP 
-## Predict mtRef using tkg
-tkg.umap_res = ind.pca_joint %>% 
-  magrittr::use_series(tkg) %>% 
-  select(starts_with("Dim")) %>%
-  uwot::umap(., min_dist = 0.5, n_neighbor = 50, n_components = 2, verbose = TRUE, ret_model = TRUE)
-
-tkg.umap_res_tab <- tkg.umap_res %>% 
-  magrittr::use_series(embedding) %>% 
-  as_tibble() %>% 
-  bind_cols(magrittr::use_series(ind.pca_joint, tkg)) %>% 
-  select(Individual, data, haplogroup, macro, supclu, UMAP1 = V1, UMAP2 = V2, everything())
-
-p1 <- ggplot(tkg.umap_res_tab, aes(x = UMAP1, y = UMAP2, colour = macro)) + geom_point() + facet_grid(. ~ data) + 
-  scale_color_manual(values = plc)
-p1 
-
-mtRef_pred.umap_res <- uwot::umap_transform(magrittr::use_series(ind.pca_joint, mtRef_pred) %>% 
-                                        select(starts_with("Dim")), 
-                                        tkg.umap_res, 
-                                      verbose = TRUE)
-
-mtRef_pred.umap_tab <- mtRef_pred.umap_res %>% 
-  as_tibble()  %>% 
-  bind_cols(magrittr::use_series(ind.pca_joint, mtRef_pred)) %>% 
-  select(Individual, data, haplogroup, macro, supclu, UMAP1 = V1, UMAP2 = V2, everything())
-
-p2 <- ggplot(mtRef_pred.umap_tab, aes(x = UMAP1, y = UMAP2, colour = macro)) + geom_point() + facet_grid(. ~ data) + 
-  scale_color_manual(values = plc)
-p2
-
-## Predict tkg using mtRef
-mtRef.umap_res = ind.pca_joint %>% 
- magrittr::use_series(mtRef) %>% 
-  select(starts_with("Dim")) %>%
-  uwot::umap(., min_dist = 0.5, n_neighbor = 100, n_components = 2, verbose = TRUE, ret_model = TRUE)
-
-mtRef.umap_res_tab <- mtRef.umap_res %>% 
-  magrittr::use_series(embedding) %>% 
-  as_tibble() %>% 
-  bind_cols(magrittr::use_series(ind.pca_joint, mtRef)) %>% 
-  select(Individual, data, haplogroup, macro, UMAP1 = V1, UMAP2 = V2, everything())
-
-p3 <- ggplot(mtRef.umap_res_tab, aes(x = UMAP1, y = UMAP2, colour = macro)) + geom_point() + facet_grid(. ~ data) + 
-  scale_color_manual(values = plc)
-p3
-
-tkg_pred.umap_res <- uwot::umap_transform(magrittr::use_series(ind.pca_joint, tkg_pred) %>% 
-                                        select(starts_with("Dim")), 
-                                        mtRef.umap_res, 
-                                      verbose = TRUE)
-
-tkg_pred.umap_tab <- tkg_pred.umap_res %>% 
-  as_tibble()  %>% 
-  bind_cols(magrittr::use_series(ind.pca_joint, tkg_pred)) %>% 
-  select(Individual, data, haplogroup, macro, supclu, UMAP1 = V1, UMAP2 = V2, everything())
-
-
-p4 <- ggplot(tkg_pred.umap_tab, aes(x = UMAP1, y = UMAP2, colour = macro)) + geom_point() + facet_grid(. ~ data) + 
-  scale_color_manual(values = plc)
-p4
-
-ggpubr::ggarrange(
-  ggplot() + 
-    geom_point(data = tkg.umap_res_tab, aes(x = UMAP1, y = UMAP2)) + 
-    geom_point(data = mtRef_pred.umap_tab, aes(x = UMAP1, y = UMAP2, colour = macro)) + 
-    theme_bw(),
-  
-  ggplot() + 
-    geom_point(data = mtRef.umap_res_tab, aes(x = UMAP1, y = UMAP2)) + 
-    geom_point(data = tkg_pred.umap_tab, aes(x = UMAP1, y = UMAP2, colour = macro)) + 
-    theme_bw(), 
-  legend = "bottom", common.legend = TRUE
-)
-
-
-## Joint Plot 
-ggpubr::ggarrange(
-  p1, p2, p3, p4,  ncol = 2, nrow = 2, legend = "bottom", common.legend = TRUE
-)
-
-
-```
 
 
 
