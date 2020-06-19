@@ -27,13 +27,26 @@ def terminal_size():
         struct.pack('HHHH', 0, 0, 0, 0)))
     return w, h
 
+def getKeysByValue(dictionary, valueToFind):
+    matched_keys = []
+    items = dictionary.items()
+    for item in items:
+        if item[1] == valueToFind:
+            #matched_items[item[0]] = valueToFind
+            matched_keys.append(item[0])
+    return matched_keys
+            
+
 fasta_file = "/Users/TimMcInerney/GitCode/MitoImputePrep/DerivedData/MasterAlignment/McInerney_Master_Alignment_July18_2018_ambigANDgap2missing.fasta.gz"
 out_file   = ""
 
 seq_names = []
 seq_data  = []
 
-unique_seqs = {}
+unique_seqs    = {}
+duplicate_seqs = {}
+
+unique_seqs_list = []
 
 if fasta_file.endswith(".gz"):
     with gzip.open(fasta_file, "r") as ff:
@@ -46,8 +59,23 @@ if fasta_file.endswith(".gz"):
                 line = line.strip("\n")
                 seq_data.append(line)
 
+print
+print "LOOKING FOR UNIQUE SEQUENCES"
+print
+
 for seq in range(len(seq_names)):
     if seq_data[seq] in unique_seqs.values():
-        pass
+        tmp_dup = getKeysByValue(unique_seqs, seq_data[seq])[0]
+        
+        if tmp_dup in duplicate_seqs.keys():
+            duplicate_seqs[tmp_dup].append(seq_names[seq])
+        else:
+            duplicate_seqs[tmp_dup] = [seq_names[seq]]
     else:
         unique_seqs[seq_names[seq]] = seq_data[seq]
+        unique_seqs_list.append(seq_names[seq])
+        
+print
+print "MAKING A LIST OF DUPLICATED SEQUENCES"
+print
+
