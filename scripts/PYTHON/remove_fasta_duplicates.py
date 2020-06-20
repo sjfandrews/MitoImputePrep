@@ -163,9 +163,9 @@ def main():
         print "*\tWRITING DUPLICATE LIST TO FILE"
     
     with open(out_csv, "wr") as oc: 
-        oc.write("seq_name,duplicate_seqs\n")
+        oc.write("seq_name,freq,rel_freq,duplicate_seqs\n")
         for key, value in duplicate_seqs.iteritems():
-            oc.write(key + "," + ";".join(value) + "\n")    
+            oc.write(key + "," + str(len(value)) + "," + str(len(value) / float(len(seq_names))) + "," + ";".join(value) + "\n")    
     #
     stop_time = time.time()
     stop_display = 'Process completed at ' + time.strftime("%d/%m/%Y") + " " + time.strftime("%H:%M:%S")
