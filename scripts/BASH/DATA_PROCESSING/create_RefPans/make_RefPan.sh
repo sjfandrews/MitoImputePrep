@@ -113,7 +113,7 @@ then
 	echo "${REF_PAN_RECOMB_DIR_FILT} NOT FOUND	...	CREATING DIRECTORY"
 	mkdir -p ${REF_PAN_RECOMB_DIR_FILT}
 fi
-exit
+
 # CONVERT MISSING OR NON-N AMBIGUOUS CHARACTER STATES TO N AMBIGUOUS CHARACTER STATE
 ALN_AMB=${MT_DIR}FASTA/ambiguous2missing/${ALN_BASE}"_ambig2missing.fasta"
 ALN_AMB_GP=${MT_DIR}FASTA/ambiguous2missing/${ALN_BASE}"_ambigANDgap2missing.fasta"
@@ -164,8 +164,9 @@ else
 fi
 
 # CONVERT THE CURRENT MASTER ALIGNMENT FASTA TO VCF FORMAT
-#VCF_AMB=${MASTER_VCF_DIR}`basename ${ALN_AMB} .fasta`.vcf.gz
-VCF_AMB=${MASTER_VCF_DIR}`basename ${ALN_AMB_GP} .fasta`.vcf.gz
+VCF_AMB=${MASTER_VCF_DIR}`basename ${ALN_AMB} .fasta`.vcf.gz
+VCF_AMB_GP=${MASTER_VCF_DIR}`basename ${ALN_AMB_GP} .fasta`.vcf.gz
+
 if [ -f ${VCF_AMB} ]
 then
 	echo
@@ -176,8 +177,18 @@ else
 	python ~/GitCode/MitoImputePrep/scripts/PYTHON/fasta2vcf_mtDNA.py -i ${ALN_AMB} -o ${VCF_AMB} -v
 fi
 
+if [ -f ${VCF_AMB_GP} ]
+then
+	echo
+	echo "${VCF_AMB_GP} FOUND ... PASSING STEP"
+else
+	echo 
+	echo "${VCF_AMB_GP} NOT FOUND ... CONVERTING THE CURRENT MASTER ALIGNMENT FASTA TO VCF FORMAT"
+	python ~/GitCode/MitoImputePrep/scripts/PYTHON/fasta2vcf_mtDNA.py -i ${ALN_AMB_GP} -o ${VCF_AMB_GP} -v
+fi
+
 # RUN THE CURRENT MASTER ALIGNMENT VCF THROUGH BCFTOOLS TO MAKE SURE IT CONFORMS TO STANDARDS
-REF_VCF_TMP=${REF_PAN_VCF_DIR}${REFpanel}.vcf.gz
+REF_VCF_TMP=${REF_PAN_VCF_DIR}${REFpanel}_tmp.vcf.gz
 REF_VCF=${REF_PAN_VCF_DIR}${REFpanel}.vcf.gz
 if [ -f ${REF_VCF} ]
 then
@@ -192,7 +203,18 @@ else
 	rm ${REF_VCF_TMP}
 fi
 
-exit
+## RUN HAPLOGREP ON THE REFERENCE PANEL VCF
+#REF_VCF_HG=${REF_PAN_VCF_DIR}${REFpanel}_HaploGrep.txt
+#if [ -f ${REF_VCF_HG} ]
+#then
+#	echo
+#	echo "${REF_VCF_HG} FOUND ... PASSING STEP"
+#else
+#	echo
+#	echo "${REF_VCF_HG} NOT FOUND ... ASSIGNING HAPLOGROUPS VIA HAPLOGREP"
+#	java -jar ${HAPLOGREP} --in ${REF_VCF} --format vcf --extend-report --out ${REF_VCF_HG} # assign haplogreps
+#fi
+
 # REMOVE LOW QUALITY SEQUENCES
 HQ_FILE=/Volumes/TimMcInerney/MitoImpute/metadata/`basename ${ALN_AMB} .fasta`"_highQual.txt"
 VCF_HQ=${REF_PAN_VCF_DIR}`basename ${REF_VCF} .vcf.gz`"_highQual.vcf.gz"

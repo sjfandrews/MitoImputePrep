@@ -215,7 +215,6 @@ fi
 #	java -jar ${HAPLOGREP} --in ${REF_VCF} --format vcf --extend-report --out ${REF_VCF_HG} # assign haplogreps
 #fi
 
-exit
 # REMOVE LOW QUALITY SEQUENCES
 HQ_FILE=/Volumes/TimMcInerney/MitoImpute/metadata/`basename ${ALN_AMB} .fasta`"_highQual.txt"
 VCF_HQ=${REF_PAN_VCF_DIR}`basename ${REF_VCF} .vcf.gz`"_highQual.vcf.gz"
