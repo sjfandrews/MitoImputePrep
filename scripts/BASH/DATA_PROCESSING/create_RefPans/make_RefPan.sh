@@ -7,6 +7,9 @@
 
 # RUN COMMANDS
 
+# SPECIFY HAPLOGREP VERSION
+HAPLOGREP=~/GitCode/MitoImputePrep/haplogrep/2.1.25/haplogrep-2.1.25.jar
+
 # SPECIFY CURRENT MASTER ALIGNMENT
 
 CURRENT="McInerney_Master_Alignment_July18_2018.fasta"
@@ -41,7 +44,7 @@ echo "MINOR ALLELE FREQUENCY: ${MAF_IN} ( ${MAF_PC}% )"
 echo
 
 WORKING_VERSION=${REFpanel}_${MAF_IN}
-echo ${WORKING_VERSION}
+echo "WORKING VERSION:	${WORKING_VERSION}"
 
 #CURRENT=McInerney_Master_Alignment_July18_2018.fasta
 MT_DIR=/Volumes/TimMcInerney/MitoImpute/data/
@@ -49,19 +52,120 @@ ALN=${MT_DIR}FASTA/masters/${MASTER_ALN}
 ALN_DIR=`dirname $ALN`/
 ALN_BASE=`basename $ALN .fasta`
 
+# CHECK FOR OR CREATE DIRECTORIES
+echo
+
+MASTER_VCF_DIR=${MT_DIR}VCF/Masters/`basename ${MASTER_ALN} .fasta`/
+echo "SAVING MASTER ALIGNMENT VCF FILES TO:								${MASTER_VCF_DIR}"
+
+REF_PAN_VCF_DIR=${MT_DIR}VCF/ReferencePanels/${REFpanel}/
+REF_PAN_VCF_DIR_FILT=${REF_PAN_VCF_DIR}${WORKING_VERSION}/
+echo "SAVING REFERNECE PANEL VCF FILES TO:								${REF_PAN_VCF_DIR} AND ${REF_PAN_VCF_DIR_FILT}"
+
+REF_PAN_SAMP_DIR=/Volumes/TimMcInerney/MitoImpute/metadata/ReferencePanels/${REFpanel}/
+REF_PAN_SAMP_DIR_FILT=${REF_PAN_SAMP_DIR}${WORKING_VERSION}/
+echo "SAVING REFERNECE PANEL SAMPLE INFORMATION FILES TO:						${REF_PAN_SAMP_DIR_FILT}"
+
+REF_PAN_OXFORD_DIR=${MT_DIR}OXFORD/ReferencePanels/${REFpanel}/
+REF_PAN_OXFORD_DIR_FILT=${REF_PAN_OXFORD_DIR}${WORKING_VERSION}/
+echo "SAVING REFERNECE PANEL OXFORD FILES (.hap.gz, .legend.gz, .samples, .gen.gz) TO:		${REF_PAN_OXFORD_DIR_FILT}"
+
+REF_PAN_PLINK_DIR=${MT_DIR}PLINK/ReferencePanels/${REFpanel}/
+REF_PAN_PLINK_DIR_FILT=${REF_PAN_PLINK_DIR}${WORKING_VERSION}/
+echo "SAVING REFERNECE PANEL PLINK FILES (.ped, .map) TO:						${REF_PAN_PLINK_DIR_FILT}"
+
+REF_PAN_RECOMB_DIR=${MT_DIR}REF_PANEL/ReferencePanels/${REFpanel}/
+REF_PAN_RECOMB_DIR_FILT=${REF_PAN_RECOMB_DIR}${WORKING_VERSION}/
+echo "SAVING REFERNECE PANEL RECOMBINATION MAP FILES TO:						${REF_PAN_RECOMB_DIR_FILT}"
+
+if [ ! -d ${MASTER_VCF_DIR} ]
+then
+	echo "${MASTER_VCF_DIR} NOT FOUND	...	CREATING DIRECTORY"
+	mkdir -p ${MASTER_VCF_DIR}
+fi
+
+if [ ! -d ${REF_PAN_VCF_DIR_FILT} ]
+then
+	echo "${REF_PAN_VCF_DIR} NOT FOUND	...	CREATING DIRECTORY"
+	mkdir -p ${REF_PAN_VCF_DIR_FILT}
+fi
+
+if [ ! -d ${REF_PAN_SAMP_DIR_FILT} ]
+then
+	echo "${REF_PAN_SAMP_DIR_FILT} NOT FOUND	...	CREATING DIRECTORY"
+	mkdir -p ${REF_PAN_SAMP_DIR_FILT}
+fi
+
+if [ ! -d ${REF_PAN_OXFORD_DIR_FILT} ]
+then
+	echo "${REF_PAN_OXFORD_DIR_FILT} NOT FOUND	...	CREATING DIRECTORY"
+	mkdir -p ${REF_PAN_OXFORD_DIR_FILT}
+fi
+
+if [ ! -d ${REF_PAN_PLINK_DIR_FILT} ]
+then
+	echo "${REF_PAN_PLINK_DIR_FILT} NOT FOUND	...	CREATING DIRECTORY"
+	mkdir -p ${REF_PAN_PLINK_DIR_FILT}
+fi
+
+if [ ! -d ${REF_PAN_RECOMB_DIR_FILT} ]
+then
+	echo "${REF_PAN_RECOMB_DIR_FILT} NOT FOUND	...	CREATING DIRECTORY"
+	mkdir -p ${REF_PAN_RECOMB_DIR_FILT}
+fi
+exit
 # CONVERT MISSING OR NON-N AMBIGUOUS CHARACTER STATES TO N AMBIGUOUS CHARACTER STATE
 ALN_AMB=${MT_DIR}FASTA/ambiguous2missing/${ALN_BASE}"_ambig2missing.fasta"
+ALN_AMB_GP=${MT_DIR}FASTA/ambiguous2missing/${ALN_BASE}"_ambigANDgap2missing.fasta"
 if [ -f ${ALN_AMB} ]
 then
 	echo
 	echo "${ALN_AMB} FOUND ... PASSING STEP"
 else
-	echo echo "${ALN_AMB} NOT FOUND ... CONVERTING MISSING OR NON-N AMBIGUOUS CHARACTER STATES TO N AMBIGUOUS CHARACTER STATE"
+	echo
+	echo "${ALN_AMB} NOT FOUND ... CONVERTING MISSING OR NON-N AMBIGUOUS CHARACTER STATES TO N AMBIGUOUS CHARACTER STATE"
 	python ~/GitCode/MitoImputePrep/scripts/PYTHON/ambiguous2missing.py -i ${ALN} -o ${ALN_AMB} -v
 fi
 
+if [ -f ${ALN_AMB_GP} ]
+then
+	echo
+	echo "${ALN_AMB_GP} FOUND ... PASSING STEP"
+else
+	echo
+	echo "${ALN_AMB_GP} NOT FOUND ... CONVERTING MISSING OR NON-N AMBIGUOUS AND GAP CHARACTER STATES TO N AMBIGUOUS CHARACTER STATE"
+	python ~/GitCode/MitoImputePrep/scripts/PYTHON/ambiguous2missing.py -i ${ALN} -o ${ALN_AMB_GP} -g -v
+fi
+
+
+
+# ASSIGN HAPLOGROUPINGS VIA HAPLOGREP
+ALN_AMB_HG=${MT_DIR}FASTA/ambiguous2missing/${ALN_BASE}"_ambig2missing_HaploGrep.txt"
+ALN_AMB_GP_HG=${MT_DIR}FASTA/ambiguous2missing/${ALN_BASE}"_ambigANDgap2missing_HaploGrep.txt"
+
+if [ -f ${ALN_AMB_HG} ]
+then
+	echo
+	echo "${ALN_AMB_HG} FOUND ... PASSING STEP"
+else
+	echo
+	echo "${ALN_AMB_HG} NOT FOUND ... ASSIGNING HAPLOGROUPS VIA HAPLOGREP"
+	java -jar ${HAPLOGREP} --in ${ALN_AMB} --format fasta --extend-report --out ${ALN_AMB_HG} # assign haplogreps
+fi
+
+if [ -f ${ALN_AMB_GP_HG} ]
+then
+	echo
+	echo "${ALN_AMB_GP_HG} FOUND ... PASSING STEP"
+else
+	echo
+	echo "${ALN_AMB_GP_HG} NOT FOUND ... ASSIGNING HAPLOGROUPS VIA HAPLOGREP"
+	java -jar ${HAPLOGREP} --in ${ALN_AMB_GP} --format fasta --extend-report --out ${ALN_AMB_GP_HG} # assign haplogreps
+fi
+
 # CONVERT THE CURRENT MASTER ALIGNMENT FASTA TO VCF FORMAT
-VCF_AMB=${MT_DIR}VCF/`basename ${ALN_AMB} .fasta`.vcf.gz
+#VCF_AMB=${MASTER_VCF_DIR}`basename ${ALN_AMB} .fasta`.vcf.gz
+VCF_AMB=${MASTER_VCF_DIR}`basename ${ALN_AMB_GP} .fasta`.vcf.gz
 if [ -f ${VCF_AMB} ]
 then
 	echo
@@ -73,7 +177,8 @@ else
 fi
 
 # RUN THE CURRENT MASTER ALIGNMENT VCF THROUGH BCFTOOLS TO MAKE SURE IT CONFORMS TO STANDARDS
-REF_VCF=${MT_DIR}VCF/${REFpanel}.vcf.gz
+REF_VCF_TMP=${REF_PAN_VCF_DIR}${REFpanel}.vcf.gz
+REF_VCF=${REF_PAN_VCF_DIR}${REFpanel}.vcf.gz
 if [ -f ${REF_VCF} ]
 then
 	echo
@@ -81,13 +186,16 @@ then
 else
 	echo
 	echo "${REF_VCF} NOT FOUND ... RUNNING THE CURRENT MASTER ALIGNMENT VCF THROUGH BCFTOOLS TO MAKE SURE IT CONFORMS TO STANDARDS"
-	bcftools view -Oz -o ${REF_VCF} ${VCF_AMB}
+	bcftools view -Oz -o ${REF_VCF_TMP} ${VCF_AMB}
+	bcftools +fill-tags ${REF_VCF_TMP} -Oz -o ${REF_VCF}
 	bcftools index ${REF_VCF}
+	rm ${REF_VCF_TMP}
 fi
 
+exit
 # REMOVE LOW QUALITY SEQUENCES
 HQ_FILE=/Volumes/TimMcInerney/MitoImpute/metadata/`basename ${ALN_AMB} .fasta`"_highQual.txt"
-VCF_HQ=${MT_DIR}VCF/`basename ${REF_VCF} .vcf.gz`"_highQual.vcf.gz"
+VCF_HQ=${REF_PAN_VCF_DIR}`basename ${REF_VCF} .vcf.gz`"_highQual.vcf.gz"
 if [ -f ${VCF_HQ} ]
 then
 	echo
@@ -100,7 +208,7 @@ else
 fi
 
 # APPLY SITE FILTRATION CRITERIA
-VCF_FILT=${MT_DIR}VCF/`basename ${VCF_HQ} .vcf.gz`"_MAF${MAF_IN}_filtered.vcf.gz"
+VCF_FILT=${REF_PAN_VCF_DIR_FILT}`basename ${VCF_HQ} .vcf.gz`"_MAF${MAF_IN}_filtered.vcf.gz"
 MAF_L=${MAF_IN}
 MAF_U=`echo 1.0 - ${MAF_L} | bc`
 
@@ -122,7 +230,7 @@ else
 fi
 
 # EXTRACT SAMPLE LIST
-SAMPS=/Volumes/TimMcInerney/MitoImpute/metadata/`basename ${VCF_FILT} .vcf.gz`"_sampleList.txt"
+SAMPS=${REF_PAN_SAMP_DIR_FILT}`basename ${VCF_FILT} .vcf.gz`"_sampleList.txt"
 if [ -f ${SAMPS} ]
 then
 	echo
@@ -134,7 +242,7 @@ else
 fi
 
 # ADD SEX LABEL
-SEX=/Volumes/TimMcInerney/MitoImpute/metadata/`basename ${SAMPS} .txt`"_sex.txt"
+SEX=${REF_PAN_SAMP_DIR_FILT}`basename ${SAMPS} .txt`"_sex.txt"
 if [ -f ${SEX} ]
 then
 	echo
@@ -146,7 +254,7 @@ else
 fi
 
 # CONVERT TO OXFORD FORMAT
-OXF=/Volumes/TimMcInerney/MitoImpute/data/OXFORD/${WORKING_VERSION}
+OXF=${REF_PAN_OXFORD_DIR_FILT}${WORKING_VERSION}
 if [ -f ${OXF}.hap.gz ] && [ -f ${OXF}.legend.gz ] && [ -f ${OXF}.samples ]
 then
 	echo
@@ -158,7 +266,7 @@ else
 fi
 
 # CONVERT TO PLINK FORMAT
-PLK=/Volumes/TimMcInerney/MitoImpute/data/PLINK/${WORKING_VERSION}
+PLK=${REF_PAN_PLINK_DIR_FILT}${WORKING_VERSION}
 if [ -f ${PLK}.map ] && [ -f ${PLK}.ped ]
 then
 	echo
@@ -170,7 +278,7 @@ else
 fi
 
 # CONVERT TO GEN and SAMPLE FORMAT
-GEN=/Volumes/TimMcInerney/MitoImpute/data/OXFORD/${WORKING_VERSION}
+GEN=${REF_PAN_OXFORD_DIR_FILT}${WORKING_VERSION}
 if [ -f ${GEN}.gen.gz ]
 then
 	echo
@@ -182,8 +290,8 @@ else
 fi
 
 # MAKE RECOMBINATION MAP AND STRAND FILES
-MAP=/Volumes/TimMcInerney/MitoImpute/data/REF_PANEL/${WORKING_VERSION}_MtMap.txt
-STRAND=/Volumes/TimMcInerney/MitoImpute/data/REF_PANEL/${WORKING_VERSION}_MtStrand.txt
+MAP=${REF_PAN_RECOMB_DIR_FILT}${WORKING_VERSION}_MtMap.txt
+STRAND=${REF_PAN_RECOMB_DIR_FILT}${WORKING_VERSION}_MtStrand.txt
 if [ -f ${MAP} ] && [ -f ${STRAND} ]
 then
 	echo

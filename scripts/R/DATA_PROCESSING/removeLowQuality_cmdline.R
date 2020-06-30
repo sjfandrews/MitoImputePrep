@@ -50,7 +50,7 @@ df$seq = row.names(aln) # ASSIGN THE SEQUENCE LIST TO DATA FRAME
 
 for (i in 1:nrow(aln)) {
   if ((i %% 1000) == 0) {
-    message("CALCULATED BASE FREQUENCIES FOR SAMPLE ", i, "/", nrow(aln))
+    cat(paste("CALCULATED BASE FREQUENCIES FOR SAMPLE ", i, "/", nrow(aln), "\r"))
   }
   tb = base.freq(aln[i,], freq = T, all = T)
   df$a[i] = as.numeric(tb[1])
