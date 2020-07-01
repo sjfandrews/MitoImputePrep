@@ -138,7 +138,6 @@ else
 fi
 
 
-
 # ASSIGN HAPLOGROUPINGS VIA HAPLOGREP
 ALN_AMB_HG=${MT_DIR}FASTA/ambiguous2missing/${ALN_BASE}"_ambig2missing_HaploGrep.txt"
 ALN_AMB_GP_HG=${MT_DIR}FASTA/ambiguous2missing/${ALN_BASE}"_ambigANDgap2missing_HaploGrep.txt"

@@ -1,0 +1,8 @@
+for i in {2..6}; do mkdir -p /Volumes/TimMcInerney/MitoImpute/data/REF_PANEL/DEFUNCT_ReferencePanels/ReferencePanel_v${i}/; done
+for i in {2..6}; do mv /Volumes/TimMcInerney/MitoImpute/data/REF_PANEL/ReferencePanel_v${i}* /Volumes/TimMcInerney/MitoImpute/data/REF_PANEL/DEFUNCT_ReferencePanels/ReferencePanel_v${i}/; done
+for i in {2..6}; do mkdir -p /Volumes/TimMcInerney/MitoImpute/data/PLINK/DEFUNCT_ReferencePanels/ReferencePanel_v${i}/; done
+for i in {2..6}; do mv /Volumes/TimMcInerney/MitoImpute/data/PLINK/ReferencePanel_v${i}* /Volumes/TimMcInerney/MitoImpute/data/PLINK/DEFUNCT_ReferencePanels/ReferencePanel_v${i}/; done
+for i in {2..6}; do mkdir -p /Volumes/TimMcInerney/MitoImpute/data/OXFORD/DEFUNCT_ReferencePanels/ReferencePanel_v${i}/; done
+for i in {2..6}; do mv /Volumes/TimMcInerney/MitoImpute/data/OXFORD/ReferencePanel_v${i}* /Volumes/TimMcInerney/MitoImpute/data/OXFORD/DEFUNCT_ReferencePanels/ReferencePanel_v${i}/; done
+for i in {2..6}; do mkdir -p /Volumes/TimMcInerney/MitoImpute/data/VCF/DEFUNCT_ReferencePanels/ReferencePanel_v${i}/; done
+for i in {2..6}; do mv /Volumes/TimMcInerney/MitoImpute/data/VCF/ReferencePanel_v${i}* /Volumes/TimMcInerney/MitoImpute/data/VCF/DEFUNCT_ReferencePanels/ReferencePanel_v${i}/; done
