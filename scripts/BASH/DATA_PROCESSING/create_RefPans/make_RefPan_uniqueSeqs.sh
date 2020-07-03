@@ -2,8 +2,6 @@
 
 # INFO:
 #THIS SCRIPT CREATES VCFs AND OTHER FILE TYPES FOR A REFERENCE PANEL
-#REFpanel=ReferencePanel_v2
-#REFpanel=ReferencePanel_v1
 
 # RUN COMMANDS
 
@@ -36,7 +34,7 @@ else
 fi
 
 # SPECIFY THE MINOR ALLELE FREQUENCY
-MAF_IN=$2
+MAF_IN=$2 # INPUT MINOR ALLELE FREQUENCY
 MAF_PC=`echo "${MAF_IN} * 100" | bc`
 MAF_PC=`printf "%1.2f\n" "${MAF_PC}"`
 echo
@@ -113,7 +111,7 @@ then
 	echo "${REF_PAN_RECOMB_DIR_FILT} NOT FOUND	...	CREATING DIRECTORY"
 	mkdir -p ${REF_PAN_RECOMB_DIR_FILT}
 fi
-exit
+
 # CONVERT MISSING OR NON-N AMBIGUOUS CHARACTER STATES TO N AMBIGUOUS CHARACTER STATE
 ALN_AMB=${MT_DIR}FASTA/ambiguous2missing/${ALN_BASE}"_ambig2missing.fasta"
 ALN_AMB_GP=${MT_DIR}FASTA/ambiguous2missing/${ALN_BASE}"_ambigANDgap2missing.fasta"
