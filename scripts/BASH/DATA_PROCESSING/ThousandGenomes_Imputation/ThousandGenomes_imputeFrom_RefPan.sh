@@ -94,7 +94,7 @@ else
 		echo "${diploid_vcf}.vcf.gz COPIED TO ~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/"
 	else
 		echo
-		echo "${diploid_vcf}.vcf.gz FOUND ... PASSING"
+		echo "${diploid_vcf}.vcf.gz AND ${git_vcf} FOUND ... PASSING"
 	fi
 	
 	
