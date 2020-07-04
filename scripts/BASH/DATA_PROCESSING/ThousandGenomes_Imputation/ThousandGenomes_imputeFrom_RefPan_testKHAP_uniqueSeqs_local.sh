@@ -31,6 +31,7 @@ echo
 
 # CHECK FOR OR CREATE THE DECOMPOSED 1,000 GENOMES VCF FILE
 git_vcf=~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/chrMT_1kg_norm_decomposed_firstAlt.vcf.gz
+git_vcf_simple=~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/chrMT_1kg_norm_decomposed_firstAlt.vcf.gz
 norm_vcf=/Volumes/TimMcInerney/MitoImpute/data/VCF/chrMT_1kg_norm.vcf.gz
 decom_vcf=/Volumes/TimMcInerney/MitoImpute/data/VCF/chrMT_1kg_norm_decomposed.vcf.gz
 vcf_1kg=/Volumes/TimMcInerney/MitoImpute/data/VCF/chrMT_1kg_norm_decomposed_firstAlt.vcf.gz
@@ -41,10 +42,11 @@ diploid_vcf=/Volumes/TimMcInerney/MitoImpute/data/VCF/chrMT_1kg_diploid
 samps_1kg=/Volumes/TimMcInerney/MitoImpute/metadata/SampleList1kg.txt
 sex_1kg=/Volumes/TimMcInerney/MitoImpute/metadata/SampleList1kg_sex.txt
 ref_fasta=/Volumes/TimMcInerney/MitoImpute/data/FASTA/rCRS.fasta
-if [ -f ${git_vcf} ]
+
+if [ -f ${git_vcf} ] || [ -f ${diploid_vcf}.vcf.gz ]
 then
 	echo
-	echo "${git_vcf} EXISTS ... PASSING"
+	echo "${git_vcf}  or ${diploid_vcf}.vcf.gz EXISTS ... PASSING"
 else
 	echo
 	echo "${git_vcf} NOT FOUND ... CREATE THE DECOMPOSED 1,000 GENOMES VCF FILE"
@@ -62,7 +64,7 @@ else
 	bcftools index ${vcf_1kg}
 	plink1.9 --vcf ${vcf_1kg} --recode --double-id --keep-allele-order --out ${plink_1kg}
 	bcftools query -l ${vcf_1kg} > ${samps_1kg}
-	Rscript ~/GitCode/MitoImputePrep/scripts/R/assign_sex_label.R ${samps_1kg} ${sex_1kg}
+	Rscript ~/GitCode/MitoImputePrep/scripts/R/DATA_PROCESSING/assign_sex_label.R ${samps_1kg} ${sex_1kg}
 	
 	#if [ ! -f ${diploid_vcf}.vcf.gz ]
 	if [ ! -f ~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/chrMT_1kg_diploid.vcf.gz ]
@@ -90,7 +92,6 @@ else
 	
 fi
 
-exit
 
 # CREATE DIRECTORY
 if [ -d  /Volumes/TimMcInerney/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/ ]
@@ -113,7 +114,7 @@ vcf=/Volumes/TimMcInerney/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chr
 
 bcftools view -R ${MTSnps} ${vcf_1kg} -Oz -o ${vcf}
 bcftools index ${vcf}
-
+exit
 # GENERATE GEN SAMPLE
 echo
 echo "GENERATING GEN SAMPLE"

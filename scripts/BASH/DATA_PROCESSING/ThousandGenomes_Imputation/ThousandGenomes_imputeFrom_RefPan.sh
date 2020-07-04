@@ -1,35 +1,34 @@
 #!/bin/bash
-#PBS -P te53
-#PBS -q express
-#PBS -l walltime=04:00:00
-#PBS -l mem=18GB
+#PBS -P gw26
+#PBS -q biodev
+#PBS -l walltime=01:00:00
+#PBS -l mem=4GB
 #PBS -l ncpus=1
 #PBS -m e
 #PBS -M u5015730@anu.edu.au
 #PBS -j oe
 #PBS -o /g/data1a/te53/MitoImpute/logs/
+#PBS -l storage=scratch/te53+gdata/te53
 
 # LOAD THE MODULE
 module unload intel-fc intel-cc
-module load python/2.7.11
-module load intel-fc/16.0.3.210
-module load intel-cc/16.0.3.210
-module load Rpackages/3.4.3
-module load bcftools/1.8
+module load python3/3.7.4
+module load Rpackages/3.6.1
+module load bcftools/1.9
 module load plink/1.9
 module load impute2/2.3.2
 module load vt
-module load java/jdk1.8.0_60
-echo
-echo "LOADED R v3.4.3"
-echo "LOADED bcftools v1.8"
-echo "LOADED plink v1.9"
-echo "LOADED IMPUTE2 v2.3.2"
+#module load java/jdk1.8.0_60
+#echo
+#echo "LOADED R v3.4.3"
+#echo "LOADED bcftools v1.8"
+#echo "LOADED plink v1.9"
+#echo "LOADED IMPUTE2 v2.3.2"
 
 # SPECIFY REFERENCE PANEL
 #REFpanel="ReferencePanel_v5"
 REFpanel=${REFpanel}
-HAPLOGREP=~/GitCode/MitoImputePrep/haplogrep/2.1.19/haplogrep-2.1.19.jar
+HAPLOGREP=~/GitCode/MitoImputePrep/haplogrep/2.1.25/haplogrep-2.1.25.jar
 echo
 echo "REFERENCE PANEL:				${REFpanel}"
 echo "SNP CHIP:						${MtPlatforms}"
@@ -100,7 +99,7 @@ else
 	
 	
 fi
-
+exit
 # CREATE DIRECTORY
 if [ -d  /g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/ ]
 then
