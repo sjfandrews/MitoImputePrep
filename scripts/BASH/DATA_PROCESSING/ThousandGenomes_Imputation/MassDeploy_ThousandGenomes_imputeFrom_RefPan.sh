@@ -16,6 +16,6 @@ echo "sh ~/GitCode/MitoImputePrep/scripts/BASH/MassDeploy_ThousandGenomes_impute
 #MCMC 1,0	5,1	10,3	20,6	30,10
 
 for i in `cat ${STRAND_LIST}`; do
-	qsub -v REFpanel=${REFpanel},MtPlatforms=${i},mcmc=${MCMC},burn=${BURN},khap=${KHAP},ne=${NE} ~/GitCode/MitoImputePrep/scripts/BASH/ThousandGenomes_imputeFrom_RefPan.sh
+	qsub -v REFpanel=${REFpanel},MtPlatforms=${i},mcmc=${MCMC},burn=${BURN},khap=${KHAP},ne=${NE} ~/GitCode/MitoImputePrep/scripts/BASH/DATA_PROCESSING/ThousandGenomes_Imputation/ThousandGenomes_imputeFrom_RefPan.sh
 	echo "JOB FOR ${i} SUBMITTED FOR ${REFpanel} WITH PARAMETERS:	MCMC LENGTH = ${MCMC} (${BURN} BURN-INS),	K_HAP = ${KHAP},	NE = ${NE}"
 done
