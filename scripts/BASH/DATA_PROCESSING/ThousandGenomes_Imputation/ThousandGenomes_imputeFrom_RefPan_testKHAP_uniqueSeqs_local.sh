@@ -1,31 +1,19 @@
 #!/bin/bash
-#PBS -P te53
-#PBS -q normal
-#PBS -l walltime=04:00:00
-#PBS -l mem=4GB
-#PBS -l ncpus=1
-#PBS -N KH_MAF_impute_SNPchip_1kGP
-#PBS -m e
-#PBS -M u5015730@anu.edu.au
-#PBS -j oe
-#PBS -o /g/data1a/te53/MitoImpute/logs/
 
-# LOAD THE MODULE
-module unload intel-fc intel-cc
-module load python/2.7.11
-module load intel-fc/16.0.3.210
-module load intel-cc/16.0.3.210
-module load Rpackages/3.4.3
-module load bcftools/1.8
-module load plink/1.9
-module load impute2/2.3.2
-module load vt
-module load java/jdk1.8.0_60
+
 echo
-echo "LOADED R v3.4.3"
-echo "LOADED bcftools v1.8"
-echo "LOADED plink v1.9"
-echo "LOADED IMPUTE2 v2.3.2"
+echo "YOU REQUIRE R v3.6.2"
+echo "YOU REQUIRE bcftools v1.8"
+echo "YOU REQUIRE plink1.9 v1.9"
+echo "YOU REQUIRE IMPUTE2 v2.3.2"
+
+# ASSIGN VARIABLES FROM COMMAND LINE
+REFpanel=$1
+MtPlatforms=$2
+mcmc=$3
+burn=$4
+khap=$5
+ne=$6
 
 # SPECIFY REFERENCE PANEL
 #REFpanel="ReferencePanel_v5"
@@ -33,27 +21,26 @@ REFpanel=${REFpanel}
 HAPLOGREP=~/GitCode/MitoImputePrep/haplogrep/2.1.25/haplogrep-2.1.25.jar
 echo
 echo "REFERENCE PANEL:				${REFpanel}"
-echo "SNP CHIP:						${MtPlatforms}"
+echo "SNP CHIP:					${MtPlatforms}"
 echo "HAPLOGREP:					${HAPLOGREP}"
 echo "MCMC LENGTH:					${mcmc}"
 echo "MCMC BURN-IN:					${burn}"
-echo "REF HAPLOTYPES (k_hap):		${khap}"
-echo "EFFECTIVE POP. SIZE (Ne):		${ne}"
+echo "REF HAPLOTYPES (k_hap):				${khap}"
+echo "EFFECTIVE POP. SIZE (Ne):			${ne}"
 echo
-
 
 # CHECK FOR OR CREATE THE DECOMPOSED 1,000 GENOMES VCF FILE
 git_vcf=~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/chrMT_1kg_norm_decomposed_firstAlt.vcf.gz
-norm_vcf=/g/data1a/te53/MitoImpute/data/VCF/chrMT_1kg_norm.vcf.gz
-decom_vcf=/g/data1a/te53/MitoImpute/data/VCF/chrMT_1kg_norm_decomposed.vcf.gz
-vcf_1kg=/g/data1a/te53/MitoImpute/data/VCF/chrMT_1kg_norm_decomposed_firstAlt.vcf.gz
-plink_1kg=/g/data1a/te53/MitoImpute/data/PLINK/chrMT_1kg_norm_decomposed_firstAlt
-orig_vcf=/g/data1a/te53/haploco/data/originals/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz
-snpOnly_vcf=/g/data1a/te53/MitoImpute/data/VCF/chrMT_1kg_SNPonly
-diploid_vcf=/g/data1a/te53/MitoImpute/data/VCF/chrMT_1kg_diploid
-samps_1kg=/g/data1a/te53/MitoImpute/metadata/SampleList1kg.txt
-sex_1kg=/g/data1a/te53/MitoImpute/metadata/SampleList1kg_sex.txt
-ref_fasta=/g/data1a/te53/MitoImpute/data/FASTA/rCRS.fasta
+norm_vcf=/Volumes/TimMcInerney/MitoImpute/data/VCF/chrMT_1kg_norm.vcf.gz
+decom_vcf=/Volumes/TimMcInerney/MitoImpute/data/VCF/chrMT_1kg_norm_decomposed.vcf.gz
+vcf_1kg=/Volumes/TimMcInerney/MitoImpute/data/VCF/chrMT_1kg_norm_decomposed_firstAlt.vcf.gz
+plink_1kg=/Volumes/TimMcInerney/MitoImpute/data/PLINK/chrMT_1kg_norm_decomposed_firstAlt
+orig_vcf=/Volumes/TimMcInerney/MitoImpute/data/VCF/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes.vcf.gz
+snpOnly_vcf=/Volumes/TimMcInerney/MitoImpute/data/VCF/chrMT_1kg_SNPonly
+diploid_vcf=/Volumes/TimMcInerney/MitoImpute/data/VCF/chrMT_1kg_diploid
+samps_1kg=/Volumes/TimMcInerney/MitoImpute/metadata/SampleList1kg.txt
+sex_1kg=/Volumes/TimMcInerney/MitoImpute/metadata/SampleList1kg_sex.txt
+ref_fasta=/Volumes/TimMcInerney/MitoImpute/data/FASTA/rCRS.fasta
 if [ -f ${git_vcf} ]
 then
 	echo
@@ -71,9 +58,9 @@ else
 	
 	bcftools norm -f ${ref_fasta} -m - ${orig_vcf} | bcftools view -V indels,mnps | bcftools norm -m + | bcftools +fill-tags -Oz -o ${norm_vcf}
 	vt decompose ${norm_vcf} | bcftools +fill-tags -Oz -o ${decom_vcf}
-	python ~/GitCode/MitoImputePrep/scripts/PYTHON/pickFirstAlt ${decom_vcf} | bcftools view -Oz -o ${vcf_1kg}
+	python3.8 ~/GitCode/MitoImputePrep/scripts/PYTHON/pickFirstAlt.py ${decom_vcf} | bcftools view -Oz -o ${vcf_1kg}
 	bcftools index ${vcf_1kg}
-	plink --vcf ${vcf_1kg} --recode --double-id --keep-allele-order --out ${plink_1kg}
+	plink1.9 --vcf ${vcf_1kg} --recode --double-id --keep-allele-order --out ${plink_1kg}
 	bcftools query -l ${vcf_1kg} > ${samps_1kg}
 	Rscript ~/GitCode/MitoImputePrep/scripts/R/assign_sex_label.R ${samps_1kg} ${sex_1kg}
 	
@@ -82,7 +69,7 @@ else
 	then
 		bcftools view -V indels,mnps ${orig_vcf} | bcftools norm -m -any -Oz -o ${snpOnly_vcf}.vcf.gz
 		bcftools index ${snpOnly_vcf}.vcf.gz
-		plink --vcf ${snpOnly_vcf}.vcf.gz --recode vcf --out ${diploid_vcf}
+		plink1.9 --vcf ${snpOnly_vcf}.vcf.gz --recode vcf --out ${diploid_vcf}
 		bcftools +fill-tags ${diploid_vcf}.vcf -Oz -o ${diploid_vcf}.vcf.gz
 		bcftools index ${diploid_vcf}.vcf.gz
 		java -jar ${HAPLOGREP} --in ${diploid_vcf}.vcf --format vcf --out ${diploid_vcf}.haplogrep.txt
@@ -103,24 +90,26 @@ else
 	
 fi
 
+exit
+
 # CREATE DIRECTORY
-if [ -d  /g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/ ]
+if [ -d  /Volumes/TimMcInerney/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/ ]
 then
 	echo
-	echo "/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/ EXISTS ... PASSING"
+	echo "/Volumes/TimMcInerney/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/ EXISTS ... PASSING"
 else
 	echo
-	echo "/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/ NOT FOUND ... CREATING DIRECTORY"
-	mkdir /g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/
+	echo "/Volumes/TimMcInerney/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/ NOT FOUND ... CREATING DIRECTORY"
+	mkdir /Volumes/TimMcInerney/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/
 fi
 
 # EXTRACT PLATFORM SNPs
 echo
 echo "EXTRACTING PLATFORM SNPs"
 #MtPlatforms=BDCHP-1X10-HUMANHAP240S_11216501_A-b37
-MTSnps=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${MtPlatforms}_MT_snps.txt
+MTSnps=/Volumes/TimMcInerney/MitoImpute/data/STRANDS/${MtPlatforms}/${MtPlatforms}_MT_snps.txt
 vcf_1kg=~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/chrMT_1kg_norm_decomposed_firstAlt.vcf.gz
-vcf=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}.vcf.gz
+vcf=/Volumes/TimMcInerney/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}.vcf.gz
 
 bcftools view -R ${MTSnps} ${vcf_1kg} -Oz -o ${vcf}
 bcftools index ${vcf}
@@ -130,23 +119,23 @@ echo
 echo "GENERATING GEN SAMPLE"
 #vcf=~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/${MtPlatforms}/chrMT_1kg_${MtPlatforms}.vcf.gz
 sex=~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/SampleList1kg_sex.txt 
-out=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}
+out=/Volumes/TimMcInerney/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}
 
 #bcftools convert --haplegendsample ${out} --haploid2diploid ${vcf} --sex ${sex}
 bcftools convert --gensample ${out} ${vcf} --sex ${sex}
 Rscript ~/GitCode/MitoImputePrep/scripts/R/FixSamplesFile_raijin.R ${out}.samples
 
-# GENERATE PLINK FILES
+# GENERATE plink1.9 FILES
 echo
-echo "GENERATING PLINK FILES"
-out=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}
+echo "GENERATING plink1.9 FILES"
+out=/Volumes/TimMcInerney/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}
 
 plink1.9 --vcf ${vcf} --recode --double-id --keep-allele-order --out ${out}
 
 # CREATE DIPLOID VCF
 echo
-echo "GENERATING PLINK FILES (DIPLOID)"
-geno_ext="/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}"
+echo "GENERATING plink1.9 FILES (DIPLOID)"
+geno_ext="/Volumes/TimMcInerney/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}"
 ref_fasta_plink=~/GitCode/MitoImputePrep/scripts/REFERENCE_ALNS/MT/rCRS.fasta
 norm_vcf=${geno_ext}_norm.vcf.gz
 vcf_pos=${geno_ext}_norm_SNPpositions.txt
@@ -176,8 +165,8 @@ then
 	echo "${diploid_vcf}.txt FOUND ... bcftools VCF FILE WORKED"
 else
 	echo
-	echo "${diploid_vcf}.txt NOT FOUND ... RECODING TO plink VCF FILE"
-	plink1.9 --vcf ${diploid_vcf}.vcf.gz --recode vcf --out ${diploid_vcf} # recode vcf to vcf via plink (haplogrep seems to love plink vcf files, but not bcftools ... dont know why this needs to be done, but it does, so ???)
+	echo "${diploid_vcf}.txt NOT FOUND ... RECODING TO plink1.9 VCF FILE"
+	plink1.9 --vcf ${diploid_vcf}.vcf.gz --recode vcf --out ${diploid_vcf} # recode vcf to vcf via plink1.9 (haplogrep seems to love plink1.9 vcf files, but not bcftools ... dont know why this needs to be done, but it does, so ???)
 	java -jar ${HAPLOGREP} --in ${diploid_vcf}.vcf --format vcf --chip --out ${diploid_vcf}.txt # assign haplogreps
 fi
 
@@ -187,8 +176,8 @@ fi
 # ASSIGN HAPLOGROUPS FOR THE PRE-IMPUTED IN SILICO SNP CHIP
 echo
 echo "ASSIGNING HAPLOGROUPS FOR THE PRE-IMPUTED IN SILICO SNP CHIP"
-vcf="/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}_diploid.vcf"
-out="/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}_haplogrep"
+vcf="/Volumes/TimMcInerney/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}_diploid.vcf"
+out="/Volumes/TimMcInerney/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}_haplogrep"
 #java -jar ${HAPLOGREP} --in ${vcf} --format vcf --chip --out ${out}.txt # assign haplogreps
 #
 #if [ ! -d ~/GitCode/MitoImputePrep/metadata/HaploGrep_concordance/${REFpanel}/ ]
@@ -212,15 +201,15 @@ echo "RUNNING IMPUTE2 ON ${MtPlatforms}"
 m=~/GitCode/MitoImputePrep/DerivedData/${REFpanel}/${REFpanel}_MtMap.txt 
 h=~/GitCode/MitoImputePrep/DerivedData/${REFpanel}/${REFpanel}.hap.gz
 l=~/GitCode/MitoImputePrep/DerivedData/${REFpanel}/${REFpanel}.legend.gz
-g=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}.gen.gz
-s=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}.samples
-out=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/kHAP${khap}/chrMT_1kg_${MtPlatforms}_imputed_kHAP${khap}
+g=/Volumes/TimMcInerney/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}.gen.gz
+s=/Volumes/TimMcInerney/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}.samples
+out=/Volumes/TimMcInerney/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/kHAP${khap}_uniqueseqs/chrMT_1kg_${MtPlatforms}_imputed_kHAP${khap}
 
-if [ -d /g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/kHAP${khap}/ ]
+if [ -d /Volumes/TimMcInerney/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/kHAP${khap}_uniqueseqs/ ]
 then
 	echo "DIRECTORY FOUND"
 else
-	mkdir -p /g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/kHAP${khap}/
+	mkdir -p /Volumes/TimMcInerney/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/kHAP${khap}_uniqueseqs/
 fi
 
 if [ -f ${out} ]
@@ -234,31 +223,31 @@ fi
 # FIX CHROMOSOME NAMES
 echo
 echo "FIXING CHROMOSOME NAMES"
-InFile=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/kHAP${khap}/chrMT_1kg_${MtPlatforms}_imputed_kHAP${khap}
-OutFile=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/kHAP${khap}/chrMT_1kg_${MtPlatforms}_imputed_kHAP${khap}_ChromFixed
+InFile=/Volumes/TimMcInerney/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/kHAP${khap}_uniqueseqs/chrMT_1kg_${MtPlatforms}_imputed_kHAP${khap}
+OutFile=/Volumes/TimMcInerney/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/kHAP${khap}_uniqueseqs/chrMT_1kg_${MtPlatforms}_imputed_kHAP${khap}_ChromFixed
 awk '{{$1 = "26"; print}}' ${InFile} > ${OutFile}
 
 # CONVERT OXFORD TO PEDIGREE
 echo
 echo "CONVERTING OXFORD TO PEDIGREE"
-gen=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/kHAP${khap}/chrMT_1kg_${MtPlatforms}_imputed_kHAP${khap}_ChromFixed
-sam=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/kHAP${khap}/chrMT_1kg_${MtPlatforms}_imputed_kHAP${khap}_samples
-out=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/kHAP${khap}/chrMT_1kg_${MtPlatforms}_imputed_kHAP${khap}
+gen=/Volumes/TimMcInerney/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/kHAP${khap}_uniqueseqs/chrMT_1kg_${MtPlatforms}_imputed_kHAP${khap}_ChromFixed
+sam=/Volumes/TimMcInerney/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/kHAP${khap}_uniqueseqs/chrMT_1kg_${MtPlatforms}_imputed_kHAP${khap}_samples
+out=/Volumes/TimMcInerney/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/kHAP${khap}_uniqueseqs/chrMT_1kg_${MtPlatforms}_imputed_kHAP${khap}
 
 plink1.9 --gen ${gen} --sample ${sam} --hard-call-threshold 0.49 --keep-allele-order --output-chr 26 --recode --out ${out}
 
 # CONVERT OXFORD TO VCF
 echo
 echo "CONVERTING OXFORD TO VCF"
-gen=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/kHAP${khap}/chrMT_1kg_${MtPlatforms}_imputed_kHAP${khap}_ChromFixed
-sam=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/kHAP${khap}/chrMT_1kg_${MtPlatforms}_imputed_kHAP${khap}_samples
-out=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/kHAP${khap}/chrMT_1kg_${MtPlatforms}_imputed_kHAP${khap}
+gen=/Volumes/TimMcInerney/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/kHAP${khap}_uniqueseqs/chrMT_1kg_${MtPlatforms}_imputed_kHAP${khap}_ChromFixed
+sam=/Volumes/TimMcInerney/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/kHAP${khap}_uniqueseqs/chrMT_1kg_${MtPlatforms}_imputed_kHAP${khap}_samples
+out=/Volumes/TimMcInerney/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/kHAP${khap}_uniqueseqs/chrMT_1kg_${MtPlatforms}_imputed_kHAP${khap}
 
 plink1.9 --gen ${gen} --sample ${sam} --hard-call-threshold 0.49 --keep-allele-order --output-chr 26 --recode vcf --out ${out}
 
 # CONVERT VCF TO FORMAT FOR HAPLOGREP2
 ref_fasta_plink=~/GitCode/MitoImputePrep/scripts/REFERENCE_ALNS/26/rCRS.fasta
-imp_ext=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/kHAP${khap}/chrMT_1kg_${MtPlatforms}_imputed_kHAP${khap}
+imp_ext=/Volumes/TimMcInerney/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/kHAP${khap}_uniqueseqs/chrMT_1kg_${MtPlatforms}_imputed_kHAP${khap}
 imp_vcf=${imp_ext}.vcf
 norm_imp_vcf=${imp_ext}_norm.vcf.gz
 imp_fasta=${imp_ext}.fasta
@@ -290,16 +279,16 @@ then
 	echo "${final_vcf}.txt FOUND ... bcftools VCF FILE WORKED"
 else
 	echo
-	echo "${final_vcf}.txt NOT FOUND ... RECODING TO plink VCF FILE"
-	plink1.9 --vcf ${final_vcf}.vcf.gz --recode vcf --out ${final_vcf} # recode vcf to vcf via plink (haplogrep seems to love plink vcf files, but not bcftools ... dont know why this needs to be done, but it does, so ???)
+	echo "${final_vcf}.txt NOT FOUND ... RECODING TO plink1.9 VCF FILE"
+	plink1.9 --vcf ${final_vcf}.vcf.gz --recode vcf --out ${final_vcf} # recode vcf to vcf via plink1.9 (haplogrep seems to love plink1.9 vcf files, but not bcftools ... dont know why this needs to be done, but it does, so ???)
 	java -jar ${HAPLOGREP} --in ${final_vcf}.vcf --format vcf --chip --out ${final_vcf}.txt # assign haplogreps
 fi
 
-#if [ ! -d ~/GitCode/MitoImputePrep/metadata/HaploGrep_concordance/${REFpanel}/kHAP${khap}/ ]
+#if [ ! -d ~/GitCode/MitoImputePrep/metadata/HaploGrep_concordance/${REFpanel}/kHAP${khap}_uniqueseqs/ ]
 #then
-#	mkdir -p ~/GitCode/MitoImputePrep/metadata/HaploGrep_concordance/${REFpanel}/kHAP${khap}/
+#	mkdir -p ~/GitCode/MitoImputePrep/metadata/HaploGrep_concordance/${REFpanel}/kHAP${khap}_uniqueseqs/
 #fi
-#cp ${final_vcf}.txt ~/GitCode/MitoImputePrep/metadata/HaploGrep_concordance/${REFpanel}/kHAP${khap}/ # copy haplogroup outputs to Git
+#cp ${final_vcf}.txt ~/GitCode/MitoImputePrep/metadata/HaploGrep_concordance/${REFpanel}/kHAP${khap}_uniqueseqs/ # copy haplogroup outputs to Git
 
 if [ -f ${final_vcf}.txt ]
 then
@@ -314,9 +303,9 @@ fi
 REF26=~/GitCode/MitoImputePrep/scripts/REFERENCE_ALNS/26/rCRS.fasta 
 REFMT=~/GitCode/MitoImputePrep/scripts/REFERENCE_ALNS/MT/rCRS.fasta 
 WGS_VCF=${vcf_1kg}
-TYP_VCF=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}.vcf.gz
-TYP_VCF_MULTIALLELIC=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}_multiallelic.vcf.gz
-TYP_VCF_DECOMPOSED=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}_biallelic_decomposed.vcf.gz
+TYP_VCF=/Volumes/TimMcInerney/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}.vcf.gz
+TYP_VCF_MULTIALLELIC=/Volumes/TimMcInerney/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}_multiallelic.vcf.gz
+TYP_VCF_DECOMPOSED=/Volumes/TimMcInerney/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}_biallelic_decomposed.vcf.gz
 #IMP_VCF=${imp_ext}.vcf
 IMP_INFO=${imp_ext}_info
 OUT_FILE=${imp_ext}
@@ -366,15 +355,15 @@ fi
 #wgs_map=~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/chrMT_1kg_norm_decomposed_firstAlt.map
 #wgs_ped=~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/chrMT_1kg_norm_decomposed_firstAlt.ped
 #wgs_vcf=~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/chrMT_1kg_norm_decomposed_firstAlt.vcf.gz
-#typ_map=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}.map
-#typ_ped=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}.ped
-#typ_vcf=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}.vcf.gz
-#imp_map=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}_imputed.map
-#imp_ped=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}_imputed.ped
-#imp_vcf=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}_imputed.vcf
-#imp_info=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}_imputed_info
+#typ_map=/Volumes/TimMcInerney/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}.map
+#typ_ped=/Volumes/TimMcInerney/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}.ped
+#typ_vcf=/Volumes/TimMcInerney/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}.vcf.gz
+#imp_map=/Volumes/TimMcInerney/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}_imputed.map
+#imp_ped=/Volumes/TimMcInerney/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}_imputed.ped
+#imp_vcf=/Volumes/TimMcInerney/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}_imputed.vcf
+#imp_info=/Volumes/TimMcInerney/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}_imputed_info
 #
-#output=/g/data1a/te53/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}_mtImputed_QC.html
+#output=/Volumes/TimMcInerney/MitoImpute/data/STRANDS/${MtPlatforms}/${REFpanel}/chrMT_1kg_${MtPlatforms}_mtImputed_QC.html
 #
 #rwd = `pwd`/
 #output_dir=~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/${MtPlatforms}/
