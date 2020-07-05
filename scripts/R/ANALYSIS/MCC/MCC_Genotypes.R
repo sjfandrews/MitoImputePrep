@@ -98,10 +98,10 @@ imp_1kg <- imp_1kg %>%
 imp_1kg <- as_tibble(sapply(imp_1kg, function(x) gsub('\\:.*', "", x)))
 imp_1kg[imp_1kg == './.'] <- NA
 imp_1kg[imp_1kg == '.'] <- NA
-imp_1kg[imp_1kg == '0/0'] <- 0
-imp_1kg[imp_1kg == '0'] <- 0
-imp_1kg[imp_1kg == '1/1'] <- 1
-imp_1kg[imp_1kg == '1'] <- 1
+imp_1kg[imp_1kg == '0/0'] <- "0"
+imp_1kg[imp_1kg == '0'] <- "0"
+imp_1kg[imp_1kg == '1/1'] <- "1"
+imp_1kg[imp_1kg == '1'] <- "1"
 imp_1kg <- imp_1kg %>% 
   select(var_name, snp.intersect.imp$POS) %>% 
   mutate_at(vars(contains('mt')), as.integer)
@@ -128,10 +128,10 @@ typ_1kg <- typ_1kg %>%
 typ_1kg <- as_tibble(sapply(typ_1kg, function(x) gsub('\\:.*', "", x)))
 typ_1kg[typ_1kg == './.'] <- NA
 typ_1kg[typ_1kg == '.'] <- NA
-typ_1kg[typ_1kg == '0/0'] <- 0
-typ_1kg[typ_1kg == '0'] <- 0
-typ_1kg[typ_1kg == '1/1'] <- 1
-typ_1kg[typ_1kg == '1'] <- 1
+typ_1kg[typ_1kg == '0/0'] <- "0"
+typ_1kg[typ_1kg == '0'] <- "0"
+typ_1kg[typ_1kg == '1/1'] <- "1"
+typ_1kg[typ_1kg == '1'] <- "1"
 typ_1kg <- typ_1kg %>% 
   select(var_name, snp.intersect.typ$POS) %>% 
   mutate_at(vars(contains('mt')), as.integer)
@@ -152,10 +152,10 @@ wgs_1kg <- wgs_1kg %>%
 wgs_1kg <- as_tibble(sapply(wgs_1kg, function(x) gsub('\\:.*', "", x)))
 wgs_1kg[wgs_1kg == './.'] <- NA
 wgs_1kg[wgs_1kg == '.'] <- NA
-wgs_1kg[wgs_1kg == '0/0'] <- 0
-wgs_1kg[wgs_1kg == '0'] <- 0
-wgs_1kg[wgs_1kg == '1/1'] <- 1
-wgs_1kg[wgs_1kg == '1'] <- 1
+wgs_1kg[wgs_1kg == '0/0'] <- "0"
+wgs_1kg[wgs_1kg == '0'] <- "0"
+wgs_1kg[wgs_1kg == '1/1'] <- "1"
+wgs_1kg[wgs_1kg == '1'] <- "1"
 wgs_1kg.imp <- wgs_1kg %>% 
   select(var_name, snp.intersect.imp$POS) %>% 
   mutate_at(vars(contains('mt')), as.integer)
