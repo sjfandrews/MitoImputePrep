@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 echo
 echo "YOU REQUIRE R v3.6.2"
 echo "YOU REQUIRE bcftools v1.8"
@@ -259,6 +258,10 @@ echo "RUNNING IMPUTE2 ON ${MtPlatforms}"
 #strand_dir=${mitoimpute_dir}data/STRANDS/${MtPlatforms}/${REFpanel}/
 #imp_dir=${strand_dir}kHAP${khap}_uniqueseqs/
 
+exit
+exit
+exit
+
 m=~/GitCode/MitoImputePrep/DerivedData/${REFpanel}/${REFpanel}_MtMap.txt 
 h=~/GitCode/MitoImputePrep/DerivedData/${REFpanel}/${REFpanel}.hap.gz
 l=~/GitCode/MitoImputePrep/DerivedData/${REFpanel}/${REFpanel}.legend.gz
@@ -286,7 +289,7 @@ fi
 InFile=${imp_dir}chrMT_1kg_${MtPlatforms}_imputed_kHAP${khap}
 OutFile=${imp_dir}chrMT_1kg_${MtPlatforms}_imputed_kHAP${khap}_ChromFixed
 
-if [ ! -f ${OutFile} ]
+if [ ! -s ${OutFile} ]
 then
 	echo
 echo "FIXING CHROMOSOME NAMES"
@@ -301,7 +304,7 @@ gen=${out_prefix}_ChromFixed
 sam=${out_prefix}_samples
 out=${out_prefix}
 
-if [ ! -f ${out_prefix}.ped ] && [ ! -f ${out_prefix}.map ]
+if [ ! -s ${out_prefix}.ped ] && [ ! -s ${out_prefix}.map ]
 then
 	echo
 	echo "CONVERTING OXFORD TO PEDIGREE"
@@ -318,7 +321,7 @@ gen=${out_prefix}_ChromFixed
 sam=${out_prefix}_samples
 out=${out_prefix}
 
-if [ ! -f ${out_prefix}.vcf ] 
+if [ ! -s ${out_prefix}.vcf ] 
 then
 	echo
 	echo "CONVERTING OXFORD TO VCF"
@@ -339,7 +342,7 @@ vcf_pos=${imp_ext}_norm_SNPpositions.txt
 fixed_vcf=${imp_ext}_fixed.vcf
 final_vcf=${imp_ext}_haplogrep
 
-if [ ! -f ${final_vcf}.txt ]
+if [ ! -s ${final_vcf}.txt ]
 then
 	echo
 	echo "FIXING IMPUTED VCF	...	BRINGING UP TO BCFTOOLS STANDARDS AND ANNOTATING"
@@ -360,7 +363,7 @@ then
 	java -jar ${HAPLOGREP} --in ${final_vcf}.vcf.gz --format vcf --chip --out ${final_vcf}.txt # assign haplogreps
 fi
 
-if [ -f ${final_vcf}.txt ]
+if [ -s ${final_vcf}.txt ]
 then
 	echo
 	echo "${final_vcf}.txt FOUND ... bcftools VCF FILE WORKED"
@@ -377,7 +380,7 @@ fi
 #fi
 #cp ${final_vcf}.txt ~/GitCode/MitoImputePrep/metadata/HaploGrep_concordance/${REFpanel}/kHAP${khap}_uniqueseqs/ # copy haplogroup outputs to Git
 
-if [ -f ${final_vcf}.txt ]
+if [ -s ${final_vcf}.txt ]
 then
 	echo
 	echo "${final_vcf}.txt FOUND ... PIPELINE COMPLETED"
@@ -397,7 +400,7 @@ TYP_VCF_DECOMPOSED=${strand_dir}chrMT_1kg_${MtPlatforms}_biallelic_decomposed.vc
 IMP_INFO=${imp_ext}_info
 OUT_FILE=${imp_ext}
 
-if [ ! -f ${TYP_VCF_DECOMPOSED} ]
+if [ ! -s ${TYP_VCF_DECOMPOSED} ]
 then
 	echo
 	echo "NORMALISE GENOTYPED VCF"
@@ -418,19 +421,19 @@ echo "NORMALISE IMPUTED VCF"
 IMP_VCF_rCRS=${imp_ext}_rCRS.vcf
 IMP_VCF=${imp_ext}_FINAL.vcf.gz
 
-if [ ! -f ${IMP_VCF_rCRS} ]
+if [ ! -s ${IMP_VCF_rCRS} ]
 then
 	bcftools norm --check-ref s -f ${REF26} -m + ${imp_ext}.vcf -Oz -o ${IMP_VCF_rCRS}
 fi
 
 # DECOMPOSE IMPUTED VCF
-if [ ! -f ${IMP_VCF} ]
+if [ ! -s ${IMP_VCF} ]
 then
 	vt decompose ${IMP_VCF_rCRS} | bcftools +fill-tags -Oz -o ${IMP_VCF}
 	bcftools index ${IMP_VCF}
 fi
 
-if [ -f ${OUT_FILE}_imputed_MCC.csv ] & [ -f ${OUT_FILE}_typed_MCC.csv ]
+if [ -s ${OUT_FILE}_imputed_MCC.csv ] & [ -f ${OUT_FILE}_typed_MCC.csv ]
 then
 	echo
 	echo "${OUT_FILE}_imputed_MCC.csv AND ${OUT_FILE}_typed_MCC.csv FOUND ... PIPELINE COMPLETED"
