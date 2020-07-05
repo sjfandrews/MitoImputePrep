@@ -134,7 +134,7 @@ MTSnps=${mitoimpute_dir}data/STRANDS/${MtPlatforms}/${MtPlatforms}_MT_snps.txt
 vcf_1kg=${thousand_g_dir}chrMT_1kg_norm_decomposed_firstAlt.vcf.gz
 vcf=${strand_dir}chrMT_1kg_${MtPlatforms}.vcf.gz
 
-if [ ! -f ${vcf} ]
+if [ ! -s ${vcf} ]
 then
 	echo
 	echo "EXTRACTING PLATFORM SNPs"
@@ -148,7 +148,7 @@ fi
 sex=${thousand_g_dir}SampleList1kg_sex.txt 
 out=${strand_dir}chrMT_1kg_${MtPlatforms}
 
-if [ ! -f ${out}.gen.gz ] && [ ! -f -f ${out}.gen.gz ]
+if [ ! -s ${out}.gen.gz ] && [ ! -s ${out}.gen.gz ]
 then
 	echo
 	echo "GENERATING GEN SAMPLE"
@@ -163,7 +163,7 @@ fi
 # GENERATE plink1.9 FILES
 out=${strand_dir}chrMT_1kg_${MtPlatforms}
 
-if [ ! -f ${out}.ped ] && [ ! -f -f ${out}.map ]
+if [ ! -s ${out}.ped ] && [ ! -s ${out}.map ]
 then
 	echo
 	echo "GENERATING plink1.9 FILES"
@@ -183,7 +183,7 @@ fixed_vcf=${geno_ext}_fixed.vcf
 diploid_vcf=${geno_ext}_diploid
 haplogrep_file=${diploid_vcf}_haplogrep.txt
 
-if [ ! -f ${diploid_vcf}.vcf.gz ]
+if [ ! -s ${diploid_vcf}.vcf.gz ] & [ ! -s ${norm_vcf} ] & [ ! -s ${vcf_pos} ] & [ ! -s ${geno_fasta} ] & [ ! -s ${fixed_vcf} ]
 then
 	echo
 	echo "GENERATING PLINK FILES (DIPLOID)"
@@ -192,7 +192,7 @@ then
 	bcftools query -f '%POS\n' ${norm_vcf} > ${vcf_pos} # extract genomic positions
 	Rscript ~/GitCode/MitoImputePrep/scripts/R/DATA_PROCESSING/plink_sites_map.R ${vcf_pos} # add a column with the MT label
 	perl -pi -e 'chomp if eof' ${vcf_pos} # remove the last leading line
-	python ~/GitCode/MitoImputePrep/scripts/PYTHON/vcf2fasta_rCRS.py -i ${norm_vcf} -o ${geno_fasta} -v# convert to a fasta file
+	python ~/GitCode/MitoImputePrep/scripts/PYTHON/vcf2fasta_rCRS.py -i ${norm_vcf} -o ${geno_fasta} -v # convert to a fasta file
 	#python ~/GitCode/MitoImputePrep/scripts/PYTHON/fasta2vcf_mtDNA.py -i ${imp_fasta} -o ${fixed_vcf} -g -d # convert back to a vcf
 	python ~/GitCode/MitoImputePrep/scripts/PYTHON/fasta2vcf_mtDNA.py -i ${geno_fasta} -o ${fixed_vcf} -g -d -id -a -v # convert back to a vcf
 	bcftools view ${fixed_vcf} -Oz -o ${fixed_vcf}.gz # gzip it so the -R flag in bcftools view will work
@@ -205,13 +205,13 @@ else
 	echo "${diploid_vcf}.vcf.gz FOUND	...	PASSING"
 fi
 
-if [ ! -f ${diploid_vcf}_haplogrep.txt ]
+if [ ! -s ${diploid_vcf}_haplogrep.txt ]
 then
 	java -jar ${HAPLOGREP} --in ${diploid_vcf}.vcf.gz --format vcf --chip --out ${haplogrep_file} # assign haplogreps
 	cp ${haplogrep_file} ${REF_PAN_HG_DIR}
 fi
 
-if [ -f ${diploid_vcf}_haplogrep.txt ]
+if [ -s ${diploid_vcf}_haplogrep.txt ]
 then
 	echo
 	echo "${diploid_vcf}.txt FOUND ... bcftools VCF FILE WORKED"
@@ -241,12 +241,16 @@ out="${strand_dir}chrMT_1kg_${MtPlatforms}_haplogrep"
 
 #cp ${out}.txt ~/GitCode/MitoImputePrep/metadata/HaploGrep_concordance/${REFpanel}/ # copy haplogroup outputs to Git
 
-if [ -f ${haplogrep_file} ]
+if [ -s ${haplogrep_file} ]
 then
 	echo "${haplogrep_file} SUCCESSFULLY COPIED"
 else
 	echo "HAPLOGREP FILE DID NOT COPY ... SOMETHING WENT WRONG"
 fi
+
+exit
+exit
+exit
 
 # RUN IMPUTE2
 echo
@@ -269,7 +273,7 @@ else
 	mkdir -p ${imp_dir}
 fi
 
-if [ -f ${out} ]
+if [ -s ${out} ]
 then
 	echo "${out} FOUND! ... PASSING"
 else
@@ -437,10 +441,6 @@ else
 	echo "${OUT_FILE}_imputed_MCC.csv AND ${OUT_FILE}_typed_MCC.csv NOT FOUND ... CALCULATING MCC GENOTYPE CONCORDANCE"
 	Rscript ~/GitCode/MitoImputePrep/scripts/R/ANALYSIS/MCC/MCC_Genotypes.R ${WGS_VCF} ${TYP_VCF_DECOMPOSED} ${IMP_VCF} ${IMP_INFO} ${OUT_FILE}
 fi
-
-exit
-exit
-exit
 
 # GENERATE QC REPORT
 #echo
