@@ -1,1 +1,5 @@
 Human610-Quadv1_B-b37
+BDCHP-1X10-HUMANHAP240S_11216501_A-b37
+HumanOmniZhongHua-8v1_B-b37
+HumanOmni1-Quad_v1-0_H-b37
+humancore-24-v1-0-manifest-file-a-b37
