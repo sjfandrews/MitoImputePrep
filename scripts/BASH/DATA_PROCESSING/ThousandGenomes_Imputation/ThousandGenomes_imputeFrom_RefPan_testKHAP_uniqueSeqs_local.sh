@@ -182,7 +182,7 @@ fixed_vcf=${geno_ext}_fixed.vcf
 diploid_vcf=${geno_ext}_diploid
 haplogrep_file=${diploid_vcf}_haplogrep.txt
 
-if [ ! -s ${diploid_vcf}.vcf.gz ] & [ ! -s ${norm_vcf} ] & [ ! -s ${vcf_pos} ] & [ ! -s ${geno_fasta} ] & [ ! -s ${fixed_vcf} ]
+if [ ! -s ${diploid_vcf}.vcf.gz ] && [ ! -s ${norm_vcf} ] && [ ! -s ${vcf_pos} ] && [ ! -s ${geno_fasta} ] && [ ! -s ${fixed_vcf} ]
 then
 	echo
 	echo "GENERATING PLINK FILES (DIPLOID)"
@@ -247,10 +247,6 @@ else
 	echo "HAPLOGREP FILE DID NOT COPY ... SOMETHING WENT WRONG"
 fi
 
-exit
-exit
-exit
-
 # RUN IMPUTE2
 echo
 echo "RUNNING IMPUTE2 ON ${MtPlatforms}"
@@ -258,9 +254,6 @@ echo "RUNNING IMPUTE2 ON ${MtPlatforms}"
 #strand_dir=${mitoimpute_dir}data/STRANDS/${MtPlatforms}/${REFpanel}/
 #imp_dir=${strand_dir}kHAP${khap}_uniqueseqs/
 
-exit
-exit
-exit
 
 m=~/GitCode/MitoImputePrep/DerivedData/${REFpanel}/${REFpanel}_MtMap.txt 
 h=~/GitCode/MitoImputePrep/DerivedData/${REFpanel}/${REFpanel}.hap.gz
@@ -342,7 +335,7 @@ vcf_pos=${imp_ext}_norm_SNPpositions.txt
 fixed_vcf=${imp_ext}_fixed.vcf
 final_vcf=${imp_ext}_haplogrep
 
-if [ ! -s ${final_vcf}.txt ]
+if [ ! -s ${final_vcf}.txt ] && [ ! -s ${imp_vcf} ] && [ ! -s ${norm_imp_vcf} ] && [ ! -s ${imp_fasta} ] && [ ! -s ${vcf_pos} ] && [ ! -s ${fixed_vcf} ]
 then
 	echo
 	echo "FIXING IMPUTED VCF	...	BRINGING UP TO BCFTOOLS STANDARDS AND ANNOTATING"
