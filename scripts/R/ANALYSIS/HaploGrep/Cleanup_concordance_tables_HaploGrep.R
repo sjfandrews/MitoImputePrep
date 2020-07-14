@@ -445,6 +445,15 @@ ggsave(filename = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/plot
 # LINEAR MIXED MODELS
 
 stat.out.dir = "/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/stat_tests/"
+stat.out.dir = "~/GitCode/MitoImputePrep/metadata/Concordance_tables/HaploGrep/stat_tests/"
+
+mcmc_comb_file = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/combined/ConcordanceTables_MCMC_Experiments_COMBINED.csv")
+khap_comb_file = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/combined/ConcordanceTables_kHAP_Experiments_COMBINED.csv")
+maf_comb_file  = paste0("/Volumes/TimMcInerney/MitoImpute/data/HAPLOGROUPS/combined/ConcordanceTables_MAF_Experiments_COMBINED.csv")
+
+main_mcmc_df   = read_csv(mcmc_comb_file)
+main_khap_df   = read_csv(khap_comb_file)
+main_maf_df    = read_csv(maf_comb_file)
 
 ## MCMC
 # IMPUTED
@@ -453,6 +462,7 @@ l_mcmc_imp = lm(imputed_match ~ sub_experiment, data = main_mcmc_df)
 #summary(l_mcmc_imp)
 #emmeans(l_mcmc_imp, pairwise ~ sub_experiment)
 l_mcmc_imp_s = summary(emmeans(l_mcmc_imp, pairwise ~ sub_experiment))
+write.csv(data.frame(anova(l_mcmc_imp)), paste0(stat.out.dir, "mcmc_imputed_anova.csv"), quote = F, row.names = F)
 write.csv(data.frame(l_mcmc_imp_s$emmeans), paste0(stat.out.dir, "mcmc_imputed_emmeans.csv"), quote = F, row.names = F)
 write.csv(data.frame(l_mcmc_imp_s$contrasts), paste0(stat.out.dir, "mcmc_imputed_contrasts.csv"), quote = F, row.names = F)
 
@@ -462,6 +472,7 @@ l_mcmc_imp_macro = lm(imputed_macro_match ~ sub_experiment, data = main_mcmc_df)
 #summary(l_mcmc_imp_macro)
 #emmeans(l_mcmc_imp_macro, pairwise ~ sub_experiment) # ADD type="response" IF IN LOG SCALE
 l_mcmc_imp_macro_s = summary(emmeans(l_mcmc_imp_macro, pairwise ~ sub_experiment))
+write.csv(data.frame(anova(l_mcmc_imp_macro)), paste0(stat.out.dir, "mcmc_imputed_macro_anova.csv"), quote = F, row.names = F)
 write.csv(data.frame(l_mcmc_imp_macro_s$emmeans), paste0(stat.out.dir, "mcmc_imputed_macro_emmeans.csv"), quote = F, row.names = F)
 write.csv(data.frame(l_mcmc_imp_macro_s$contrasts), paste0(stat.out.dir, "mcmc_imputed_macro_contrasts.csv"), quote = F, row.names = F)
 
@@ -471,6 +482,7 @@ l_mcmc_imp_diff = lm(diff ~ sub_experiment, data = main_mcmc_df)
 #summary(l_mcmc_imp_diff)
 #emmeans(l_mcmc_imp_diff, pairwise ~ sub_experiment) # ADD type="response" IF IN LOG SCALE
 l_mcmc_imp_diff_s = summary(emmeans(l_mcmc_imp_diff, pairwise ~ sub_experiment))
+write.csv(data.frame(anova(l_mcmc_imp_diff)), paste0(stat.out.dir, "mcmc_imputed_diff_anova.csv"), quote = F, row.names = F)
 write.csv(data.frame(l_mcmc_imp_diff_s$emmeans), paste0(stat.out.dir, "mcmc_imputed_diff_emmeans.csv"), quote = F, row.names = F)
 write.csv(data.frame(l_mcmc_imp_diff_s$contrasts), paste0(stat.out.dir, "mcmc_imputed_diff_contrasts.csv"), quote = F, row.names = F)
 
@@ -480,6 +492,7 @@ l_mcmc_imp_diff_macro = lm(diff_macro ~ sub_experiment, data = main_mcmc_df)
 #summary(l_mcmc_imp_diff_macro)
 #emmeans(l_mcmc_imp_diff_macro, pairwise ~ sub_experiment) # ADD type="response" IF IN LOG SCALE
 l_mcmc_imp_diff_macro_s = summary(emmeans(l_mcmc_imp_diff_macro, pairwise ~ sub_experiment))
+write.csv(data.frame(anova(l_mcmc_imp_diff_macro)), paste0(stat.out.dir, "mcmc_imputed_macro_diff_anova.csv"), quote = F, row.names = F)
 write.csv(data.frame(l_mcmc_imp_diff_macro_s$emmeans), paste0(stat.out.dir, "mcmc_imputed_macro_diff_emmeans.csv"), quote = F, row.names = F)
 write.csv(data.frame(l_mcmc_imp_diff_macro_s$contrasts), paste0(stat.out.dir, "mcmc_imputed_macro_diff_contrasts.csv"), quote = F, row.names = F)
 
@@ -490,6 +503,7 @@ l_khap_imp = lm(imputed_match ~ sub_experiment, data = main_khap_df)
 #summary(l_khap_imp)
 #emmeans(l_khap_imp, pairwise ~ sub_experiment)
 l_khap_imp_s = summary(emmeans(l_khap_imp, pairwise ~ sub_experiment))
+write.csv(data.frame(anova(l_khap_imp)), paste0(stat.out.dir, "khap_imputed_anova.csv"), quote = F, row.names = F)
 write.csv(data.frame(l_khap_imp_s$emmeans), paste0(stat.out.dir, "khap_imputed_emmeans.csv"), quote = F, row.names = F)
 write.csv(data.frame(l_khap_imp_s$contrasts), paste0(stat.out.dir, "khap_imputed_contrasts.csv"), quote = F, row.names = F)
 
@@ -499,6 +513,7 @@ l_khap_imp_macro = lm(imputed_macro_match ~ sub_experiment, data = main_khap_df)
 #summary(l_khap_imp_macro)
 #emmeans(l_khap_imp_macro, pairwise ~ sub_experiment) # ADD type="response" IF IN LOG SCALE
 l_khap_imp_macro_s = summary(emmeans(l_khap_imp_macro, pairwise ~ sub_experiment))
+write.csv(data.frame(anova(l_khap_imp_macro)), paste0(stat.out.dir, "khap_imputed_macro_anova.csv"), quote = F, row.names = F)
 write.csv(data.frame(l_khap_imp_macro_s$emmeans), paste0(stat.out.dir, "khap_imputed_macro_emmeans.csv"), quote = F, row.names = F)
 write.csv(data.frame(l_khap_imp_macro_s$contrasts), paste0(stat.out.dir, "khap_imputed_macro_contrasts.csv"), quote = F, row.names = F)
 
@@ -508,6 +523,7 @@ l_khap_imp_diff = lm(diff ~ sub_experiment, data = main_khap_df)
 #summary(l_khap_imp_diff)
 #emmeans(l_khap_imp_diff, pairwise ~ sub_experiment) # ADD type="response" IF IN LOG SCALE
 l_khap_imp_diff_s = summary(emmeans(l_khap_imp_diff, pairwise ~ sub_experiment))
+write.csv(data.frame(anova(l_khap_imp_diff)), paste0(stat.out.dir, "khap_imputed_diff_anova.csv"), quote = F, row.names = F)
 write.csv(data.frame(l_khap_imp_diff_s$emmeans), paste0(stat.out.dir, "khap_imputed_diff_emmeans.csv"), quote = F, row.names = F)
 write.csv(data.frame(l_khap_imp_diff_s$contrasts), paste0(stat.out.dir, "khap_imputed_diff_contrasts.csv"), quote = F, row.names = F)
 
@@ -517,6 +533,7 @@ l_khap_imp_diff_macro = lm(diff_macro ~ sub_experiment, data = main_khap_df)
 #summary(l_khap_imp_diff_macro)
 #emmeans(l_khap_imp_diff_macro, pairwise ~ sub_experiment) # ADD type="response" IF IN LOG SCALE
 l_khap_imp_diff_macro_s = summary(emmeans(l_khap_imp_diff_macro, pairwise ~ sub_experiment))
+write.csv(data.frame(anova(l_khap_imp_diff_macro)), paste0(stat.out.dir, "khap_imputed_macro_diff_anova.csv"), quote = F, row.names = F)
 write.csv(data.frame(l_khap_imp_diff_macro_s$emmeans), paste0(stat.out.dir, "khap_imputed_macro_diff_emmeans.csv"), quote = F, row.names = F)
 write.csv(data.frame(l_khap_imp_diff_macro_s$contrasts), paste0(stat.out.dir, "khap_imputed_macro_diff_contrasts.csv"), quote = F, row.names = F)
 
@@ -527,6 +544,7 @@ l_maf_imp = lm(imputed_match ~ sub_experiment, data = main_maf_df)
 #summary(l_maf_imp)
 #emmeans(l_maf_imp, pairwise ~ sub_experiment)
 l_maf_imp_s = summary(emmeans(l_maf_imp, pairwise ~ sub_experiment))
+write.csv(data.frame(anova(l_maf_imp)), paste0(stat.out.dir, "maf_imputed_anova.csv"), quote = F, row.names = F)
 write.csv(data.frame(l_maf_imp_s$emmeans), paste0(stat.out.dir, "maf_imputed_emmeans.csv"), quote = F, row.names = F)
 write.csv(data.frame(l_maf_imp_s$contrasts), paste0(stat.out.dir, "maf_imputed_contrasts.csv"), quote = F, row.names = F)
 
@@ -536,6 +554,7 @@ l_maf_imp_macro = lm(imputed_macro_match ~ sub_experiment, data = main_maf_df)
 #summary(l_maf_imp_macro)
 #emmeans(l_maf_imp_macro, pairwise ~ sub_experiment) # ADD type="response" IF IN LOG SCALE
 l_maf_imp_macro_s = summary(emmeans(l_maf_imp_macro, pairwise ~ sub_experiment))
+write.csv(data.frame(anova(l_maf_imp_macro)), paste0(stat.out.dir, "maf_imputed_macro_anova.csv"), quote = F, row.names = F)
 write.csv(data.frame(l_maf_imp_macro_s$emmeans), paste0(stat.out.dir, "maf_imputed_macro_emmeans.csv"), quote = F, row.names = F)
 write.csv(data.frame(l_maf_imp_macro_s$contrasts), paste0(stat.out.dir, "maf_imputed_macro_contrasts.csv"), quote = F, row.names = F)
 
@@ -545,6 +564,7 @@ l_maf_imp_diff = lm(diff ~ sub_experiment, data = main_maf_df)
 #summary(l_maf_imp_diff)
 #emmeans(l_maf_imp_diff, pairwise ~ sub_experiment) # ADD type="response" IF IN LOG SCALE
 l_maf_imp_diff_s = summary(emmeans(l_maf_imp_diff, pairwise ~ sub_experiment))
+write.csv(data.frame(anova(l_maf_imp_diff)), paste0(stat.out.dir, "maf_imputed_diff_anova.csv"), quote = F, row.names = F)
 write.csv(data.frame(l_maf_imp_diff_s$emmeans), paste0(stat.out.dir, "maf_imputed_diff_emmeans.csv"), quote = F, row.names = F)
 write.csv(data.frame(l_maf_imp_diff_s$contrasts), paste0(stat.out.dir, "maf_imputed_diff_contrasts.csv"), quote = F, row.names = F)
 
@@ -554,5 +574,6 @@ l_maf_imp_diff_macro = lm(diff_macro ~ sub_experiment, data = main_maf_df)
 #summary(l_maf_imp_diff_macro)
 #emmeans(l_maf_imp_diff_macro, pairwise ~ sub_experiment) # ADD type="response" IF IN LOG SCALE
 l_maf_imp_diff_macro_s = summary(emmeans(l_maf_imp_diff_macro, pairwise ~ sub_experiment))
+write.csv(data.frame(anova(l_maf_imp_diff_macro)), paste0(stat.out.dir, "maf_imputed_macro_diff_anova.csv"), quote = F, row.names = F)
 write.csv(data.frame(l_maf_imp_diff_macro_s$emmeans), paste0(stat.out.dir, "maf_imputed_macro_diff_emmeans.csv"), quote = F, row.names = F)
 write.csv(data.frame(l_maf_imp_diff_macro_s$contrasts), paste0(stat.out.dir, "maf_imputed_macro_diff_contrasts.csv"), quote = F, row.names = F)
