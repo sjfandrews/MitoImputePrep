@@ -280,7 +280,7 @@ fi
 # FIX CHROMOSOME NAMES
 
 InFile=${imp_dir}chrMT_1kg_${MtPlatforms}_imputed_kHAP${khap}
-OutFile=${imp_dir}chrMT_1kg_${MtPlatforms}_imputed_kHAP${khap}_ChromFixed
+OutFile=${InFile}_ChromFixed
 
 if [ ! -s ${OutFile} ]
 then
@@ -335,25 +335,42 @@ vcf_pos=${imp_ext}_norm_SNPpositions.txt
 fixed_vcf=${imp_ext}_fixed.vcf
 final_vcf=${imp_ext}_haplogrep
 
-if [ ! -s ${final_vcf}.txt ] && [ ! -s ${imp_vcf} ] && [ ! -s ${norm_imp_vcf} ] && [ ! -s ${imp_fasta} ] && [ ! -s ${vcf_pos} ] && [ ! -s ${fixed_vcf} ]
+if [ ! -s ${final_vcf}.txt ] && [ ! -s ${imp_vcf}.vcf ] && [ ! -s ${norm_imp_vcf} ] && [ ! -s ${imp_fasta} ] && [ ! -s ${vcf_pos} ] && [ ! -s ${fixed_vcf} ] && [ ! -s ${final_vcf}.vcf.gz ]
 then
 	echo
 	echo "FIXING IMPUTED VCF	...	BRINGING UP TO BCFTOOLS STANDARDS AND ANNOTATING"
-	
+	echo "NORMALISED VCF SAVING TO:	${norm_imp_vcf}"
 	bcftools annotate --set-id '.' ${imp_vcf} | bcftools norm --check-ref s -f ${ref_fasta_plink} -m +any | bcftools view -Oz -o ${norm_imp_vcf} # Normalise: remove SNP IDs, reformat to rCRS, join biallelic repeated sites into multiallelic sites, then output to gzip
 	bcftools index ${norm_imp_vcf} # index normalised vcf
+	
+	echo "VCF POSITION INFO SAVING TO:	${vcf_pos}" 
 	bcftools query -f '%POS\n' ${norm_imp_vcf} > ${vcf_pos} # extract genomic positions
 	Rscript ~/GitCode/MitoImputePrep/scripts/R/DATA_PROCESSING/plink_sites_map.R ${vcf_pos} # add a column with the MT label
 	perl -pi -e 'chomp if eof' ${vcf_pos} # remove the last leading line
+	
+	echo "FASTA FILE SAVING TO:	${imp_fasta}" 
 	python ~/GitCode/MitoImputePrep/scripts/PYTHON/vcf2fasta_rCRS.py -i ${norm_imp_vcf} -o ${imp_fasta} -v # convert to a fasta file
 	#python ~/GitCode/MitoImputePrep/scripts/PYTHON/fasta2vcf_mtDNA.py -i ${imp_fasta} -o ${fixed_vcf} -g -d # convert back to a vcf
+	echo "FIXED VCF SAVING TO:	${fixed_vcf}" 
 	python ~/GitCode/MitoImputePrep/scripts/PYTHON/fasta2vcf_mtDNA.py -i ${imp_fasta} -o ${fixed_vcf} -g -d -id -a -v # convert back to a vcf
 	bcftools view ${fixed_vcf} -Oz -o ${fixed_vcf}.gz # gzip it so the -R flag in bcftools view will work
 	bcftools index ${fixed_vcf}.gz # index it it so the -R flag in bcftools view will work
 	#bcftools view -R ${vcf_pos} ${fixed_vcf}.gz | bcftools norm -m -any -Oz -o ${final_vcf}.vcf.gz # include only positions found in the imputed vcf and split multiallelic into biallelic
+	echo "FINAL ANNOTATED HAPLOGREP COMPATIBLE VCF SAVING TO:	${final_vcf}.vcf.gz"
 	bcftools view -R ${vcf_pos} ${fixed_vcf}.gz | bcftools norm -m -any | bcftools +fill-tags -Oz -o ${final_vcf}.vcf.gz # include only positions found in the imputed vcf and split multiallelic into biallelic
 	bcftools index ${final_vcf}.vcf.gz # index it
+	echo "HAPLOGREP FILE SAVING TO:	${final_vcf}.txt" 
 	java -jar ${HAPLOGREP} --in ${final_vcf}.vcf.gz --format vcf --chip --out ${final_vcf}.txt # assign haplogreps
+else
+	echo
+	echo "THE FOLLOWING FILE WERE SUPPOSEDLY FOUND:"
+	echo ${final_vcf}.txt
+	echo ${imp_vcf}.vcf
+	echo ${norm_imp_vcf}
+	echo ${imp_fasta}
+	echo ${vcf_pos}
+	echo ${fixed_vcf}
+	echo ${final_vcf}.vcf.gz
 fi
 
 if [ -s ${final_vcf}.txt ]
@@ -437,6 +454,138 @@ else
 	echo "${OUT_FILE}_imputed_MCC.csv AND ${OUT_FILE}_typed_MCC.csv NOT FOUND ... CALCULATING MCC GENOTYPE CONCORDANCE"
 	Rscript ~/GitCode/MitoImputePrep/scripts/R/ANALYSIS/MCC/MCC_Genotypes.R ${WGS_VCF} ${TYP_VCF_DECOMPOSED} ${IMP_VCF} ${IMP_INFO} ${OUT_FILE}
 fi
+
+#exit
+
+# CUTOFF BY IMPUTE2 INFO SCORE
+impute2_file=${imp_dir}chrMT_1kg_${MtPlatforms}_imputed_kHAP${khap}
+impute2_info_file=${impute2_file}_info
+impute2_file_cutoff=${impute2_file}_cutoffRetained
+impute2_info_file_cutoff=${impute2_file_cutoff}_cutoffRetained
+cutoff=0.3
+
+if [ ! -s ${impute2_file_cutoff} ] && [ ! -s ${impute2_info_file_cutoff} ]
+then
+	echo
+	echo "${impute2_file_cutoff} AND ${impute2_info_file_cutoff} NOT FOUND	...	CUTTING OFF AT INFO ≥ ${cutoff}"
+	Rscript ~/GitCode/MitoImputePrep/scripts/R/DATA_PROCESSING/remove_impute2_cutoff.R ${impute2_file}
+else
+	echo
+	echo "${impute2_file_cutoff} AND ${impute2_info_file_cutoff} FOUND	...	PASSING"
+fi
+
+
+# FIX CHROMOSOME NAMES
+
+InFile=${impute2_file_cutoff}
+OutFile=${InFile}_ChromFixed
+
+if [ ! -s ${OutFile} ]
+then
+	echo
+	echo "FIXING CHROMOSOME NAMES"
+	awk '{{$1 = "26"; print}}' ${InFile} > ${OutFile}
+fi
+
+
+# CONVERT OXFORD TO PEDIGREE
+
+out_prefix_cutoff=${impute2_file_cutoff}
+gen=${out_prefix_cutoff}_ChromFixed
+sam=${out_prefix}_samples
+out=${out_prefix_cutoff}
+
+if [ ! -s ${out_prefix_cutoff}.ped ] && [ ! -s ${out_prefix_cutoff}.map ]
+then
+	echo
+	echo "CONVERTING OXFORD TO PEDIGREE"
+	plink1.9 --gen ${gen} --sample ${sam} --hard-call-threshold 0.49 --keep-allele-order --output-chr 26 --recode --out ${out}
+else
+	echo 
+	echo "PED AND MAP FILES FOUND	...	PASSING"
+fi
+
+
+# CONVERT OXFORD TO VCF
+echo
+echo "CONVERTING OXFORD TO VCF"
+gen=${out_prefix_cutoff}_ChromFixed
+sam=${out_prefix}_samples
+out=${out_prefix_cutoff}
+
+if [ ! -s ${out_prefix_cutoff}.vcf ] 
+then
+	echo
+	echo "CONVERTING OXFORD TO VCF"
+	plink1.9 --gen ${gen} --sample ${sam} --hard-call-threshold 0.49 --keep-allele-order --output-chr 26 --recode vcf --out ${out}
+
+else
+	echo 
+	echo "VCF FILES FOUND	...	PASSING"
+fi
+
+# CONVERT VCF TO FORMAT FOR HAPLOGREP2
+ref_fasta_plink=~/GitCode/MitoImputePrep/scripts/REFERENCE_ALNS/26/rCRS.fasta
+imp_ext=${out_prefix_cutoff}
+imp_vcf=${imp_ext}.vcf
+norm_imp_vcf=${imp_ext}_norm.vcf.gz
+imp_fasta=${imp_ext}.fasta
+vcf_pos=${imp_ext}_norm_SNPpositions.txt
+fixed_vcf=${imp_ext}_fixed.vcf
+final_vcf=${imp_ext}_haplogrep
+
+if [ ! -s ${final_vcf}.txt ] && [ ! -s ${imp_vcf}.vcf ] && [ ! -s ${norm_imp_vcf} ] && [ ! -s ${imp_fasta} ] && [ ! -s ${vcf_pos} ] && [ ! -s ${fixed_vcf} ] && [ ! -s ${final_vcf}.vcf.gz ]
+then
+	echo
+	echo "FIXING IMPUTED VCF	...	BRINGING UP TO BCFTOOLS STANDARDS AND ANNOTATING"
+	echo "NORMALISED VCF SAVING TO:	${norm_imp_vcf}"
+	bcftools annotate --set-id '.' ${imp_vcf} | bcftools norm --check-ref s -f ${ref_fasta_plink} -m +any | bcftools view -Oz -o ${norm_imp_vcf} # Normalise: remove SNP IDs, reformat to rCRS, join biallelic repeated sites into multiallelic sites, then output to gzip
+	bcftools index ${norm_imp_vcf} # index normalised vcf
+	
+	echo "VCF POSITION INFO SAVING TO:	${vcf_pos}" 
+	bcftools query -f '%POS\n' ${norm_imp_vcf} > ${vcf_pos} # extract genomic positions
+	Rscript ~/GitCode/MitoImputePrep/scripts/R/DATA_PROCESSING/plink_sites_map.R ${vcf_pos} # add a column with the MT label
+	perl -pi -e 'chomp if eof' ${vcf_pos} # remove the last leading line
+	
+	echo "FASTA FILE SAVING TO:	${imp_fasta}" 
+	python ~/GitCode/MitoImputePrep/scripts/PYTHON/vcf2fasta_rCRS.py -i ${norm_imp_vcf} -o ${imp_fasta} -v # convert to a fasta file
+	#python ~/GitCode/MitoImputePrep/scripts/PYTHON/fasta2vcf_mtDNA.py -i ${imp_fasta} -o ${fixed_vcf} -g -d # convert back to a vcf
+	echo "FIXED VCF SAVING TO:	${fixed_vcf}" 
+	python ~/GitCode/MitoImputePrep/scripts/PYTHON/fasta2vcf_mtDNA.py -i ${imp_fasta} -o ${fixed_vcf} -g -d -id -a -v # convert back to a vcf
+	bcftools view ${fixed_vcf} -Oz -o ${fixed_vcf}.gz # gzip it so the -R flag in bcftools view will work
+	bcftools index ${fixed_vcf}.gz # index it it so the -R flag in bcftools view will work
+	#bcftools view -R ${vcf_pos} ${fixed_vcf}.gz | bcftools norm -m -any -Oz -o ${final_vcf}.vcf.gz # include only positions found in the imputed vcf and split multiallelic into biallelic
+	echo "FINAL ANNOTATED HAPLOGREP COMPATIBLE VCF SAVING TO:	${final_vcf}.vcf.gz"
+	bcftools view -R ${vcf_pos} ${fixed_vcf}.gz | bcftools norm -m -any | bcftools +fill-tags -Oz -o ${final_vcf}.vcf.gz # include only positions found in the imputed vcf and split multiallelic into biallelic
+	bcftools index ${final_vcf}.vcf.gz # index it
+	echo "HAPLOGREP FILE SAVING TO:	${final_vcf}.txt" 
+	java -jar ${HAPLOGREP} --in ${final_vcf}.vcf.gz --format vcf --chip --out ${final_vcf}.txt # assign haplogreps
+else
+	echo
+	echo "THE FOLLOWING FILE WERE SUPPOSEDLY FOUND:"
+	echo ${final_vcf}.txt
+	echo ${imp_vcf}.vcf
+	echo ${norm_imp_vcf}
+	echo ${imp_fasta}
+	echo ${vcf_pos}
+	echo ${fixed_vcf}
+	echo ${final_vcf}.vcf.gz
+fi
+
+exit
+
+if [ -s ${final_vcf}.txt ]
+then
+	echo
+	echo "${final_vcf}.txt FOUND ... bcftools VCF FILE WORKED"
+else
+	echo
+	echo "${final_vcf}.txt NOT FOUND ... RECODING TO plink1.9 VCF FILE"
+	plink1.9 --vcf ${final_vcf}.vcf.gz --recode vcf --out ${final_vcf} # recode vcf to vcf via plink1.9 (haplogrep seems to love plink1.9 vcf files, but not bcftools ... dont know why this needs to be done, but it does, so ???)
+	java -jar ${HAPLOGREP} --in ${final_vcf}.vcf --format vcf --chip --out ${final_vcf}.txt # assign haplogreps
+fi
+
+exit
 
 # GENERATE QC REPORT
 #echo

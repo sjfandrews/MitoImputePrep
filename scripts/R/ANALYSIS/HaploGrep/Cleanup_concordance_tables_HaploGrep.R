@@ -455,6 +455,14 @@ main_mcmc_df   = read_csv(mcmc_comb_file)
 main_khap_df   = read_csv(khap_comb_file)
 main_maf_df    = read_csv(maf_comb_file)
 
+mcmc_levels = c("MCMC1", "MCMC5", "MCMC10", "MCMC20", "MCMC30")
+khap_levels = c("kHAP100", "kHAP250", "kHAP500", "kHAP1000", "kHAP2500", "kHAP5000", "kHAP10000", "kHAP20000", "kHAP30000")
+maf_levels  = c("MAF1%", "MAF0.5%", "MAF0.1%")
+
+main_mcmc_df$sub_experiment = factor(main_mcmc_df$sub_experiment, levels = mcmc_levels, ordered = T)
+main_khap_df$sub_experiment = factor(main_khap_df$sub_experiment, levels = khap_levels, ordered = T)
+main_maf_df$sub_experiment  = factor(main_maf_df$sub_experiment, levels = maf_levels, ordered = T)
+
 ## MCMC
 # IMPUTED
 l_mcmc_imp = lm(imputed_match ~ sub_experiment, data = main_mcmc_df)
