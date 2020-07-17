@@ -319,7 +319,7 @@ h=~/GitCode/MitoImputePrep/DerivedData/${REFpanel}/${REFpanel}.hap.gz
 l=~/GitCode/MitoImputePrep/DerivedData/${REFpanel}/${REFpanel}.legend.gz
 g=${strand_dir}chrMT_1kg_${MtPlatforms}.gen.gz
 s=${strand_dir}chrMT_1kg_${MtPlatforms}.samples
-out=${imp_dir}chrMT_1kg_${MtPlatforms}_imputed_kHAP${khap}
+out=${imp_dir}chrMT_1kg_${MtPlatforms}_imputed_MCMC${mcmc}
 
 if [ -d ${imp_dir} ]
 then
@@ -342,7 +342,7 @@ exit
 
 # FIX CHROMOSOME NAMES
 
-InFile=${imp_dir}chrMT_1kg_${MtPlatforms}_imputed_kHAP${khap}
+InFile=${imp_dir}chrMT_1kg_${MtPlatforms}_imputed_MCMC${mcmc}
 OutFile=${InFile}_ChromFixed
 
 if [ ! -s ${OutFile} ]
@@ -355,7 +355,7 @@ fi
 
 # CONVERT OXFORD TO PEDIGREE
 
-out_prefix=${imp_dir}chrMT_1kg_${MtPlatforms}_imputed_kHAP${khap}
+out_prefix=${imp_dir}chrMT_1kg_${MtPlatforms}_imputed_MCMC${mcmc}
 gen=${out_prefix}_ChromFixed
 sam=${out_prefix}_samples
 out=${out_prefix}
@@ -390,7 +390,7 @@ fi
 
 # CONVERT VCF TO FORMAT FOR HAPLOGREP2
 ref_fasta_plink=~/GitCode/MitoImputePrep/scripts/REFERENCE_ALNS/26/rCRS.fasta
-imp_ext=${imp_dir}chrMT_1kg_${MtPlatforms}_imputed_kHAP${khap}
+imp_ext=${imp_dir}chrMT_1kg_${MtPlatforms}_imputed_MCMC${mcmc}
 imp_vcf=${imp_ext}.vcf
 norm_imp_vcf=${imp_ext}_norm.vcf.gz
 imp_fasta=${imp_ext}.fasta
@@ -518,7 +518,7 @@ fi
 #exit
 
 # CUTOFF BY IMPUTE2 INFO SCORE
-impute2_file=${imp_dir}chrMT_1kg_${MtPlatforms}_imputed_kHAP${khap}
+impute2_file=${imp_dir}chrMT_1kg_${MtPlatforms}_imputed_MCMC${mcmc}
 impute2_info_file=${impute2_file}_info
 impute2_file_cutoff=${impute2_file}_cutoffRetained
 impute2_info_file_cutoff=${impute2_info_file}_cutoffRetained
@@ -714,7 +714,7 @@ else
 fi
 
 # GENERATE HiMC HAPLOGROUPINGS
-imp_ext=${imp_dir}chrMT_1kg_${MtPlatforms}_imputed_kHAP${khap}
+imp_ext=${imp_dir}chrMT_1kg_${MtPlatforms}_imputed_MCMC${mcmc}
 full_1kGP_pref=${mitoimpute_dir}data/PLINK/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes
 typed_1kGP_pref=${strand_dir}chrMT_1kg_${MtPlatforms}
 imputed_1kGP_pref=${imp_ext}
@@ -735,7 +735,7 @@ fi
 
 
 # GENERATE HAPLOGREP HAPLOGROUPINGS
-imp_ext=${imp_dir}chrMT_1kg_${MtPlatforms}_imputed_kHAP${khap}
+imp_ext=${imp_dir}chrMT_1kg_${MtPlatforms}_imputed_MCMC${mcmc}
 full_1kGP_hg=~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/1000genomes_mtDNA_haplogrep.txt
 typed_1kGP_hg=${strand_dir}chrMT_1kg_${MtPlatforms}_diploid_haplogrep.txt
 imputed_1kGP_hg=${imp_ext}_haplogrep.txt
@@ -756,7 +756,7 @@ fi
 
 
 # SUMMARISE EVERYTHING!
-final_summary_file=${imp_dir}chrMT_1kg_${MtPlatforms}_imputed_kHAP${khap}_SUMMARY.csv
+final_summary_file=${imp_dir}chrMT_1kg_${MtPlatforms}_imputed_MCMC${mcmc}_SUMMARY.csv
 
 mcmc_str="MCMC${mcmc}"
 khap_str="kHAP${khap}"
