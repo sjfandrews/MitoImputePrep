@@ -232,8 +232,6 @@ else
 	echo "PED AND MAP FILES FOUND	...	PASSING"
 fi
 
-exit
-
 # CREATE DIPLOID VCF
 geno_ext="${strand_dir}chrMT_1kg_${MtPlatforms}"
 ref_fasta_plink=~/GitCode/MitoImputePrep/scripts/REFERENCE_ALNS/MT/rCRS.fasta
@@ -309,6 +307,8 @@ then
 else
 	echo "HAPLOGREP FILE DID NOT COPY ... SOMETHING WENT WRONG"
 fi
+
+exit
 
 # RUN IMPUTE2
 echo
