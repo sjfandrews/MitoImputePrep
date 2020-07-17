@@ -33,15 +33,7 @@ echo "YOU REQUIRE plink v1.9"
 echo "YOU REQUIRE IMPUTE2 v2.3.2"
 echo
 
-module list
 
-bcftools
-
-echo
-printenv
-echo
-
-exit
 
 # TURN ON RESOURCE MONITORING
 echo
