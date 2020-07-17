@@ -1,7 +1,7 @@
 #!/bin/bash
 #PBS -P gw26
 #PBS -q biodev
-#PBS -l walltime=01:00:00
+#PBS -l walltime=00:05:00
 #PBS -l mem=24GB
 #PBS -l ncpus=1
 #PBS -m e
@@ -251,9 +251,9 @@ then
 	bcftools query -f '%POS\n' ${norm_vcf} > ${vcf_pos} # extract genomic positions
 	Rscript ~/GitCode/MitoImputePrep/scripts/R/DATA_PROCESSING/plink_sites_map.R ${vcf_pos} # add a column with the MT label
 	perl -pi -e 'chomp if eof' ${vcf_pos} # remove the last leading line
-	python2 ~/GitCode/MitoImputePrep/scripts/PYTHON/vcf2fasta_rCRS.py -i ${norm_vcf} -o ${geno_fasta} -v # convert to a fasta file
+	python2 ~/GitCode/MitoImputePrep/scripts/PYTHON/vcf2fasta_rCRS.py -i ${norm_vcf} -o ${geno_fasta} # convert to a fasta file
 	#python ~/GitCode/MitoImputePrep/scripts/PYTHON/fasta2vcf_mtDNA.py -i ${imp_fasta} -o ${fixed_vcf} -g -d # convert back to a vcf
-	python2 ~/GitCode/MitoImputePrep/scripts/PYTHON/fasta2vcf_mtDNA.py -i ${geno_fasta} -o ${fixed_vcf} -g -d -id -a -v # convert back to a vcf
+	python2 ~/GitCode/MitoImputePrep/scripts/PYTHON/fasta2vcf_mtDNA.py -i ${geno_fasta} -o ${fixed_vcf} -g -d -id -a # convert back to a vcf
 	bcftools view ${fixed_vcf} -Oz -o ${fixed_vcf}.gz # gzip it so the -R flag in bcftools view will work
 	bcftools index ${fixed_vcf}.gz # index it it so the -R flag in bcftools view will work
 	#bcftools view -R ${vcf_pos} ${fixed_vcf}.gz | bcftools norm -m -any -Oz -o ${final_vcf}.vcf.gz # include only positions found in the imputed vcf and split multiallelic into biallelic
@@ -308,8 +308,6 @@ else
 	echo "HAPLOGREP FILE DID NOT COPY ... SOMETHING WENT WRONG"
 fi
 
-exit
-
 # RUN IMPUTE2
 echo
 echo "RUNNING IMPUTE2 ON ${MtPlatforms}"
@@ -337,6 +335,7 @@ else
 	impute2 -chrX -m ${m} -h ${h} -l ${l} -g ${g} -sample_g ${s} -int 1 16569 -Ne ${ne} -o ${out} -iter ${mcmc} -burnin ${burn} -k_hap ${khap}
 fi
 
+exit
 
 # FIX CHROMOSOME NAMES
 
