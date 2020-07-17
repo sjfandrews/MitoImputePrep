@@ -514,9 +514,6 @@ else
 	Rscript ~/GitCode/MitoImputePrep/scripts/R/ANALYSIS/MCC/MCC_Genotypes.R ${WGS_VCF} ${TYP_VCF_DECOMPOSED} ${IMP_VCF} ${IMP_INFO} ${OUT_FILE}
 fi
 
-exit
-exit
-exit
 
 # CUTOFF BY IMPUTE2 INFO SCORE
 impute2_file=${imp_dir}chrMT_1kg_${MtPlatforms}_imputed_MCMC${mcmc}
@@ -535,6 +532,10 @@ else
 	echo "${impute2_file_cutoff} AND ${impute2_info_file_cutoff} FOUND	...	PASSING"
 fi
 
+
+exit
+exit
+exit
 
 # FIX CHROMOSOME NAMES
 
