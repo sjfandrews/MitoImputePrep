@@ -169,7 +169,6 @@ else
 	
 fi
 
-exit
 
 # CREATE DIRECTORY
 if [ -d  ${strand_dir} ]
@@ -206,6 +205,8 @@ then
 	bcftools view -R ${MTSnps} ${vcf_1kg} -Oz -o ${vcf}
 	bcftools index ${vcf}
 fi
+
+exit
 
 # GENERATE GEN SAMPLE
 
