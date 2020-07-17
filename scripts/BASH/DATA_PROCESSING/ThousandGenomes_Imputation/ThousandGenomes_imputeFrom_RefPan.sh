@@ -232,9 +232,6 @@ else
 	echo "PED AND MAP FILES FOUND	...	PASSING"
 fi
 
-exit
-exit
-exit
 
 # CREATE DIPLOID VCF
 geno_ext="${strand_dir}chrMT_1kg_${MtPlatforms}"
@@ -285,6 +282,10 @@ else
 	java -jar ${HAPLOGREP} --in ${diploid_vcf}.vcf --format vcf --chip --out ${haplogrep_file} # assign haplogreps
 	cp ${haplogrep_file} ${REF_PAN_HG_DIR}
 fi
+
+exit
+exit
+exit
 
 #plink1.9 --vcf ${vcf} --recode vcf --out ${out}
 #bcftools +fill-tags ${out}.vcf -Oz -o ${out}.vcf.gz
