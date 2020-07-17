@@ -448,15 +448,12 @@ fi
 if [ -s ${final_vcf}.txt ]
 then
 	echo
-	echo "${final_vcf}.txt FOUND ... PIPELINE COMPLETED"
+	echo "${final_vcf}.txt FOUND ... GREAT!"
 else
 	echo
 	echo "${final_vcf}.txt NOT FOUND ... SOMETHING HAS GONE WRONG"
 fi
 
-exit
-exit
-exit
 
 ## CALCULATE Matthew's Correlation Coefficient
 REF26=~/GitCode/MitoImputePrep/scripts/REFERENCE_ALNS/26/rCRS.fasta 
@@ -517,6 +514,9 @@ else
 	Rscript ~/GitCode/MitoImputePrep/scripts/R/ANALYSIS/MCC/MCC_Genotypes.R ${WGS_VCF} ${TYP_VCF_DECOMPOSED} ${IMP_VCF} ${IMP_INFO} ${OUT_FILE}
 fi
 
+exit
+exit
+exit
 
 # CUTOFF BY IMPUTE2 INFO SCORE
 impute2_file=${imp_dir}chrMT_1kg_${MtPlatforms}_imputed_MCMC${mcmc}
