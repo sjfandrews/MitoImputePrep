@@ -171,22 +171,14 @@ fi
 
 
 # CREATE DIRECTORY
-if [ -d  ${strand_dir} ]
-then
-	echo
-	echo "${strand_dir} EXISTS ... PASSING"
-else
+if [ ! -d  ${strand_dir} ]
 	echo
 	echo "${strand_dir} NOT FOUND ... CREATING DIRECTORY"
 	mkdir ${strand_dir}
 fi
 
 
-if [ -d ${REF_PAN_HG_DIR} ]
-then
-	echo
-	echo "${REF_PAN_HG_DIR} NOT FOUND ... CREATING DIRECTORY"
-else
+if [ ! -d ${REF_PAN_HG_DIR} ]
 	echo
 	echo "${REF_PAN_HG_DIR} NOT FOUND ... CREATING DIRECTORY"
 	mkdir -p ${REF_PAN_HG_DIR}
@@ -213,10 +205,6 @@ fi
 sex=${thousand_g_dir}SampleList1kg_sex.txt 
 out=${strand_dir}chrMT_1kg_${MtPlatforms}
 
-ls -lh ${out}.gen.gz
-
-exit
-
 if [ ! -s ${out}.gen.gz ] && [ ! -s ${out}.gen.gz ]
 then
 	echo
@@ -241,6 +229,10 @@ else
 	echo 
 	echo "PED AND MAP FILES FOUND	...	PASSING"
 fi
+
+exit
+exit
+exit
 
 # CREATE DIPLOID VCF
 geno_ext="${strand_dir}chrMT_1kg_${MtPlatforms}"
