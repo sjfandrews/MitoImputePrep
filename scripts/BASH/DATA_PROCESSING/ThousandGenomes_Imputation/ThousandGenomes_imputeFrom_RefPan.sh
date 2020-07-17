@@ -172,6 +172,7 @@ fi
 
 # CREATE DIRECTORY
 if [ ! -d  ${strand_dir} ]
+then
 	echo
 	echo "${strand_dir} NOT FOUND ... CREATING DIRECTORY"
 	mkdir ${strand_dir}
@@ -179,6 +180,7 @@ fi
 
 
 if [ ! -d ${REF_PAN_HG_DIR} ]
+then
 	echo
 	echo "${REF_PAN_HG_DIR} NOT FOUND ... CREATING DIRECTORY"
 	mkdir -p ${REF_PAN_HG_DIR}
