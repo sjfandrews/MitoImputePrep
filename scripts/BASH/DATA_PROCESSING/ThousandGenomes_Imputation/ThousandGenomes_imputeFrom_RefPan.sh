@@ -11,8 +11,9 @@
 #PBS -l storage=scratch/te53+gdata/te53
 
 # LOAD THE MODULE
-module unload intel-fc intel-cc
+#module unload intel-fc intel-cc
 module load python3/3.7.4
+module load python2/2.7.17
 module load Rpackages/3.6.1
 module load bcftools/1.9
 module load plink/1.90
@@ -72,7 +73,6 @@ else
 	exit	
 fi
 
-#exit
 
 # SPECIFY REFERENCE PANEL
 #REFpanel="ReferencePanel_v5"
@@ -410,10 +410,10 @@ then
 	perl -pi -e 'chomp if eof' ${vcf_pos} # remove the last leading line
 	
 	echo "FASTA FILE SAVING TO:	${imp_fasta}" 
-	python ~/GitCode/MitoImputePrep/scripts/PYTHON/vcf2fasta_rCRS.py -i ${norm_imp_vcf} -o ${imp_fasta} -v # convert to a fasta file
+	python2 ~/GitCode/MitoImputePrep/scripts/PYTHON/vcf2fasta_rCRS.py -i ${norm_imp_vcf} -o ${imp_fasta} # convert to a fasta file
 	#python ~/GitCode/MitoImputePrep/scripts/PYTHON/fasta2vcf_mtDNA.py -i ${imp_fasta} -o ${fixed_vcf} -g -d # convert back to a vcf
 	echo "FIXED VCF SAVING TO:	${fixed_vcf}" 
-	python ~/GitCode/MitoImputePrep/scripts/PYTHON/fasta2vcf_mtDNA.py -i ${imp_fasta} -o ${fixed_vcf} -g -d -id -a -v # convert back to a vcf
+	python2 ~/GitCode/MitoImputePrep/scripts/PYTHON/fasta2vcf_mtDNA.py -i ${imp_fasta} -o ${fixed_vcf} -g -d -id -a # convert back to a vcf
 	bcftools view ${fixed_vcf} -Oz -o ${fixed_vcf}.gz # gzip it so the -R flag in bcftools view will work
 	bcftools index ${fixed_vcf}.gz # index it it so the -R flag in bcftools view will work
 	#bcftools view -R ${vcf_pos} ${fixed_vcf}.gz | bcftools norm -m -any -Oz -o ${final_vcf}.vcf.gz # include only positions found in the imputed vcf and split multiallelic into biallelic
@@ -517,7 +517,6 @@ else
 	Rscript ~/GitCode/MitoImputePrep/scripts/R/ANALYSIS/MCC/MCC_Genotypes.R ${WGS_VCF} ${TYP_VCF_DECOMPOSED} ${IMP_VCF} ${IMP_INFO} ${OUT_FILE}
 fi
 
-#exit
 
 # CUTOFF BY IMPUTE2 INFO SCORE
 impute2_file=${imp_dir}chrMT_1kg_${MtPlatforms}_imputed_MCMC${mcmc}
@@ -778,7 +777,6 @@ echo ${mcc_imputed}
 echo ${mcc_imputed_cutoff}
 echo
 
-#exit
 
 if [ -s ${final_summary_file} ]
 then
