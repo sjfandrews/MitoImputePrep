@@ -26,4 +26,5 @@ for i in `cat ${STRAND_LIST}`; do
 		echo "JOB FOR ${i} SUBMITTED FOR ${REFpanel} WITH PARAMETERS:	MCMC LENGTH = ${MCMC} (${BURN} BURN-INS),	K_HAP = ${KHAP},	NE = ${NE}"
 	else
 		echo "${summary_file} FOUND	...	PASSING"
+	fi
 done
