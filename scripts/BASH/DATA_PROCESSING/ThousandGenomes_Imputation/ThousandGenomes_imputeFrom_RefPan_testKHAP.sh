@@ -1,7 +1,7 @@
 #!/bin/bash
 #PBS -P gw26
 #PBS -q biodev
-#PBS -l walltime=00:05:00
+#PBS -l walltime=00:30:00
 #PBS -l mem=24GB
 #PBS -l ncpus=1
 #PBS -m e
@@ -334,8 +334,6 @@ else
 	echo "${out} NOT FOUND! ... RUNNING IMPUTE2"
 	impute2 -chrX -m ${m} -h ${h} -l ${l} -g ${g} -sample_g ${s} -int 1 16569 -Ne ${ne} -o ${out} -iter ${mcmc} -burnin ${burn} -k_hap ${khap}
 fi
-
-exit
 
 # FIX CHROMOSOME NAMES
 
