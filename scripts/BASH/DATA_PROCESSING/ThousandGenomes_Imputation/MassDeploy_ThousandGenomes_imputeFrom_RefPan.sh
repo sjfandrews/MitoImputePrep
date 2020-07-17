@@ -17,6 +17,13 @@ echo "sh ~/GitCode/MitoImputePrep/scripts/BASH/MassDeploy_ThousandGenomes_impute
 #MCMC 1,0	5,1	10,3	20,6	30,10
 
 for i in `cat ${STRAND_LIST}`; do
-	qsub -v nqstat_anu=nqstat_anu,REFpanel=${REFpanel},MtPlatforms=${i},mcmc=${MCMC},burn=${BURN},khap=${KHAP},ne=${NE} -N IMPUTE2_${i}_${REFpanel}_MCMC${MCMC}_kHAP${KHAP} ~/GitCode/MitoImputePrep/scripts/BASH/DATA_PROCESSING/ThousandGenomes_Imputation/ThousandGenomes_imputeFrom_RefPan.sh
-	echo "JOB FOR ${i} SUBMITTED FOR ${REFpanel} WITH PARAMETERS:	MCMC LENGTH = ${MCMC} (${BURN} BURN-INS),	K_HAP = ${KHAP},	NE = ${NE}"
+	summary_file=/g/data1a/te53/MitoImpute/data/STRANDS/${i}/${REFpanel}/MCMC${MCMC}/chrMT_1kg_${i}_imputed_MCMC${MCMC}_SUMMARY.csv
+	echo ${summary_file}
+	
+	if [ ! -s ${summary_file} ]
+	then
+		echo qsub -v nqstat_anu=nqstat_anu,REFpanel=${REFpanel},MtPlatforms=${i},mcmc=${MCMC},burn=${BURN},khap=${KHAP},ne=${NE} -N IMPUTE2_${i}_${REFpanel}_MCMC${MCMC}_kHAP${KHAP} ~/GitCode/MitoImputePrep/scripts/BASH/DATA_PROCESSING/ThousandGenomes_Imputation/ThousandGenomes_imputeFrom_RefPan.sh
+		echo "JOB FOR ${i} SUBMITTED FOR ${REFpanel} WITH PARAMETERS:	MCMC LENGTH = ${MCMC} (${BURN} BURN-INS),	K_HAP = ${KHAP},	NE = ${NE}"
+	else
+		echo "${summary_file} FOUND	...	PASSING"
 done
