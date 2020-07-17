@@ -283,9 +283,6 @@ else
 	cp ${haplogrep_file} ${REF_PAN_HG_DIR}
 fi
 
-exit
-exit
-exit
 
 #plink1.9 --vcf ${vcf} --recode vcf --out ${out}
 #bcftools +fill-tags ${out}.vcf -Oz -o ${out}.vcf.gz
@@ -338,6 +335,10 @@ else
 	echo "${out} NOT FOUND! ... RUNNING IMPUTE2"
 	impute2 -chrX -m ${m} -h ${h} -l ${l} -g ${g} -sample_g ${s} -int 1 16569 -Ne ${ne} -o ${out} -iter ${mcmc} -burnin ${burn} -k_hap ${khap}
 fi
+
+exit
+exit
+exit
 
 # FIX CHROMOSOME NAMES
 
