@@ -582,10 +582,6 @@ else
 	echo "VCF FILES FOUND	...	PASSING"
 fi
 
-exit
-exit
-exit
-
 # CONVERT VCF TO FORMAT FOR HAPLOGREP2
 ref_fasta_plink=~/GitCode/MitoImputePrep/scripts/REFERENCE_ALNS/26/rCRS.fasta
 imp_ext=${out_prefix_cutoff}
@@ -654,6 +650,10 @@ else
 	plink --vcf ${final_vcf}.vcf.gz --recode vcf --out ${final_vcf} # recode vcf to vcf via plink (haplogrep seems to love plink vcf files, but not bcftools ... dont know why this needs to be done, but it does, so ???)
 	java -jar ${HAPLOGREP} --in ${final_vcf}.vcf --format vcf --chip --out ${final_vcf}.txt # assign haplogreps
 fi
+
+exit
+exit
+exit
 
 ## CALCULATE Matthew's Correlation Coefficient
 REF26=~/GitCode/MitoImputePrep/scripts/REFERENCE_ALNS/26/rCRS.fasta 
