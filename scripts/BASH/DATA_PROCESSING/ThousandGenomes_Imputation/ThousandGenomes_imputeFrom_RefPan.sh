@@ -533,10 +533,6 @@ else
 fi
 
 
-exit
-exit
-exit
-
 # FIX CHROMOSOME NAMES
 
 InFile=${impute2_file_cutoff}
@@ -585,6 +581,10 @@ else
 	echo 
 	echo "VCF FILES FOUND	...	PASSING"
 fi
+
+exit
+exit
+exit
 
 # CONVERT VCF TO FORMAT FOR HAPLOGREP2
 ref_fasta_plink=~/GitCode/MitoImputePrep/scripts/REFERENCE_ALNS/26/rCRS.fasta
