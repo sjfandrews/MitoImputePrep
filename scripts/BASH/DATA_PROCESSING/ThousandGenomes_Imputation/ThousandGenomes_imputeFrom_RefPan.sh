@@ -385,9 +385,6 @@ else
 	echo "VCF FILES FOUND	...	PASSING"
 fi
 
-exit
-exit
-exit
 
 # CONVERT VCF TO FORMAT FOR HAPLOGREP2
 ref_fasta_plink=~/GitCode/MitoImputePrep/scripts/REFERENCE_ALNS/26/rCRS.fasta
@@ -456,6 +453,10 @@ else
 	echo
 	echo "${final_vcf}.txt NOT FOUND ... SOMETHING HAS GONE WRONG"
 fi
+
+exit
+exit
+exit
 
 ## CALCULATE Matthew's Correlation Coefficient
 REF26=~/GitCode/MitoImputePrep/scripts/REFERENCE_ALNS/26/rCRS.fasta 
