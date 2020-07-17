@@ -66,7 +66,7 @@ elif [[ "${REFpanel}" == "ReferencePanel_v4" ]] ||  [[ "${REFpanel}" == "Referen
 then
 	maf_str="MAF0.5%"
 	echo "MINOR ALLELE FREQUENCY = ${maf_str}!"
-elif [[ "${REFpanel}" == "ReferencePanel_v4" ]] ||  [[ "${REFpanel}" == "ReferencePanel_v1-unique_0.05" ]] || [[ "${REFpanel}" == "ReferencePanel_v1_0.05" ]]
+elif [[ "${REFpanel}" == "ReferencePanel_v3" ]] ||  [[ "${REFpanel}" == "ReferencePanel_v1-unique_0.05" ]] || [[ "${REFpanel}" == "ReferencePanel_v1_0.05" ]]
 then
 	maf_str="MAF0.1%"
 	echo "MINOR ALLELE FREQUENCY = ${maf_str}!"
