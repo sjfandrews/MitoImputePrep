@@ -88,7 +88,7 @@ echo "REF HAPLOTYPES (k_hap):				${khap}"
 echo "EFFECTIVE POP. SIZE (Ne):			${ne}"
 echo
 
-exit
+
 
 # DEFINE MAIN DIRECTORY
 mitoimpute_dir=/g/data1a/te53/MitoImpute/
@@ -98,10 +98,18 @@ mitoimpute_fasta_dir=${mitoimpute_dir}data/FASTA/
 mitoimpute_plink_dir=${mitoimpute_dir}data/PLINK/
 mitoimpute_oxford_dir=${mitoimpute_dir}data/OXFORD/
 strand_dir=${mitoimpute_dir}data/STRANDS/${MtPlatforms}/${REFpanel}/
-imp_dir=${strand_dir}kHAP${khap}_uniqueseqs/
+imp_dir=${strand_dir}MCMC${mcmc}/
 REF_PAN_HG_DIR=~/GitCode/MitoImputePrep/metadata/HaploGrep_concordance/${REFpanel}/
 thousand_g_dir=~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/
 REF_PAN_HG_DIR=~/GitCode/MitoImputePrep/metadata/HaploGrep_concordance/${REFpanel}/
+
+echo
+ls -lh ${mitoimpute_dir}
+ls -lh ${strand_dir}
+ls -lh ${imp_dir}
+echo
+
+exit
 
 # CHECK FOR OR CREATE THE DECOMPOSED 1,000 GENOMES VCF FILE
 git_vcf=${thousand_g_dir}chrMT_1kg_norm_decomposed_firstAlt.vcf.gz
@@ -313,9 +321,6 @@ fi
 echo
 echo "RUNNING IMPUTE2 ON ${MtPlatforms}"
 
-#strand_dir=${mitoimpute_dir}data/STRANDS/${MtPlatforms}/${REFpanel}/
-#imp_dir=${strand_dir}kHAP${khap}_uniqueseqs/
-
 
 m=~/GitCode/MitoImputePrep/DerivedData/${REFpanel}/${REFpanel}_MtMap.txt 
 h=~/GitCode/MitoImputePrep/DerivedData/${REFpanel}/${REFpanel}.hap.gz
@@ -445,12 +450,6 @@ else
 	plink1.9 --vcf ${final_vcf}.vcf.gz --recode vcf --out ${final_vcf} # recode vcf to vcf via plink1.9 (haplogrep seems to love plink1.9 vcf files, but not bcftools ... dont know why this needs to be done, but it does, so ???)
 	java -jar ${HAPLOGREP} --in ${final_vcf}.vcf --format vcf --chip --out ${final_vcf}.txt # assign haplogreps
 fi
-
-#if [ ! -d ~/GitCode/MitoImputePrep/metadata/HaploGrep_concordance/${REFpanel}/kHAP${khap}_uniqueseqs/ ]
-#then
-#	mkdir -p ~/GitCode/MitoImputePrep/metadata/HaploGrep_concordance/${REFpanel}/kHAP${khap}_uniqueseqs/
-#fi
-#cp ${final_vcf}.txt ~/GitCode/MitoImputePrep/metadata/HaploGrep_concordance/${REFpanel}/kHAP${khap}_uniqueseqs/ # copy haplogroup outputs to Git
 
 if [ -s ${final_vcf}.txt ]
 then
