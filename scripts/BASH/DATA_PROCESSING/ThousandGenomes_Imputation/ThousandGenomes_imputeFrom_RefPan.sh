@@ -104,8 +104,11 @@ thousand_g_dir=~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/
 REF_PAN_HG_DIR=~/GitCode/MitoImputePrep/metadata/HaploGrep_concordance/${REFpanel}/
 
 echo
+echo ${mitoimpute_dir}
 ls -lh ${mitoimpute_dir}
+echo ${strand_dir}
 ls -lh ${strand_dir}
+echo ${imp_dir}
 ls -lh ${imp_dir}
 echo
 
