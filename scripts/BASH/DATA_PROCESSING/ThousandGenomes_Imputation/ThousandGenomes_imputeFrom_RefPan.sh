@@ -119,21 +119,6 @@ samps_1kg=${mitoimpute_dir}metadata/SampleList1kg.txt
 sex_1kg=${mitoimpute_dir}metadata/SampleList1kg_sex.txt
 ref_fasta=${mitoimpute_fasta_dir}rCRS.fasta
 
-ls -lh ${git_vcf}
-ls -lh ${git_vcf_simple}
-ls -lh ${norm_vcf}
-ls -lh ${decom_vcf}
-ls -lh ${vcf_1kg}
-ls -lh ${plink_1kg}
-ls -lh ${orig_vcf}
-ls -lh ${snpOnly_vcf}
-ls -lh ${diploid_vcf}
-ls -lh ${samps_1kg}
-ls -lh ${sex_1kg}
-ls -lh ${ref_fasta}
-
-
-exit
 
 if [ -f ${git_vcf} ] || [ -f ${diploid_vcf}.vcf.gz ]
 then
@@ -184,6 +169,7 @@ else
 	
 fi
 
+exit
 
 # CREATE DIRECTORY
 if [ -d  ${strand_dir} ]
