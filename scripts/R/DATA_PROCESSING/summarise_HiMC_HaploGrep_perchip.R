@@ -23,36 +23,62 @@ start.time = proc.time() # Start the timer!
 
 ### SPECIFY ARGUMENTS!
 message("USAGE HINTS")
-message("ARGUMENT 1:  HAPLOGREP FILE FOR FOR FULL/WGS DATA")
-message("ARGUMENT 2:  HAPLOGREP FILE FOR FOR GENOTYPED DATA")
-message("ARGUMENT 3:  HAPLOGREP FILE FOR FOR IMPUTED DATA")
-message("ARGUMENT 4:  HAPLOGREP FILE FOR FOR IMPUTED (with info score cutoff) DATA")
-message("ARGUMENT 5:  OUTPUT FILE")
+message("ARGUMENT 1:  HiMC FILE")
+message("ARGUMENT 2:  HAPLOGREP FILE")
+message("ARGUMENT 3:  INFO FILE")
+message("ARGUMENT 4:  INFO (CUTOFF) FILE")
+message("ARGUMENT 5:  ARRAY SNPS FILE")
+message("ARGUMENT 6:  MCC FILE")
+message("ARGUMENT 7:  MCC (CUTOFF) FILE")
 
 
 args = commandArgs(trailingOnly = TRUE) # Set arguments from the command line
+strand           = args[1]
+mcmc             = args[2]
+maf              = args[3]
+k_hap            = args[4]
+himc_file        = args[5]
+haplogrep_file   = args[6]
+info_file        = args[7]
+info_cutoff_file = args[8]
+array_snps_file  = args[9]
+mcc_file         = args[10]
+mcc_cutoff_file  = args[11]
 
-himc_file        = args[1] # HAPLOGREP FILE FOR FOR FULL/WGS DATA
-haplogrep_file   = args[2] # HAPLOGREP FILE FOR FOR GENOTYPED DATA
-info_file        = args[3] # HAPLOGREP FILE FOR FOR IMPUTED DATA
-info_cutoff_file = args[4] # HAPLOGREP FILE FOR FOR IMPUTED (with info score cutoff) DATA
-out_file         = args[5] # OUTPUT FILE
 
+#himc_file        = "/Volumes/TimMcInerney/MitoImpute/data/STRANDS/Human610-Quadv1_B-b37/ReferencePanel_v1-unique_0.01/kHAP100_uniqueseqs/chrMT_1kg_Human610-Quadv1_B-b37_imputed_kHAP100_HiMC_haplogroups.csv"
+#haplogrep_file   = "/Volumes/TimMcInerney/MitoImpute/data/STRANDS/Human610-Quadv1_B-b37/ReferencePanel_v1-unique_0.01/kHAP100_uniqueseqs/chrMT_1kg_Human610-Quadv1_B-b37_imputed_kHAP100_HaploGrep_haplogroups.csv"
+#info_file        = "/Volumes/TimMcInerney/MitoImpute/data/STRANDS/Human610-Quadv1_B-b37/ReferencePanel_v1-unique_0.01/kHAP100_uniqueseqs/chrMT_1kg_Human610-Quadv1_B-b37_imputed_kHAP100_info"
+#info_cutoff_file = "/Volumes/TimMcInerney/MitoImpute/data/STRANDS/Human610-Quadv1_B-b37/ReferencePanel_v1-unique_0.01/kHAP100_uniqueseqs/chrMT_1kg_Human610-Quadv1_B-b37_imputed_kHAP100_info_cutoffRetained"
+#array_snps_file  = "/Volumes/TimMcInerney/MitoImpute/data/STRANDS/Human610-Quadv1_B-b37/Human610-Quadv1_B-b37_MT_snps.txt"
+#mcc_file         = "/Volumes/TimMcInerney/MitoImpute/data/STRANDS/Human610-Quadv1_B-b37/ReferencePanel_v1-unique_0.01/kHAP100_uniqueseqs/chrMT_1kg_Human610-Quadv1_B-b37_imputed_kHAP100_imputed_MCC.csv"
+#mcc_cutoff_file  = "/Volumes/TimMcInerney/MitoImpute/data/STRANDS/Human610-Quadv1_B-b37/ReferencePanel_v1-unique_0.01/kHAP100_uniqueseqs/chrMT_1kg_Human610-Quadv1_B-b37_imputed_kHAP100_cutoffRetained_imputed_MCC.csv"
 
-himc_file        = "/Volumes/TimMcInerney/MitoImpute/data/STRANDS/Human610-Quadv1_B-b37/ReferencePanel_v1-unique_0.01/kHAP100_uniqueseqs/chrMT_1kg_Human610-Quadv1_B-b37_imputed_kHAP100_HiMC_haplogroups.csv"
-haplogrep_file   = "/Volumes/TimMcInerney/MitoImpute/data/STRANDS/Human610-Quadv1_B-b37/ReferencePanel_v1-unique_0.01/kHAP100_uniqueseqs/chrMT_1kg_Human610-Quadv1_B-b37_imputed_kHAP100_HaploGrep_haplogroups.csv"
-info_file        = "/Volumes/TimMcInerney/MitoImpute/data/STRANDS/Human610-Quadv1_B-b37/ReferencePanel_v1-unique_0.01/kHAP100_uniqueseqs/chrMT_1kg_Human610-Quadv1_B-b37_imputed_kHAP100_info"
-info_cutoff_file = "/Volumes/TimMcInerney/MitoImpute/data/STRANDS/Human610-Quadv1_B-b37/ReferencePanel_v1-unique_0.01/kHAP100_uniqueseqs/chrMT_1kg_Human610-Quadv1_B-b37_imputed_kHAP100_info_cutoffRetained"
-array_snps_file  = "/Volumes/TimMcInerney/MitoImpute/data/STRANDS/BDCHP-1X10-HUMANHAP240S_11216501_A-b37/BDCHP-1X10-HUMANHAP240S_11216501_A-b37_MT_snps.txt"
-mcc_file         = "/Volumes/TimMcInerney/MitoImpute/data/STRANDS/Human610-Quadv1_B-b37/ReferencePanel_v1-unique_0.01/kHAP100_uniqueseqs/chrMT_1kg_Human610-Quadv1_B-b37_imputed_kHAP100_imputed_MCC.csv"
-mcc_cutoff_file  = "/Volumes/TimMcInerney/MitoImpute/data/STRANDS/Human610-Quadv1_B-b37/ReferencePanel_v1-unique_0.01/kHAP100_uniqueseqs/chrMT_1kg_Human610-Quadv1_B-b37_imputed_kHAP100_cutoffRetained_imputed_MCC.csv"
+out_file = sub(pattern = "_HaploGrep_haplogroups.csv", replacement = "_SUMMARY.csv", x = haplogrep_file)
 
-strand  = "Human610-Quadv1_B-b37"
-mcmc    = "MCMC1"
-maf     = "MAF1%"
-k_hap   = "kHAP100"
+#strand  = "Human610-Quadv1_B-b37"
+#mcmc    = "MCMC1"
+#maf     = "MAF1%"
+#k_hap   = "kHAP100"
 imputed = TRUE
 cutoff  = 0.3
+
+message("")
+message("INPUTS PARAMETERS")
+message(paste0("INPUT ARRAY:          ", strand))
+message(paste0("MCMC PARAMETER:       ", mcmc))
+message(paste0("MAF PARAMETER:        ", maf))
+message(paste0("KHAP PARAMETER:       ", k_hap))
+message(paste0("INFO CUTOFF:           ≥ ", cutoff))
+message(paste0("HiMC FILE:            ", himc_file))
+message(paste0("HAPLOGREP FILE:       ", haplogrep_file))
+message(paste0("INFO FILE:            ", info_file))
+message(paste0("INFO (CUTOFF) FILE:   ", info_cutoff_file))
+message(paste0("MCC FILE:             ", mcc_file))
+message(paste0("MCC (CUTOFF) FILE:    ", mcc_cutoff_file))
+message("")
+message(paste0("OUTPUT FILE:          ", out_file))
+message("")
 
 himc_df        = read_csv(himc_file, col_names = T)
 haplogrep_df   = read_csv(haplogrep_file, col_names = T)
@@ -249,8 +275,14 @@ summary_df = as_tibble(data.frame(array = strand, mcmc = mcmc, refpan_maf = maf,
          sd_haplogrep_distance_jc_imputed_cutoff           = sd(haplogrep_df$HaploGrep_imputed_cutoff_jc, na.rm = T),
          median_haplogrep_distance_jc_imputed_cutoff       = median(as.numeric(haplogrep_df$HaploGrep_imputed_cutoff_jc), na.rm = T),
          q3_haplogrep_distance_jc_imputed_cutoff           = quantile(haplogrep_df$HaploGrep_imputed_cutoff_jc, na.rm = T, probs = 0.75)
-         )
+         ) %>%
+  write_csv(path = out_file)
 
 summary_df
-View(summary_df)
+
+message("")
+message(printTime(proc.time() - start.time))
+message("")
+
+# END!
 

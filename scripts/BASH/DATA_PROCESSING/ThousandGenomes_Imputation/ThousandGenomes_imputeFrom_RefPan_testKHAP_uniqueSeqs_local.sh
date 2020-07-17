@@ -14,6 +14,25 @@ burn=$4
 khap=$5
 ne=$6
 
+if [[ "${REFpanel}" == "ReferencePanel_v2" ]] ||  [[ "${REFpanel}" == "ReferencePanel_v1-unique_0.01" ]] || [[ "${REFpanel}" == "ReferencePanel_v1_0.01" ]]
+then
+	maf_str="MAF1%"
+	echo "MINOR ALLELE FREQUENCY = ${maf_str}!"
+elif [[ "${REFpanel}" == "ReferencePanel_v4" ]] ||  [[ "${REFpanel}" == "ReferencePanel_v1-unique_0.05" ]] || [[ "${REFpanel}" == "ReferencePanel_v1_0.05" ]]
+then
+	maf_str="MAF0.5%"
+	echo "MINOR ALLELE FREQUENCY = ${maf_str}!"
+elif [[ "${REFpanel}" == "ReferencePanel_v4" ]] ||  [[ "${REFpanel}" == "ReferencePanel_v1-unique_0.05" ]] || [[ "${REFpanel}" == "ReferencePanel_v1_0.05" ]]
+then
+	maf_str="MAF0.1%"
+	echo "MINOR ALLELE FREQUENCY = ${maf_str}!"
+else
+	echo "SOMETHING IS WRONG	...	EXITING!"
+	exit	
+fi
+
+#exit
+
 # SPECIFY REFERENCE PANEL
 #REFpanel="ReferencePanel_v5"
 REFpanel=${REFpanel}
@@ -27,6 +46,8 @@ echo "MCMC BURN-IN:					${burn}"
 echo "REF HAPLOTYPES (k_hap):				${khap}"
 echo "EFFECTIVE POP. SIZE (Ne):			${ne}"
 echo
+
+#exit
 
 # DEFINE MAIN DIRECTORY
 mitoimpute_dir=/Volumes/TimMcInerney/MitoImpute/
@@ -431,6 +452,9 @@ echo "NORMALISE IMPUTED VCF"
 IMP_VCF_rCRS=${imp_ext}_rCRS.vcf
 IMP_VCF=${imp_ext}_FINAL.vcf.gz
 
+mcc_imputed=${OUT_FILE}_imputed_MCC.csv
+mcc_typed=${OUT_FILE}_typed_MCC.csv
+
 if [ ! -s ${IMP_VCF_rCRS} ]
 then
 	bcftools norm --check-ref s -f ${REF26} -m + ${imp_ext}.vcf -Oz -o ${IMP_VCF_rCRS}
@@ -443,15 +467,15 @@ then
 	bcftools index ${IMP_VCF}
 fi
 
-if [ -s ${OUT_FILE}_imputed_MCC.csv ] & [ -f ${OUT_FILE}_typed_MCC.csv ]
+if [ -s ${mcc_imputed} ] & [ -f ${mcc_typed} ]
 then
 	echo
-	echo "${OUT_FILE}_imputed_MCC.csv AND ${OUT_FILE}_typed_MCC.csv FOUND ... PIPELINE COMPLETED"
+	echo "${mcc_imputed} AND ${mcc_typed} FOUND ... PIPELINE COMPLETED"
 	echo "ACTUALLY ... DO IT ANYWAY (DOUBLE CHECKING, REMOVE THIS LATER"
 	#Rscript ~/GitCode/MitoImputePrep/scripts/R/ANALYSIS/MCC/MCC_Genotypes.R ${WGS_VCF} ${TYP_VCF_DECOMPOSED} ${IMP_VCF} ${IMP_INFO} ${OUT_FILE}
 else
 	echo
-	echo "${OUT_FILE}_imputed_MCC.csv AND ${OUT_FILE}_typed_MCC.csv NOT FOUND ... CALCULATING MCC GENOTYPE CONCORDANCE"
+	echo "${mcc_imputed} AND ${mcc_typed} NOT FOUND ... CALCULATING MCC GENOTYPE CONCORDANCE"
 	Rscript ~/GitCode/MitoImputePrep/scripts/R/ANALYSIS/MCC/MCC_Genotypes.R ${WGS_VCF} ${TYP_VCF_DECOMPOSED} ${IMP_VCF} ${IMP_INFO} ${OUT_FILE}
 fi
 
@@ -638,25 +662,29 @@ then
 	bcftools index ${IMP_VCF}
 fi
 
-if [ -s ${OUT_FILE}_imputed_MCC.csv ] & [ -f ${OUT_FILE}_typed_MCC.csv ]
+mcc_imputed_cutoff=${OUT_FILE}_imputed_MCC.csv
+mcc_typed_cutoff=${OUT_FILE}_typed_MCC.csv
+
+if [ -s ${mcc_imputed_cutoff} ] & [ -f ${mcc_typed_cutoff} ]
 then
 	echo
-	echo "${OUT_FILE}_imputed_MCC.csv AND ${OUT_FILE}_typed_MCC.csv FOUND ... PIPELINE COMPLETED"
+	echo "${mcc_imputed_cutoff} AND ${mcc_typed_cutoff} FOUND ... PIPELINE COMPLETED"
 	echo "ACTUALLY ... DO IT ANYWAY (DOUBLE CHECKING, REMOVE THIS LATER"
 	#Rscript ~/GitCode/MitoImputePrep/scripts/R/ANALYSIS/MCC/MCC_Genotypes.R ${WGS_VCF} ${TYP_VCF_DECOMPOSED} ${IMP_VCF} ${IMP_INFO} ${OUT_FILE}
 else
 	echo
-	echo "${OUT_FILE}_imputed_MCC.csv AND ${OUT_FILE}_typed_MCC.csv NOT FOUND ... CALCULATING MCC GENOTYPE CONCORDANCE"
+	echo "${mcc_imputed_cutoff} AND ${mcc_typed_cutoff} NOT FOUND ... CALCULATING MCC GENOTYPE CONCORDANCE"
 	Rscript ~/GitCode/MitoImputePrep/scripts/R/ANALYSIS/MCC/MCC_Genotypes.R ${WGS_VCF} ${TYP_VCF_DECOMPOSED} ${IMP_VCF} ${IMP_INFO} ${OUT_FILE}
 fi
 
 # GENERATE HiMC HAPLOGROUPINGS
 imp_ext=${imp_dir}chrMT_1kg_${MtPlatforms}_imputed_kHAP${khap}
-himc_hg_file=${imp_ext}_HiMC_haplogroups.csv
 full_1kGP_pref=${mitoimpute_dir}data/PLINK/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes
 typed_1kGP_pref=${strand_dir}chrMT_1kg_${MtPlatforms}
 imputed_1kGP_pref=${imp_ext}
 imputed_cutoff_1kGP_pref=${imp_ext}_cutoffRetained
+
+himc_hg_file=${imp_ext}_HiMC_haplogroups.csv
 
 
 if [ -s ${himc_hg_file} ]
@@ -669,12 +697,14 @@ else
 	Rscript ~/GitCode/MitoImputePrep/scripts/R/DATA_PROCESSING/HiMC_haplogrouping.R ${full_1kGP_pref} ${typed_1kGP_pref} ${imputed_1kGP_pref} ${imputed_cutoff_1kGP_pref}
 fi
 
+
 # GENERATE HAPLOGREP HAPLOGROUPINGS
 imp_ext=${imp_dir}chrMT_1kg_${MtPlatforms}_imputed_kHAP${khap}
 full_1kGP_hg=~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/1000genomes_mtDNA_haplogrep.txt
 typed_1kGP_hg=${strand_dir}chrMT_1kg_${MtPlatforms}_diploid_haplogrep.txt
 imputed_1kGP_hg=${imp_ext}_haplogrep.txt
 imputed_cutoff_1kGP_hg=${imp_ext}_cutoffRetained_haplogrep.txt
+
 haplogrep_hg_file=${imp_ext}_HaploGrep_haplogroups.csv
 
 
@@ -689,6 +719,41 @@ else
 fi
 
 
+# SUMMARISE EVERYTHING!
+final_summary_file=${imp_dir}chrMT_1kg_${MtPlatforms}_imputed_kHAP${khap}_SUMMARY.csv
+
+mcmc_str="MCMC${mcmc}"
+khap_str="kHAP${khap}"
+
+ls -lh ${final_summary_file}
+echo
+echo ${MtPlatforms}
+echo ${mcmc_str}
+echo ${maf_str}
+echo ${khap_str}
+echo ${himc_hg_file}
+echo ${haplogrep_hg_file}
+echo ${impute2_info_file}
+echo ${impute2_info_file_cutoff}
+echo ${MTSnps}
+echo ${mcc_imputed}
+echo ${mcc_imputed_cutoff}
+echo
+
+#exit
+
+if [ -s ${final_summary_file} ]
+then
+	echo
+	echo "${final_summary_file} FOUND	...	PASSING"
+else
+	echo
+	echo "${final_summary_file} NOT FOUND	...	SUMMARISING EVERYTHING"
+	Rscript ~/GitCode/MitoImputePrep/scripts/R/DATA_PROCESSING/summarise_HiMC_HaploGrep_perchip.R ${MtPlatforms} ${mcmc_str} ${maf_str} ${khap_str} ${himc_hg_file} ${haplogrep_hg_file} ${impute2_info_file} ${impute2_info_file_cutoff} ${MTSnps} ${mcc_imputed} ${mcc_imputed_cutoff}
+fi 
+
+exit
+exit
 
 # GENERATE QC REPORT
 #echo
