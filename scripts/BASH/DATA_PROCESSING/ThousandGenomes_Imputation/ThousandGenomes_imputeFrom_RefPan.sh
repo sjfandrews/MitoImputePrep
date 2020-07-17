@@ -37,6 +37,10 @@ module list
 
 bcftools
 
+echo
+printenv
+echo
+
 exit
 
 # TURN ON RESOURCE MONITORING
