@@ -104,10 +104,6 @@ REF_PAN_HG_DIR=~/GitCode/MitoImputePrep/metadata/HaploGrep_concordance/${REFpane
 thousand_g_dir=~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/
 REF_PAN_HG_DIR=~/GitCode/MitoImputePrep/metadata/HaploGrep_concordance/${REFpanel}/
 
-echo ${imp_dir}
-ls -lh ${imp_dir}
-
-exit
 
 # CHECK FOR OR CREATE THE DECOMPOSED 1,000 GENOMES VCF FILE
 git_vcf=${thousand_g_dir}chrMT_1kg_norm_decomposed_firstAlt.vcf.gz
@@ -236,6 +232,7 @@ else
 	echo "PED AND MAP FILES FOUND	...	PASSING"
 fi
 
+exit
 
 # CREATE DIPLOID VCF
 geno_ext="${strand_dir}chrMT_1kg_${MtPlatforms}"
