@@ -743,8 +743,6 @@ else
 	Rscript ~/GitCode/MitoImputePrep/scripts/R/DATA_PROCESSING/HiMC_haplogrouping.R ${full_1kGP_pref} ${typed_1kGP_pref} ${imputed_1kGP_pref} ${imputed_cutoff_1kGP_pref}
 fi
 
-exit
-
 # GENERATE HAPLOGREP HAPLOGROUPINGS
 imp_ext=${imp_dir}chrMT_1kg_${MtPlatforms}_imputed_MCMC${mcmc}
 full_1kGP_hg=~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/1000genomes_mtDNA_haplogrep.txt
