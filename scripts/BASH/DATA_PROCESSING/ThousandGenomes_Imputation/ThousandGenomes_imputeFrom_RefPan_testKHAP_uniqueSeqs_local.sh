@@ -461,7 +461,7 @@ fi
 impute2_file=${imp_dir}chrMT_1kg_${MtPlatforms}_imputed_kHAP${khap}
 impute2_info_file=${impute2_file}_info
 impute2_file_cutoff=${impute2_file}_cutoffRetained
-impute2_info_file_cutoff=${impute2_file_cutoff}_cutoffRetained
+impute2_info_file_cutoff=${impute2_info_file}_cutoffRetained
 cutoff=0.3
 
 if [ ! -s ${impute2_file_cutoff} ] && [ ! -s ${impute2_info_file_cutoff} ]
@@ -534,8 +534,18 @@ vcf_pos=${imp_ext}_norm_SNPpositions.txt
 fixed_vcf=${imp_ext}_fixed.vcf
 final_vcf=${imp_ext}_haplogrep
 
-if [ ! -s ${final_vcf}.txt ] && [ ! -s ${imp_vcf}.vcf ] && [ ! -s ${norm_imp_vcf} ] && [ ! -s ${imp_fasta} ] && [ ! -s ${vcf_pos} ] && [ ! -s ${fixed_vcf} ] && [ ! -s ${final_vcf}.vcf.gz ]
+if [ -s ${imp_vcf}.vcf ] & [ -s ${norm_imp_vcf} ] & [ -s ${imp_fasta} ] & [ -s ${vcf_pos} ] & [ -s ${fixed_vcf} ] & [ -s ${final_vcf}.vcf.gz ]
 then
+	echo
+	echo "THE FOLLOWING FILE WERE SUPPOSEDLY FOUND:"
+	echo ${final_vcf}.txt
+	echo ${imp_vcf}.vcf
+	echo ${norm_imp_vcf}
+	echo ${imp_fasta}
+	echo ${vcf_pos}
+	echo ${fixed_vcf}
+	echo ${final_vcf}.vcf.gz
+else
 	echo
 	echo "FIXING IMPUTED VCF	...	BRINGING UP TO BCFTOOLS STANDARDS AND ANNOTATING"
 	echo "NORMALISED VCF SAVING TO:	${norm_imp_vcf}"
@@ -558,21 +568,19 @@ then
 	echo "FINAL ANNOTATED HAPLOGREP COMPATIBLE VCF SAVING TO:	${final_vcf}.vcf.gz"
 	bcftools view -R ${vcf_pos} ${fixed_vcf}.gz | bcftools norm -m -any | bcftools +fill-tags -Oz -o ${final_vcf}.vcf.gz # include only positions found in the imputed vcf and split multiallelic into biallelic
 	bcftools index ${final_vcf}.vcf.gz # index it
-	echo "HAPLOGREP FILE SAVING TO:	${final_vcf}.txt" 
-	java -jar ${HAPLOGREP} --in ${final_vcf}.vcf.gz --format vcf --chip --out ${final_vcf}.txt # assign haplogreps
-else
-	echo
-	echo "THE FOLLOWING FILE WERE SUPPOSEDLY FOUND:"
-	echo ${final_vcf}.txt
-	echo ${imp_vcf}.vcf
-	echo ${norm_imp_vcf}
-	echo ${imp_fasta}
-	echo ${vcf_pos}
-	echo ${fixed_vcf}
-	echo ${final_vcf}.vcf.gz
+	#echo "HAPLOGREP FILE SAVING TO:	${final_vcf}.txt" 
+	#java -jar ${HAPLOGREP} --in ${final_vcf}.vcf.gz --format vcf --chip --out ${final_vcf}.txt # assign haplogreps
 fi
 
-exit
+if [ -s ${final_vcf}.txt ]
+then
+	echo
+	echo "${final_vcf}.txt FOUND ... bcftools VCF FILE WORKED"
+else
+	echo "HAPLOGREP FILE SAVING TO:	${final_vcf}.txt" 
+	java -jar ${HAPLOGREP} --in ${final_vcf}.vcf.gz --format vcf --chip --out ${final_vcf}.txt # assign haplogreps
+fi
+
 
 if [ -s ${final_vcf}.txt ]
 then
@@ -585,7 +593,102 @@ else
 	java -jar ${HAPLOGREP} --in ${final_vcf}.vcf --format vcf --chip --out ${final_vcf}.txt # assign haplogreps
 fi
 
-exit
+## CALCULATE Matthew's Correlation Coefficient
+REF26=~/GitCode/MitoImputePrep/scripts/REFERENCE_ALNS/26/rCRS.fasta 
+REFMT=~/GitCode/MitoImputePrep/scripts/REFERENCE_ALNS/MT/rCRS.fasta 
+WGS_VCF=${vcf_1kg}
+TYP_VCF=${strand_dir}chrMT_1kg_${MtPlatforms}.vcf.gz
+TYP_VCF_MULTIALLELIC=${strand_dir}chrMT_1kg_${MtPlatforms}_multiallelic.vcf.gz
+TYP_VCF_DECOMPOSED=${strand_dir}chrMT_1kg_${MtPlatforms}_biallelic_decomposed.vcf.gz
+#IMP_VCF=${imp_ext}.vcf
+IMP_INFO=${impute2_info_file_cutoff}
+OUT_FILE=${out_prefix_cutoff}
+IMP_VCF_rCRS=${out_prefix_cutoff}_rCRS.vcf
+IMP_VCF=${out_prefix_cutoff}_FINAL.vcf.gz
+
+if [ ! -s ${TYP_VCF_DECOMPOSED} ]
+then
+	echo
+	echo "NORMALISE GENOTYPED VCF"
+	# NORMALISE GENOTYPED VCF
+	bcftools norm --check-ref s -f ${REFMT} -m + ${TYP_VCF} -Oz -o ${TYP_VCF_MULTIALLELIC}
+	
+	# DECOMPOSE GENOTYPED VCF
+	vt decompose ${TYP_VCF_MULTIALLELIC} | bcftools +fill-tags -Oz -o ${TYP_VCF_DECOMPOSED}
+	bcftools index ${TYP_VCF_DECOMPOSED}
+else
+	echo
+	echo "NORMALISED GENOTYPED VCF FOUND ... MOVING ON"
+fi
+
+echo
+echo "NORMALISE IMPUTED VCF"
+# NORMALISE IMPUTED VCF
+
+
+if [ ! -s ${IMP_VCF_rCRS} ]
+then
+	bcftools norm --check-ref s -f ${REF26} -m + ${imp_ext}.vcf -Oz -o ${IMP_VCF_rCRS}
+fi
+
+# DECOMPOSE IMPUTED VCF
+if [ ! -s ${IMP_VCF} ]
+then
+	vt decompose ${IMP_VCF_rCRS} | bcftools +fill-tags -Oz -o ${IMP_VCF}
+	bcftools index ${IMP_VCF}
+fi
+
+if [ -s ${OUT_FILE}_imputed_MCC.csv ] & [ -f ${OUT_FILE}_typed_MCC.csv ]
+then
+	echo
+	echo "${OUT_FILE}_imputed_MCC.csv AND ${OUT_FILE}_typed_MCC.csv FOUND ... PIPELINE COMPLETED"
+	echo "ACTUALLY ... DO IT ANYWAY (DOUBLE CHECKING, REMOVE THIS LATER"
+	#Rscript ~/GitCode/MitoImputePrep/scripts/R/ANALYSIS/MCC/MCC_Genotypes.R ${WGS_VCF} ${TYP_VCF_DECOMPOSED} ${IMP_VCF} ${IMP_INFO} ${OUT_FILE}
+else
+	echo
+	echo "${OUT_FILE}_imputed_MCC.csv AND ${OUT_FILE}_typed_MCC.csv NOT FOUND ... CALCULATING MCC GENOTYPE CONCORDANCE"
+	Rscript ~/GitCode/MitoImputePrep/scripts/R/ANALYSIS/MCC/MCC_Genotypes.R ${WGS_VCF} ${TYP_VCF_DECOMPOSED} ${IMP_VCF} ${IMP_INFO} ${OUT_FILE}
+fi
+
+# GENERATE HiMC HAPLOGROUPINGS
+imp_ext=${imp_dir}chrMT_1kg_${MtPlatforms}_imputed_kHAP${khap}
+himc_hg_file=${imp_ext}_HiMC_haplogroups.csv
+full_1kGP_pref=${mitoimpute_dir}data/PLINK/ALL.chrMT.phase3_callmom-v0_4.20130502.genotypes
+typed_1kGP_pref=${strand_dir}chrMT_1kg_${MtPlatforms}
+imputed_1kGP_pref=${imp_ext}
+imputed_cutoff_1kGP_pref=${imp_ext}_cutoffRetained
+
+
+if [ -s ${himc_hg_file} ]
+then
+	echo
+	echo "${himc_hg_file} FOUND!	...	PASSING"
+else
+	echo
+	echo "${himc_hg_file} NOT FOUND!	...	GENERATING HiMC HAPLOGROUPINGS"
+	Rscript ~/GitCode/MitoImputePrep/scripts/R/DATA_PROCESSING/HiMC_haplogrouping.R ${full_1kGP_pref} ${typed_1kGP_pref} ${imputed_1kGP_pref} ${imputed_cutoff_1kGP_pref}
+fi
+
+# GENERATE HAPLOGREP HAPLOGROUPINGS
+imp_ext=${imp_dir}chrMT_1kg_${MtPlatforms}_imputed_kHAP${khap}
+full_1kGP_hg=~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/1000genomes_mtDNA_haplogrep.txt
+typed_1kGP_hg=${strand_dir}chrMT_1kg_${MtPlatforms}_diploid_haplogrep.txt
+imputed_1kGP_hg=${imp_ext}_haplogrep.txt
+imputed_cutoff_1kGP_hg=${imp_ext}_cutoffRetained_haplogrep.txt
+haplogrep_hg_file=${imp_ext}_HaploGrep_haplogroups.csv
+
+
+if [ -s ${haplogrep_hg_file} ]
+then
+	echo
+	echo "${haplogrep_hg_file} FOUND!	...	PASSING"
+else
+	echo
+	echo "${haplogrep_hg_file} NOT FOUND!	...	GENERATING HiMC HAPLOGROUPINGS"
+	Rscript ~/GitCode/MitoImputePrep/scripts/R/DATA_PROCESSING/HaploGrep_haplogrouping.R ${full_1kGP_hg} ${typed_1kGP_hg} ${imputed_1kGP_hg} ${imputed_cutoff_1kGP_hg}
+fi
+
+
 
 # GENERATE QC REPORT
 #echo
