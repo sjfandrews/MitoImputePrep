@@ -206,13 +206,16 @@ then
 	bcftools index ${vcf}
 fi
 
-exit
 
 # GENERATE GEN SAMPLE
 
 #vcf=${thousand_g_dir}${MtPlatforms}/chrMT_1kg_${MtPlatforms}.vcf.gz
 sex=${thousand_g_dir}SampleList1kg_sex.txt 
 out=${strand_dir}chrMT_1kg_${MtPlatforms}
+
+ls -lh ${out}.gen.gz
+
+exit
 
 if [ ! -s ${out}.gen.gz ] && [ ! -s ${out}.gen.gz ]
 then
