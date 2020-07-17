@@ -103,16 +103,7 @@ REF_PAN_HG_DIR=~/GitCode/MitoImputePrep/metadata/HaploGrep_concordance/${REFpane
 thousand_g_dir=~/GitCode/MitoImputePrep/DerivedData/ThousandGenomes/
 REF_PAN_HG_DIR=~/GitCode/MitoImputePrep/metadata/HaploGrep_concordance/${REFpanel}/
 
-echo
-echo ${mitoimpute_dir}
-ls -lh ${mitoimpute_dir}
-echo ${strand_dir}
-ls -lh ${strand_dir}
-echo ${imp_dir}
-ls -lh ${imp_dir}
-echo
 
-exit
 
 # CHECK FOR OR CREATE THE DECOMPOSED 1,000 GENOMES VCF FILE
 git_vcf=${thousand_g_dir}chrMT_1kg_norm_decomposed_firstAlt.vcf.gz
@@ -127,6 +118,22 @@ diploid_vcf=${mitoimpute_vcf_dir}chrMT_1kg_diploid
 samps_1kg=${mitoimpute_dir}metadata/SampleList1kg.txt
 sex_1kg=${mitoimpute_dir}metadata/SampleList1kg_sex.txt
 ref_fasta=${mitoimpute_fasta_dir}rCRS.fasta
+
+ls -lh ${git_vcf}
+ls -lh ${git_vcf_simple}
+ls -lh ${norm_vcf}
+ls -lh ${decom_vcf}
+ls -lh ${vcf_1kg}
+ls -lh ${plink_1kg}
+ls -lh ${orig_vcf}
+ls -lh ${snpOnly_vcf}
+ls -lh ${diploid_vcf}
+ls -lh ${samps_1kg}
+ls -lh ${sex_1kg}
+ls -lh ${ref_fasta}
+
+
+exit
 
 if [ -f ${git_vcf} ] || [ -f ${diploid_vcf}.vcf.gz ]
 then
