@@ -707,7 +707,6 @@ else
 	echo "DECOMPOSED VCF FOUND	... PASSING"
 fi
 
-exit
 
 mcc_imputed_cutoff=${OUT_FILE}_imputed_MCC.csv
 mcc_typed_cutoff=${OUT_FILE}_typed_MCC.csv
@@ -744,6 +743,7 @@ else
 	Rscript ~/GitCode/MitoImputePrep/scripts/R/DATA_PROCESSING/HiMC_haplogrouping.R ${full_1kGP_pref} ${typed_1kGP_pref} ${imputed_1kGP_pref} ${imputed_cutoff_1kGP_pref}
 fi
 
+exit
 
 # GENERATE HAPLOGREP HAPLOGROUPINGS
 imp_ext=${imp_dir}chrMT_1kg_${MtPlatforms}_imputed_MCMC${mcmc}
