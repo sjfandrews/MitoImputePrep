@@ -29,7 +29,7 @@ module load vt
 echo
 echo "YOU REQUIRE R v3.6.2"
 echo "YOU REQUIRE bcftools v1.8"
-echo "YOU REQUIRE plink1.9 v1.9"
+echo "YOU REQUIRE plink v1.9"
 echo "YOU REQUIRE IMPUTE2 v2.3.2"
 echo
 
@@ -139,7 +139,7 @@ else
 	vt decompose ${norm_vcf} | bcftools +fill-tags -Oz -o ${decom_vcf}
 	python3.8 ~/GitCode/MitoImputePrep/scripts/PYTHON/pickFirstAlt.py ${decom_vcf} | bcftools view -Oz -o ${vcf_1kg}
 	bcftools index ${vcf_1kg}
-	plink1.9 --vcf ${vcf_1kg} --recode --double-id --keep-allele-order --out ${plink_1kg}
+	plink --vcf ${vcf_1kg} --recode --double-id --keep-allele-order --out ${plink_1kg}
 	bcftools query -l ${vcf_1kg} > ${samps_1kg}
 	Rscript ~/GitCode/MitoImputePrep/scripts/R/DATA_PROCESSING/assign_sex_label.R ${samps_1kg} ${sex_1kg}
 	
@@ -148,7 +148,7 @@ else
 	then
 		bcftools view -V indels,mnps ${orig_vcf} | bcftools norm -m -any -Oz -o ${snpOnly_vcf}.vcf.gz
 		bcftools index ${snpOnly_vcf}.vcf.gz
-		plink1.9 --vcf ${snpOnly_vcf}.vcf.gz --recode vcf --out ${diploid_vcf}
+		plink --vcf ${snpOnly_vcf}.vcf.gz --recode vcf --out ${diploid_vcf}
 		bcftools +fill-tags ${diploid_vcf}.vcf -Oz -o ${diploid_vcf}.vcf.gz
 		bcftools index ${diploid_vcf}.vcf.gz
 		java -jar ${HAPLOGREP} --in ${diploid_vcf}.vcf --format vcf --out ${diploid_vcf}.haplogrep.txt
@@ -219,14 +219,14 @@ else
 	echo "GEN AND SAMPLE FILES FOUND	...	PASSING"
 fi
 
-# GENERATE plink1.9 FILES
+# GENERATE plink FILES
 out=${strand_dir}chrMT_1kg_${MtPlatforms}
 
 if [ ! -s ${out}.ped ] && [ ! -s ${out}.map ]
 then
 	echo
-	echo "GENERATING plink1.9 FILES"
-	plink1.9 --vcf ${vcf} --recode --double-id --keep-allele-order --out ${out}
+	echo "GENERATING plink FILES"
+	plink --vcf ${vcf} --recode --double-id --keep-allele-order --out ${out}
 else
 	echo 
 	echo "PED AND MAP FILES FOUND	...	PASSING"
@@ -252,9 +252,9 @@ then
 	bcftools query -f '%POS\n' ${norm_vcf} > ${vcf_pos} # extract genomic positions
 	Rscript ~/GitCode/MitoImputePrep/scripts/R/DATA_PROCESSING/plink_sites_map.R ${vcf_pos} # add a column with the MT label
 	perl -pi -e 'chomp if eof' ${vcf_pos} # remove the last leading line
-	python ~/GitCode/MitoImputePrep/scripts/PYTHON/vcf2fasta_rCRS.py -i ${norm_vcf} -o ${geno_fasta} -v # convert to a fasta file
+	python2 ~/GitCode/MitoImputePrep/scripts/PYTHON/vcf2fasta_rCRS.py -i ${norm_vcf} -o ${geno_fasta} -v # convert to a fasta file
 	#python ~/GitCode/MitoImputePrep/scripts/PYTHON/fasta2vcf_mtDNA.py -i ${imp_fasta} -o ${fixed_vcf} -g -d # convert back to a vcf
-	python ~/GitCode/MitoImputePrep/scripts/PYTHON/fasta2vcf_mtDNA.py -i ${geno_fasta} -o ${fixed_vcf} -g -d -id -a -v # convert back to a vcf
+	python2 ~/GitCode/MitoImputePrep/scripts/PYTHON/fasta2vcf_mtDNA.py -i ${geno_fasta} -o ${fixed_vcf} -g -d -id -a -v # convert back to a vcf
 	bcftools view ${fixed_vcf} -Oz -o ${fixed_vcf}.gz # gzip it so the -R flag in bcftools view will work
 	bcftools index ${fixed_vcf}.gz # index it it so the -R flag in bcftools view will work
 	#bcftools view -R ${vcf_pos} ${fixed_vcf}.gz | bcftools norm -m -any -Oz -o ${final_vcf}.vcf.gz # include only positions found in the imputed vcf and split multiallelic into biallelic
@@ -277,14 +277,14 @@ then
 	echo "${diploid_vcf}.txt FOUND ... bcftools VCF FILE WORKED"
 else
 	echo
-	echo "${haplogrep_file} NOT FOUND ... RECODING TO plink1.9 VCF FILE"
-	plink1.9 --vcf ${diploid_vcf}.vcf.gz --recode vcf --out ${diploid_vcf} # recode vcf to vcf via plink1.9 (haplogrep seems to love plink1.9 vcf files, but not bcftools ... dont know why this needs to be done, but it does, so ???)
+	echo "${haplogrep_file} NOT FOUND ... RECODING TO plink VCF FILE"
+	plink --vcf ${diploid_vcf}.vcf.gz --recode vcf --out ${diploid_vcf} # recode vcf to vcf via plink (haplogrep seems to love plink vcf files, but not bcftools ... dont know why this needs to be done, but it does, so ???)
 	java -jar ${HAPLOGREP} --in ${diploid_vcf}.vcf --format vcf --chip --out ${haplogrep_file} # assign haplogreps
 	cp ${haplogrep_file} ${REF_PAN_HG_DIR}
 fi
 
 
-#plink1.9 --vcf ${vcf} --recode vcf --out ${out}
+#plink --vcf ${vcf} --recode vcf --out ${out}
 #bcftools +fill-tags ${out}.vcf -Oz -o ${out}.vcf.gz
 
 
@@ -361,7 +361,7 @@ if [ ! -s ${out_prefix}.ped ] && [ ! -s ${out_prefix}.map ]
 then
 	echo
 	echo "CONVERTING OXFORD TO PEDIGREE"
-	plink1.9 --gen ${gen} --sample ${sam} --hard-call-threshold 0.49 --keep-allele-order --output-chr 26 --recode --out ${out}
+	plink --gen ${gen} --sample ${sam} --hard-call-threshold 0.49 --keep-allele-order --output-chr 26 --recode --out ${out}
 else
 	echo 
 	echo "PED AND MAP FILES FOUND	...	PASSING"
@@ -378,7 +378,7 @@ if [ ! -s ${out_prefix}.vcf ]
 then
 	echo
 	echo "CONVERTING OXFORD TO VCF"
-	plink1.9 --gen ${gen} --sample ${sam} --hard-call-threshold 0.49 --keep-allele-order --output-chr 26 --recode vcf --out ${out}
+	plink --gen ${gen} --sample ${sam} --hard-call-threshold 0.49 --keep-allele-order --output-chr 26 --recode vcf --out ${out}
 
 else
 	echo 
@@ -440,8 +440,8 @@ then
 	echo "${final_vcf}.txt FOUND ... bcftools VCF FILE WORKED"
 else
 	echo
-	echo "${final_vcf}.txt NOT FOUND ... RECODING TO plink1.9 VCF FILE"
-	plink1.9 --vcf ${final_vcf}.vcf.gz --recode vcf --out ${final_vcf} # recode vcf to vcf via plink1.9 (haplogrep seems to love plink1.9 vcf files, but not bcftools ... dont know why this needs to be done, but it does, so ???)
+	echo "${final_vcf}.txt NOT FOUND ... RECODING TO plink VCF FILE"
+	plink --vcf ${final_vcf}.vcf.gz --recode vcf --out ${final_vcf} # recode vcf to vcf via plink (haplogrep seems to love plink vcf files, but not bcftools ... dont know why this needs to be done, but it does, so ???)
 	java -jar ${HAPLOGREP} --in ${final_vcf}.vcf --format vcf --chip --out ${final_vcf}.txt # assign haplogreps
 fi
 
@@ -557,7 +557,7 @@ if [ ! -s ${out_prefix_cutoff}.ped ] && [ ! -s ${out_prefix_cutoff}.map ]
 then
 	echo
 	echo "CONVERTING OXFORD TO PEDIGREE"
-	plink1.9 --gen ${gen} --sample ${sam} --hard-call-threshold 0.49 --keep-allele-order --output-chr 26 --recode --out ${out}
+	plink --gen ${gen} --sample ${sam} --hard-call-threshold 0.49 --keep-allele-order --output-chr 26 --recode --out ${out}
 else
 	echo 
 	echo "PED AND MAP FILES FOUND	...	PASSING"
@@ -575,7 +575,7 @@ if [ ! -s ${out_prefix_cutoff}.vcf ]
 then
 	echo
 	echo "CONVERTING OXFORD TO VCF"
-	plink1.9 --gen ${gen} --sample ${sam} --hard-call-threshold 0.49 --keep-allele-order --output-chr 26 --recode vcf --out ${out}
+	plink --gen ${gen} --sample ${sam} --hard-call-threshold 0.49 --keep-allele-order --output-chr 26 --recode vcf --out ${out}
 
 else
 	echo 
@@ -650,8 +650,8 @@ then
 	echo "${final_vcf}.txt FOUND ... bcftools VCF FILE WORKED"
 else
 	echo
-	echo "${final_vcf}.txt NOT FOUND ... RECODING TO plink1.9 VCF FILE"
-	plink1.9 --vcf ${final_vcf}.vcf.gz --recode vcf --out ${final_vcf} # recode vcf to vcf via plink1.9 (haplogrep seems to love plink1.9 vcf files, but not bcftools ... dont know why this needs to be done, but it does, so ???)
+	echo "${final_vcf}.txt NOT FOUND ... RECODING TO plink VCF FILE"
+	plink --vcf ${final_vcf}.vcf.gz --recode vcf --out ${final_vcf} # recode vcf to vcf via plink (haplogrep seems to love plink vcf files, but not bcftools ... dont know why this needs to be done, but it does, so ???)
 	java -jar ${HAPLOGREP} --in ${final_vcf}.vcf --format vcf --chip --out ${final_vcf}.txt # assign haplogreps
 fi
 
