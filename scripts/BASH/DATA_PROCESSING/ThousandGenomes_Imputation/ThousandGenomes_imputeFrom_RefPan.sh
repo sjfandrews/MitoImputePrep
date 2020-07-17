@@ -681,22 +681,33 @@ else
 	echo "NORMALISED GENOTYPED VCF FOUND ... MOVING ON"
 fi
 
-echo
-echo "NORMALISE IMPUTED VCF"
+
 # NORMALISE IMPUTED VCF
 
 
 if [ ! -s ${IMP_VCF_rCRS} ]
 then
+	echo
+	echo "NORMALISE IMPUTED VCF"
 	bcftools norm --check-ref s -f ${REF26} -m + ${imp_ext}.vcf -Oz -o ${IMP_VCF_rCRS}
+else
+	echo
+	echo "NORMALISED IMPUTED VCF FOUND	...	PASSING"
 fi
 
 # DECOMPOSE IMPUTED VCF
 if [ ! -s ${IMP_VCF} ]
 then
+	echo
+	echo "DECOMPOSE VCF"
 	vt decompose ${IMP_VCF_rCRS} | bcftools +fill-tags -Oz -o ${IMP_VCF}
 	bcftools index ${IMP_VCF}
+else
+	echo
+	echo "DECOMPOSED VCF FOUND	... PASSING"
 fi
+
+exit
 
 mcc_imputed_cutoff=${OUT_FILE}_imputed_MCC.csv
 mcc_typed_cutoff=${OUT_FILE}_typed_MCC.csv
