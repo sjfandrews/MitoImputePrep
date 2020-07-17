@@ -12,8 +12,8 @@
 
 # LOAD THE MODULE
 #module unload intel-fc intel-cc
-module load python3/3.7.4
-module load python2/2.7.17
+#module load python3/3.7.4
+#module load python2/2.7.17
 module load Rpackages/3.6.1
 module load bcftools/1.9
 module load plink/1.90
