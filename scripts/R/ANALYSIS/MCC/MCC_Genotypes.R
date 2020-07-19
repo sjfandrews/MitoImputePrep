@@ -202,7 +202,7 @@ summary.stats.imp <- left_join(summary.stats.imp, select(imp_1kg.info, c(-snp_id
 #summary.stats.imp <- mutate(summary.stats.imp, info.cat = cut_width(summary.stats.imp$info, 0.25, boundary = 0))
 #summary.stats.imp$info.cat = sub(",", "-", summary.stats.imp$info.cat)
 if (length(unique(summary.stats.imp$info)) == 1) {
-  tmp_val = summary.stats.imp$info[1]
+  tmp_val = as.numeric(summary.stats.imp$info[1])
   if (tmp_val > 0.75) {
     summary.stats.imp$info.cat = "(0.75-1]"
   } else if (tmp_val > 0.5 && tmp_val <= 0.75) {
@@ -228,7 +228,7 @@ print(summary(summary.stats.imp))
 ##  merge on info.score file
 summary.stats.typ <- left_join(summary.stats.typ, select(imp_1kg.info, c(-snp_id, -rs_id)), by = c('pos' = 'position'))
 if (length(unique(summary.stats.typ$info)) == 1) {
-  tmp_val = summary.stats.typ$info[1]
+  tmp_val = as.numeric(summary.stats.typ$info[1])
   if (tmp_val > 0.75) {
     summary.stats.typ$info.cat = "(0.75-1]"
   } else if (tmp_val > 0.5 && tmp_val <= 0.75) {
