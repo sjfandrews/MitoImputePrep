@@ -2,7 +2,7 @@ library(tidyverse)
 
 wd = "/g/data1a/te53/MitoImpute/data/STRANDS/"
 
-strands = read_tsv("~/GitCode/MitoImputePrep/scripts/INFORMATION_LISTS/b37_platforms_smallTest.txt", col_names = F)
+strands = read_tsv("~/GitCode/MitoImputePrep/scripts/INFORMATION_LISTS/b37_platforms.txt", col_names = F)
 
 mcmc.dir = "MCMC_Experiments"
 mcmc.var = c("MCMC1", "MCMC5", "MCMC10", "MCMC20", "MCMC30")
