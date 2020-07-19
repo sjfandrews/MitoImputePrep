@@ -2,6 +2,8 @@ library(tidyverse)
 
 wd = "/g/data1a/te53/MitoImpute/data/STRANDS/"
 
+out_file1 = "/g/data1a/te53/MitoImpute/analyses/combined_summaries/MAF_combined.csv"
+
 strands = read_tsv("~/GitCode/MitoImputePrep/scripts/INFORMATION_LISTS/b37_platforms.txt", col_names = F)
 
 mcmc.dir = "MCMC_Experiments"
@@ -49,5 +51,7 @@ for (i in 1:length(maf.panel)) {
   }
   
 }
+
+write_csv(x = combined_summary, path = out_file1)
 
 print(combined_summary)
