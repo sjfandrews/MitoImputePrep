@@ -716,6 +716,7 @@ then
 else
 	echo
 	echo "${mcc_imputed_cutoff} AND ${mcc_typed_cutoff} NOT FOUND ... CALCULATING MCC GENOTYPE CONCORDANCE"
+	echo Rscript ~/GitCode/MitoImputePrep/scripts/R/ANALYSIS/MCC/MCC_Genotypes.R ${WGS_VCF} ${TYP_VCF_DECOMPOSED} ${IMP_VCF} ${IMP_INFO} ${OUT_FILE}
 	Rscript ~/GitCode/MitoImputePrep/scripts/R/ANALYSIS/MCC/MCC_Genotypes.R ${WGS_VCF} ${TYP_VCF_DECOMPOSED} ${IMP_VCF} ${IMP_INFO} ${OUT_FILE}
 fi
 
