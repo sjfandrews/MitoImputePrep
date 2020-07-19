@@ -17,6 +17,7 @@ maf.var = c("MAF1%", "MAF0.5%", "MAF0.1%")
 for (i in 1:length(maf.panel)) {
   # SET REFERENCE PANEL
   ref_pan = maf.panel[i]
+  maf     = maf.var[i]
   
   for (j in 1:nrow(strands)) {
     # SET STRAND
@@ -43,6 +44,9 @@ for (i in 1:length(maf.panel)) {
         names(tmp_empty_summary) = names(combined_summary)
         tmp_empty_summary$array[1] = strand
         tmp_empty_summary$imputed[1] = FALSE
+        tmp_empty_summary$refpan_maf = maf
+        tmp_empty_summary$mcmc = "MCMC1"
+        tmp_empty_summary$k_hap = "kHAP500"
         combined_summary = bind_rows(combined_summary, tmp_empty_summary)
       }
       
