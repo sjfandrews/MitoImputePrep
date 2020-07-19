@@ -216,7 +216,7 @@ if (length(unique(summary.stats.imp$info)) == 1) {
   summary.stats.imp <- mutate(summary.stats.imp, info.cat = cut_width(summary.stats.imp$info, 0.25, boundary = 0))
   summary.stats.imp$info.cat = sub(",", "-", summary.stats.imp$info.cat)
 }
-
+summary.stats.imp$info.cat = sub(",", "-", summary.stats.imp$info.cat)
 ##  basic summary stats
 summary.stats.imp %>% count(af > 0.01)
 summary.stats.imp %>% count(mcc > 0.4)
@@ -242,7 +242,7 @@ if (length(unique(summary.stats.typ$info)) == 1) {
   summary.stats.typ <- mutate(summary.stats.typ, info.cat = cut_width(summary.stats.typ$info, 0.25, boundary = 0))
   summary.stats.typ$info.cat = sub(",", "-", summary.stats.typ$info.cat)
 }
-
+summary.stats.typ$info.cat = sub(",", "-", summary.stats.typ$info.cat)
 ##  basic summary stats
 #summary.stats.typ %>% count(af > 0.01)
 #summary.stats.typ %>% count(mcc > 0.4)
