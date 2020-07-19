@@ -199,8 +199,24 @@ summary.stats.typ <- tibble(mtSNP = colnames(wgs_1kg.typ[,2:ncol(wgs_1kg.typ)]),
 
 ##  merge on info.score file
 summary.stats.imp <- left_join(summary.stats.imp, select(imp_1kg.info, c(-snp_id, -rs_id)), by = c('pos' = 'position')) 
-summary.stats.imp <- mutate(summary.stats.imp, info.cat = cut_width(summary.stats.imp$info, 0.25, boundary = 0))
-summary.stats.imp$info.cat = sub(",", "-", summary.stats.imp$info.cat)
+#summary.stats.imp <- mutate(summary.stats.imp, info.cat = cut_width(summary.stats.imp$info, 0.25, boundary = 0))
+#summary.stats.imp$info.cat = sub(",", "-", summary.stats.imp$info.cat)
+if (length(unique(summary.stats.imp$info)) == 1) {
+  tmp_val = summary.stats.imp$info[1]
+  if (tmp_val > 0.75) {
+    summary.stats.imp$info.cat = "(0.75-1]"
+  } else if (tmp_val > 0.5 && tmp_val <= 0.75) {
+    summary.stats.imp$info.cat = "(0.5-0.75]"
+  } else if (tmp_val >= 0.25 && tmp_val <= 0.5) {
+    summary.stats.imp$info.cat = "[0.25-0.5]"
+  } else {
+    summary.stats.imp$info.cat = "[0.0-0.25)"
+  }
+} else {
+  summary.stats.imp <- mutate(summary.stats.imp, info.cat = cut_width(summary.stats.imp$info, 0.25, boundary = 0))
+  summary.stats.imp$info.cat = sub(",", "-", summary.stats.imp$info.cat)
+}
+
 ##  basic summary stats
 summary.stats.imp %>% count(af > 0.01)
 summary.stats.imp %>% count(mcc > 0.4)
@@ -210,9 +226,23 @@ summary.stats.imp %>% count(info > 0.3); summary.stats.imp %>% count(info > 0.5)
 print(summary(summary.stats.imp))
 
 ##  merge on info.score file
-summary.stats.typ <- left_join(summary.stats.typ, select(imp_1kg.info, c(-snp_id, -rs_id)), by = c('pos' = 'position')) 
-summary.stats.typ <- mutate(summary.stats.typ, info.cat = cut_width(summary.stats.typ$info, 0.25, boundary = 0))
-summary.stats.typ$info.cat = sub(",", "-", summary.stats.typ$info.cat)
+summary.stats.typ <- left_join(summary.stats.typ, select(imp_1kg.info, c(-snp_id, -rs_id)), by = c('pos' = 'position'))
+if (length(unique(summary.stats.typ$info)) == 1) {
+  tmp_val = summary.stats.typ$info[1]
+  if (tmp_val > 0.75) {
+    summary.stats.typ$info.cat = "(0.75-1]"
+  } else if (tmp_val > 0.5 && tmp_val <= 0.75) {
+    summary.stats.typ$info.cat = "(0.5-0.75]"
+  } else if (tmp_val >= 0.25 && tmp_val <= 0.5) {
+    summary.stats.typ$info.cat = "[0.25-0.5]"
+  } else {
+    summary.stats.typ$info.cat = "[0.0-0.25)"
+  }
+} else {
+  summary.stats.typ <- mutate(summary.stats.typ, info.cat = cut_width(summary.stats.typ$info, 0.25, boundary = 0))
+  summary.stats.typ$info.cat = sub(",", "-", summary.stats.typ$info.cat)
+}
+
 ##  basic summary stats
 #summary.stats.typ %>% count(af > 0.01)
 #summary.stats.typ %>% count(mcc > 0.4)
