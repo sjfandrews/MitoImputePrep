@@ -54,4 +54,8 @@ for (i in 1:length(maf.panel)) {
 
 write_csv(x = combined_summary, path = out_file1)
 
+if (file.exists(out_file1)) {
+  message(paste0("OUTPUT FILE WRITTEN TO:  ", out_file1))
+}
+
 print(combined_summary)
