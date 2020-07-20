@@ -30,7 +30,7 @@ declare -a arr=("100" "250" "500" "1000" "2500" "5000" "10000" "20000" "30000")
 #done
 
 for i in `cat ${STRAND_LIST}`; do
-	summary_file=/g/data1a/te53/MitoImpute/data/STRANDS/${i}/kHAP_Experiments/kHAP${KHAP}/chrMT_1kg_${i}_imputed_kHAP${KHAP}_SUMMARY.csv
+	summary_file=/g/data1a/te53/MitoImpute/data/STRANDS/${i}/kHAP_Experiments/kHAP${KHAP}/chrMT_1kg_${i}_imputed_kHAP${KHAP}_SUMMARY.csv2
 	#echo ${summary_file}
 	
 	if [ ! -s ${summary_file} ]
