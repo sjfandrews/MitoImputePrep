@@ -790,6 +790,8 @@ if [ -s ${final_summary_file} ]
 then
 	echo
 	echo "${final_summary_file} FOUND	...	PASSING"
+	echo "BUT YOU NEDE TO DO IT AGAIN!"
+	Rscript ~/GitCode/MitoImputePrep/scripts/R/DATA_PROCESSING/summarise_HiMC_HaploGrep_perchip.R ${MtPlatforms} ${mcmc_str} ${maf_str} ${khap_str} ${himc_hg_file} ${haplogrep_hg_file} ${impute2_info_file} ${impute2_info_file_cutoff} ${MTSnps} ${mcc_imputed} ${mcc_imputed_cutoff}
 else
 	echo
 	echo "${final_summary_file} NOT FOUND	...	SUMMARISING EVERYTHING"
