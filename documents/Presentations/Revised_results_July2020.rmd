@@ -31,10 +31,11 @@ maf.dir = "MAF_Experiments"
 maf.panel = c("ReferencePanel_v2", "ReferencePanel_v4", "ReferencePanel_v3")
 maf.var = c("MAF1%", "MAF0.5%", "MAF0.1%")
 
-maf_combined_summary_file = "/Volumes/TimMcInerney/MitoImpute/analyses/combined_summaries/MAF_combined.csv"
-#khap
+maf_combined_summary_file  = "/Volumes/TimMcInerney/MitoImpute/analyses/combined_summaries/MAF_combined.csv"
+khap_combined_summary_file = "/Volumes/TimMcInerney/MitoImpute/analyses/combined_summaries/kHAP_combined.csv"
 
-maf_combined_summary = read_csv(maf_combined_summary_file)
+maf_combined_summary  = read_csv(maf_combined_summary_file)
+khap_combined_summary = read_csv(khap_combined_summary_file)
 ```
 
 # Introduction
@@ -55,8 +56,6 @@ maf_combined_summary = maf_combined_summary %>%
                              labels = maf.var,
                              ordered = T),
          k_hap      = factor(k_hap,
-                             levels = khap.var,
-                             labels = khap.var,
                              ordered = T))
 
 maf_combined_summary_means = maf_combined_summary %>%
@@ -792,7 +791,7 @@ We also examined the distance between the strings in assigned haplogroups, as me
 All results are between the genotyped dataset and the imputed dataset with a info filter of `info > 0.3`
 
 This result shows the Damerau-Levenshtein distance:
-```{r minor-allele-frequency-hg-dist-dl-diff-cutoff, echo = F, fig.cap = "Boxplot of mean HaploGrep quality score between the truth set and the imputed data. Haplogroups were assigned using HaploGrep. This data does include a filter to remove imputed data points below info ≤ 0.3"}
+```{r minor-allele-frequency-hg-dist-dl-diff-cutoff, echo = F, fig.cap = "Boxplot of mean Damerau-Levenshtein string distance between the truth set and the imputed data. Haplogroups were assigned using HaploGrep. This data does include a filter to remove imputed data points below info ≤ 0.3"}
 ggplot(maf_combined_summary_means, aes(x = refpan_maf, y = haplogrep_distance_dl_cutoff_diff)) +
   geom_violin(na.rm = T, fill = pal_cols[2], alpha = (1/4), lwd = (1/4)) +
   geom_boxplot(na.rm = T, fill = pal_cols[2], alpha = (1/2), lwd = (1/4), width = (1/4), outlier.alpha = (1/1)) +
@@ -828,10 +827,1190 @@ kable(hg_dist_dl_lm_sum$emmeans, caption = "Table showing the estimated marginal
 kable(hg_dist_dl_lm_sum$contrasts, caption = "Table showing the contrasts for the linear model testing for significant difference in the means of significant difference in the Damerau-Levenshtein string distance between assigned haplogroups for different Reference Panel minor allele frequency filtering thresholds")
 ```
 
+### HaploGrep string distance (Levenshtein)
+We also examined the distance between the strings in assigned haplogroups, as measures of haplogroup concordance may be misleading if one sub-haplogroup isn't correctly assigned. We used a few different measures, as different measures of distance will provide different results.
+All results are between the genotyped dataset and the imputed dataset with a info filter of `info > 0.3`
+
+This result shows the Levenshtein distance:
+```{r minor-allele-frequency-hg-dist-lv-diff-cutoff, echo = F, fig.cap = "Boxplot of mean Levenshtein string distance between the truth set and the imputed data. Haplogroups were assigned using HaploGrep. This data does include a filter to remove imputed data points below info ≤ 0.3"}
+ggplot(maf_combined_summary_means, aes(x = refpan_maf, y = haplogrep_distance_lv_cutoff_diff)) +
+  geom_violin(na.rm = T, fill = pal_cols[2], alpha = (1/4), lwd = (1/4)) +
+  geom_boxplot(na.rm = T, fill = pal_cols[2], alpha = (1/2), lwd = (1/4), width = (1/4), outlier.alpha = (1/1)) +
+  labs(x = "Reference panel\nminor allele frequency",
+       y = "Difference in Levenshtein string distances between\nthe genotyped and the imputed datasets") +
+  #scale_y_continuous(limits = c(0,1)) +
+  theme(axis.text.x = element_text(colour = "black", size = rel(1.125)),
+        axis.text.y = element_text(colour = "black", size = rel(1.125)),
+        axis.title.x = element_text(colour = "black", size = rel(1.5)),
+        axis.title.y = element_text(colour = "black", size = rel(1.5)),
+        legend.text = element_text(size = rel(1.0)),
+        legend.title = element_text(size = rel(1.25)),
+        legend.position= "top",
+        plot.title = element_blank(),
+        strip.text.x = element_text(size = rel(5/5)),
+        strip.text.y = element_text(size = rel(5/5),),
+        panel.grid.major.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.minor.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        panel.background = element_rect(fill = "transparent", colour = "black"),
+        strip.background = element_rect(fill = "transparent", colour = NA),
+        legend.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA)) +
+  coord_flip()
+```
+
+```{r minor-allele-frequency-hg-dist-lv-diff-cutoff-table, echo = F}
+hg_dist_lv_lm = lm(haplogrep_distance_lv_cutoff_diff ~ refpan_maf, data = maf_combined_summary_means)
+kable(anova(hg_dist_lv_lm), caption = "Table showing the residuals for the linear model testing for significant difference in the Levenshtein string distance between assigned haplogroups")
+hg_dist_lv_lm_sum = summary(emmeans(hg_dist_lv_lm, pairwise ~ refpan_maf))
+kable(hg_dist_lv_lm_sum$emmeans, caption = "Table showing the estimated marginal means for the linear model testing for significant difference in the means of imputed significant difference in the Levenshtein string distance between assigned haplogroups for different Reference Panel minor allele frequency filtering thresholds")
+kable(hg_dist_lv_lm_sum$contrasts, caption = "Table showing the contrasts for the linear model testing for significant difference in the means of significant difference in the Levenshtein string distance between assigned haplogroups for different Reference Panel minor allele frequency filtering thresholds")
+```
+
+### HaploGrep string distance (Jaccard)
+We also examined the distance between the strings in assigned haplogroups, as measures of haplogroup concordance may be misleading if one sub-haplogroup isn't correctly assigned. We used a few different measures, as different measures of distance will provide different results.
+All results are between the genotyped dataset and the imputed dataset with a info filter of `info > 0.3`
+
+This result shows the Levenshtein distance:
+```{r minor-allele-frequency-hg-dist-jc-diff-cutoff, echo = F, fig.cap = "Boxplot of mean Jaccard string distance between the truth set and the imputed data. Haplogroups were assigned using HaploGrep. This data does include a filter to remove imputed data points below info ≤ 0.3"}
+ggplot(maf_combined_summary_means, aes(x = refpan_maf, y = haplogrep_distance_jc_cutoff_diff)) +
+  geom_violin(na.rm = T, fill = pal_cols[2], alpha = (1/4), lwd = (1/4)) +
+  geom_boxplot(na.rm = T, fill = pal_cols[2], alpha = (1/2), lwd = (1/4), width = (1/4), outlier.alpha = (1/1)) +
+  labs(x = "Reference panel\nminor allele frequency",
+       y = "Difference in Jaccard string distances between\nthe genotyped and the imputed datasets") +
+  #scale_y_continuous(limits = c(0,1)) +
+  theme(axis.text.x = element_text(colour = "black", size = rel(1.125)),
+        axis.text.y = element_text(colour = "black", size = rel(1.125)),
+        axis.title.x = element_text(colour = "black", size = rel(1.5)),
+        axis.title.y = element_text(colour = "black", size = rel(1.5)),
+        legend.text = element_text(size = rel(1.0)),
+        legend.title = element_text(size = rel(1.25)),
+        legend.position= "top",
+        plot.title = element_blank(),
+        strip.text.x = element_text(size = rel(5/5)),
+        strip.text.y = element_text(size = rel(5/5),),
+        panel.grid.major.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.minor.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        panel.background = element_rect(fill = "transparent", colour = "black"),
+        strip.background = element_rect(fill = "transparent", colour = NA),
+        legend.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA)) +
+  coord_flip()
+```
+
+```{r minor-allele-frequency-hg-dist-jc-diff-cutoff-table, echo = F}
+hg_dist_jc_lm = lm(haplogrep_distance_jc_cutoff_diff ~ refpan_maf, data = maf_combined_summary_means)
+kable(anova(hg_dist_jc_lm), caption = "Table showing the residuals for the linear model testing for significant difference in the Jaccard string distance between assigned haplogroups")
+hg_dist_jc_lm_sum = summary(emmeans(hg_dist_jc_lm, pairwise ~ refpan_maf))
+kable(hg_dist_jc_lm_sum$emmeans, caption = "Table showing the estimated marginal means for the linear model testing for significant difference in the means of imputed significant difference in the Jaccard string distance between assigned haplogroups for different Reference Panel minor allele frequency filtering thresholds")
+kable(hg_dist_jc_lm_sum$contrasts, caption = "Table showing the contrasts for the linear model testing for significant difference in the means of significant difference in the Jaccard string distance between assigned haplogroups for different Reference Panel minor allele frequency filtering thresholds")
+```
+
+## Matthew's Correlation Coefficient (MCC)
+We also determined imputation accuracy using the Matthew's correlation coefficient (MCC).
+The MCC is a more direct method of measuring the imputation accuracy of genotypes (as opposed to haplotypes).
+
+```{r minor-allele-frequency-mcc-imp-cutoff, echo = F, fig.cap = "Boxplot of mean Matthew's correlation coefficient between the truth set and the imputed data. Haplogroups were assigned using HaploGrep. This data does include a filter to remove imputed data points below info ≤ 0.3"}
+ggplot(maf_combined_summary_means, aes(x = refpan_maf, y = mean_mcc_cutoff)) +
+  geom_violin(na.rm = T, fill = pal_cols[2], alpha = (1/4), lwd = (1/4)) +
+  geom_boxplot(na.rm = T, fill = pal_cols[2], alpha = (1/2), lwd = (1/4), width = (1/4), outlier.alpha = (1/1)) +
+  labs(x = "Reference panel\nminor allele frequency",
+       y = "Matthew's correlation coefficient between the truth set and the imputed dataset") +
+  #scale_y_continuous(limits = c(0,1)) +
+  theme(axis.text.x = element_text(colour = "black", size = rel(1.125)),
+        axis.text.y = element_text(colour = "black", size = rel(1.125)),
+        axis.title.x = element_text(colour = "black", size = rel(1.5)),
+        axis.title.y = element_text(colour = "black", size = rel(1.5)),
+        legend.text = element_text(size = rel(1.0)),
+        legend.title = element_text(size = rel(1.25)),
+        legend.position= "top",
+        plot.title = element_blank(),
+        strip.text.x = element_text(size = rel(5/5)),
+        strip.text.y = element_text(size = rel(5/5),),
+        panel.grid.major.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.minor.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        panel.background = element_rect(fill = "transparent", colour = "black"),
+        strip.background = element_rect(fill = "transparent", colour = NA),
+        legend.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA)) +
+  coord_flip()
+```
+
+```{r minor-allele-frequency-mcc-imp-cutoff-table, echo = F}
+mcc_cutoff_lm = lm(mean_mcc_cutoff ~ refpan_maf, data = maf_combined_summary_means)
+kable(anova(mcc_cutoff_lm), caption = "Table showing the residuals for the linear model testing for significant difference in the Matthew's correlation coefficient between assigned haplogroups")
+mcc_cutoff_lm_sum = summary(emmeans(mcc_cutoff_lm, pairwise ~ refpan_maf))
+kable(mcc_cutoff_lm_sum$emmeans, caption = "Table showing the estimated marginal means for the linear model testing for significant difference in the means of Matthew's correlation coefficient for different Reference Panel minor allele frequency filtering thresholds")
+kable(mcc_cutoff_lm_sum$contrasts, caption = "Table showing the contrasts for the linear model testing for significant difference in the means of Matthew's correlation coefficient for different Reference Panel minor allele frequency filtering thresholds")
+```
+
+## IMPUTE2 INFO Score
+We are also reporting IMPUTE2's INFO score. Here I will plot INFO scores for both the raw imputed data, and the imputed data after info score filtering
+
+```{r minor-allele-frequency-info, echo = F, fig.cap = "Boxplot of mean info score between the truth set and the imputed data. Haplogroups were assigned using HaploGrep. This data does not include a filter to remove imputed data points below info ≤ 0.3"}
+ggplot(maf_combined_summary_means, aes(x = refpan_maf, y = mean_info)) +
+  geom_violin(na.rm = T, fill = pal_cols[2], alpha = (1/4), lwd = (1/4)) +
+  geom_boxplot(na.rm = T, fill = pal_cols[2], alpha = (1/2), lwd = (1/4), width = (1/4), outlier.alpha = (1/1)) +
+  labs(x = "Reference panel\nminor allele frequency",
+       y = "IMPUTE2 INFO Score") +
+  #scale_y_continuous(limits = c(0,1)) +
+  theme(axis.text.x = element_text(colour = "black", size = rel(1.125)),
+        axis.text.y = element_text(colour = "black", size = rel(1.125)),
+        axis.title.x = element_text(colour = "black", size = rel(1.5)),
+        axis.title.y = element_text(colour = "black", size = rel(1.5)),
+        legend.text = element_text(size = rel(1.0)),
+        legend.title = element_text(size = rel(1.25)),
+        legend.position= "top",
+        plot.title = element_blank(),
+        strip.text.x = element_text(size = rel(5/5)),
+        strip.text.y = element_text(size = rel(5/5),),
+        panel.grid.major.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.minor.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        panel.background = element_rect(fill = "transparent", colour = "black"),
+        strip.background = element_rect(fill = "transparent", colour = NA),
+        legend.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA)) +
+  coord_flip()
+```
+
+```{r minor-allele-frequency-info-table, echo = F}
+info_lm = lm(mean_info ~ refpan_maf, data = maf_combined_summary_means)
+kable(anova(info_lm), caption = "Table showing the residuals for the linear model testing for significant difference in the IMPUTE2 INFO Score between assigned haplogroups")
+info_lm_sum = summary(emmeans(info_lm, pairwise ~ refpan_maf))
+kable(info_lm_sum$emmeans, caption = "Table showing the estimated marginal means for the linear model testing for significant difference in the means ofIMPUTE2 INFO Score for different Reference Panel minor allele frequency filtering thresholds")
+kable(info_lm_sum$contrasts, caption = "Table showing the contrasts for the linear model testing for significant difference in the means of IMPUTE2 INFO Score for different Reference Panel minor allele frequency filtering thresholds")
+```
+
+```{r minor-allele-frequency-info-cutoff, echo = F, fig.cap = "Boxplot of mean info score between the truth set and the imputed data. Haplogroups were assigned using HaploGrep. This data does include a filter to remove imputed data points below info ≤ 0.3"}
+ggplot(maf_combined_summary_means, aes(x = refpan_maf, y = mean_info_cutoff)) +
+  geom_violin(na.rm = T, fill = pal_cols[2], alpha = (1/4), lwd = (1/4)) +
+  geom_boxplot(na.rm = T, fill = pal_cols[2], alpha = (1/2), lwd = (1/4), width = (1/4), outlier.alpha = (1/1)) +
+  labs(x = "Reference panel\nminor allele frequency",
+       y = "IMPUTE2 INFO Score\n(following filtering to info > 0.3)") +
+  #scale_y_continuous(limits = c(0,1)) +
+  theme(axis.text.x = element_text(colour = "black", size = rel(1.125)),
+        axis.text.y = element_text(colour = "black", size = rel(1.125)),
+        axis.title.x = element_text(colour = "black", size = rel(1.5)),
+        axis.title.y = element_text(colour = "black", size = rel(1.5)),
+        legend.text = element_text(size = rel(1.0)),
+        legend.title = element_text(size = rel(1.25)),
+        legend.position= "top",
+        plot.title = element_blank(),
+        strip.text.x = element_text(size = rel(5/5)),
+        strip.text.y = element_text(size = rel(5/5),),
+        panel.grid.major.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.minor.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        panel.background = element_rect(fill = "transparent", colour = "black"),
+        strip.background = element_rect(fill = "transparent", colour = NA),
+        legend.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA)) +
+  coord_flip()
+```
+
+```{r minor-allele-frequency-info-cutoff-table, echo = F}
+info_cutoff_lm = lm(mean_info_cutoff ~ refpan_maf, data = maf_combined_summary_means)
+kable(anova(info_cutoff_lm), caption = "Table showing the residuals for the linear model testing for significant difference in the IMPUTE2 INFO Score (following filtering to info > 0.3) between assigned haplogroups")
+info_cutoff_lm_sum = summary(emmeans(info_cutoff_lm, pairwise ~ refpan_maf))
+kable(info_cutoff_lm_sum$emmeans, caption = "Table showing the estimated marginal means for the linear model testing for significant difference in the means ofIMPUTE2 INFO Score (following filtering to info > 0.3) for different Reference Panel minor allele frequency filtering thresholds")
+kable(info_cutoff_lm_sum$contrasts, caption = "Table showing the contrasts for the linear model testing for significant difference in the means of IMPUTE2 INFO Score (following filtering to info > 0.3) for different Reference Panel minor allele frequency filtering thresholds")
+```
 
 # DERLETE LATER
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+# DERLETE LATER 2
+
+# Number of included reference haplotypes (k_hap) experiments
+This section will detail the Number of included reference haplotypes (k_hap) experiments.
+
+
+```{r num-ref-haplotypes-khap-wrangle, echo = F}
+khap_combined_summary = khap_combined_summary %>% 
+  mutate(array = as.factor(array),
+         refpan_maf = factor(refpan_maf,
+                        levels = maf.var,
+                        labels = maf.var,
+                        ordered = T),
+         k_hap = factor(k_hap,
+                        levels = khap.var,
+                        labels = khap.var,
+                        ordered = T))
+
+khap_combined_summary_means = khap_combined_summary %>%
+  select(c(1:17), contains("mean")) %>%
+  mutate(himc_diff              = mean_himc_concordance_imputed              - mean_himc_concordance_typed,
+         himc_cutoff_diff       = mean_himc_concordance_imputed_cutoff       - mean_himc_concordance_typed,
+         himc_macro_diff        = mean_himc_concordance_imputed_macro        - mean_himc_concordance_typed_macro,
+         himc_macro_cutoff_diff = mean_himc_concordance_imputed_macro_cutoff - mean_himc_concordance_typed_macro,
+         # HAPLOGREP CONCORDANCE
+         haplogrep_diff              = mean_haplogrep_concordance_imputed              - mean_haplogrep_concordance_typed,
+         haplogrep_cutoff_diff       = mean_haplogrep_concordance_imputed_cutoff       - mean_haplogrep_concordance_typed,
+         haplogrep_macro_diff        = mean_haplogrep_concordance_imputed_macro        - mean_haplogrep_concordance_typed_macro,
+         haplogrep_macro_cutoff_diff = mean_haplogrep_concordance_imputed_macro_cutoff - mean_haplogrep_concordance_typed_macro,
+         # HAPLOGREP QUALITY - IMPUTED | TYPED
+         haplogrep_quality_diff              = mean_haplogrep_quality_imputed              - mean_haplogrep_quality_typed,
+         haplogrep_quality_cutoff_diff       = mean_haplogrep_quality_imputed_cutoff       - mean_haplogrep_quality_typed,
+         # HAPLOGREP QUALITY - TRUTH | TYPED + IMPUTED
+         haplogrep_quality_diff_truth_typed                = mean_haplogrep_quality_truth       - mean_haplogrep_quality_typed,
+         haplogrep_quality_diff_truth_imputed              = mean_haplogrep_quality_truth       - mean_haplogrep_quality_imputed,
+         haplogrep_quality_diff_truth_imputed_cutoff       = mean_haplogrep_quality_truth       - mean_haplogrep_quality_imputed_cutoff,
+         # HAPLOGREP DISTANCE DL
+         haplogrep_distance_dl_diff              = mean_haplogrep_distance_dl_imputed              - mean_haplogrep_distance_dl_typed,
+         haplogrep_distance_dl_cutoff_diff       = mean_haplogrep_distance_dl_imputed_cutoff       - mean_haplogrep_distance_dl_typed,
+         # HAPLOGREP DISTANCE LV
+         haplogrep_distance_lv_diff              = mean_haplogrep_distance_lv_imputed              - mean_haplogrep_distance_lv_typed,
+         haplogrep_distance_lv_cutoff_diff       = mean_haplogrep_distance_lv_imputed_cutoff       - mean_haplogrep_distance_lv_typed,
+         # HAPLOGREP DISTANCE JC
+         haplogrep_distance_jc_diff              = mean_haplogrep_distance_jc_imputed              - mean_haplogrep_distance_jc_typed,
+         haplogrep_distance_jc_cutoff_diff       = mean_haplogrep_distance_jc_imputed_cutoff       - mean_haplogrep_distance_jc_typed)
+glimpse(khap_combined_summary_means)
+```
+
+## HiMC
+### HiMC Haplogrouping
+We previously found that imputing missing variants increased the accuracy of haplogroup assignments when using HiMC to assign haplogroups.
+
+```{r num-ref-haplotypes-khap-hg-conc-typed-himc, echo = F, fig.cap = "Boxplot of mean haplogroup concordance between the truth set and the genotyped data. Haplogroups were assigned using HiMC"}
+ggplot(khap_combined_summary_means, aes(x = fct_rev(k_hap), y = mean_himc_concordance_typed)) +
+  geom_violin(na.rm = T, fill = pal_cols[1], alpha = (1/4), lwd = (1/4)) +
+  geom_boxplot(na.rm = T, fill = pal_cols[1], alpha = (1/2), lwd = (1/4), width = (1/4), outlier.alpha = (1/1)) +
+  labs(x = "Included reference haplotypes\n(k_hap)",
+       y = "Fraction haplogroup corcordance of\ngenotyped dataset with truth set") +
+  scale_y_continuous(limits = c(0,1)) +
+  theme(axis.text.x = element_text(colour = "black", size = rel(1.125)),
+        axis.text.y = element_text(colour = "black", size = rel(1.125)),
+        axis.title.x = element_text(colour = "black", size = rel(1.5)),
+        axis.title.y = element_text(colour = "black", size = rel(1.5)),
+        legend.text = element_text(size = rel(1.0)),
+        legend.title = element_text(size = rel(1.25)),
+        legend.position= "top",
+        plot.title = element_blank(),
+        strip.text.x = element_text(size = rel(5/5)),
+        strip.text.y = element_text(size = rel(5/5),),
+        panel.grid.major.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.minor.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        panel.background = element_rect(fill = "transparent", colour = "black"),
+        strip.background = element_rect(fill = "transparent", colour = NA),
+        legend.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA)) +
+  coord_flip()
+```
+
+Compare this result with the imputed data, which shows a higher haplogroup concordance:
+```{r num-ref-haplotypes-khap-hg-conc-imputed-himc, echo = F, fig.cap = "Boxplot of mean haplogroup concordance between the truth set and the imputed data. Haplogroups were assigned using HiMC. This data does not include a filter to remove imputed data points below info ≤ 0.3"}
+ggplot(khap_combined_summary_means, aes(x = fct_rev(k_hap), y = mean_himc_concordance_imputed)) +
+  geom_violin(na.rm = T, fill = pal_cols[1], alpha = (1/4), lwd = (1/4)) +
+  geom_boxplot(na.rm = T, fill = pal_cols[1], alpha = (1/2), lwd = (1/4), width = (1/4), outlier.alpha = (1/1)) +
+  labs(x = "Included reference haplotypes\n(k_hap)",
+       y = "Fraction haplogroup corcordance of\nimputed dataset with truth set") +
+  scale_y_continuous(limits = c(0,1)) +
+  theme(axis.text.x = element_text(colour = "black", size = rel(1.125)),
+        axis.text.y = element_text(colour = "black", size = rel(1.125)),
+        axis.title.x = element_text(colour = "black", size = rel(1.5)),
+        axis.title.y = element_text(colour = "black", size = rel(1.5)),
+        legend.text = element_text(size = rel(1.0)),
+        legend.title = element_text(size = rel(1.25)),
+        legend.position= "top",
+        plot.title = element_blank(),
+        strip.text.x = element_text(size = rel(5/5)),
+        strip.text.y = element_text(size = rel(5/5),),
+        panel.grid.major.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.minor.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        panel.background = element_rect(fill = "transparent", colour = "black"),
+        strip.background = element_rect(fill = "transparent", colour = NA),
+        legend.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA)) +
+  coord_flip()
+```
+
+If the improvement in accurate assignment of haplogroups wasn't evident from the last two plots, displaying the mean difference should make this clear:
+```{r num-ref-haplotypes-khap-hg-conc-diff-himc, echo = F, fig.cap = "Boxplot of mean difference in haplogroup concordance between the genotyped set and the imputed data relative to the truth set. Haplogroups were assigned using HiMC. The imputed data does not include a filter to remove imputed data points below info ≤ 0.3"}
+ggplot(khap_combined_summary_means, aes(x = fct_rev(k_hap), y = himc_diff)) +
+  geom_violin(na.rm = T, fill = pal_cols[1], alpha = (1/4), lwd = (1/4)) +
+  geom_boxplot(na.rm = T, fill = pal_cols[1], alpha = (1/2), lwd = (1/4), width = (1/4), outlier.alpha = (1/1)) +
+  labs(x = "Included reference haplotypes\n(k_hap)",
+       y = "Difference in haplogroup concordance between\ngenotyped and imputed dataset") +
+  #scale_y_continuous(limits = c(0,1)) +
+  theme(axis.text.x = element_text(colour = "black", size = rel(1.125)),
+        axis.text.y = element_text(colour = "black", size = rel(1.125)),
+        axis.title.x = element_text(colour = "black", size = rel(1.5)),
+        axis.title.y = element_text(colour = "black", size = rel(1.5)),
+        legend.text = element_text(size = rel(1.0)),
+        legend.title = element_text(size = rel(1.25)),
+        legend.position= "top",
+        plot.title = element_blank(),
+        strip.text.x = element_text(size = rel(5/5)),
+        strip.text.y = element_text(size = rel(5/5),),
+        panel.grid.major.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.minor.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        panel.background = element_rect(fill = "transparent", colour = "black"),
+        strip.background = element_rect(fill = "transparent", colour = NA),
+        legend.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA)) +
+  coord_flip()
+```
+
+```{r num-ref-haplotypes-khap-hg-conc-imputed-lm-himc, echo = F, fig.cap = "Boxplot of mean difference in macrohaplogroup concordance between the genotyped set and the imputed data relative to the truth set. Haplogroups were assigned using HiMC. The imputed data does not include a filter to remove imputed data points below info ≤ 0.3"}
+himc_imp_lm = lm(mean_himc_concordance_imputed ~ k_hap, data = khap_combined_summary_means)
+kable(anova(himc_imp_lm), caption = "Table showing the residuals for the linear model testing for significant difference in the means of imputed haplogroup concordance")
+himc_imp_lm_sum = summary(emmeans(himc_imp_lm, pairwise ~ k_hap))
+kable(himc_imp_lm_sum$emmeans, caption = "Table showing the estimated marginal means for the linear model testing for significant difference in the means of imputed haplogroup concordance for different Reference Panel Number of included reference haplotypes (k_hap) filtering thresholds")
+kable(himc_imp_lm_sum$contrasts, caption = "Table showing the contrasts for the linear model testing for significant difference in the means of imputed haplogroup concordance for different Reference Panel Number of included reference haplotypes (k_hap) filtering thresholds")
+
+himc_diff_lm = lm(himc_diff ~ k_hap, data = khap_combined_summary_means)
+kable(anova(himc_diff_lm), caption = "Table showing the residuals for the linear model testing for significant difference in the mean concordance of assigned haplogroups between genotyped and imputed data")
+himc_diff_lm_sum = summary(emmeans(himc_diff_lm, pairwise ~ k_hap))
+kable(himc_diff_lm_sum$emmeans, caption = "Table showing the estimated marginal means for the linear model testing for significant difference in the the mean concordance of assigned haplogroups between genotyped and imputed data for different Reference Panel Number of included reference haplotypes (k_hap) filtering thresholds")
+kable(himc_diff_lm_sum$contrasts, caption = "Table showing the contrasts for the linear model testing for significant difference in the the mean concordance of assigned haplogroups between genotyped and imputed data for different Reference Panel Number of included reference haplotypes (k_hap) filtering thresholds")
+```
+
+### HiMC Macrohaplogrouping
+The trend of which can be further seen when only macro-haplogroups are considered:
+```{r num-ref-haplotypes-khap-macrohg-conc-typed-himc, echo = F, fig.cap = "Boxplot of mean macrohaplogroup concordance between the truth set and the genotyped data. Haplogroups were assigned using HiMC"}
+ggplot(khap_combined_summary_means, aes(x = fct_rev(k_hap), y = mean_himc_concordance_typed_macro)) +
+  geom_violin(na.rm = T, fill = pal_cols[1], alpha = (1/4), lwd = (1/4)) +
+  geom_boxplot(na.rm = T, fill = pal_cols[1], alpha = (1/2), lwd = (1/4), width = (1/4), outlier.alpha = (1/1)) +
+  labs(x = "Included reference haplotypes\n(k_hap)",
+       y = "Fraction macrohaplogroup corcordance of\ngenotyped dataset with truth set") +
+  scale_y_continuous(limits = c(0,1)) +
+  theme(axis.text.x = element_text(colour = "black", size = rel(1.125)),
+        axis.text.y = element_text(colour = "black", size = rel(1.125)),
+        axis.title.x = element_text(colour = "black", size = rel(1.5)),
+        axis.title.y = element_text(colour = "black", size = rel(1.5)),
+        legend.text = element_text(size = rel(1.0)),
+        legend.title = element_text(size = rel(1.25)),
+        legend.position= "top",
+        plot.title = element_blank(),
+        strip.text.x = element_text(size = rel(5/5)),
+        strip.text.y = element_text(size = rel(5/5),),
+        panel.grid.major.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.minor.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        panel.background = element_rect(fill = "transparent", colour = "black"),
+        strip.background = element_rect(fill = "transparent", colour = NA),
+        legend.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA)) +
+  coord_flip()
+```
+
+Compare this result with the imputed data, which shows a higher haplogroup concordance:
+```{r num-ref-haplotypes-khap-macrohg-conc-imputed-himc, echo = F, fig.cap = "Boxplot of mean macrohaplogroup concordance between the truth set and the imputed data. Haplogroups were assigned using HiMC. This data does not include a filter to remove imputed data points below info ≤ 0.3"}
+ggplot(khap_combined_summary_means, aes(x = fct_rev(k_hap), y = mean_himc_concordance_imputed_macro)) +
+  geom_violin(na.rm = T, fill = pal_cols[1], alpha = (1/4), lwd = (1/4)) +
+  geom_boxplot(na.rm = T, fill = pal_cols[1], alpha = (1/2), lwd = (1/4), width = (1/4), outlier.alpha = (1/1)) +
+  labs(x = "Included reference haplotypes\n(k_hap)",
+       y = "Fraction macrohaplogroup corcordance of\nimputed dataset with truth set") +
+  scale_y_continuous(limits = c(0,1)) +
+  theme(axis.text.x = element_text(colour = "black", size = rel(1.125)),
+        axis.text.y = element_text(colour = "black", size = rel(1.125)),
+        axis.title.x = element_text(colour = "black", size = rel(1.5)),
+        axis.title.y = element_text(colour = "black", size = rel(1.5)),
+        legend.text = element_text(size = rel(1.0)),
+        legend.title = element_text(size = rel(1.25)),
+        legend.position= "top",
+        plot.title = element_blank(),
+        strip.text.x = element_text(size = rel(5/5)),
+        strip.text.y = element_text(size = rel(5/5),),
+        panel.grid.major.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.minor.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        panel.background = element_rect(fill = "transparent", colour = "black"),
+        strip.background = element_rect(fill = "transparent", colour = NA),
+        legend.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA)) +
+  coord_flip()
+```
+
+If the improvement in accurate assignment of haplogroups wasn't evident from the last two plots, displaying the mean difference should make this clear:
+```{r num-ref-haplotypes-khap-macrohg-conc-diff-himc, echo = F, fig.cap = "Boxplot of mean difference in macrohaplogroup concordance between the genotyped set and the imputed data relative to the truth set. Haplogroups were assigned using HiMC. The imputed data does not include a filter to remove imputed data points below info ≤ 0.3"}
+ggplot(khap_combined_summary_means, aes(x = fct_rev(k_hap), y = himc_macro_diff)) +
+  geom_violin(na.rm = T, fill = pal_cols[1], alpha = (1/4), lwd = (1/4)) +
+  geom_boxplot(na.rm = T, fill = pal_cols[1], alpha = (1/2), lwd = (1/4), width = (1/4), outlier.alpha = (1/1)) +
+  labs(x = "Included reference haplotypes\n(k_hap)",
+       y = "Difference in macrohaplogroup concordance between\ngenotyped and imputed dataset") +
+  #scale_y_continuous(limits = c(0,1)) +
+  theme(axis.text.x = element_text(colour = "black", size = rel(1.125)),
+        axis.text.y = element_text(colour = "black", size = rel(1.125)),
+        axis.title.x = element_text(colour = "black", size = rel(1.5)),
+        axis.title.y = element_text(colour = "black", size = rel(1.5)),
+        legend.text = element_text(size = rel(1.0)),
+        legend.title = element_text(size = rel(1.25)),
+        legend.position= "top",
+        plot.title = element_blank(),
+        strip.text.x = element_text(size = rel(5/5)),
+        strip.text.y = element_text(size = rel(5/5),),
+        panel.grid.major.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.minor.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        panel.background = element_rect(fill = "transparent", colour = "black"),
+        strip.background = element_rect(fill = "transparent", colour = NA),
+        legend.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA)) +
+  coord_flip()
+```
+
+These can be statistically tested with linear models:
+```{r num-ref-haplotypes-khap-macrohg-conc-imputed-lm-himc, echo = F, fig.cap = "Boxplot of mean difference in macrohaplogroup concordance between the genotyped set and the imputed data relative to the truth set. Haplogroups were assigned using HiMC. The imputed data does not include a filter to remove imputed data points below info ≤ 0.3"}
+himc_macro_imp_lm = lm(mean_himc_concordance_imputed_macro ~ k_hap, data = khap_combined_summary_means)
+kable(anova(himc_macro_imp_lm), caption = "Table showing the residuals for the linear model testing for significant difference in the means of imputed macrohaplogroup concordance")
+himc_macro_imp_lm_sum = summary(emmeans(himc_macro_imp_lm, pairwise ~ k_hap))
+kable(himc_macro_imp_lm_sum$emmeans, caption = "Table showing the estimated marginal means for the linear model testing for significant difference in the means of imputed macrohaplogroup concordance for different Reference Panel Number of included reference haplotypes (k_hap) filtering thresholds")
+kable(himc_macro_imp_lm_sum$contrasts, caption = "Table showing the contrasts for the linear model testing for significant difference in the means of imputed macrohaplogroup concordance for different Reference Panel Number of included reference haplotypes (k_hap) filtering thresholds")
+
+himc_macro_diff_lm = lm(himc_macro_diff ~ k_hap, data = khap_combined_summary_means)
+kable(anova(himc_macro_diff_lm), caption = "Table showing the residuals for the linear model testing for significant difference in the mean concordance of assigned macroaplogroups between genotyped and imputed data")
+himc_macro_diff_lm_sum = summary(emmeans(himc_macro_diff_lm, pairwise ~ k_hap))
+kable(himc_macro_diff_lm_sum$emmeans, caption = "Table showing the estimated marginal means for the linear model testing for significant difference in the the mean concordance of assigned macrohaplogroups between genotyped and imputed data for different Reference Panel Number of included reference haplotypes (k_hap) filtering thresholds")
+kable(himc_macro_diff_lm_sum$contrasts, caption = "Table showing the contrasts for the linear model testing for significant difference in the the mean concordance of assigned macrohaplogroups between genotyped and imputed data for different Reference Panel Number of included reference haplotypes (k_hap) filtering thresholds")
+```
+
+These results suggest that there is **no statistically significant difference** in accurate assignment of haplogroups or macrohaplogroups between different Reference Panel Number of included reference haplotypes (k_hap) filtering thresholds.
+
+## HaploGrep 2.0
+### HaploGrep Haplogrouping
+We are investigating using HaploGrep 2.0 for assigning haplogroups, as HaploGrep has a greater ability to assign haplogroups that cover all sub-groupings.
+
+```{r num-ref-haplotypes-khap-hg-conc-typed-haplogrep, echo = F, fig.cap = "Boxplot of mean haplogroup concordance between the truth set and the genotyped data. Haplogroups were assigned using HaploGrep"}
+ggplot(khap_combined_summary_means, aes(x = fct_rev(k_hap), y = mean_haplogrep_concordance_typed)) +
+  geom_violin(na.rm = T, fill = pal_cols[1], alpha = (1/4), lwd = (1/4)) +
+  geom_boxplot(na.rm = T, fill = pal_cols[1], alpha = (1/2), lwd = (1/4), width = (1/4), outlier.alpha = (1/1)) +
+  labs(x = "Included reference haplotypes\n(k_hap)",
+       y = "Fraction haplogroup corcordance of\ngenotyped dataset with truth set") +
+  scale_y_continuous(limits = c(0,1)) +
+  theme(axis.text.x = element_text(colour = "black", size = rel(1.125)),
+        axis.text.y = element_text(colour = "black", size = rel(1.125)),
+        axis.title.x = element_text(colour = "black", size = rel(1.5)),
+        axis.title.y = element_text(colour = "black", size = rel(1.5)),
+        legend.text = element_text(size = rel(1.0)),
+        legend.title = element_text(size = rel(1.25)),
+        legend.position= "top",
+        plot.title = element_blank(),
+        strip.text.x = element_text(size = rel(5/5)),
+        strip.text.y = element_text(size = rel(5/5),),
+        panel.grid.major.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.minor.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        panel.background = element_rect(fill = "transparent", colour = "black"),
+        strip.background = element_rect(fill = "transparent", colour = NA),
+        legend.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA)) +
+  coord_flip()
+```
+
+Compare this result with the imputed data, which shows a higher haplogroup concordance:
+```{r num-ref-haplotypes-khap-hg-conc-imputed-haplogrep, echo = F, fig.cap = "Boxplot of mean haplogroup concordance between the truth set and the imputed data. Haplogroups were assigned using HaploGrep. This data does not include a filter to remove imputed data points below info ≤ 0.3"}
+ggplot(khap_combined_summary_means, aes(x = fct_rev(k_hap), y = mean_haplogrep_concordance_imputed)) +
+  geom_violin(na.rm = T, fill = pal_cols[1], alpha = (1/4), lwd = (1/4)) +
+  geom_boxplot(na.rm = T, fill = pal_cols[1], alpha = (1/2), lwd = (1/4), width = (1/4), outlier.alpha = (1/1)) +
+  labs(x = "Included reference haplotypes\n(k_hap)",
+       y = "Fraction haplogroup corcordance of\nimputed dataset with truth set") +
+  scale_y_continuous(limits = c(0,1)) +
+  theme(axis.text.x = element_text(colour = "black", size = rel(1.125)),
+        axis.text.y = element_text(colour = "black", size = rel(1.125)),
+        axis.title.x = element_text(colour = "black", size = rel(1.5)),
+        axis.title.y = element_text(colour = "black", size = rel(1.5)),
+        legend.text = element_text(size = rel(1.0)),
+        legend.title = element_text(size = rel(1.25)),
+        legend.position= "top",
+        plot.title = element_blank(),
+        strip.text.x = element_text(size = rel(5/5)),
+        strip.text.y = element_text(size = rel(5/5),),
+        panel.grid.major.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.minor.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        panel.background = element_rect(fill = "transparent", colour = "black"),
+        strip.background = element_rect(fill = "transparent", colour = NA),
+        legend.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA)) +
+  coord_flip()
+```
+
+If the improvement in accurate assignment of haplogroups wasn't evident from the last two plots, displaying the mean difference should make this clear:
+```{r num-ref-haplotypes-khap-hg-conc-diff-haplogrep, echo = F, fig.cap = "Boxplot of mean difference in haplogroup concordance between the genotyped set and the imputed data relative to the truth set. Haplogroups were assigned using HaploGrep. The imputed data does not include a filter to remove imputed data points below info ≤ 0.3"}
+ggplot(khap_combined_summary_means, aes(x = fct_rev(k_hap), y = haplogrep_diff)) +
+  geom_violin(na.rm = T, fill = pal_cols[1], alpha = (1/4), lwd = (1/4)) +
+  geom_boxplot(na.rm = T, fill = pal_cols[1], alpha = (1/2), lwd = (1/4), width = (1/4), outlier.alpha = (1/1)) +
+  labs(x = "Included reference haplotypes\n(k_hap)",
+       y = "Difference in haplogroup concordance between\ngenotyped and imputed dataset") +
+  #scale_y_continuous(limits = c(0,1)) +
+  theme(axis.text.x = element_text(colour = "black", size = rel(1.125)),
+        axis.text.y = element_text(colour = "black", size = rel(1.125)),
+        axis.title.x = element_text(colour = "black", size = rel(1.5)),
+        axis.title.y = element_text(colour = "black", size = rel(1.5)),
+        legend.text = element_text(size = rel(1.0)),
+        legend.title = element_text(size = rel(1.25)),
+        legend.position= "top",
+        plot.title = element_blank(),
+        strip.text.x = element_text(size = rel(5/5)),
+        strip.text.y = element_text(size = rel(5/5),),
+        panel.grid.major.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.minor.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        panel.background = element_rect(fill = "transparent", colour = "black"),
+        strip.background = element_rect(fill = "transparent", colour = NA),
+        legend.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA)) +
+  coord_flip()
+```
+
+```{r num-ref-haplotypes-khap-hg-conc-imputed-lm-haplogrep, echo = F, fig.cap = "Boxplot of mean difference in macrohaplogroup concordance between the genotyped set and the imputed data relative to the truth set. Haplogroups were assigned using HaploGrep. The imputed data does not include a filter to remove imputed data points below info ≤ 0.3"}
+haplogrep_imp_lm = lm(mean_haplogrep_concordance_imputed ~ k_hap, data = khap_combined_summary_means)
+kable(anova(haplogrep_imp_lm), caption = "Table showing the residuals for the linear model testing for significant difference in the means of imputed haplogroup concordance")
+haplogrep_imp_lm_sum = summary(emmeans(haplogrep_imp_lm, pairwise ~ k_hap))
+kable(haplogrep_imp_lm_sum$emmeans, caption = "Table showing the estimated marginal means for the linear model testing for significant difference in the means of imputed haplogroup concordance for different Reference Panel Number of included reference haplotypes (k_hap) filtering thresholds")
+kable(haplogrep_imp_lm_sum$contrasts, caption = "Table showing the contrasts for the linear model testing for significant difference in the means of imputed haplogroup concordance for different Reference Panel Number of included reference haplotypes (k_hap) filtering thresholds")
+
+haplogrep_diff_lm = lm(haplogrep_diff ~ k_hap, data = khap_combined_summary_means)
+kable(anova(haplogrep_diff_lm), caption = "Table showing the residuals for the linear model testing for significant difference in the mean concordance of assigned haplogroups between genotyped and imputed data")
+haplogrep_diff_lm_sum = summary(emmeans(haplogrep_diff_lm, pairwise ~ k_hap))
+kable(haplogrep_diff_lm_sum$emmeans, caption = "Table showing the estimated marginal means for the linear model testing for significant difference in the the mean concordance of assigned haplogroups between genotyped and imputed data for different Reference Panel Number of included reference haplotypes (k_hap) filtering thresholds")
+kable(haplogrep_diff_lm_sum$contrasts, caption = "Table showing the contrasts for the linear model testing for significant difference in the the mean concordance of assigned haplogroups between genotyped and imputed data for different Reference Panel Number of included reference haplotypes (k_hap) filtering thresholds")
+```
+
+### HaploGrep Macrohaplogrouping
+The trend of which can be further seen when only macro-haplogroups are considered:
+```{r num-ref-haplotypes-khap-macrohg-conc-typed-haplogrep, echo = F, fig.cap = "Boxplot of mean macrohaplogroup concordance between the truth set and the genotyped data. Haplogroups were assigned using HaploGrep"}
+ggplot(khap_combined_summary_means, aes(x = fct_rev(k_hap), y = mean_haplogrep_concordance_typed_macro)) +
+  geom_violin(na.rm = T, fill = pal_cols[1], alpha = (1/4), lwd = (1/4)) +
+  geom_boxplot(na.rm = T, fill = pal_cols[1], alpha = (1/2), lwd = (1/4), width = (1/4), outlier.alpha = (1/1)) +
+  labs(x = "Included reference haplotypes\n(k_hap)",
+       y = "Fraction macrohaplogroup corcordance of\ngenotyped dataset with truth set") +
+  scale_y_continuous(limits = c(0,1)) +
+  theme(axis.text.x = element_text(colour = "black", size = rel(1.125)),
+        axis.text.y = element_text(colour = "black", size = rel(1.125)),
+        axis.title.x = element_text(colour = "black", size = rel(1.5)),
+        axis.title.y = element_text(colour = "black", size = rel(1.5)),
+        legend.text = element_text(size = rel(1.0)),
+        legend.title = element_text(size = rel(1.25)),
+        legend.position= "top",
+        plot.title = element_blank(),
+        strip.text.x = element_text(size = rel(5/5)),
+        strip.text.y = element_text(size = rel(5/5),),
+        panel.grid.major.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.minor.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        panel.background = element_rect(fill = "transparent", colour = "black"),
+        strip.background = element_rect(fill = "transparent", colour = NA),
+        legend.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA)) +
+  coord_flip()
+```
+
+Compare this result with the imputed data, which shows a higher haplogroup concordance:
+```{r num-ref-haplotypes-khap-macrohg-conc-imputed-haplogrep, echo = F, fig.cap = "Boxplot of mean macrohaplogroup concordance between the truth set and the imputed data. Haplogroups were assigned using HaploGrep. This data does not include a filter to remove imputed data points below info ≤ 0.3"}
+ggplot(khap_combined_summary_means, aes(x = fct_rev(k_hap), y = mean_haplogrep_concordance_imputed_macro)) +
+  geom_violin(na.rm = T, fill = pal_cols[1], alpha = (1/4), lwd = (1/4)) +
+  geom_boxplot(na.rm = T, fill = pal_cols[1], alpha = (1/2), lwd = (1/4), width = (1/4), outlier.alpha = (1/1)) +
+  labs(x = "Included reference haplotypes\n(k_hap)",
+       y = "Fraction macrohaplogroup corcordance of\nimputed dataset with truth set") +
+  scale_y_continuous(limits = c(0,1)) +
+  theme(axis.text.x = element_text(colour = "black", size = rel(1.125)),
+        axis.text.y = element_text(colour = "black", size = rel(1.125)),
+        axis.title.x = element_text(colour = "black", size = rel(1.5)),
+        axis.title.y = element_text(colour = "black", size = rel(1.5)),
+        legend.text = element_text(size = rel(1.0)),
+        legend.title = element_text(size = rel(1.25)),
+        legend.position= "top",
+        plot.title = element_blank(),
+        strip.text.x = element_text(size = rel(5/5)),
+        strip.text.y = element_text(size = rel(5/5),),
+        panel.grid.major.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.minor.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        panel.background = element_rect(fill = "transparent", colour = "black"),
+        strip.background = element_rect(fill = "transparent", colour = NA),
+        legend.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA)) +
+  coord_flip()
+```
+
+If the improvement in accurate assignment of haplogroups wasn't evident from the last two plots, displaying the mean difference should make this clear:
+```{r num-ref-haplotypes-khap-macrohg-conc-diff-haplogrep, echo = F, fig.cap = "Boxplot of mean difference in macrohaplogroup concordance between the genotyped set and the imputed data relative to the truth set. Haplogroups were assigned using HaploGrep. The imputed data does not include a filter to remove imputed data points below info ≤ 0.3"}
+ggplot(khap_combined_summary_means, aes(x = fct_rev(k_hap), y = haplogrep_macro_diff)) +
+  geom_violin(na.rm = T, fill = pal_cols[1], alpha = (1/4), lwd = (1/4)) +
+  geom_boxplot(na.rm = T, fill = pal_cols[1], alpha = (1/2), lwd = (1/4), width = (1/4), outlier.alpha = (1/1)) +
+  labs(x = "Included reference haplotypes\n(k_hap)",
+       y = "Difference in macrohaplogroup concordance between\ngenotyped and imputed dataset") +
+  #scale_y_continuous(limits = c(0,1)) +
+  theme(axis.text.x = element_text(colour = "black", size = rel(1.125)),
+        axis.text.y = element_text(colour = "black", size = rel(1.125)),
+        axis.title.x = element_text(colour = "black", size = rel(1.5)),
+        axis.title.y = element_text(colour = "black", size = rel(1.5)),
+        legend.text = element_text(size = rel(1.0)),
+        legend.title = element_text(size = rel(1.25)),
+        legend.position= "top",
+        plot.title = element_blank(),
+        strip.text.x = element_text(size = rel(5/5)),
+        strip.text.y = element_text(size = rel(5/5),),
+        panel.grid.major.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.minor.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        panel.background = element_rect(fill = "transparent", colour = "black"),
+        strip.background = element_rect(fill = "transparent", colour = NA),
+        legend.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA)) +
+  coord_flip()
+```
+
+These can be statistically tested with linear models:
+```{r num-ref-haplotypes-khap-macrohg-conc-imputed-lm-haplogrep, echo = F, fig.cap = "Boxplot of mean difference in macrohaplogroup concordance between the genotyped set and the imputed data relative to the truth set. Haplogroups were assigned using HaploGrep. The imputed data does not include a filter to remove imputed data points below info ≤ 0.3"}
+haplogrep_macro_imp_lm = lm(mean_haplogrep_concordance_imputed_macro ~ k_hap, data = khap_combined_summary_means)
+kable(anova(haplogrep_macro_imp_lm), caption = "Table showing the residuals for the linear model testing for significant difference in the means of imputed macrohaplogroup concordance")
+haplogrep_macro_imp_lm_sum = summary(emmeans(haplogrep_macro_imp_lm, pairwise ~ k_hap))
+kable(haplogrep_macro_imp_lm_sum$emmeans, caption = "Table showing the estimated marginal means for the linear model testing for significant difference in the means of imputed macrohaplogroup concordance for different Reference Panel Number of included reference haplotypes (k_hap) filtering thresholds")
+kable(haplogrep_macro_imp_lm_sum$contrasts, caption = "Table showing the contrasts for the linear model testing for significant difference in the means of imputed macrohaplogroup concordance for different Reference Panel Number of included reference haplotypes (k_hap) filtering thresholds")
+
+haplogrep_macro_diff_lm = lm(haplogrep_macro_diff ~ k_hap, data = khap_combined_summary_means)
+kable(anova(haplogrep_macro_diff_lm), caption = "Table showing the residuals for the linear model testing for significant difference in the mean concordance of assigned macroaplogroups between genotyped and imputed data")
+haplogrep_macro_diff_lm_sum = summary(emmeans(haplogrep_macro_diff_lm, pairwise ~ k_hap))
+kable(haplogrep_macro_diff_lm_sum$emmeans, caption = "Table showing the estimated marginal means for the linear model testing for significant difference in the the mean concordance of assigned macrohaplogroups between genotyped and imputed data for different Reference Panel Number of included reference haplotypes (k_hap) filtering thresholds")
+kable(haplogrep_macro_diff_lm_sum$contrasts, caption = "Table showing the contrasts for the linear model testing for significant difference in the the mean concordance of assigned macrohaplogroups between genotyped and imputed data for different Reference Panel Number of included reference haplotypes (k_hap) filtering thresholds")
+```
+
+### HaploGrep Haplogrouping (with info > 0.3 cutoff)
+It should be noted that, by convention, imputed variants with an IMPUTE2 info score of `info <= 0.3` are excluded from the final datasets.
+As such, I have also displayed these results where I have excluded any imputed sites within an info score `info <= 0.3`.
+
+Imputed haplogroup corcordance, :
+```{r num-ref-haplotypes-khap-hg-conc-imputed-haplogrep-cutoff, echo = F, fig.cap = "Boxplot of mean haplogroup concordance between the truth set and the imputed data. Haplogroups were assigned using HaploGrep. This data does include a filter to remove imputed data points below info ≤ 0.3"}
+ggplot(khap_combined_summary_means, aes(x = fct_rev(k_hap), y = mean_haplogrep_concordance_imputed_cutoff)) +
+  geom_violin(na.rm = T, fill = pal_cols[1], alpha = (1/4), lwd = (1/4)) +
+  geom_boxplot(na.rm = T, fill = pal_cols[1], alpha = (1/2), lwd = (1/4), width = (1/4), outlier.alpha = (1/1)) +
+  labs(x = "Included reference haplotypes\n(k_hap)",
+       y = "Fraction haplogroup corcordance of\nimputed dataset with truth set") +
+  scale_y_continuous(limits = c(0,1)) +
+  theme(axis.text.x = element_text(colour = "black", size = rel(1.125)),
+        axis.text.y = element_text(colour = "black", size = rel(1.125)),
+        axis.title.x = element_text(colour = "black", size = rel(1.5)),
+        axis.title.y = element_text(colour = "black", size = rel(1.5)),
+        legend.text = element_text(size = rel(1.0)),
+        legend.title = element_text(size = rel(1.25)),
+        legend.position= "top",
+        plot.title = element_blank(),
+        strip.text.x = element_text(size = rel(5/5)),
+        strip.text.y = element_text(size = rel(5/5),),
+        panel.grid.major.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.minor.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        panel.background = element_rect(fill = "transparent", colour = "black"),
+        strip.background = element_rect(fill = "transparent", colour = NA),
+        legend.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA)) +
+  coord_flip()
+```
+
+Difference in haplogroup concordance between genotyped and imputed datasets with (cutoff info <= 0.3):
+```{r num-ref-haplotypes-khap-hg-conc-diff-haplogrep-cutoff, echo = F, fig.cap = "Boxplot of mean difference in haplogroup concordance between the genotyped set and the imputed data relative to the truth set. Haplogroups were assigned using HaploGrep. The imputed data does include a filter to remove imputed data points below info ≤ 0.3"}
+ggplot(khap_combined_summary_means, aes(x = fct_rev(k_hap), y = haplogrep_cutoff_diff)) +
+  geom_violin(na.rm = T, fill = pal_cols[1], alpha = (1/4), lwd = (1/4)) +
+  geom_boxplot(na.rm = T, fill = pal_cols[1], alpha = (1/2), lwd = (1/4), width = (1/4), outlier.alpha = (1/1)) +
+  labs(x = "Included reference haplotypes\n(k_hap)",
+       y = "Difference in haplogroup concordance between\ngenotyped and imputed dataset") +
+  #scale_y_continuous(limits = c(0,1)) +
+  theme(axis.text.x = element_text(colour = "black", size = rel(1.125)),
+        axis.text.y = element_text(colour = "black", size = rel(1.125)),
+        axis.title.x = element_text(colour = "black", size = rel(1.5)),
+        axis.title.y = element_text(colour = "black", size = rel(1.5)),
+        legend.text = element_text(size = rel(1.0)),
+        legend.title = element_text(size = rel(1.25)),
+        legend.position= "top",
+        plot.title = element_blank(),
+        strip.text.x = element_text(size = rel(5/5)),
+        strip.text.y = element_text(size = rel(5/5),),
+        panel.grid.major.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.minor.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        panel.background = element_rect(fill = "transparent", colour = "black"),
+        strip.background = element_rect(fill = "transparent", colour = NA),
+        legend.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA)) +
+  coord_flip()
+```
+
+```{r num-ref-haplotypes-khap-hg-conc-imputed-lm-haplogrep-cutoff, echo = F, fig.cap = "Boxplot of mean difference in macrohaplogroup concordance between the genotyped set and the imputed data relative to the truth set. Haplogroups were assigned using HaploGrep. The imputed data does include a filter to remove imputed data points below info ≤ 0.3"}
+haplogrep_imp_lm = lm(mean_haplogrep_concordance_imputed_cutoff ~ k_hap, data = khap_combined_summary_means)
+kable(anova(haplogrep_imp_lm), caption = "Table showing the residuals for the linear model testing for significant difference in the means of imputed haplogroup concordance")
+haplogrep_imp_lm_sum = summary(emmeans(haplogrep_imp_lm, pairwise ~ k_hap))
+kable(haplogrep_imp_lm_sum$emmeans, caption = "Table showing the estimated marginal means for the linear model testing for significant difference in the means of imputed haplogroup concordance for different Reference Panel Number of included reference haplotypes (k_hap) filtering thresholds")
+kable(haplogrep_imp_lm_sum$contrasts, caption = "Table showing the contrasts for the linear model testing for significant difference in the means of imputed haplogroup concordance for different Reference Panel Number of included reference haplotypes (k_hap) filtering thresholds")
+
+haplogrep_diff_lm = lm(haplogrep_cutoff_diff ~ k_hap, data = khap_combined_summary_means)
+kable(anova(haplogrep_diff_lm), caption = "Table showing the residuals for the linear model testing for significant difference in the mean concordance of assigned haplogroups between genotyped and imputed data")
+haplogrep_diff_lm_sum = summary(emmeans(haplogrep_diff_lm, pairwise ~ k_hap))
+kable(haplogrep_diff_lm_sum$emmeans, caption = "Table showing the estimated marginal means for the linear model testing for significant difference in the the mean concordance of assigned haplogroups between genotyped and imputed data for different Reference Panel Number of included reference haplotypes (k_hap) filtering thresholds")
+kable(haplogrep_diff_lm_sum$contrasts, caption = "Table showing the contrasts for the linear model testing for significant difference in the the mean concordance of assigned haplogroups between genotyped and imputed data for different Reference Panel Number of included reference haplotypes (k_hap) filtering thresholds")
+```
+
+### HaploGrep Macrohaplogrouping (with info ≥ 0.3 cutoff)
+The trend of which can be further seen when only macro-haplogroups are considered:
+
+Compare this result with the imputed data, which shows a higher haplogroup concordance:
+```{r num-ref-haplotypes-khap-macrohg-conc-imputed-haplogrep-cutoff, echo = F, fig.cap = "Boxplot of mean macrohaplogroup concordance between the truth set and the imputed data. Haplogroups were assigned using HaploGrep. This data does include a filter to remove imputed data points below info ≤ 0.3"}
+ggplot(khap_combined_summary_means, aes(x = fct_rev(k_hap), y = mean_haplogrep_concordance_imputed_macro_cutoff)) +
+  geom_violin(na.rm = T, fill = pal_cols[1], alpha = (1/4), lwd = (1/4)) +
+  geom_boxplot(na.rm = T, fill = pal_cols[1], alpha = (1/2), lwd = (1/4), width = (1/4), outlier.alpha = (1/1)) +
+  labs(x = "Included reference haplotypes\n(k_hap)",
+       y = "Fraction macrohaplogroup corcordance of\nimputed dataset with truth set") +
+  scale_y_continuous(limits = c(0,1)) +
+  theme(axis.text.x = element_text(colour = "black", size = rel(1.125)),
+        axis.text.y = element_text(colour = "black", size = rel(1.125)),
+        axis.title.x = element_text(colour = "black", size = rel(1.5)),
+        axis.title.y = element_text(colour = "black", size = rel(1.5)),
+        legend.text = element_text(size = rel(1.0)),
+        legend.title = element_text(size = rel(1.25)),
+        legend.position= "top",
+        plot.title = element_blank(),
+        strip.text.x = element_text(size = rel(5/5)),
+        strip.text.y = element_text(size = rel(5/5),),
+        panel.grid.major.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.minor.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        panel.background = element_rect(fill = "transparent", colour = "black"),
+        strip.background = element_rect(fill = "transparent", colour = NA),
+        legend.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA)) +
+  coord_flip()
+```
+
+If the improvement in accurate assignment of haplogroups wasn't evident from the last two plots, displaying the mean difference should make this clear:
+```{r num-ref-haplotypes-khap-macrohg-conc-diff-haplogrep-cutoff, echo = F, fig.cap = "Boxplot of mean difference in macrohaplogroup concordance between the genotyped set and the imputed data relative to the truth set. Haplogroups were assigned using HaploGrep. The imputed data does include a filter to remove imputed data points below info ≤ 0.3"}
+ggplot(khap_combined_summary_means, aes(x = fct_rev(k_hap), y = haplogrep_macro_cutoff_diff)) +
+  geom_violin(na.rm = T, fill = pal_cols[1], alpha = (1/4), lwd = (1/4)) +
+  geom_boxplot(na.rm = T, fill = pal_cols[1], alpha = (1/2), lwd = (1/4), width = (1/4), outlier.alpha = (1/1)) +
+  labs(x = "Included reference haplotypes\n(k_hap)",
+       y = "Difference in macrohaplogroup concordance between\ngenotyped and imputed dataset") +
+  #scale_y_continuous(limits = c(0,1)) +
+  theme(axis.text.x = element_text(colour = "black", size = rel(1.125)),
+        axis.text.y = element_text(colour = "black", size = rel(1.125)),
+        axis.title.x = element_text(colour = "black", size = rel(1.5)),
+        axis.title.y = element_text(colour = "black", size = rel(1.5)),
+        legend.text = element_text(size = rel(1.0)),
+        legend.title = element_text(size = rel(1.25)),
+        legend.position= "top",
+        plot.title = element_blank(),
+        strip.text.x = element_text(size = rel(5/5)),
+        strip.text.y = element_text(size = rel(5/5),),
+        panel.grid.major.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.minor.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        panel.background = element_rect(fill = "transparent", colour = "black"),
+        strip.background = element_rect(fill = "transparent", colour = NA),
+        legend.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA)) +
+  coord_flip()
+```
+
+These can be statistically tested with linear models:
+```{r num-ref-haplotypes-khap-macrohg-conc-imputed-lm-haplogrep-cutoff, echo = F, fig.cap = "Boxplot of mean difference in macrohaplogroup concordance between the genotyped set and the imputed data relative to the truth set. Haplogroups were assigned using HaploGrep. The imputed data does include a filter to remove imputed data points below info ≤ 0.3"}
+haplogrep_macro_imp_lm = lm(mean_haplogrep_concordance_imputed_macro_cutoff ~ k_hap, data = khap_combined_summary_means)
+kable(anova(haplogrep_macro_imp_lm), caption = "Table showing the residuals for the linear model testing for significant difference in the means of imputed macrohaplogroup concordance")
+haplogrep_macro_imp_lm_sum = summary(emmeans(haplogrep_macro_imp_lm, pairwise ~ k_hap))
+kable(haplogrep_macro_imp_lm_sum$emmeans, caption = "Table showing the estimated marginal means for the linear model testing for significant difference in the means of imputed macrohaplogroup concordance for different Reference Panel Number of included reference haplotypes (k_hap) filtering thresholds")
+kable(haplogrep_macro_imp_lm_sum$contrasts, caption = "Table showing the contrasts for the linear model testing for significant difference in the means of imputed macrohaplogroup concordance for different Reference Panel Number of included reference haplotypes (k_hap) filtering thresholds")
+
+haplogrep_macro_diff_lm = lm(haplogrep_macro_cutoff_diff ~ k_hap, data = khap_combined_summary_means)
+kable(anova(haplogrep_macro_diff_lm), caption = "Table showing the residuals for the linear model testing for significant difference in the mean concordance of assigned macroaplogroups between genotyped and imputed data")
+haplogrep_macro_diff_lm_sum = summary(emmeans(haplogrep_macro_diff_lm, pairwise ~ k_hap))
+kable(haplogrep_macro_diff_lm_sum$emmeans, caption = "Table showing the estimated marginal means for the linear model testing for significant difference in the the mean concordance of assigned macrohaplogroups between genotyped and imputed data for different Reference Panel Number of included reference haplotypes (k_hap) filtering thresholds")
+kable(haplogrep_macro_diff_lm_sum$contrasts, caption = "Table showing the contrasts for the linear model testing for significant difference in the the mean concordance of assigned macrohaplogroups between genotyped and imputed data for different Reference Panel Number of included reference haplotypes (k_hap) filtering thresholds")
+```
+
+These results suggest that there is a **statistically significant difference** in accurate assignment of haplogroups between different Reference Panel Number of included reference haplotypes (k_hap) filtering thresholds. However, this improvement is tiny; therefore, the biological and practical significance of the improvement seems small.
+
+These results suggest that there is **no statistically significant difference** in accurate assignment of macrohaplogroups between different Reference Panel Number of included reference haplotypes (k_hap) filtering thresholds. However, it should be noted that both the genotyped and imputed datasets allow HaploGrep to accurately call macrohaplogroups, with average accuracy in the high 80%s.
+
+There is a slight increase in ability to accuracy call haplogroups when a filter of `info > 0.3` is applied, but the biological and practical significance of the improvement again seems small.
+
+### HaploGrep haplogroup quality comparisons
+We also examined the difference in HaploGrep's quality score between the truthset, genotyped set, and imputed set.
+
+Here I show the difference between the truth set and the genotyped set:
+```{r num-ref-haplotypes-khap-hg-qual-typed, echo = F, fig.cap = "Boxplot of mean HaploGrep quality score between the truth set and the imputed data. Haplogroups were assigned using HaploGrep."}
+ggplot(khap_combined_summary_means, aes(x = fct_rev(k_hap), y = haplogrep_quality_diff_truth_typed)) +
+  geom_violin(na.rm = T, fill = pal_cols[1], alpha = (1/4), lwd = (1/4)) +
+  geom_boxplot(na.rm = T, fill = pal_cols[1], alpha = (1/2), lwd = (1/4), width = (1/4), outlier.alpha = (1/1)) +
+  labs(x = "Included reference haplotypes\n(k_hap)",
+       y = "Difference in HaploGrep quality scores between\nthe truth set and the genotyped data") +
+  #scale_y_continuous(limits = c(0,1)) +
+  theme(axis.text.x = element_text(colour = "black", size = rel(1.125)),
+        axis.text.y = element_text(colour = "black", size = rel(1.125)),
+        axis.title.x = element_text(colour = "black", size = rel(1.5)),
+        axis.title.y = element_text(colour = "black", size = rel(1.5)),
+        legend.text = element_text(size = rel(1.0)),
+        legend.title = element_text(size = rel(1.25)),
+        legend.position= "top",
+        plot.title = element_blank(),
+        strip.text.x = element_text(size = rel(5/5)),
+        strip.text.y = element_text(size = rel(5/5),),
+        panel.grid.major.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.minor.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        panel.background = element_rect(fill = "transparent", colour = "black"),
+        strip.background = element_rect(fill = "transparent", colour = NA),
+        legend.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA)) +
+  coord_flip()
+```
+
+Here I show the difference between the truth set and the imputed set:
+```{r num-ref-haplotypes-khap-hg-qual-imp, echo = F, fig.cap = "Boxplot of mean HaploGrep quality score between the truth set and the imputed data. Haplogroups were assigned using HaploGrep. This data does not include a filter to remove imputed data points below info ≤ 0.3"}
+ggplot(khap_combined_summary_means, aes(x = fct_rev(k_hap), y = haplogrep_quality_diff_truth_imputed)) +
+  geom_violin(na.rm = T, fill = pal_cols[1], alpha = (1/4), lwd = (1/4)) +
+  geom_boxplot(na.rm = T, fill = pal_cols[1], alpha = (1/2), lwd = (1/4), width = (1/4), outlier.alpha = (1/1)) +
+  labs(x = "Included reference haplotypes\n(k_hap)",
+       y = "Difference in HaploGrep quality scores between\nthe truth set and the imputed data") +
+  #scale_y_continuous(limits = c(0,1)) +
+  theme(axis.text.x = element_text(colour = "black", size = rel(1.125)),
+        axis.text.y = element_text(colour = "black", size = rel(1.125)),
+        axis.title.x = element_text(colour = "black", size = rel(1.5)),
+        axis.title.y = element_text(colour = "black", size = rel(1.5)),
+        legend.text = element_text(size = rel(1.0)),
+        legend.title = element_text(size = rel(1.25)),
+        legend.position= "top",
+        plot.title = element_blank(),
+        strip.text.x = element_text(size = rel(5/5)),
+        strip.text.y = element_text(size = rel(5/5),),
+        panel.grid.major.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.minor.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        panel.background = element_rect(fill = "transparent", colour = "black"),
+        strip.background = element_rect(fill = "transparent", colour = NA),
+        legend.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA)) +
+  coord_flip()
+```
+
+Here I show the difference between the truth set and the imputed set with the info score filter `info > 0.3`:
+```{r num-ref-haplotypes-khap-hg-qual-imp-cutoff, echo = F, fig.cap = "Boxplot of mean HaploGrep quality score between the truth set and the imputed data. Haplogroups were assigned using HaploGrep. This data does include a filter to remove imputed data points below info ≤ 0.3"}
+ggplot(khap_combined_summary_means, aes(x = fct_rev(k_hap), y = haplogrep_quality_diff_truth_imputed_cutoff)) +
+  geom_violin(na.rm = T, fill = pal_cols[1], alpha = (1/4), lwd = (1/4)) +
+  geom_boxplot(na.rm = T, fill = pal_cols[1], alpha = (1/2), lwd = (1/4), width = (1/4), outlier.alpha = (1/1)) +
+  labs(x = "Included reference haplotypes\n(k_hap)",
+       y = "Difference in HaploGrep quality scores between\nthe truth set and the imputed data") +
+  #scale_y_continuous(limits = c(0,1)) +
+  theme(axis.text.x = element_text(colour = "black", size = rel(1.125)),
+        axis.text.y = element_text(colour = "black", size = rel(1.125)),
+        axis.title.x = element_text(colour = "black", size = rel(1.5)),
+        axis.title.y = element_text(colour = "black", size = rel(1.5)),
+        legend.text = element_text(size = rel(1.0)),
+        legend.title = element_text(size = rel(1.25)),
+        legend.position= "top",
+        plot.title = element_blank(),
+        strip.text.x = element_text(size = rel(5/5)),
+        strip.text.y = element_text(size = rel(5/5),),
+        panel.grid.major.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.minor.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        panel.background = element_rect(fill = "transparent", colour = "black"),
+        strip.background = element_rect(fill = "transparent", colour = NA),
+        legend.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA)) +
+  coord_flip()
+```
+
+Here it appears that relative to the truth set, the quality is still decreased.
+
+However, I have also investigated the difference between the genotyped and imputed datasets to see if there is any improvement.
+I have only investigated the imputed dataset filtered with `info > 0.3`.
+```{r num-ref-haplotypes-khap-hg-qual-diff-cutoff, echo = F, fig.cap = "Boxplot of mean HaploGrep quality score between the truth set and the imputed data. Haplogroups were assigned using HaploGrep. This data does include a filter to remove imputed data points below info ≤ 0.3"}
+ggplot(khap_combined_summary_means, aes(x = fct_rev(k_hap), y = haplogrep_quality_cutoff_diff)) +
+  geom_violin(na.rm = T, fill = pal_cols[1], alpha = (1/4), lwd = (1/4)) +
+  geom_boxplot(na.rm = T, fill = pal_cols[1], alpha = (1/2), lwd = (1/4), width = (1/4), outlier.alpha = (1/1)) +
+  labs(x = "Included reference haplotypes\n(k_hap)",
+       y = "Difference in HaploGrep quality scores between\nthe genotyped and the imputed datasets") +
+  #scale_y_continuous(limits = c(0,1)) +
+  theme(axis.text.x = element_text(colour = "black", size = rel(1.125)),
+        axis.text.y = element_text(colour = "black", size = rel(1.125)),
+        axis.title.x = element_text(colour = "black", size = rel(1.5)),
+        axis.title.y = element_text(colour = "black", size = rel(1.5)),
+        legend.text = element_text(size = rel(1.0)),
+        legend.title = element_text(size = rel(1.25)),
+        legend.position= "top",
+        plot.title = element_blank(),
+        strip.text.x = element_text(size = rel(5/5)),
+        strip.text.y = element_text(size = rel(5/5),),
+        panel.grid.major.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.minor.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        panel.background = element_rect(fill = "transparent", colour = "black"),
+        strip.background = element_rect(fill = "transparent", colour = NA),
+        legend.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA)) +
+  coord_flip()
+```
+
+On average, there is a decrease in HaploGrep quality score.
+
+### HaploGrep string distance (Damerau-Levenshtein)
+We also examined the distance between the strings in assigned haplogroups, as measures of haplogroup concordance may be misleading if one sub-haplogroup isn't correctly assigned. We used a few different measures, as different measures of distance will provide different results.
+All results are between the genotyped dataset and the imputed dataset with a info filter of `info > 0.3`
+
+This result shows the Damerau-Levenshtein distance:
+```{r num-ref-haplotypes-khap-hg-dist-dl-diff-cutoff, echo = F, fig.cap = "Boxplot of mean Damerau-Levenshtein string distance between the truth set and the imputed data. Haplogroups were assigned using HaploGrep. This data does include a filter to remove imputed data points below info ≤ 0.3"}
+ggplot(khap_combined_summary_means, aes(x = fct_rev(k_hap), y = haplogrep_distance_dl_cutoff_diff)) +
+  geom_violin(na.rm = T, fill = pal_cols[1], alpha = (1/4), lwd = (1/4)) +
+  geom_boxplot(na.rm = T, fill = pal_cols[1], alpha = (1/2), lwd = (1/4), width = (1/4), outlier.alpha = (1/1)) +
+  labs(x = "Included reference haplotypes\n(k_hap)",
+       y = "Difference in Damerau-Levenshtein string distances between\nthe genotyped and the imputed datasets") +
+  #scale_y_continuous(limits = c(0,1)) +
+  theme(axis.text.x = element_text(colour = "black", size = rel(1.125)),
+        axis.text.y = element_text(colour = "black", size = rel(1.125)),
+        axis.title.x = element_text(colour = "black", size = rel(1.5)),
+        axis.title.y = element_text(colour = "black", size = rel(1.5)),
+        legend.text = element_text(size = rel(1.0)),
+        legend.title = element_text(size = rel(1.25)),
+        legend.position= "top",
+        plot.title = element_blank(),
+        strip.text.x = element_text(size = rel(5/5)),
+        strip.text.y = element_text(size = rel(5/5),),
+        panel.grid.major.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.minor.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        panel.background = element_rect(fill = "transparent", colour = "black"),
+        strip.background = element_rect(fill = "transparent", colour = NA),
+        legend.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA)) +
+  coord_flip()
+```
+
+```{r num-ref-haplotypes-khap-hg-dist-dl-diff-cutoff-table, echo = F}
+hg_dist_dl_lm = lm(haplogrep_distance_dl_cutoff_diff ~ k_hap, data = khap_combined_summary_means)
+kable(anova(hg_dist_dl_lm), caption = "Table showing the residuals for the linear model testing for significant difference in the Damerau-Levenshtein string distance between assigned haplogroups")
+hg_dist_dl_lm_sum = summary(emmeans(hg_dist_dl_lm, pairwise ~ k_hap))
+kable(hg_dist_dl_lm_sum$emmeans, caption = "Table showing the estimated marginal means for the linear model testing for significant difference in the means of imputed significant difference in the Damerau-Levenshtein string distance between assigned haplogroups for different Reference Panel Number of included reference haplotypes (k_hap) filtering thresholds")
+kable(hg_dist_dl_lm_sum$contrasts, caption = "Table showing the contrasts for the linear model testing for significant difference in the means of significant difference in the Damerau-Levenshtein string distance between assigned haplogroups for different Reference Panel Number of included reference haplotypes (k_hap) filtering thresholds")
+```
+
+### HaploGrep string distance (Levenshtein)
+We also examined the distance between the strings in assigned haplogroups, as measures of haplogroup concordance may be misleading if one sub-haplogroup isn't correctly assigned. We used a few different measures, as different measures of distance will provide different results.
+All results are between the genotyped dataset and the imputed dataset with a info filter of `info > 0.3`
+
+This result shows the Levenshtein distance:
+```{r num-ref-haplotypes-khap-hg-dist-lv-diff-cutoff, echo = F, fig.cap = "Boxplot of mean Levenshtein string distance between the truth set and the imputed data. Haplogroups were assigned using HaploGrep. This data does include a filter to remove imputed data points below info ≤ 0.3"}
+ggplot(khap_combined_summary_means, aes(x = fct_rev(k_hap), y = haplogrep_distance_lv_cutoff_diff)) +
+  geom_violin(na.rm = T, fill = pal_cols[1], alpha = (1/4), lwd = (1/4)) +
+  geom_boxplot(na.rm = T, fill = pal_cols[1], alpha = (1/2), lwd = (1/4), width = (1/4), outlier.alpha = (1/1)) +
+  labs(x = "Included reference haplotypes\n(k_hap)",
+       y = "Difference in Levenshtein string distances between\nthe genotyped and the imputed datasets") +
+  #scale_y_continuous(limits = c(0,1)) +
+  theme(axis.text.x = element_text(colour = "black", size = rel(1.125)),
+        axis.text.y = element_text(colour = "black", size = rel(1.125)),
+        axis.title.x = element_text(colour = "black", size = rel(1.5)),
+        axis.title.y = element_text(colour = "black", size = rel(1.5)),
+        legend.text = element_text(size = rel(1.0)),
+        legend.title = element_text(size = rel(1.25)),
+        legend.position= "top",
+        plot.title = element_blank(),
+        strip.text.x = element_text(size = rel(5/5)),
+        strip.text.y = element_text(size = rel(5/5),),
+        panel.grid.major.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.minor.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        panel.background = element_rect(fill = "transparent", colour = "black"),
+        strip.background = element_rect(fill = "transparent", colour = NA),
+        legend.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA)) +
+  coord_flip()
+```
+
+```{r num-ref-haplotypes-khap-hg-dist-lv-diff-cutoff-table, echo = F}
+hg_dist_lv_lm = lm(haplogrep_distance_lv_cutoff_diff ~ k_hap, data = khap_combined_summary_means)
+kable(anova(hg_dist_lv_lm), caption = "Table showing the residuals for the linear model testing for significant difference in the Levenshtein string distance between assigned haplogroups")
+hg_dist_lv_lm_sum = summary(emmeans(hg_dist_lv_lm, pairwise ~ k_hap))
+kable(hg_dist_lv_lm_sum$emmeans, caption = "Table showing the estimated marginal means for the linear model testing for significant difference in the means of imputed significant difference in the Levenshtein string distance between assigned haplogroups for different Reference Panel Number of included reference haplotypes (k_hap) filtering thresholds")
+kable(hg_dist_lv_lm_sum$contrasts, caption = "Table showing the contrasts for the linear model testing for significant difference in the means of significant difference in the Levenshtein string distance between assigned haplogroups for different Reference Panel Number of included reference haplotypes (k_hap) filtering thresholds")
+```
+
+### HaploGrep string distance (Jaccard)
+We also examined the distance between the strings in assigned haplogroups, as measures of haplogroup concordance may be misleading if one sub-haplogroup isn't correctly assigned. We used a few different measures, as different measures of distance will provide different results.
+All results are between the genotyped dataset and the imputed dataset with a info filter of `info > 0.3`
+
+This result shows the Levenshtein distance:
+```{r num-ref-haplotypes-khap-hg-dist-jc-diff-cutoff, echo = F, fig.cap = "Boxplot of mean Jaccard string distance between the truth set and the imputed data. Haplogroups were assigned using HaploGrep. This data does include a filter to remove imputed data points below info ≤ 0.3"}
+ggplot(khap_combined_summary_means, aes(x = fct_rev(k_hap), y = haplogrep_distance_jc_cutoff_diff)) +
+  geom_violin(na.rm = T, fill = pal_cols[1], alpha = (1/4), lwd = (1/4)) +
+  geom_boxplot(na.rm = T, fill = pal_cols[1], alpha = (1/2), lwd = (1/4), width = (1/4), outlier.alpha = (1/1)) +
+  labs(x = "Included reference haplotypes\n(k_hap)",
+       y = "Difference in Jaccard string distances between\nthe genotyped and the imputed datasets") +
+  #scale_y_continuous(limits = c(0,1)) +
+  theme(axis.text.x = element_text(colour = "black", size = rel(1.125)),
+        axis.text.y = element_text(colour = "black", size = rel(1.125)),
+        axis.title.x = element_text(colour = "black", size = rel(1.5)),
+        axis.title.y = element_text(colour = "black", size = rel(1.5)),
+        legend.text = element_text(size = rel(1.0)),
+        legend.title = element_text(size = rel(1.25)),
+        legend.position= "top",
+        plot.title = element_blank(),
+        strip.text.x = element_text(size = rel(5/5)),
+        strip.text.y = element_text(size = rel(5/5),),
+        panel.grid.major.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.minor.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        panel.background = element_rect(fill = "transparent", colour = "black"),
+        strip.background = element_rect(fill = "transparent", colour = NA),
+        legend.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA)) +
+  coord_flip()
+```
+
+```{r num-ref-haplotypes-khap-hg-dist-jc-diff-cutoff-table, echo = F}
+hg_dist_jc_lm = lm(haplogrep_distance_jc_cutoff_diff ~ k_hap, data = khap_combined_summary_means)
+kable(anova(hg_dist_jc_lm), caption = "Table showing the residuals for the linear model testing for significant difference in the Jaccard string distance between assigned haplogroups")
+hg_dist_jc_lm_sum = summary(emmeans(hg_dist_jc_lm, pairwise ~ k_hap))
+kable(hg_dist_jc_lm_sum$emmeans, caption = "Table showing the estimated marginal means for the linear model testing for significant difference in the means of imputed significant difference in the Jaccard string distance between assigned haplogroups for different Reference Panel Number of included reference haplotypes (k_hap) filtering thresholds")
+kable(hg_dist_jc_lm_sum$contrasts, caption = "Table showing the contrasts for the linear model testing for significant difference in the means of significant difference in the Jaccard string distance between assigned haplogroups for different Reference Panel Number of included reference haplotypes (k_hap) filtering thresholds")
+```
+
+## Matthew's Correlation Coefficient (MCC)
+We also determined imputation accuracy using the Matthew's correlation coefficient (MCC).
+The MCC is a more direct method of measuring the imputation accuracy of genotypes (as opposed to haplotypes).
+
+```{r num-ref-haplotypes-khap-mcc-imp-cutoff, echo = F, fig.cap = "Boxplot of mean Matthew's correlation coefficient between the truth set and the imputed data. Haplogroups were assigned using HaploGrep. This data does include a filter to remove imputed data points below info ≤ 0.3"}
+ggplot(khap_combined_summary_means, aes(x = fct_rev(k_hap), y = mean_mcc_cutoff)) +
+  geom_violin(na.rm = T, fill = pal_cols[1], alpha = (1/4), lwd = (1/4)) +
+  geom_boxplot(na.rm = T, fill = pal_cols[1], alpha = (1/2), lwd = (1/4), width = (1/4), outlier.alpha = (1/1)) +
+  labs(x = "Included reference haplotypes\n(k_hap)",
+       y = "Matthew's correlation coefficient between the truth set and the imputed dataset") +
+  #scale_y_continuous(limits = c(0,1)) +
+  theme(axis.text.x = element_text(colour = "black", size = rel(1.125)),
+        axis.text.y = element_text(colour = "black", size = rel(1.125)),
+        axis.title.x = element_text(colour = "black", size = rel(1.5)),
+        axis.title.y = element_text(colour = "black", size = rel(1.5)),
+        legend.text = element_text(size = rel(1.0)),
+        legend.title = element_text(size = rel(1.25)),
+        legend.position= "top",
+        plot.title = element_blank(),
+        strip.text.x = element_text(size = rel(5/5)),
+        strip.text.y = element_text(size = rel(5/5),),
+        panel.grid.major.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.minor.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        panel.background = element_rect(fill = "transparent", colour = "black"),
+        strip.background = element_rect(fill = "transparent", colour = NA),
+        legend.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA)) +
+  coord_flip()
+```
+
+```{r num-ref-haplotypes-khap-mcc-imp-cutoff-table, echo = F}
+mcc_cutoff_lm = lm(mean_mcc_cutoff ~ k_hap, data = khap_combined_summary_means)
+kable(anova(mcc_cutoff_lm), caption = "Table showing the residuals for the linear model testing for significant difference in the Matthew's correlation coefficient between assigned haplogroups")
+mcc_cutoff_lm_sum = summary(emmeans(mcc_cutoff_lm, pairwise ~ k_hap))
+kable(mcc_cutoff_lm_sum$emmeans, caption = "Table showing the estimated marginal means for the linear model testing for significant difference in the means of Matthew's correlation coefficient for different Reference Panel Number of included reference haplotypes (k_hap) filtering thresholds")
+kable(mcc_cutoff_lm_sum$contrasts, caption = "Table showing the contrasts for the linear model testing for significant difference in the means of Matthew's correlation coefficient for different Reference Panel Number of included reference haplotypes (k_hap) filtering thresholds")
+```
+
+## IMPUTE2 INFO Score
+We are also reporting IMPUTE2's INFO score. Here I will plot INFO scores for both the raw imputed data, and the imputed data after info score filtering
+
+```{r num-ref-haplotypes-khap-info, echo = F, fig.cap = "Boxplot of mean info score between the truth set and the imputed data. Haplogroups were assigned using HaploGrep. This data does not include a filter to remove imputed data points below info ≤ 0.3"}
+ggplot(khap_combined_summary_means, aes(x = fct_rev(k_hap), y = mean_info)) +
+  geom_violin(na.rm = T, fill = pal_cols[1], alpha = (1/4), lwd = (1/4)) +
+  geom_boxplot(na.rm = T, fill = pal_cols[1], alpha = (1/2), lwd = (1/4), width = (1/4), outlier.alpha = (1/1)) +
+  labs(x = "Included reference haplotypes\n(k_hap)",
+       y = "IMPUTE2 INFO Score") +
+  #scale_y_continuous(limits = c(0,1)) +
+  theme(axis.text.x = element_text(colour = "black", size = rel(1.125)),
+        axis.text.y = element_text(colour = "black", size = rel(1.125)),
+        axis.title.x = element_text(colour = "black", size = rel(1.5)),
+        axis.title.y = element_text(colour = "black", size = rel(1.5)),
+        legend.text = element_text(size = rel(1.0)),
+        legend.title = element_text(size = rel(1.25)),
+        legend.position= "top",
+        plot.title = element_blank(),
+        strip.text.x = element_text(size = rel(5/5)),
+        strip.text.y = element_text(size = rel(5/5),),
+        panel.grid.major.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.minor.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        panel.background = element_rect(fill = "transparent", colour = "black"),
+        strip.background = element_rect(fill = "transparent", colour = NA),
+        legend.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA)) +
+  coord_flip()
+```
+
+```{r num-ref-haplotypes-khap-info-table, echo = F}
+info_lm = lm(mean_info ~ k_hap, data = khap_combined_summary_means)
+kable(anova(info_lm), caption = "Table showing the residuals for the linear model testing for significant difference in the IMPUTE2 INFO Score between assigned haplogroups")
+info_lm_sum = summary(emmeans(info_lm, pairwise ~ k_hap))
+kable(info_lm_sum$emmeans, caption = "Table showing the estimated marginal means for the linear model testing for significant difference in the means ofIMPUTE2 INFO Score for different Reference Panel Number of included reference haplotypes (k_hap) filtering thresholds")
+kable(info_lm_sum$contrasts, caption = "Table showing the contrasts for the linear model testing for significant difference in the means of IMPUTE2 INFO Score for different Reference Panel Number of included reference haplotypes (k_hap) filtering thresholds")
+```
+
+```{r num-ref-haplotypes-khap-info-cutoff, echo = F, fig.cap = "Boxplot of mean info score between the truth set and the imputed data. Haplogroups were assigned using HaploGrep. This data does include a filter to remove imputed data points below info ≤ 0.3"}
+ggplot(khap_combined_summary_means, aes(x = fct_rev(k_hap), y = mean_info_cutoff)) +
+  geom_violin(na.rm = T, fill = pal_cols[1], alpha = (1/4), lwd = (1/4)) +
+  geom_boxplot(na.rm = T, fill = pal_cols[1], alpha = (1/2), lwd = (1/4), width = (1/4), outlier.alpha = (1/1)) +
+  labs(x = "Included reference haplotypes\n(k_hap)",
+       y = "IMPUTE2 INFO Score\n(following filtering to info > 0.3)") +
+  #scale_y_continuous(limits = c(0,1)) +
+  theme(axis.text.x = element_text(colour = "black", size = rel(1.125)),
+        axis.text.y = element_text(colour = "black", size = rel(1.125)),
+        axis.title.x = element_text(colour = "black", size = rel(1.5)),
+        axis.title.y = element_text(colour = "black", size = rel(1.5)),
+        legend.text = element_text(size = rel(1.0)),
+        legend.title = element_text(size = rel(1.25)),
+        legend.position= "top",
+        plot.title = element_blank(),
+        strip.text.x = element_text(size = rel(5/5)),
+        strip.text.y = element_text(size = rel(5/5),),
+        panel.grid.major.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.minor.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        panel.background = element_rect(fill = "transparent", colour = "black"),
+        strip.background = element_rect(fill = "transparent", colour = NA),
+        legend.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA)) +
+  coord_flip()
+```
+
+```{r num-ref-haplotypes-khap-info-cutoff-table, echo = F}
+info_cutoff_lm = lm(mean_info_cutoff ~ k_hap, data = khap_combined_summary_means)
+kable(anova(info_cutoff_lm), caption = "Table showing the residuals for the linear model testing for significant difference in the IMPUTE2 INFO Score (following filtering to info > 0.3) between assigned haplogroups")
+info_cutoff_lm_sum = summary(emmeans(info_cutoff_lm, pairwise ~ k_hap))
+kable(info_cutoff_lm_sum$emmeans, caption = "Table showing the estimated marginal means for the linear model testing for significant difference in the means ofIMPUTE2 INFO Score (following filtering to info > 0.3) for different Reference Panel Number of included reference haplotypes (k_hap) filtering thresholds")
+kable(info_cutoff_lm_sum$contrasts, caption = "Table showing the contrasts for the linear model testing for significant difference in the means of IMPUTE2 INFO Score (following filtering to info > 0.3) for different Reference Panel Number of included reference haplotypes (k_hap) filtering thresholds")
+```
 
 
 
