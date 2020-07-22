@@ -819,12 +819,16 @@ ggplot(maf_combined_summary_means, aes(x = refpan_maf, y = haplogrep_distance_dl
         plot.background = element_rect(fill = "transparent", colour = NA)) +
   coord_flip()
 ```
+
 ```{r minor-allele-frequency-hg-dist-dl-diff-cutoff-table, echo = F}
-himc_imp_lm = lm(mean_himc_concordance_imputed ~ refpan_maf, data = haplogrep_distance_dl_cutoff_diff)
-kable(anova(himc_imp_lm), caption = "Table showing the residuals for the linear model testing for significant difference in the Damerau-Levenshtein string distance between assigned haplogroups")
-himc_imp_lm_sum = summary(emmeans(himc_imp_lm, pairwise ~ refpan_maf))
-kable(himc_imp_lm_sum$emmeans, caption = "Table showing the estimated marginal means for the linear model testing for significant difference in the means of imputed significant difference in the Damerau-Levenshtein string distance between assigned haplogroups for different Reference Panel minor allele frequency filtering thresholds")
-kable(himc_imp_lm_sum$contrasts, caption = "Table showing the contrasts for the linear model testing for significant difference in the means of significant difference in the Damerau-Levenshtein string distance between assigned haplogroups for different Reference Panel minor allele frequency filtering thresholds")
+hg_dist_dl_lm = lm(haplogrep_distance_dl_cutoff_diff ~ refpan_maf, data = maf_combined_summary_means)
+kable(anova(hg_dist_dl_lm), caption = "Table showing the residuals for the linear model testing for significant difference in the Damerau-Levenshtein string distance between assigned haplogroups")
+hg_dist_dl_lm_sum = summary(emmeans(hg_dist_dl_lm, pairwise ~ refpan_maf))
+kable(hg_dist_dl_lm_sum$emmeans, caption = "Table showing the estimated marginal means for the linear model testing for significant difference in the means of imputed significant difference in the Damerau-Levenshtein string distance between assigned haplogroups for different Reference Panel minor allele frequency filtering thresholds")
+kable(hg_dist_dl_lm_sum$contrasts, caption = "Table showing the contrasts for the linear model testing for significant difference in the means of significant difference in the Damerau-Levenshtein string distance between assigned haplogroups for different Reference Panel minor allele frequency filtering thresholds")
+```
+
+
 # DERLETE LATER
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
