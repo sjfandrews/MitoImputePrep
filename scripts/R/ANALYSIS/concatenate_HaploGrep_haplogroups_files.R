@@ -32,7 +32,7 @@ for (i in 1:length(maf.panel)) {
     cat("WORKING ON ", ref_pan, " | ", strand, "\r")
     
     # SET SUMMARY FILE
-    summary_file = paste0(wd, strand, "/", ref_pan, "/MCMC1/chrMT_1kg_", strand, "_HaploGrep_haplogroups.csv")
+    summary_file = paste0(wd, strand, "/", ref_pan, "/MCMC1/chrMT_1kg_", strand, "_imputed_MCMC1_HaploGrep_haplogroups.csv")
     
     if (i == 1 && j == 1) {
       # READ IN SUMMARY FILE AS COMBINED SUMMARY IF FIRST IN LIST
