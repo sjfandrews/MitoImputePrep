@@ -12,9 +12,8 @@ maf.var = c("MAF1%", "MAF0.5%", "MAF0.1%")
 
 combined_summary = read_csv(combined_summary_file)
 
-combined_summary %>% 
-  mutate(array = as.factor(array),
-         refpan_maf = factor(refpan_maf,
+combined_summary = combined_summary %>% 
+  mutate(refpan_maf = factor(refpan_maf,
                              levels = maf.var,
                              labels = maf.var,
                              ordered = T))
@@ -62,7 +61,9 @@ median_summary = combined_summary_maf %>%
 View(median_summary)
 
 combined_summary %>%
+  filter(imputed) %>%
   arrange(n_snps_array) %>%
+  mutate(array = as_factor(array)) %>%
   ggplot(aes(x = array, y = mean_haplogrep_concordance_imputed)) +
   geom_boxplot(na.rm = T) +
   coord_flip()
