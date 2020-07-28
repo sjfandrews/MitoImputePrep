@@ -117,7 +117,7 @@ for (i in 1:length(khap.var)) {
 
 write_csv(x = combined_summary, path = out_file2)
 
-if (file.exists(out_file1)) {
+if (file.exists(out_file2)) {
   message(paste0("OUTPUT FILE WRITTEN TO:  ", out_file2))
 }
 

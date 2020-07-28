@@ -178,5 +178,28 @@ write_csv(anova(khap_macrohaplogrep_cutoff_lm),                        khap_macr
 write_csv(khap_macrohaplogrep_cutoff_lm_sum$emmeans,                   khap_macrohaplogrep_table_emmeans_out)
 write_csv(add_signf_code(khap_macrohaplogrep_cutoff_lm_sum$contrasts), khap_macrohaplogrep_table_contrasts_out)
 
+# HaploGrep2 - Quality Scores
+maf_haplogrep_quality_table_anova_out = paste0(out_prefix,     "maf_haplogrep_quality_anova.csv")
+maf_haplogrep_quality_table_emmeans_out = paste0(out_prefix,   "maf_haplogrep_quality_emmeans.csv")
+maf_haplogrep_quality_table_contrasts_out = paste0(out_prefix, "maf_haplogrep_quality_contrasts.csv")
+
+maf_haplogrep_quality_cutoff_lm = lm(haplogrep_quality_cutoff_diff ~ refpan_maf, data = maf_combined_summary_means)
+maf_haplogrep_quality_cutoff_lm_sum = summary(emmeans(maf_haplogrep_quality_cutoff_lm, pairwise ~ refpan_maf))
+
+write_csv(anova(maf_haplogrep_quality_cutoff_lm),                        maf_haplogrep_quality_table_anova_out)
+write_csv(maf_haplogrep_quality_cutoff_lm_sum$emmeans,                   maf_haplogrep_quality_table_emmeans_out)
+write_csv(add_signf_code(maf_haplogrep_quality_cutoff_lm_sum$contrasts), maf_haplogrep_quality_table_contrasts_out)
+
+khap_haplogrep_quality_table_anova_out = paste0(out_prefix,     "khap_haplogrep_quality_anova.csv")
+khap_haplogrep_quality_table_emmeans_out = paste0(out_prefix,   "khap_haplogrep_quality_emmeans.csv")
+khap_haplogrep_quality_table_contrasts_out = paste0(out_prefix, "khap_haplogrep_quality_contrasts.csv")
+
+khap_haplogrep_quality_cutoff_lm = lm(haplogrep_quality_cutoff_diff ~ k_hap, data = khap_combined_summary_means)
+khap_haplogrep_quality_cutoff_lm_sum = summary(emmeans(khap_haplogrep_quality_cutoff_lm, pairwise ~ k_hap))
+
+write_csv(anova(khap_haplogrep_quality_cutoff_lm),                        khap_haplogrep_quality_table_anova_out)
+write_csv(khap_haplogrep_quality_cutoff_lm_sum$emmeans,                   khap_haplogrep_quality_table_emmeans_out)
+write_csv(add_signf_code(khap_haplogrep_quality_cutoff_lm_sum$contrasts), khap_haplogrep_quality_table_contrasts_out)
+
 
 # END!
