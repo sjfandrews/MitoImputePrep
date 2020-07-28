@@ -3,8 +3,8 @@ library(tidyverse)
 wd = "~/Desktop/SANDBOX/STRANDS/"
 wd = "/g/data1a/te53/MitoImpute/data/STRANDS/"
 
-out_file1 = "/g/data1a/te53/MitoImpute/analyses/combined_summaries/MAF_MCC_concatenated.csv"
-out_file2 = "/g/data1a/te53/MitoImpute/analyses/combined_summaries/kHAP_MCC_concatenated.csv"
+out_file1 = "/g/data1a/te53/MitoImpute/analyses/combined_summaries/MAF_HiMC_haplogroups_concatenated.csv"
+out_file2 = "/g/data1a/te53/MitoImpute/analyses/combined_summaries/kHAP_HiMC_haplogroups_concatenated.csv"
 
 strands = read_tsv("~/GitCode/MitoImputePrep/scripts/INFORMATION_LISTS/b37_platforms.txt", col_names = F)
 #strands = read_tsv("~/GitCode/MitoImputePrep/scripts/INFORMATION_LISTS/b37_platforms_smallTest.txt", col_names = F)
@@ -32,7 +32,7 @@ for (i in 1:length(maf.panel)) {
     cat("WORKING ON ", ref_pan, " | ", strand, "\r")
     
     # SET SUMMARY FILE
-    summary_file = paste0(wd, strand, "/", ref_pan, "/MCMC1/chrMT_1kg_", strand, "_cutoffRetained_imputed_MCC.csv")
+    summary_file = paste0(wd, strand, "/", ref_pan, "/MCMC1/chrMT_1kg_", strand, "_HiMC_haplogroups.csv")
     
     if (i == 1 && j == 1) {
       # READ IN SUMMARY FILE AS COMBINED SUMMARY IF FIRST IN LIST
@@ -84,7 +84,7 @@ for (i in 1:length(khap.var)) {
     cat("WORKING ON ", khap, " | ", strand, "\r")
     
     # SET SUMMARY FILE
-    summary_file = paste0(wd, strand, "/kHAP_Experiments/", khap, "/chrMT_1kg_", strand, "_imputed_", khap, "_cutoffRetained_imputed_MCC.csv")
+    summary_file = paste0(wd, strand, "/kHAP_Experiments/", khap, "/chrMT_1kg_", strand, "_imputed_", khap, "_HiMC_haplogroups.csv")
     
     if (i == 1 && j == 1) {
       # READ IN SUMMARY FILE AS COMBINED SUMMARY IF FIRST IN LIST
