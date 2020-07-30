@@ -30,6 +30,9 @@ out_prefix = "~/GitCode/MitoImputePrep/supplementary_information/R_tables/"
 maf_combined_summary  = read_csv(maf_combined_summary_file)
 khap_combined_summary = read_csv(khap_combined_summary_file)
 
+mcc_maf_combined_summary
+mac_khap_combined_summary
+
 maf_combined_summary = maf_combined_summary %>% 
   mutate(array = as.factor(array),
          refpan_maf = factor(refpan_maf,
@@ -167,9 +170,9 @@ write_csv(anova(maf_macrohaplogrep_cutoff_lm),                        maf_macroh
 write_csv(maf_macrohaplogrep_cutoff_lm_sum$emmeans,                   maf_macrohaplogrep_table_emmeans_out)
 write_csv(add_signf_code(maf_macrohaplogrep_cutoff_lm_sum$contrasts), maf_macrohaplogrep_table_contrasts_out)
 
-khap_macrohaplogrep_table_anova_out = paste0(out_prefix,     "khap_macroaplogrep_anova.csv")
-khap_macrohaplogrep_table_emmeans_out = paste0(out_prefix,   "khap_macroaplogrep_emmeans.csv")
-khap_macrohaplogrep_table_contrasts_out = paste0(out_prefix, "khap_macroaplogrep_contrasts.csv")
+khap_macrohaplogrep_table_anova_out = paste0(out_prefix,     "khap_macrohaplogrep_anova.csv")
+khap_macrohaplogrep_table_emmeans_out = paste0(out_prefix,   "khap_macrohaplogrep_emmeans.csv")
+khap_macrohaplogrep_table_contrasts_out = paste0(out_prefix, "khap_macrohaplogrep_contrasts.csv")
 
 khap_macrohaplogrep_cutoff_lm = lm(haplogrep_macro_cutoff_diff ~ k_hap, data = khap_combined_summary_means)
 khap_macrohaplogrep_cutoff_lm_sum = summary(emmeans(khap_macrohaplogrep_cutoff_lm, pairwise ~ k_hap))
@@ -200,6 +203,53 @@ khap_haplogrep_quality_cutoff_lm_sum = summary(emmeans(khap_haplogrep_quality_cu
 write_csv(anova(khap_haplogrep_quality_cutoff_lm),                        khap_haplogrep_quality_table_anova_out)
 write_csv(khap_haplogrep_quality_cutoff_lm_sum$emmeans,                   khap_haplogrep_quality_table_emmeans_out)
 write_csv(add_signf_code(khap_haplogrep_quality_cutoff_lm_sum$contrasts), khap_haplogrep_quality_table_contrasts_out)
+
+
+# HiMC
+maf_himc_table_anova_out = paste0(out_prefix,     "maf_himc_anova.csv")
+maf_himc_table_emmeans_out = paste0(out_prefix,   "maf_himc_emmeans.csv")
+maf_himc_table_contrasts_out = paste0(out_prefix, "maf_himc_contrasts.csv")
+
+maf_himc_cutoff_lm = lm(himc_cutoff_diff ~ refpan_maf, data = maf_combined_summary_means)
+maf_himc_cutoff_lm_sum = summary(emmeans(maf_himc_cutoff_lm, pairwise ~ refpan_maf))
+
+write_csv(anova(maf_himc_cutoff_lm),                        maf_himc_table_anova_out)
+write_csv(maf_himc_cutoff_lm_sum$emmeans,                   maf_himc_table_emmeans_out)
+write_csv(add_signf_code(maf_himc_cutoff_lm_sum$contrasts), maf_himc_table_contrasts_out)
+
+khap_himc_table_anova_out = paste0(out_prefix,     "khap_himc_anova.csv")
+khap_himc_table_emmeans_out = paste0(out_prefix,   "khap_himc_emmeans.csv")
+khap_himc_table_contrasts_out = paste0(out_prefix, "khap_himc_contrasts.csv")
+
+khap_himc_cutoff_lm = lm(himc_cutoff_diff ~ k_hap, data = khap_combined_summary_means)
+khap_himc_cutoff_lm_sum = summary(emmeans(khap_himc_cutoff_lm, pairwise ~ k_hap))
+
+write_csv(anova(khap_himc_cutoff_lm),                        khap_himc_table_anova_out)
+write_csv(khap_himc_cutoff_lm_sum$emmeans,                   khap_himc_table_emmeans_out)
+write_csv(add_signf_code(khap_himc_cutoff_lm_sum$contrasts), khap_himc_table_contrasts_out)
+
+# HiMC - MACRO
+maf_macrohimc_table_anova_out = paste0(out_prefix,     "maf_macrohimc_anova.csv")
+maf_macrohimc_table_emmeans_out = paste0(out_prefix,   "maf_macrohimc_emmeans.csv")
+maf_macrohimc_table_contrasts_out = paste0(out_prefix, "maf_macrohimc_contrasts.csv")
+
+maf_macrohimc_cutoff_lm = lm(himc_macro_cutoff_diff ~ refpan_maf, data = maf_combined_summary_means)
+maf_macrohimc_cutoff_lm_sum = summary(emmeans(maf_macrohimc_cutoff_lm, pairwise ~ refpan_maf))
+
+write_csv(anova(maf_macrohimc_cutoff_lm),                        maf_macrohimc_table_anova_out)
+write_csv(maf_macrohimc_cutoff_lm_sum$emmeans,                   maf_macrohimc_table_emmeans_out)
+write_csv(add_signf_code(maf_macrohimc_cutoff_lm_sum$contrasts), maf_macrohimc_table_contrasts_out)
+
+khap_macrohimc_table_anova_out = paste0(out_prefix,     "khap_macrohimc_anova.csv")
+khap_macrohimc_table_emmeans_out = paste0(out_prefix,   "khap_macrohimc_emmeans.csv")
+khap_macrohimc_table_contrasts_out = paste0(out_prefix, "khap_macrohimc_contrasts.csv")
+
+khap_macrohimc_cutoff_lm = lm(himc_macro_cutoff_diff ~ k_hap, data = khap_combined_summary_means)
+khap_macrohimc_cutoff_lm_sum = summary(emmeans(khap_macrohimc_cutoff_lm, pairwise ~ k_hap))
+
+write_csv(anova(khap_macrohimc_cutoff_lm),                        khap_macrohimc_table_anova_out)
+write_csv(khap_macrohimc_cutoff_lm_sum$emmeans,                   khap_macrohimc_table_emmeans_out)
+write_csv(add_signf_code(khap_macrohimc_cutoff_lm_sum$contrasts), khap_macrohimc_table_contrasts_out)
 
 
 # END!
