@@ -22,16 +22,36 @@ maf.panel = c("ReferencePanel_v2", "ReferencePanel_v4", "ReferencePanel_v3")
 maf.var = c("MAF1%", "MAF0.5%", "MAF0.1%")
 maf.lab = c("MAF>1%", "MAF>0.5%", "MAF>0.1%")
 
+dir("/Volumes/TimMcInerney/MitoImpute/analyses/combined_summaries/")
+
 maf_combined_summary_file  = "/Volumes/TimMcInerney/MitoImpute/analyses/combined_summaries/MAF_combined.csv"
 khap_combined_summary_file = "/Volumes/TimMcInerney/MitoImpute/analyses/combined_summaries/kHAP_combined.csv"
+maf_info_combined_file     = "/Volumes/TimMcInerney/MitoImpute/analyses/combined_summaries/MAF_MCC_concatenated.csv"
+khap_info_combined_file    = "/Volumes/TimMcInerney/MitoImpute/analyses/combined_summaries/kHAP_MCC_concatenated.csv"
+
 
 out_prefix = "~/GitCode/MitoImputePrep/supplementary_information/R_tables/"
 
 maf_combined_summary  = read_csv(maf_combined_summary_file)
 khap_combined_summary = read_csv(khap_combined_summary_file)
+maf_info_combined     = read_csv(maf_info_combined_file)
+khap_info_combined    = read_csv(khap_info_combined_file)
+
+maf_info_combined_summary = maf_info_combined %>%
+  filter(type == 0) %>%
+  group_by(array, refpan_maf, k_hap) %>%
+  summarise(mean_info = mean(info, na.rm = T),
+            mean_mcc  = mean(mcc, na.rm = T))
+
+khap_info_combined_summary = khap_info_combined %>%
+  filter(type == 0) %>%
+  group_by(array, refpan_maf, k_hap) %>%
+  summarise(mean_info = mean(info, na.rm = T),
+            mean_mcc  = mean(mcc, na.rm = T))
 
 mcc_maf_combined_summary
 mac_khap_combined_summary
+info_combined_summary
 
 maf_combined_summary = maf_combined_summary %>% 
   mutate(array = as.factor(array),
@@ -251,5 +271,6 @@ write_csv(anova(khap_macrohimc_cutoff_lm),                        khap_macrohimc
 write_csv(khap_macrohimc_cutoff_lm_sum$emmeans,                   khap_macrohimc_table_emmeans_out)
 write_csv(add_signf_code(khap_macrohimc_cutoff_lm_sum$contrasts), khap_macrohimc_table_contrasts_out)
 
+# INFO SCORE
 
 # END!
