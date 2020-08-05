@@ -762,6 +762,8 @@ else
 fi
 
 
+exit
+
 # SUMMARISE EVERYTHING!
 final_summary_file=${imp_dir}chrMT_1kg_${MtPlatforms}_imputed_kHAP${khap}_SUMMARY.csv
 
