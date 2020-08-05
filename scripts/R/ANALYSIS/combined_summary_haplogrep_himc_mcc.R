@@ -126,12 +126,14 @@ if (khap_run == T) {
       
       if (i == 1 && j == 1) {
         # READ IN SUMMARY FILE AS COMBINED SUMMARY IF FIRST IN LIST
-        combined_summary = read_csv(summary_file, col_names = T)
+        #combined_summary = read_csv(summary_file, col_names = T)
+        combined_summary = read_tsv(summary_file, col_names = T)
       } else {
         # OTHERWISE CHECK TO SEE IF FILE EXISTS
         if (file.exists(summary_file)) {
           # IF IT FOES, READ IT IN, THEN COMBINED
-          tmp_summary = read_csv(summary_file, col_names = T)
+          #tmp_summary = read_csv(summary_file, col_names = T)
+          tmp_summary = read_tsv(summary_file, col_names = T)
           combined_summary = bind_rows(combined_summary, tmp_summary)
         } else {
           # IF NOT, CREATE AN EMPTY DATA FRAME WITH THE ARRAY NAME AND IMPUTED AS FALSE
