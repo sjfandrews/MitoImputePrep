@@ -313,9 +313,16 @@ summary_df = as_tibble(data.frame(array = strand, mcmc = mcmc, refpan_maf = maf,
          median_haplogrep_distance_jc_imputed_cutoff       = median(as.numeric(haplogrep_df$HaploGrep_imputed_cutoff_jc), na.rm = T),
          q3_haplogrep_distance_jc_imputed_cutoff           = quantile(haplogrep_df$HaploGrep_imputed_cutoff_jc, na.rm = T, probs = 0.75)
          ) %>%
+  #write_csv(path = out_file)
   write_tsv(path = out_file)
 
 summary_df
+
+if (file.exists(path = out_file)) {
+  message(paste0("SUMMARY FILE SUCCESSFULLY WRITTEN TO: ", out_file))
+} else {
+  message(paste0("COULD NOT FIND SUMMARY FILE: ", out_file))
+}
 
 message("")
 message(printTime(proc.time() - start.time))

@@ -47,6 +47,13 @@ imputed_1kGP_file        = args[3] # HAPLOGREP FILE FOR FOR IMPUTED DATA
 imputed_1kGP_cutoff_file = args[4] # HAPLOGREP FILE FOR FOR IMPUTED (with info score cutoff) DATA
 out_file                 = args[5] # OUTPUT FILE
 
+message("")
+message("INPUTS PARAMETERS")
+message(paste0("TRUTH HAPLOGREP FILE:               ", full_1kGP_file))
+message(paste0("GENOTYPED HAPLOGREP FILE:           ", typed_1kGP_file))
+message(paste0("IMPUTED HAPLOGREP FILE:             ", imputed_1kGP_file))
+message(paste0("IMPUTED (CUTOFF) HAPLOGREP FILE:    ", imputed_1kGP_cutoff_file))
+
 full_1kGP           = read_delim(full_1kGP_file, delim = "\t", col_names = T)
 typed_1kGP          = read_delim(typed_1kGP_file, delim = "\t", col_names = T)
 imputed_1kGP        = read_delim(imputed_1kGP_file, delim = "\t", col_names = T)
@@ -58,6 +65,10 @@ if (is.na(out_file) || is.null(out_file)) {
   out_file = sub(pattern = "_cutoffRetained_haplogrep.txt", replacement = "_HaploGrep_haplogroups.tsv", x = imputed_1kGP_cutoff_file)
   message(paste0("DEFAULTING TO:  ", out_file))
 }
+
+message("")
+message(paste0("OUTPUT FILE:          ", out_file))
+message("")
 
 full_1kGP = full_1kGP %>%
   #mutate(SampleID = unlist(str_split(string = SampleID, "_"))[1]) %>%
