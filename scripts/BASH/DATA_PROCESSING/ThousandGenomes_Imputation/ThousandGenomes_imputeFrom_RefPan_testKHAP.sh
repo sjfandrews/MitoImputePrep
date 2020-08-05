@@ -747,7 +747,8 @@ typed_1kGP_hg=${strand_dir}chrMT_1kg_${MtPlatforms}_diploid_haplogrep.txt
 imputed_1kGP_hg=${imp_ext}_haplogrep.txt
 imputed_cutoff_1kGP_hg=${imp_ext}_cutoffRetained_haplogrep.txt
 
-haplogrep_hg_file=${imp_ext}_HaploGrep_haplogroups.csv
+#haplogrep_hg_file=${imp_ext}_HaploGrep_haplogroups.csv
+haplogrep_hg_file=${imp_ext}_HaploGrep_haplogroups.tsv
 
 
 if [ -s ${haplogrep_hg_file} ]
