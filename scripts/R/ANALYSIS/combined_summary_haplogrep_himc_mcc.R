@@ -31,6 +31,8 @@ if (maf_run == T) {
 message("")
 message("")
 
+stop("TEST!")
+
 wd = "/g/data1a/te53/MitoImpute/data/STRANDS/"
 
 out_file1 = "/g/data1a/te53/MitoImpute/analyses/combined_summaries/MAF_combined.csv"
