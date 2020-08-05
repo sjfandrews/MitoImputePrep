@@ -765,8 +765,6 @@ else
 	Rscript ~/GitCode/MitoImputePrep/scripts/R/DATA_PROCESSING/HaploGrep_haplogrouping.R ${full_1kGP_hg} ${typed_1kGP_hg} ${imputed_1kGP_hg} ${imputed_cutoff_1kGP_hg}
 fi
 
-exit
-
 # SUMMARISE EVERYTHING!
 final_summary_file=${imp_dir}chrMT_1kg_${MtPlatforms}_imputed_MCMC${mcmc}_SUMMARY.csv
 
