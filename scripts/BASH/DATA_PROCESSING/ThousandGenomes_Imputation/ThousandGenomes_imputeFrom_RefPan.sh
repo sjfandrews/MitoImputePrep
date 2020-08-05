@@ -758,6 +758,7 @@ if [ -s ${haplogrep_hg_file} ]
 then
 	echo
 	echo "${haplogrep_hg_file} FOUND!	...	PASSING"
+	Rscript ~/GitCode/MitoImputePrep/scripts/R/DATA_PROCESSING/HaploGrep_haplogrouping.R ${full_1kGP_hg} ${typed_1kGP_hg} ${imputed_1kGP_hg} ${imputed_cutoff_1kGP_hg}
 else
 	echo
 	echo "${haplogrep_hg_file} NOT FOUND!	...	GENERATING HiMC HAPLOGROUPINGS"
