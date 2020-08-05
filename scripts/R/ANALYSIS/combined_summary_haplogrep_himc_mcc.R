@@ -93,15 +93,16 @@ if (maf_run == T) {
     }
     
   }
+  
+  write_csv(x = combined_summary, path = out_file1)
+  
+  if (file.exists(out_file1)) {
+    message(paste0("OUTPUT FILE WRITTEN TO:  ", out_file1))
+  }
+  
+  print(combined_summary)
 }
 
-write_csv(x = combined_summary, path = out_file1)
-
-if (file.exists(out_file1)) {
-  message(paste0("OUTPUT FILE WRITTEN TO:  ", out_file1))
-}
-
-print(combined_summary)
 
 # KHAP EXPERIMENTS
 
@@ -147,11 +148,12 @@ if (khap_run == T) {
     }
     
   }
+  
+  write_csv(x = combined_summary, path = out_file2)
+  
+  if (file.exists(out_file1)) {
+    message(paste0("OUTPUT FILE WRITTEN TO:  ", out_file2))
+  }
 }
 
 
-write_csv(x = combined_summary, path = out_file2)
-
-if (file.exists(out_file1)) {
-  message(paste0("OUTPUT FILE WRITTEN TO:  ", out_file2))
-}
