@@ -54,7 +54,8 @@ mcc_cutoff_file  = args[11]
 #mcc_file         = "/Volumes/TimMcInerney/MitoImpute/data/STRANDS/Human610-Quadv1_B-b37/ReferencePanel_v1-unique_0.01/kHAP100_uniqueseqs/chrMT_1kg_Human610-Quadv1_B-b37_imputed_kHAP100_imputed_MCC.csv"
 #mcc_cutoff_file  = "/Volumes/TimMcInerney/MitoImpute/data/STRANDS/Human610-Quadv1_B-b37/ReferencePanel_v1-unique_0.01/kHAP100_uniqueseqs/chrMT_1kg_Human610-Quadv1_B-b37_imputed_kHAP100_cutoffRetained_imputed_MCC.csv"
 
-out_file = sub(pattern = "_HaploGrep_haplogroups.csv", replacement = "_SUMMARY.csv", x = haplogrep_file)
+#out_file = sub(pattern = "_HaploGrep_haplogroups.csv", replacement = "_SUMMARY.csv", x = haplogrep_file)
+out_file = sub(pattern = "_HaploGrep_haplogroups.csv", replacement = "_SUMMARY.tsv", x = haplogrep_file)
 
 #strand  = "Human610-Quadv1_B-b37"
 #mcmc    = "MCMC1"
@@ -312,7 +313,7 @@ summary_df = as_tibble(data.frame(array = strand, mcmc = mcmc, refpan_maf = maf,
          median_haplogrep_distance_jc_imputed_cutoff       = median(as.numeric(haplogrep_df$HaploGrep_imputed_cutoff_jc), na.rm = T),
          q3_haplogrep_distance_jc_imputed_cutoff           = quantile(haplogrep_df$HaploGrep_imputed_cutoff_jc, na.rm = T, probs = 0.75)
          ) %>%
-  write_csv(path = out_file)
+  write_tsv(path = out_file)
 
 summary_df
 
