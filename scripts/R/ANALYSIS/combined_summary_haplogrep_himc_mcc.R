@@ -1,5 +1,36 @@
 library(tidyverse)
 
+args = commandArgs(trailingOnly = TRUE) # Set arguments from the command line
+khap_run = args[1]
+maf_run  = args[2]
+
+if (is.na(khap_run) || is.null(khap_run)) {
+  khap_run = T
+}
+
+if (is.na(maf_run) || is.null(maf_run)) {
+  maf_run = T
+}
+
+if (khap_run == toupper("TRUE") || khap_run == toupper("T")) {
+  khap_run = T
+}
+
+if (maf_run == toupper("TRUE") || maf_run == toupper("T")) {
+  maf_run = T
+}
+
+message("")
+message("")
+if (khap_run == T) {
+  message("COMBINING KHAP")
+}
+if (maf_run == T) {
+  message("COMBINING MAF")
+}
+message("")
+message("")
+
 wd = "/g/data1a/te53/MitoImpute/data/STRANDS/"
 
 out_file1 = "/g/data1a/te53/MitoImpute/analyses/combined_summaries/MAF_combined.csv"
@@ -30,7 +61,8 @@ for (i in 1:length(maf.panel)) {
     cat("WORKING ON ", ref_pan, " | ", strand, "\r")
     
     # SET SUMMARY FILE
-    summary_file = paste0(wd, strand, "/", ref_pan, "/MCMC1/chrMT_1kg_", strand, "_imputed_MCMC1_SUMMARY.csv")
+    #summary_file = paste0(wd, strand, "/", ref_pan, "/MCMC1/chrMT_1kg_", strand, "_imputed_MCMC1_SUMMARY.csv")
+    summary_file = paste0(wd, strand, "/", ref_pan, "/MCMC1/chrMT_1kg_", strand, "_imputed_MCMC1_SUMMARY.tsv")
     
     if (i == 1 && j == 1) {
       # READ IN SUMMARY FILE AS COMBINED SUMMARY IF FIRST IN LIST
@@ -81,7 +113,8 @@ for (i in 1:length(khap.var)) {
     cat("WORKING ON ", khap, " | ", strand, "\r")
     
     # SET SUMMARY FILE
-    summary_file = paste0(wd, strand, "/kHAP_Experiments/", khap, "/chrMT_1kg_", strand, "_imputed_", khap, "_SUMMARY.csv")
+    #summary_file = paste0(wd, strand, "/kHAP_Experiments/", khap, "/chrMT_1kg_", strand, "_imputed_", khap, "_SUMMARY.csv")
+    summary_file = paste0(wd, strand, "/kHAP_Experiments/", khap, "/chrMT_1kg_", strand, "_imputed_", khap, "_SUMMARY.tsv")
     
     if (i == 1 && j == 1) {
       # READ IN SUMMARY FILE AS COMBINED SUMMARY IF FIRST IN LIST

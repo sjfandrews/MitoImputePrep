@@ -84,7 +84,8 @@ for (i in 1:length(khap.var)) {
     cat("WORKING ON ", khap, " | ", strand, "\r")
     
     # SET SUMMARY FILE
-    summary_file = paste0(wd, strand, "/kHAP_Experiments/", khap, "/chrMT_1kg_", strand, "_imputed_", khap, "_HaploGrep_haplogroups.csv")
+    #summary_file = paste0(wd, strand, "/kHAP_Experiments/", khap, "/chrMT_1kg_", strand, "_imputed_", khap, "_HaploGrep_haplogroups.csv")
+    summary_file = paste0(wd, strand, "/kHAP_Experiments/", khap, "/chrMT_1kg_", strand, "_imputed_", khap, "_HaploGrep_haplogroups.tsv")
     
     if (i == 1 && j == 1) {
       # READ IN SUMMARY FILE AS COMBINED SUMMARY IF FIRST IN LIST
