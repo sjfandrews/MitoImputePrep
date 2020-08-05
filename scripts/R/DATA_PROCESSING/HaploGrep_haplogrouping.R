@@ -76,6 +76,10 @@ full_1kGP = full_1kGP %>%
 
 hg_exceptions = c("^L", "HV", "JT")
 
+typed_1kGP$SampleID          = full_1kGP$SampleID
+imputed_1kGP$SampleID        = full_1kGP$SampleID
+imputed_1kGP_cutoff$SampleID = full_1kGP$SampleID
+
 full_1kGP = full_1kGP %>%
   mutate(Macrohaplogroup = if_else(str_detect(Haplogroup, hg_exceptions),
                                    substr(Haplogroup, start = 1, stop = 2),
