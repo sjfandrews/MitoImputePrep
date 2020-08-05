@@ -31,7 +31,7 @@ if (maf_run == T) {
 message("")
 message("")
 
-stop("TEST!")
+#stop("TEST!")
 
 wd = "/g/data1a/te53/MitoImpute/data/STRANDS/"
 
