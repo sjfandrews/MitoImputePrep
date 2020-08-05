@@ -50,47 +50,49 @@ maf.var = c("MAF1%", "MAF0.5%", "MAF0.1%")
 
 # MAF EXPERIMENTS
 
-for (i in 1:length(maf.panel)) {
-  # SET REFERENCE PANEL
-  ref_pan = maf.panel[i]
-  maf     = maf.var[i]
-  
-  for (j in 1:nrow(strands)) {
-    # SET STRAND
-    strand = strands$X1[j]
+if (maf_run == T) {
+  for (i in 1:length(maf.panel)) {
+    # SET REFERENCE PANEL
+    ref_pan = maf.panel[i]
+    maf     = maf.var[i]
     
-    # ECHO INFO
-    cat("WORKING ON ", ref_pan, " | ", strand, "\r")
-    
-    # SET SUMMARY FILE
-    #summary_file = paste0(wd, strand, "/", ref_pan, "/MCMC1/chrMT_1kg_", strand, "_imputed_MCMC1_SUMMARY.csv")
-    summary_file = paste0(wd, strand, "/", ref_pan, "/MCMC1/chrMT_1kg_", strand, "_imputed_MCMC1_SUMMARY.tsv")
-    
-    if (i == 1 && j == 1) {
-      # READ IN SUMMARY FILE AS COMBINED SUMMARY IF FIRST IN LIST
-      combined_summary = read_csv(summary_file, col_names = T)
-    } else {
-      # OTHERWISE CHECK TO SEE IF FILE EXISTS
-      if (file.exists(summary_file)) {
-        # IF IT FOES, READ IT IN, THEN COMBINED
-        tmp_summary = read_csv(summary_file, col_names = T)
-        combined_summary = bind_rows(combined_summary, tmp_summary)
+    for (j in 1:nrow(strands)) {
+      # SET STRAND
+      strand = strands$X1[j]
+      
+      # ECHO INFO
+      cat("WORKING ON ", ref_pan, " | ", strand, "\r")
+      
+      # SET SUMMARY FILE
+      #summary_file = paste0(wd, strand, "/", ref_pan, "/MCMC1/chrMT_1kg_", strand, "_imputed_MCMC1_SUMMARY.csv")
+      summary_file = paste0(wd, strand, "/", ref_pan, "/MCMC1/chrMT_1kg_", strand, "_imputed_MCMC1_SUMMARY.tsv")
+      
+      if (i == 1 && j == 1) {
+        # READ IN SUMMARY FILE AS COMBINED SUMMARY IF FIRST IN LIST
+        combined_summary = read_csv(summary_file, col_names = T)
       } else {
-        # IF NOT, CREATE AN EMPTY DATA FRAME WITH THE ARRAY NAME AND IMPUTED AS FALSE
-        tmp_empty_summary = as_tibble(data.frame(matrix(NA, nrow = 1, ncol = ncol(combined_summary))))
-        names(tmp_empty_summary) = names(combined_summary)
-        tmp_empty_summary$array[1] = strand
-        tmp_empty_summary$imputed[1] = FALSE
-        tmp_empty_summary$refpan_maf = maf
-        tmp_empty_summary$mcmc = "MCMC1"
-        tmp_empty_summary$k_hap = "kHAP500"
-        combined_summary = bind_rows(combined_summary, tmp_empty_summary)
+        # OTHERWISE CHECK TO SEE IF FILE EXISTS
+        if (file.exists(summary_file)) {
+          # IF IT FOES, READ IT IN, THEN COMBINED
+          tmp_summary = read_csv(summary_file, col_names = T)
+          combined_summary = bind_rows(combined_summary, tmp_summary)
+        } else {
+          # IF NOT, CREATE AN EMPTY DATA FRAME WITH THE ARRAY NAME AND IMPUTED AS FALSE
+          tmp_empty_summary = as_tibble(data.frame(matrix(NA, nrow = 1, ncol = ncol(combined_summary))))
+          names(tmp_empty_summary) = names(combined_summary)
+          tmp_empty_summary$array[1] = strand
+          tmp_empty_summary$imputed[1] = FALSE
+          tmp_empty_summary$refpan_maf = maf
+          tmp_empty_summary$mcmc = "MCMC1"
+          tmp_empty_summary$k_hap = "kHAP500"
+          combined_summary = bind_rows(combined_summary, tmp_empty_summary)
+        }
+        
       }
       
     }
     
   }
-  
 }
 
 write_csv(x = combined_summary, path = out_file1)
@@ -103,46 +105,48 @@ print(combined_summary)
 
 # KHAP EXPERIMENTS
 
-for (i in 1:length(khap.var)) {
-  # SET REFERENCE PANEL
-  khap =  khap.var[i]
-  
-  for (j in 1:nrow(strands)) {
-    # SET STRAND
-    strand = strands$X1[j]
+if (khap_run == T) {
+  for (i in 1:length(khap.var)) {
+    # SET REFERENCE PANEL
+    khap =  khap.var[i]
     
-    # ECHO INFO
-    cat("WORKING ON ", khap, " | ", strand, "\r")
-    
-    # SET SUMMARY FILE
-    #summary_file = paste0(wd, strand, "/kHAP_Experiments/", khap, "/chrMT_1kg_", strand, "_imputed_", khap, "_SUMMARY.csv")
-    summary_file = paste0(wd, strand, "/kHAP_Experiments/", khap, "/chrMT_1kg_", strand, "_imputed_", khap, "_SUMMARY.tsv")
-    
-    if (i == 1 && j == 1) {
-      # READ IN SUMMARY FILE AS COMBINED SUMMARY IF FIRST IN LIST
-      combined_summary = read_csv(summary_file, col_names = T)
-    } else {
-      # OTHERWISE CHECK TO SEE IF FILE EXISTS
-      if (file.exists(summary_file)) {
-        # IF IT FOES, READ IT IN, THEN COMBINED
-        tmp_summary = read_csv(summary_file, col_names = T)
-        combined_summary = bind_rows(combined_summary, tmp_summary)
+    for (j in 1:nrow(strands)) {
+      # SET STRAND
+      strand = strands$X1[j]
+      
+      # ECHO INFO
+      cat("WORKING ON ", khap, " | ", strand, "\r")
+      
+      # SET SUMMARY FILE
+      #summary_file = paste0(wd, strand, "/kHAP_Experiments/", khap, "/chrMT_1kg_", strand, "_imputed_", khap, "_SUMMARY.csv")
+      summary_file = paste0(wd, strand, "/kHAP_Experiments/", khap, "/chrMT_1kg_", strand, "_imputed_", khap, "_SUMMARY.tsv")
+      
+      if (i == 1 && j == 1) {
+        # READ IN SUMMARY FILE AS COMBINED SUMMARY IF FIRST IN LIST
+        combined_summary = read_csv(summary_file, col_names = T)
       } else {
-        # IF NOT, CREATE AN EMPTY DATA FRAME WITH THE ARRAY NAME AND IMPUTED AS FALSE
-        tmp_empty_summary = as_tibble(data.frame(matrix(NA, nrow = 1, ncol = ncol(combined_summary))))
-        names(tmp_empty_summary) = names(combined_summary)
-        tmp_empty_summary$array[1] = strand
-        tmp_empty_summary$imputed[1] = FALSE
-        tmp_empty_summary$refpan_maf = "MAF1%"
-        tmp_empty_summary$mcmc = "MCMC1"
-        tmp_empty_summary$k_hap = khap
-        combined_summary = bind_rows(combined_summary, tmp_empty_summary)
+        # OTHERWISE CHECK TO SEE IF FILE EXISTS
+        if (file.exists(summary_file)) {
+          # IF IT FOES, READ IT IN, THEN COMBINED
+          tmp_summary = read_csv(summary_file, col_names = T)
+          combined_summary = bind_rows(combined_summary, tmp_summary)
+        } else {
+          # IF NOT, CREATE AN EMPTY DATA FRAME WITH THE ARRAY NAME AND IMPUTED AS FALSE
+          tmp_empty_summary = as_tibble(data.frame(matrix(NA, nrow = 1, ncol = ncol(combined_summary))))
+          names(tmp_empty_summary) = names(combined_summary)
+          tmp_empty_summary$array[1] = strand
+          tmp_empty_summary$imputed[1] = FALSE
+          tmp_empty_summary$refpan_maf = "MAF1%"
+          tmp_empty_summary$mcmc = "MCMC1"
+          tmp_empty_summary$k_hap = khap
+          combined_summary = bind_rows(combined_summary, tmp_empty_summary)
+        }
+        
       }
       
     }
     
   }
-  
 }
 
 
