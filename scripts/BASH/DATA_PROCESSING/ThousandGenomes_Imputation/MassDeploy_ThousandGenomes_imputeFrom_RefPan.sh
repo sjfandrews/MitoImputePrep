@@ -20,7 +20,7 @@ echo "sh ~/GitCode/MitoImputePrep/scripts/BASH/MassDeploy_ThousandGenomes_impute
 
 for i in `cat ${STRAND_LIST}`; do
 	#summary_file=/g/data1a/te53/MitoImpute/data/STRANDS/${i}/${REFpanel}/MCMC${MCMC}/chrMT_1kg_${i}_imputed_MCMC${MCMC}_SUMMARY.csv
-	summary_file=/g/data1a/te53/MitoImpute/data/STRANDS/${i}/${REFpanel}/MCMC${MCMC}/chrMT_1kg_${i}_imputed_MCMC${MCMC}_SUMMARY.tsv2
+	summary_file=/g/data1a/te53/MitoImpute/data/STRANDS/${i}/${REFpanel}/MCMC${MCMC}/chrMT_1kg_${i}_imputed_MCMC${MCMC}_SUMMARY.tsv
 	
 	#echo ${summary_file}
 	
