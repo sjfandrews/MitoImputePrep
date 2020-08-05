@@ -72,7 +72,8 @@ message("")
 
 full_1kGP = full_1kGP %>%
   #mutate(SampleID = unlist(str_split(string = SampleID, "_"))[1]) %>%
-  select(SampleID, Range, Haplogroup, Rank, Quality)
+  select(SampleID, Range, Haplogroup, Rank, Quality) %>%
+  filter(SampleID != "NC_012920")
 
 hg_exceptions = c("^L", "HV", "JT")
 
