@@ -3,7 +3,7 @@
 STRAND_LIST=~/GitCode/MitoImputePrep/scripts/INFORMATION_LISTS/b37_platforms.txt
 STRAND_LIST=~/GitCode/MitoImputePrep/scripts/INFORMATION_LISTS/b37_platforms_smallTest.txt
 STRAND_LIST=~/GitCode/MitoImputePrep/scripts/INFORMATION_LISTS/b37_platforms_imputedOnly.txt
-STRAND_LIST=~/GitCode/MitoImputePrep/scripts/INFORMATION_LISTS/b37_platforms_imputedOnly_smaller.txt
+#STRAND_LIST=~/GitCode/MitoImputePrep/scripts/INFORMATION_LISTS/b37_platforms_imputedOnly_smaller.txt
 MCMC_list=~/GitCode/MitoImputePrep/scripts/INFORMATION_LISTS/MCMC_list.txt
 
 REFpanel=$1
@@ -20,7 +20,7 @@ echo "sh ~/GitCode/MitoImputePrep/scripts/BASH/MassDeploy_ThousandGenomes_impute
 
 for i in `cat ${STRAND_LIST}`; do
 	#summary_file=/g/data1a/te53/MitoImpute/data/STRANDS/${i}/${REFpanel}/MCMC${MCMC}/chrMT_1kg_${i}_imputed_MCMC${MCMC}_SUMMARY.csv
-	summary_file=/g/data1a/te53/MitoImpute/data/STRANDS/${i}/${REFpanel}/MCMC${MCMC}/chrMT_1kg_${i}_imputed_MCMC${MCMC}_SUMMARY.tsv
+	summary_file=/g/data1a/te53/MitoImpute/data/STRANDS/${i}/${REFpanel}/MCMC${MCMC}/chrMT_1kg_${i}_imputed_MCMC${MCMC}_SUMMARY.tsv2
 	
 	#echo ${summary_file}
 	
