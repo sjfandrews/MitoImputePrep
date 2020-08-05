@@ -54,7 +54,8 @@ imputed_1kGP_cutoff = read_delim(imputed_1kGP_cutoff_file, delim = "\t", col_nam
 
 if (is.na(out_file) || is.null(out_file)) {
   message("OUTPUT FILE NOT DETECTED")
-  out_file = sub(pattern = "_cutoffRetained_haplogrep.txt", replacement = "_HaploGrep_haplogroups.csv", x = imputed_1kGP_cutoff_file)
+  #out_file = sub(pattern = "_cutoffRetained_haplogrep.txt", replacement = "_HaploGrep_haplogroups.csv", x = imputed_1kGP_cutoff_file)
+  out_file = sub(pattern = "_cutoffRetained_haplogrep.txt", replacement = "_HaploGrep_haplogroups.tsv", x = imputed_1kGP_cutoff_file)
   message(paste0("DEFAULTING TO:  ", out_file))
 }
 
@@ -113,8 +114,9 @@ joined_table = full_1kGP %>%
          HaploGrep_imputed_cutoff_dl = stringdist(HaploGrep_Haplogroup_truth, HaploGrep_Haplogroup_imputed_cutoff, method = "dl"),
          HaploGrep_imputed_cutoff_lv = stringdist(HaploGrep_Haplogroup_truth, HaploGrep_Haplogroup_imputed_cutoff, method = "lv"),
          HaploGrep_imputed_cutoff_jc = stringdist(HaploGrep_Haplogroup_truth, HaploGrep_Haplogroup_imputed_cutoff, method = "jaccard")) %>%
-  write_csv(path = out_file)
-
+  #write_csv(path = out_file)
+  write_tsv(path = out_file)
+  
 if (file.exists(out_file)) {
   message(paste0("FILE SUCCESSFULLY WRITTEN TO: ", out_file))
 } else {
