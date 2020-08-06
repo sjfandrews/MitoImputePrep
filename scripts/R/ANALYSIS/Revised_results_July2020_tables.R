@@ -669,24 +669,40 @@ adni_mcc_95 = adni_mcc %>%
   arrange(desc(mcc_mean)) %>%
   print(n=Inf)
 
+recommended_info_perchip_summaries %>%
+  filter(grepl("610", x = array))
+
+
 adni_haplogrep_summary_out = paste0(out_prefix, "adni_haplogrep_summary.csv")
 adni_haplogrep_95 = adni_haplogrep %>%
   mutate_at(vars(contains("Haplogroup")), .funs = as.factor) %>%
   group_by(HaploGrep_Macrohaplogroup_truth) %>%
-  summarise(haplogrep_typed_concordance_mean    = confidence.interval(HaploGrep_typed_macro_match)[1],
-            haplogrep_typed_concordance_lower   = confidence.interval(HaploGrep_typed_macro_match)[2],
-            haplogrep_typed_concordance_upper   = confidence.interval(HaploGrep_typed_macro_match)[3],
-            haplogrep_typed_concordance_df      = confidence.interval(HaploGrep_typed_macro_match)[4],
-            haplogrep_imputed_concordance_mean  = confidence.interval(HaploGrep_imputed_macro_match)[1],
-            haplogrep_imputed_concordance_lower = confidence.interval(HaploGrep_imputed_macro_match)[2],
-            haplogrep_imputed_concordance_upper = confidence.interval(HaploGrep_imputed_macro_match)[3],
-            haplogrep_imputed_concordance_df    = confidence.interval(HaploGrep_imputed_macro_match)[4]) %>%
+  summarise(typed_concordance_mean    = confidence.interval(HaploGrep_typed_macro_match)[1],
+            typed_concordance_lower   = confidence.interval(HaploGrep_typed_macro_match)[2],
+            typed_concordance_upper   = confidence.interval(HaploGrep_typed_macro_match)[3],
+            typed_concordance_df      = confidence.interval(HaploGrep_typed_macro_match)[4],
+            imputed_concordance_mean  = confidence.interval(HaploGrep_imputed_macro_match)[1],
+            imputed_concordance_lower = confidence.interval(HaploGrep_imputed_macro_match)[2],
+            imputed_concordance_upper = confidence.interval(HaploGrep_imputed_macro_match)[3],
+            imputed_concordance_df    = confidence.interval(HaploGrep_imputed_macro_match)[4],
+            diff                      = imputed_concordance_mean - typed_concordance_mean) %>%
   write_csv(path = adni_haplogrep_summary_out)
 
-recommended_info_perchip_summaries %>%
-  filter(grepl("610", x = array))
 
-adni_haplogrep %>%
+adni_himc_summary_out = paste0(out_prefix, "adni_himc_summary.csv")
+adni_himc_95 = adni_himc %>%
+  mutate_at(vars(contains("Haplogroup")), .funs = as.factor) %>%
+  group_by(HiMC_macrohaplogroup_truth) %>%
+  summarise(typed_concordance_mean    = confidence.interval(HiMC_typed_macro_match)[1],
+            typed_concordance_lower   = confidence.interval(HiMC_typed_macro_match)[2],
+            typed_concordance_upper   = confidence.interval(HiMC_typed_macro_match)[3],
+            typed_concordance_df      = confidence.interval(HiMC_typed_macro_match)[4],
+            imputed_concordance_mean  = confidence.interval(HiMC_imputed_macro_match)[1],
+            imputed_concordance_lower = confidence.interval(HiMC_imputed_macro_match)[2],
+            imputed_concordance_upper = confidence.interval(HiMC_imputed_macro_match)[3],
+            imputed_concordance_df    = confidence.interval(HiMC_imputed_macro_match)[4],
+            diff                      = imputed_concordance_mean - typed_concordance_mean) %>%
+  write_csv(path = adni_himc_summary_out)
 
 
 
