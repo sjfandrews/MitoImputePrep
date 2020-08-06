@@ -571,7 +571,7 @@ imputed_1kGP_hg=${out_dir}MitoImpute_${REFpanel}_imputed_FINAL_HaploGrep.txt
 imputed_cutoff_1kGP_hg=${out_dir}MitoImpute_${REFpanel}_imputed_cutoffRetained_haplogrep.txt
 
 
-haplogrep_hg_file=${imp_ext}_HaploGrep_haplogroups.csv
+haplogrep_hg_file=${imp_ext}_HaploGrep_haplogroups.tsv
 
 
 if [ -s ${haplogrep_hg_file} ]
