@@ -343,6 +343,7 @@ wd = 254 * plot_multiplier
 ht = 117 * plot_multiplier
 DPI = 600
 
+# MCC
 maf_mcc_plot = ggplot(maf_info_combined_summary, aes(x = refpan_maf, y = mean_mcc)) +
   geom_violin(na.rm = T, fill = pal_cols[2], alpha = (1/4), lwd = (1/4)) +
   geom_boxplot(na.rm = T, fill = pal_cols[2], alpha = (1/2), lwd = (1/4), width = (1/5), outlier.alpha = (1/1)) +
@@ -399,11 +400,14 @@ khap_mcc_plot = ggplot(khap_info_combined_summary, aes(x = reorder(k_hap, desc(k
 ggarrange(maf_mcc_plot, khap_mcc_plot, align = "hv", nrow = 2)
 ggsave(filename = paste0(plot_dir, "mean_mcc.png"), bg = "transparent", width = 250, height = 250, units = "mm", dpi = DPI)
 
-pa = ggplot(maf_combined_summary_means, aes(x = refpan_maf, y = haplogrep_cutoff_diff)) +
+# HAPLOGREP
+maf_haplogrep_typed_plot = ggplot(maf_combined_summary_means, aes(x = refpan_maf, y = mean_haplogrep_concordance_typed_macro)) +
   geom_violin(na.rm = T, fill = pal_cols[2], alpha = (1/4), lwd = (1/4)) +
   geom_boxplot(na.rm = T, fill = pal_cols[2], alpha = (1/2), lwd = (1/4), width = (1/5), outlier.alpha = (1/1)) +
   labs(x = "Reference panel\nminor allele frequency",
-       y = "Matthew's correlation coefficient (MCC)") +
+       #y = "Mean macrohaplogroup concordance\n(HaploGrep2.0)",
+       y = "") +
+  scale_y_continuous(limits = c(0, 1)) +
   theme(axis.text.x = element_text(colour = "black", size = rel(1.125)),
         axis.text.y = element_text(colour = "black", size = rel(1.125)),
         axis.title.x = element_text(colour = "black", size = rel(1.5)),
@@ -424,11 +428,14 @@ pa = ggplot(maf_combined_summary_means, aes(x = refpan_maf, y = haplogrep_cutoff
         plot.background = element_rect(fill = "transparent", colour = NA)) +
   coord_flip()
 
-pb = ggplot(maf_combined_summary_means, aes(x = refpan_maf, y = haplogrep_macro_cutoff_diff)) +
+maf_haplogrep_imputed_plot = ggplot(maf_combined_summary_means, aes(x = refpan_maf, y = mean_haplogrep_concordance_imputed_macro)) +
   geom_violin(na.rm = T, fill = pal_cols[2], alpha = (1/4), lwd = (1/4)) +
   geom_boxplot(na.rm = T, fill = pal_cols[2], alpha = (1/2), lwd = (1/4), width = (1/5), outlier.alpha = (1/1)) +
-  labs(x = "Reference panel\nminor allele frequency",
-       y = "Matthew's correlation coefficient (MCC)") +
+  labs(x = "",
+       #x = "Reference panel\nminor allele frequency",
+       #y = "Mean macrohaplogroup concordance\n(HaploGrep2.0)",
+       y = "") +
+  scale_y_continuous(limits = c(0, 1)) +
   theme(axis.text.x = element_text(colour = "black", size = rel(1.125)),
         axis.text.y = element_text(colour = "black", size = rel(1.125)),
         axis.title.x = element_text(colour = "black", size = rel(1.5)),
@@ -448,10 +455,290 @@ pb = ggplot(maf_combined_summary_means, aes(x = refpan_maf, y = haplogrep_macro_
         legend.background = element_rect(fill = "transparent", colour = NA),
         plot.background = element_rect(fill = "transparent", colour = NA)) +
   coord_flip()
-ggsave(filename = paste0(plot_dir, "maf_haplogrep_cutoff_diff.png"), bg = "transparent", width = wd, height = ht, units = "mm", dpi = DPI)
 
-ggarrange(pa,pb)
+maf_haplogrep_diff_plot = ggplot(maf_combined_summary_means, aes(x = refpan_maf, y = haplogrep_macro_cutoff_diff)) +
+  geom_violin(na.rm = T, fill = pal_cols[2], alpha = (1/4), lwd = (1/4)) +
+  geom_boxplot(na.rm = T, fill = pal_cols[2], alpha = (1/2), lwd = (1/4), width = (1/5), outlier.alpha = (1/1)) +
+  labs(x = "",
+       #x = "Reference panel\nminor allele frequency",
+       #y = "Mean difference in macrohaplogroup concordance\n(HaploGrep2.0)",
+       y = "") +
+  scale_y_continuous(limits = c(-0.25, 0.25)) +
+  theme(axis.text.x = element_text(colour = "black", size = rel(1.125)),
+        axis.text.y = element_text(colour = "black", size = rel(1.125)),
+        axis.title.x = element_text(colour = "black", size = rel(1.5)),
+        axis.title.y = element_text(colour = "black", size = rel(1.5)),
+        legend.text = element_text(size = rel(1.0)),
+        legend.title = element_text(size = rel(1.25)),
+        legend.position= "top",
+        plot.title = element_blank(),
+        strip.text.x = element_text(size = rel(5/5)),
+        strip.text.y = element_text(size = rel(5/5),),
+        panel.grid.major.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.minor.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        panel.background = element_rect(fill = "transparent", colour = "black"),
+        strip.background = element_rect(fill = "transparent", colour = NA),
+        legend.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA)) +
+  coord_flip()
 
+khap_haplogrep_typed_plot = ggplot(khap_combined_summary_means, aes(x = reorder(k_hap, desc(k_hap)), y = mean_haplogrep_concordance_typed_macro)) +
+  geom_violin(na.rm = T, fill = pal_cols[2], alpha = (1/4), lwd = (1/4)) +
+  geom_boxplot(na.rm = T, fill = pal_cols[2], alpha = (1/2), lwd = (1/4), width = (1/5), outlier.alpha = (1/1)) +
+  labs(x = "Number of included\nreference haplotypes",
+       y = "Mean macrohaplogroup concordance\n(HaploGrep2.0)") +
+  scale_y_continuous(limits = c(0, 1)) +
+  theme(axis.text.x = element_text(colour = "black", size = rel(1.125)),
+        axis.text.y = element_text(colour = "black", size = rel(1.125)),
+        axis.title.x = element_text(colour = "black", size = rel(1.5)),
+        axis.title.y = element_text(colour = "black", size = rel(1.5)),
+        legend.text = element_text(size = rel(1.0)),
+        legend.title = element_text(size = rel(1.25)),
+        legend.position= "top",
+        plot.title = element_blank(),
+        strip.text.x = element_text(size = rel(5/5)),
+        strip.text.y = element_text(size = rel(5/5),),
+        panel.grid.major.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.minor.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        panel.background = element_rect(fill = "transparent", colour = "black"),
+        strip.background = element_rect(fill = "transparent", colour = NA),
+        legend.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA)) +
+  coord_flip()
+
+khap_haplogrep_imputed_plot = ggplot(khap_combined_summary_means, aes(x = reorder(k_hap, desc(k_hap)), y = mean_haplogrep_concordance_imputed_macro)) +
+  geom_violin(na.rm = T, fill = pal_cols[2], alpha = (1/4), lwd = (1/4)) +
+  geom_boxplot(na.rm = T, fill = pal_cols[2], alpha = (1/2), lwd = (1/4), width = (1/5), outlier.alpha = (1/1)) +
+  labs(x = "",
+       #x = "Number of included\nreference haplotypes",
+       y = "Mean macrohaplogroup concordance\n(HaploGrep2.0)") +
+  scale_y_continuous(limits = c(0, 1)) +
+  theme(axis.text.x = element_text(colour = "black", size = rel(1.125)),
+        axis.text.y = element_text(colour = "black", size = rel(1.125)),
+        axis.title.x = element_text(colour = "black", size = rel(1.5)),
+        axis.title.y = element_text(colour = "black", size = rel(1.5)),
+        legend.text = element_text(size = rel(1.0)),
+        legend.title = element_text(size = rel(1.25)),
+        legend.position= "top",
+        plot.title = element_blank(),
+        strip.text.x = element_text(size = rel(5/5)),
+        strip.text.y = element_text(size = rel(5/5),),
+        panel.grid.major.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.minor.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        panel.background = element_rect(fill = "transparent", colour = "black"),
+        strip.background = element_rect(fill = "transparent", colour = NA),
+        legend.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA)) +
+  coord_flip()
+
+khap_haplogrep_diff_plot = ggplot(khap_combined_summary_means, aes(x = reorder(k_hap, desc(k_hap)), y = haplogrep_macro_cutoff_diff)) +
+  geom_violin(na.rm = T, fill = pal_cols[2], alpha = (1/4), lwd = (1/4)) +
+  geom_boxplot(na.rm = T, fill = pal_cols[2], alpha = (1/2), lwd = (1/4), width = (1/5), outlier.alpha = (1/1)) +
+  labs(x = "",
+       #x = "Number of included\nreference haplotypes",
+       y = "Mean difference in macrohaplogroup concordance\n(HaploGrep2.0)") +
+  scale_y_continuous(limits = c(-0.25, 0.25)) +
+  theme(axis.text.x = element_text(colour = "black", size = rel(1.125)),
+        axis.text.y = element_text(colour = "black", size = rel(1.125)),
+        axis.title.x = element_text(colour = "black", size = rel(1.5)),
+        axis.title.y = element_text(colour = "black", size = rel(1.5)),
+        legend.text = element_text(size = rel(1.0)),
+        legend.title = element_text(size = rel(1.25)),
+        legend.position= "top",
+        plot.title = element_blank(),
+        strip.text.x = element_text(size = rel(5/5)),
+        strip.text.y = element_text(size = rel(5/5),),
+        panel.grid.major.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.minor.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        panel.background = element_rect(fill = "transparent", colour = "black"),
+        strip.background = element_rect(fill = "transparent", colour = NA),
+        legend.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA)) +
+  coord_flip()
+
+ggarrange(maf_haplogrep_typed_plot, maf_haplogrep_imputed_plot, maf_haplogrep_diff_plot,
+          khap_haplogrep_typed_plot, khap_haplogrep_imputed_plot, khap_haplogrep_diff_plot,
+          align = "hv", nrow = 2, ncol = 3)
+ggsave(filename = paste0(plot_dir, "maf_haplgrep_comparison.png"), bg = "transparent", width = wd*2, height = ht*2, units = "mm", dpi = DPI)
+
+# HIMC
+maf_himc_typed_plot = ggplot(maf_combined_summary_means, aes(x = refpan_maf, y = mean_himc_concordance_typed_macro)) +
+  geom_violin(na.rm = T, fill = pal_cols[2], alpha = (1/4), lwd = (1/4)) +
+  geom_boxplot(na.rm = T, fill = pal_cols[2], alpha = (1/2), lwd = (1/4), width = (1/5), outlier.alpha = (1/1)) +
+  labs(x = "Reference panel\nminor allele frequency",
+       #y = "Mean macrohaplogroup concordance\n(Hi-MC)",
+       y = "") +
+  scale_y_continuous(limits = c(0, 1)) +
+  theme(axis.text.x = element_text(colour = "black", size = rel(1.125)),
+        axis.text.y = element_text(colour = "black", size = rel(1.125)),
+        axis.title.x = element_text(colour = "black", size = rel(1.5)),
+        axis.title.y = element_text(colour = "black", size = rel(1.5)),
+        legend.text = element_text(size = rel(1.0)),
+        legend.title = element_text(size = rel(1.25)),
+        legend.position= "top",
+        plot.title = element_blank(),
+        strip.text.x = element_text(size = rel(5/5)),
+        strip.text.y = element_text(size = rel(5/5),),
+        panel.grid.major.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.minor.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        panel.background = element_rect(fill = "transparent", colour = "black"),
+        strip.background = element_rect(fill = "transparent", colour = NA),
+        legend.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA)) +
+  coord_flip()
+
+maf_himc_imputed_plot = ggplot(maf_combined_summary_means, aes(x = refpan_maf, y = mean_himc_concordance_imputed_macro)) +
+  geom_violin(na.rm = T, fill = pal_cols[2], alpha = (1/4), lwd = (1/4)) +
+  geom_boxplot(na.rm = T, fill = pal_cols[2], alpha = (1/2), lwd = (1/4), width = (1/5), outlier.alpha = (1/1)) +
+  labs(x = "",
+       #x = "Reference panel\nminor allele frequency",
+       #y = "Mean macrohaplogroup concordance\n(Hi-MC)",
+       y = "") +
+  scale_y_continuous(limits = c(0, 1)) +
+  theme(axis.text.x = element_text(colour = "black", size = rel(1.125)),
+        axis.text.y = element_text(colour = "black", size = rel(1.125)),
+        axis.title.x = element_text(colour = "black", size = rel(1.5)),
+        axis.title.y = element_text(colour = "black", size = rel(1.5)),
+        legend.text = element_text(size = rel(1.0)),
+        legend.title = element_text(size = rel(1.25)),
+        legend.position= "top",
+        plot.title = element_blank(),
+        strip.text.x = element_text(size = rel(5/5)),
+        strip.text.y = element_text(size = rel(5/5),),
+        panel.grid.major.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.minor.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        panel.background = element_rect(fill = "transparent", colour = "black"),
+        strip.background = element_rect(fill = "transparent", colour = NA),
+        legend.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA)) +
+  coord_flip()
+
+maf_himc_diff_plot = ggplot(maf_combined_summary_means, aes(x = refpan_maf, y = himc_macro_cutoff_diff)) +
+  geom_violin(na.rm = T, fill = pal_cols[2], alpha = (1/4), lwd = (1/4)) +
+  geom_boxplot(na.rm = T, fill = pal_cols[2], alpha = (1/2), lwd = (1/4), width = (1/5), outlier.alpha = (1/1)) +
+  labs(x = "",
+       #x = "Reference panel\nminor allele frequency",
+       #y = "Mean macrohaplogroup concordance\n(Hi-MC)",
+       y = "") +
+  scale_y_continuous(limits = c(-0.65, 0.55)) +
+  theme(axis.text.x = element_text(colour = "black", size = rel(1.125)),
+        axis.text.y = element_text(colour = "black", size = rel(1.125)),
+        axis.title.x = element_text(colour = "black", size = rel(1.5)),
+        axis.title.y = element_text(colour = "black", size = rel(1.5)),
+        legend.text = element_text(size = rel(1.0)),
+        legend.title = element_text(size = rel(1.25)),
+        legend.position= "top",
+        plot.title = element_blank(),
+        strip.text.x = element_text(size = rel(5/5)),
+        strip.text.y = element_text(size = rel(5/5),),
+        panel.grid.major.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.minor.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        panel.background = element_rect(fill = "transparent", colour = "black"),
+        strip.background = element_rect(fill = "transparent", colour = NA),
+        legend.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA)) +
+  coord_flip()
+
+khap_himc_typed_plot = ggplot(khap_combined_summary_means, aes(x = reorder(k_hap, desc(k_hap)), y = mean_himc_concordance_typed_macro)) +
+  geom_violin(na.rm = T, fill = pal_cols[2], alpha = (1/4), lwd = (1/4)) +
+  geom_boxplot(na.rm = T, fill = pal_cols[2], alpha = (1/2), lwd = (1/4), width = (1/5), outlier.alpha = (1/1)) +
+  labs(x = "Number of included\nreference haplotypes",
+       y = "Mean macrohaplogroup concordance\n(Hi-MC)") +
+  scale_y_continuous(limits = c(0, 1)) +
+  theme(axis.text.x = element_text(colour = "black", size = rel(1.125)),
+        axis.text.y = element_text(colour = "black", size = rel(1.125)),
+        axis.title.x = element_text(colour = "black", size = rel(1.5)),
+        axis.title.y = element_text(colour = "black", size = rel(1.5)),
+        legend.text = element_text(size = rel(1.0)),
+        legend.title = element_text(size = rel(1.25)),
+        legend.position= "top",
+        plot.title = element_blank(),
+        strip.text.x = element_text(size = rel(5/5)),
+        strip.text.y = element_text(size = rel(5/5),),
+        panel.grid.major.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.minor.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        panel.background = element_rect(fill = "transparent", colour = "black"),
+        strip.background = element_rect(fill = "transparent", colour = NA),
+        legend.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA)) +
+  coord_flip()
+
+khap_himc_imputed_plot = ggplot(khap_combined_summary_means, aes(x = reorder(k_hap, desc(k_hap)), y = mean_himc_concordance_imputed_macro)) +
+  geom_violin(na.rm = T, fill = pal_cols[2], alpha = (1/4), lwd = (1/4)) +
+  geom_boxplot(na.rm = T, fill = pal_cols[2], alpha = (1/2), lwd = (1/4), width = (1/5), outlier.alpha = (1/1)) +
+  labs(x = "",
+       #x = "Number of included\nreference haplotypes",
+       y = "Mean macrohaplogroup concordance\n(Hi-MC)") +
+  scale_y_continuous(limits = c(0, 1)) +
+  theme(axis.text.x = element_text(colour = "black", size = rel(1.125)),
+        axis.text.y = element_text(colour = "black", size = rel(1.125)),
+        axis.title.x = element_text(colour = "black", size = rel(1.5)),
+        axis.title.y = element_text(colour = "black", size = rel(1.5)),
+        legend.text = element_text(size = rel(1.0)),
+        legend.title = element_text(size = rel(1.25)),
+        legend.position= "top",
+        plot.title = element_blank(),
+        strip.text.x = element_text(size = rel(5/5)),
+        strip.text.y = element_text(size = rel(5/5),),
+        panel.grid.major.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.minor.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        panel.background = element_rect(fill = "transparent", colour = "black"),
+        strip.background = element_rect(fill = "transparent", colour = NA),
+        legend.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA)) +
+  coord_flip()
+
+khap_himc_diff_plot = ggplot(khap_combined_summary_means, aes(x = reorder(k_hap, desc(k_hap)), y = himc_macro_cutoff_diff)) +
+  geom_violin(na.rm = T, fill = pal_cols[2], alpha = (1/4), lwd = (1/4)) +
+  geom_boxplot(na.rm = T, fill = pal_cols[2], alpha = (1/2), lwd = (1/4), width = (1/5), outlier.alpha = (1/1)) +
+  labs(x = "",
+       #x = "Number of included\nreference haplotypes",x = "Number of included\nreference haplotypes",
+       y = "Mean difference in macrohaplogroup concordance\n(Hi-MC)") +
+  scale_y_continuous(limits = c(-0.65, 0.55)) +
+  theme(axis.text.x = element_text(colour = "black", size = rel(1.125)),
+        axis.text.y = element_text(colour = "black", size = rel(1.125)),
+        axis.title.x = element_text(colour = "black", size = rel(1.5)),
+        axis.title.y = element_text(colour = "black", size = rel(1.5)),
+        legend.text = element_text(size = rel(1.0)),
+        legend.title = element_text(size = rel(1.25)),
+        legend.position= "top",
+        plot.title = element_blank(),
+        strip.text.x = element_text(size = rel(5/5)),
+        strip.text.y = element_text(size = rel(5/5),),
+        panel.grid.major.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.minor.x = element_line(colour = "black", linetype = 2, size = rel(1/2)),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        panel.background = element_rect(fill = "transparent", colour = "black"),
+        strip.background = element_rect(fill = "transparent", colour = NA),
+        legend.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA)) +
+  coord_flip()
+
+ggarrange(maf_himc_typed_plot, maf_himc_imputed_plot, maf_himc_diff_plot,
+          khap_himc_typed_plot, khap_himc_imputed_plot, khap_himc_diff_plot,
+          align = "hv", nrow = 2, ncol = 3)
+ggsave(filename = paste0(plot_dir, "maf_himc_comparison.png"), bg = "transparent", width = wd*2, height = ht*2, units = "mm", dpi = DPI)
+
+# HAPLOGROUPINGS PER 
 ggplot(cty, aes(x = `HaploGrep Macrohaplogroup`, fill = haplogroup_color)) +
   geom_bar(na.rm = T) +
   labs(x = "Macrohaplogroup",
