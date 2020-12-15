@@ -230,19 +230,8 @@ mtref_ped <- generate_snp_data_fixed("/Users/sheaandrews/GitCode/MitoImpute/Refe
   mutate_at(vars(starts_with("mt")), as.numeric) %>% 
   mutate(Sex = as.numeric(Sex))
 
-# Hi-MC haplogroup classification 
-# data(nodes)
-# classifications.raw <- HiMC::getClassifications(dat)
-# classifications <- as_tibble(classifications.raw[-nrow(classifications.raw),])  %>% #remove Mitochondria_Information row 
-#   mutate(macro = ifelse(str_detect(haplogroup, "^L"),
-#                         substr(haplogroup, start = 1, stop = 2),
-#                         substr(haplogroup, start = 1, stop = 1)), 
-#          supclu = case_when(
-#             macro %in% c("L0", "L1", "L2", "L3", "L4") ~ "L",
-#             macro %in% c("Q", "G", "E", "D", "C", "Z", "M") ~ "M",
-#             macro %in% c("A", "S", "O", "Y", "I", "W", "X", "N") ~ "N",
-#             macro %in% c("R", "P", "B", "F", "J", "T", "U", "K", "H", "V") ~ "R"
-#   ))
+# haplogroup classification 
+# ./haplogrep classify --in ReferencePanel.vcf.gz --format vcf --out ReferencePanel_haplogroups.txt 
 
 ## Provenence 
 country <- read_tsv("/Users/sheaandrews/GitCode/MitoImputePrep/DerivedData/ReferencePanel_v6/ReferencePanel_v1_highQual_MAF0.01_filtered_countryInfo.ped") %>% 
@@ -534,6 +523,17 @@ mtref_dr <- mtref %>%
   bind_cols(mtref_pca_tab) %>%
   bind_cols(mtref_umap_tab) 
 
+## For ploting ternery PCA
+dat.tern <- select(mtref_dr, Dim.1, Dim.2, Dim.3)  %>% 
+  mutate(Dim.1 = Dim.1 + (min(Dim.1) * -1), 
+         Dim.2 = Dim.2 + (min(Dim.2) * -1), 
+         Dim.3 = Dim.3 + (min(Dim.3) * -1)) %>% 
+  as.matrix() %>% 
+  prop.table(., 1) %>%
+  as.data.frame() %>%
+  rename(PC1=Dim.1, PC2=Dim.2, PC3=Dim.3) %>%
+  bind_cols(mtref_dr) 
+
 ```
 
 ### Plots
@@ -564,13 +564,26 @@ mtref_pca3d_plot <- function(){
 )  
 }
 
+
+mtref_pcatern_plot <- ggplot(data=dat.tern, aes(x=PC1, y=PC2, z=PC3, colour = macro)) + 
+  scale_color_manual(values = plc) + 
+  ggtern::coord_tern() + 
+  geom_point(size = 0.2) + 
+  theme_bw() + 
+  ggtern::theme_showarrows() + 
+  ggtern::theme_notitles()  + 
+  theme(text = element_text(size=10))
+
 mtref_umap_plot <- ggplot(mtref_dr, aes(x = UMAP1, y = UMAP2, colour = macro)) + 
   scale_color_manual(values = plc) + 
-  geom_point(size = 0.5) + 
+  geom_point(size = 0.25) + 
   guides(colour = guide_legend(override.aes = list(size=2))) +
-  theme_bw()
+  theme_bw() + 
+  theme(text = element_text(size=10))
 
-cowplot::plot_grid(mtref_pca3d_plot, mtref_umap_plot)
+ggpubr::ggarrange(
+  ggplotGrob(mtref_pcatern_plot), mtref_umap_plot
+)
 
 ```
 
@@ -639,7 +652,7 @@ tkg_dr <- tkg %>%
 ```
 
 ### Plots
-
+#### PCA 
 ```{r tkg-plots, echo = TRUE, eval = TRUE}
 
 tkg_pca2d_plot <- ggplot(tkg_dr, aes(x = Dim.1, y = Dim.2, colour = macro)) + 
@@ -677,9 +690,13 @@ cowplot::plot_grid(tkg_pca3d_plot, tkg_umap_plot)
 
 ```
 
+
+##### Phylogeny 
 ```{r, echo = TRUE, eval = TRUE}
 # tree plot 
-tkg_tree_plot <- ggtree(tkg_tree, layout="circular", branch.length = 'branch.length', aes(color = group)) + theme_tree2() + scale_color_manual(values = plc, drop = FALSE) + 
+tkg_tree_plot <- ggtree(tkg_tree, layout="circular", branch.length = 'branch.length', aes(color = group), size = 0.25) + 
+  theme_tree2() +
+  scale_color_manual(values = joint_hg$plc_values, drop = FALSE) + 
   theme(axis.text = element_blank(), 
         axis.line=element_blank())
 
@@ -785,16 +802,18 @@ mtref_train_pca3d_plot <- function(){
 
 mtref_train_umap_plot <- ggplot(mtref_train, aes(x = UMAP1, y = UMAP2, colour = macro)) + 
   scale_color_manual(values = joint_hg$plc_values, drop = FALSE) + 
-  geom_point(size = 0.5) + 
+  geom_point(size = 0.01) + 
   guides(colour = guide_legend(override.aes = list(size=2))) +
-  theme_bw()
+  theme_bw() + 
+  theme(text = element_text(size=10))
 
 tkg_test_umap_plot <- ggplot() + 
-  geom_point(data = mtref_train, aes(x = UMAP1, y = UMAP2), size = 0.5, colour = "#E4E1E3") + 
-  geom_point(data = tkg_test, aes(x = UMAP1, y = UMAP2, colour = macro), size = 1) + 
+  geom_point(data = mtref_train, aes(x = UMAP1, y = UMAP2), size = 0.01, colour = "#E4E1E3") + 
+  geom_point(data = tkg_test, aes(x = UMAP1, y = UMAP2, colour = macro), size = 0.05) + 
   scale_color_manual(values = joint_hg$plc_values, drop = FALSE) +
   guides(colour = guide_legend(override.aes = list(size=2))) +
-  theme_bw()
+  theme_bw() + 
+  theme(text = element_text(size=10))
 
 
 ```
@@ -802,6 +821,15 @@ tkg_test_umap_plot <- ggplot() +
 ## Draft Plot 
 ```{r, echo = TRUE, eval = TRUE}
 
+legend_b <- ggpubr::get_legend(
+mtref_train_umap_plot + geom_point(size = 1) +
+  theme(legend.box.margin = margin(0, 0, 0, 12), legend.position = "right", 
+        text = element_text(size=10)) + 
+  guides(col = guide_legend(title = "Haplogroup", title.position = "top", size = 5))
+) %>% 
+  ggpubr::as_ggplot(.)
+
+## 3d plot
 prow <- cowplot::plot_grid(
   mtref_pca3d_plot,
   mtref_train_umap_plot + theme(legend.position="none"),
@@ -809,32 +837,43 @@ prow <- cowplot::plot_grid(
   tkg_test_umap_plot + theme(legend.position="none")
                    )
 
-legend_b <- cowplot::get_legend(
-  mtref_train_umap_plot + theme(legend.box.margin = margin(0, 0, 0, 12))
-)
+## tern plot
+prow <- cowplot::plot_grid(
+  ggplotGrob(mtref_pcatern_plot + theme(legend.position="none", plot.margin=unit(c(-15,-7,-7,-7), "mm"))),
+  mtref_train_umap_plot + theme(legend.position="none") + coord_fixed(),
+  tkg_tree_plot + theme(legend.position="none") + theme(plot.margin=unit(c(-7.5,-7.5,-7.5,-10), "mm")),
+  tkg_test_umap_plot + theme(legend.position="none") + coord_fixed(), 
+  labels = c('A', 'B', 'C', 'D'), label_size = 10
+                   )
 
-cowplot::plot_grid(prow, legend_b,rel_widths = c(3, .4))
+hg.ps <- cowplot::plot_grid(prow, legend_b, rel_widths = c(3, .75), ncol = 2)
+
+ggsave("/Users/sheaandrews/GitCode/MitoImputePrep/Plots/hg.png", plot = hg.ps, height = 170, width = 170, units = 'mm')
+ggsave("/Users/sheaandrews/GitCode/MitoImputePrep/Plots/hg.pdf", plot = hg.ps, height = 170, width = 170, units = 'mm')
+ggsave("/Users/sheaandrews/GitCode/MitoImputePrep/Plots/hg.tiff", plot = hg.ps, height = 170, width = 170, units = 'mm')
 ```
 
 
 
-# Other
-```{r mtref-plot-other}
-## Other plots 
-ggplot(mtref_pca_tab, aes(x = Dim.1, y = Dim.2, colour = supclu)) + 
+# Additional Plots
+
+Additional visualizations of the PCA and UMAP space 
+
+```{r mtref-plot-pca-other}
+## mtRef coloured by super-cluster 
+ggplot(mtref_dr, aes(x = Dim.1, y = Dim.2, colour = supclu)) + 
   scale_color_manual(values = plc) + 
   geom_point() + theme_bw()
 
-ggplot() + 
-  geom_point(data = filter(mtref_pca_tab, Continent == "Unknown"), aes(x = Dim.1, y = Dim.2, colour = Continent)) + 
-  geom_point(data = filter(mtref_pca_tab, Continent != "Unknown"), aes(x = Dim.1, y = Dim.2, colour = Continent)) + 
-  scale_color_manual(values = plc) + 
-  theme_bw()
+## mtRef coloured ternery colour scheme from first three PCAs
+ggplot(mtref_dr, aes(x = Dim.1, y = Dim.2, colour = rgb)) +
+  geom_point() + theme_bw() + theme(legend.position = "none")
+
 ```
 
 
 ```{r mtref-pca-plot-3d}
-plot_ly(mtref_pca_tab, x = ~Dim.2, y = ~Dim.1, z = ~Dim.3, color = ~macro, colors = plc_df$plc_values,
+plot_ly(mtref_dr, x = ~Dim.2, y = ~Dim.1, z = ~Dim.3, color = ~macro, colors = plc,
         type = 'scatter3d', mode = 'markers', marker = list(size = 3), 
         hoverinfo = 'text', text = ~paste('</br> ID: ', Individual, 
                                           '</br> Haplogroup: ', macro,
@@ -842,15 +881,7 @@ plot_ly(mtref_pca_tab, x = ~Dim.2, y = ~Dim.1, z = ~Dim.3, color = ~macro, color
                                           '</br> PC2: ', round(Dim.2, 2),
                                           '</br> PC3: ', round(Dim.3, 2)))
 
-plot_ly(mtref_pca_tab, x = ~Dim.2, y = ~Dim.1, z = ~Dim.3, color = ~supclu, colors = plc,
-        type = 'scatter3d', mode = 'markers', marker = list(size = 3), 
-        hoverinfo = 'text', text = ~paste('</br> ID: ', Individual, 
-                                          '</br> Haplogroup: ', macro,
-                                          '</br> PC1: ', round(Dim.1, 2),
-                                          '</br> PC2: ', round(Dim.2, 2),
-                                          '</br> PC3: ', round(Dim.3, 2)))
-
-plot_ly(mtref_pca_tab, x = ~Dim.2, y = ~Dim.1, z = ~Dim.3, color = ~Continent, colors = plc,
+plot_ly(mtref_dr, x = ~Dim.2, y = ~Dim.1, z = ~Dim.3, color = ~supclu, colors = plc,
         type = 'scatter3d', mode = 'markers', marker = list(size = 3), 
         hoverinfo = 'text', text = ~paste('</br> ID: ', Individual, 
                                           '</br> Haplogroup: ', macro,
@@ -935,13 +966,16 @@ plot_ly(filter(embedding_mtref_3d, Continent != "Unknown"), x = ~UMAP2, y = ~UMA
 ```
 
 
-## Comparison of UMAP packages 
+# UMAP Comparison 
+
+Comparison of the UMAP function in the `umapr`, `umap` and `uwot` packages. 
+
 ```{r, mtref}
-min_dist = 0.5
+min_dist = 0.99
 n_neighbor = 100
 n_components = 2
 n_epochs = 200
-init = "random"
+init = "spectral"
 
 mtref_umapr_tab <- select(mtref_pca_tab, starts_with("Dim")) %>% 
   umapr::umap(., min_dist = min_dist, n_neighbor = n_neighbor, n_components = n_components, n_epochs = NULL, init = init) %>%
@@ -949,7 +983,7 @@ mtref_umapr_tab <- select(mtref_pca_tab, starts_with("Dim")) %>%
   bind_cols(select(mtref, Individual, haplogroup, macro, Continent))
 
 p1 <- ggplot(mtref_umapr_tab, aes(x = UMAP1, y = UMAP2, color = macro)) + 
-  geom_point() + 
+  geom_point(size = 0.5) + 
     scale_color_manual(values = plc) +
     theme_bw() + 
   labs(title = "UMAPR")
@@ -962,7 +996,7 @@ mtref_umap_tab <- mtref_umap_res %>% magrittr::use_series(layout) %>%
   bind_cols(select(mtref, Individual, haplogroup, macro, Continent)) 
 
 p2 <- ggplot(mtref_umap_tab, aes(x = V1, y = V2, color = macro)) + 
-  geom_point() + 
+  geom_point(size = 0.5) + 
     scale_color_manual(values = plc) +
     theme_bw() + 
   labs(title = "UMAP")
@@ -973,7 +1007,7 @@ mtref_uwot_tab <- select(mtref_pca_tab, starts_with("Dim")) %>%
   bind_cols(select(mtref, Individual, haplogroup, macro, Continent))
 
 p3 <- ggplot(mtref_uwot_tab, aes(x = V1, y = V2, color = macro)) + 
-  geom_point() + 
+  geom_point(size = 0.5) + 
     scale_color_manual(values = plc) +
     theme_bw() + 
   labs(title = "UWOT")
